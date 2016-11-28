@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Vitruvius PCM-Java Linking Integration POJO Transformations Tests
-Bundle-SymbolicName: tools.vitruv.applications.pcmjava.linkingintegration.tests.pojotransformations
+Bundle-SymbolicName: tools.vitruv.applications.pcmjava.linkingintegration.pojotransformations.tests
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.junit,
@@ -26,7 +26,7 @@ Require-Bundle: org.junit,
  tools.vitruv.applications.pcmjava.tests.util,
  tools.vitruv.applications.pcmjava.pojotransformations.pcm2java,
  tools.vitruv.applications.pcmjava.pojotransformations.java2pcm,
- tools.vitruv.applications.pcmjava.tests.pojotransformations.java2pcm,
+ tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.tests,
  tools.vitruv.applications.pcmjava.linkingintegration.tests,
  tools.vitruv.applications.pcmjava.linkingintegration.change2command
 
