@@ -49,7 +49,7 @@ public class TraversalHandlerTest {
         final Iterable<Metamodel> metamodels = PCMJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
         // TODO Use the correct change2command transformings here
 //        final Change2CommandTransformingProviding change2CommandTransformingProviding = new Change2CommandTransformingProvidingImpl();
-        this.vsum = TestUtil.createVSUM(metamodels);
+        this.vsum = TestUtil.createVSUM("testvsum", metamodels);
         this.resourceSet = new ResourceSetImpl();
     }
 
