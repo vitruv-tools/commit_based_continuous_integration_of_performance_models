@@ -59,7 +59,7 @@ public class BasicRepositoryTraversalTest {
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
 
-        testmodel = RepositoryModelLoader.loadPCMResource(path);
+        testmodel = RepositoryModelLoader.loadPcmResource(path);
     }
 
     /**

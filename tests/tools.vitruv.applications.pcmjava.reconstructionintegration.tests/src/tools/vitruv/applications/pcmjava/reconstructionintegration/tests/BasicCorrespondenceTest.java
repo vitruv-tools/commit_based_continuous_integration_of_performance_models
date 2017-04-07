@@ -12,8 +12,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.palladiosimulator.pcm.repository.Repository;
 
-import tools.vitruv.applications.pcmjava.reconstructionintegration.transformations.PCMJaMoPPCorrespondenceModelTransformation;
-import tools.vitruv.applications.pcmjava.tests.pojotransformations.pcm2java.PCM2JaMoPPTransformationTest;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.transformations.PcmJavaCorrespondenceModelTransformation;
+import tools.vitruv.applications.pcmjava.tests.pojotransformations.pcm2java.Pcm2JavaTransformationTest;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.tests.util.TestUtil;
 import tools.vitruv.framework.util.datatypes.ModelInstance;
@@ -33,7 +33,7 @@ import tools.vitruv.framework.util.datatypes.VURI;
 /**
  * The Class BasicCorrespondenceTest. Should be extended by custom test classes.
  */
-public class BasicCorrespondenceTest extends PCM2JaMoPPTransformationTest {
+public class BasicCorrespondenceTest extends Pcm2JavaTransformationTest {
 
     /** The Constant PROJECT_NAME. */
     private static final String PROJECT_NAME = "MockupProject" + IPath.SEPARATOR;
@@ -58,7 +58,7 @@ public class BasicCorrespondenceTest extends PCM2JaMoPPTransformationTest {
 //    private static final VURI pcmMMUri = VURI.getInstance(PcmNamespace.PCM_METAMODEL_NAMESPACE);
 
     /** The transformation. */
-    private PCMJaMoPPCorrespondenceModelTransformation transformation;
+    private PcmJavaCorrespondenceModelTransformation transformation;
 
     /** The pcm repo. */
     protected Repository pcmRepo;
@@ -88,7 +88,7 @@ public class BasicCorrespondenceTest extends PCM2JaMoPPTransformationTest {
         //this.vsum.getOrCreateAllCorrespondenceModelsForMM(this.metaRepository.getMetamodel(pcmMMUri));
 
         // Create and execute the transformation
-        this.transformation = new PCMJaMoPPCorrespondenceModelTransformation(projectPath + SCDM_PATH,
+        this.transformation = new PcmJavaCorrespondenceModelTransformation(projectPath + SCDM_PATH,
                 projectPath + PCM_REPOSITORY, projectPath + CODE_PATH, this.getVirtualModel());
         try {
             this.transformation.createCorrespondences();

@@ -9,8 +9,8 @@ import tools.vitruv.extensions.constructionsimulation.invariantcheckers.Invarian
  */
 public class InvariantEnforcerFacade extends InvariantEnforcer {
 
-    private PCMElementSelector<?> traversalStrategy; // TODO: make more abstract
-    private PCMtoJaMoPPRenameInvariantEnforcer enforcer; // TODO: same here
+    private PcmElementSelector<?> traversalStrategy; // TODO: make more abstract
+    private PcmtoJavaRenameInvariantEnforcer enforcer; // TODO: same here
 
     /**
      * Instantiates a new dynamic invariant enforcer.
@@ -20,8 +20,8 @@ public class InvariantEnforcerFacade extends InvariantEnforcer {
      * @param enforcer
      *            the enforcer
      */
-    public InvariantEnforcerFacade(final PCMElementSelector<?> strategy,
-            final PCMtoJaMoPPRenameInvariantEnforcer enforcer) {
+    public InvariantEnforcerFacade(final PcmElementSelector<?> strategy,
+            final PcmtoJavaRenameInvariantEnforcer enforcer) {
         this.setTraversalStrategy(strategy);
         this.setEnforcer(enforcer);
 
@@ -32,7 +32,7 @@ public class InvariantEnforcerFacade extends InvariantEnforcer {
      *
      * @return the enforcer
      */
-    public PCMtoJaMoPPRenameInvariantEnforcer getEnforcer() {
+    public PcmtoJavaRenameInvariantEnforcer getEnforcer() {
         return this.enforcer;
     }
 
@@ -42,7 +42,7 @@ public class InvariantEnforcerFacade extends InvariantEnforcer {
      * @param enforcer
      *            the new enforcer
      */
-    public void setEnforcer(final PCMtoJaMoPPRenameInvariantEnforcer enforcer) {
+    public void setEnforcer(final PcmtoJavaRenameInvariantEnforcer enforcer) {
         this.enforcer = enforcer;
     }
 
@@ -51,7 +51,7 @@ public class InvariantEnforcerFacade extends InvariantEnforcer {
      *
      * @return the traversal strategy
      */
-    public PCMElementSelector<?>getTraversalStrategy() {
+    public PcmElementSelector<?>getTraversalStrategy() {
         return this.traversalStrategy;
     }
 
@@ -61,7 +61,7 @@ public class InvariantEnforcerFacade extends InvariantEnforcer {
      * @param traversalStrategy
      *            the new traversal strategy
      */
-    public void setTraversalStrategy(final PCMElementSelector<?> traversalStrategy) {
+    public void setTraversalStrategy(final PcmElementSelector<?> traversalStrategy) {
         this.traversalStrategy = traversalStrategy;
         traversalStrategy.setParentEnforcer(this);
     }

@@ -5,7 +5,7 @@ import org.palladiosimulator.pcm.repository.BasicComponent;
 
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTestCBSNamespace;
 
-public class IntegrationClassMappingTransformationTest extends Java2PCMPackageIntegrationMappingTransformationTest {
+public class IntegrationClassMappingTransformationTest extends Java2PcmPackageIntegrationMappingTransformationTest {
 
 	@Test
 	public void testAddClassInIntegratedArea() throws Throwable {

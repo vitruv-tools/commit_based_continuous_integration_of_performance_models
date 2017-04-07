@@ -6,7 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 
-@SuiteClasses({ IncrementalSEFFReconstructionTest.class })
+@SuiteClasses({ IncrementalSeffReconstructionTest.class })
 public class PcmJavaSeffstatementsPojoTransformationsTestSuite {
 
 }

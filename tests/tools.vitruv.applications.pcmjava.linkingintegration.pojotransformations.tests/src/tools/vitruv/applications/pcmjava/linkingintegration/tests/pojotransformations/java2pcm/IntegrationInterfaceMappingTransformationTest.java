@@ -7,7 +7,7 @@ import org.palladiosimulator.pcm.repository.OperationInterface;
 
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTestCBSNamespace;
 
-public class IntegrationInterfaceMappingTransformationTest extends Java2PCMPackageIntegrationMappingTransformationTest{
+public class IntegrationInterfaceMappingTransformationTest extends Java2PcmPackageIntegrationMappingTransformationTest{
 
 	private static final String INTEGRATED_INTERFACE_NAME = "IntegratedInterface";
 	private static final String NAME_OF_NOT_INTEGRATED_INTERFACE = "NotIntegratedInterface";

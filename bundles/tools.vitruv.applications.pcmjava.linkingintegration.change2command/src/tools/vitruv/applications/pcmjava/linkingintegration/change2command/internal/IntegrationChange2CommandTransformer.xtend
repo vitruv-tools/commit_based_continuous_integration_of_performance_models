@@ -1,6 +1,6 @@
 package tools.vitruv.applications.pcmjava.linkingintegration.change2command.internal
 
-import tools.vitruv.framework.tuid.TUID
+import tools.vitruv.framework.tuid.Tuid
 import tools.vitruv.framework.userinteraction.UserInteractionType
 import tools.vitruv.framework.userinteraction.UserInteracting
 import tools.vitruv.framework.correspondence.Correspondence
@@ -87,16 +87,16 @@ class IntegrationChange2CommandTransformer {
         		//statically typed to Correspondence right now and needs to support views like 
         		//CorrespondenceModel
                 val ci = correspondenceModel
-                val newCompilationUnitTuid = ci.calculateTUIDFromEObject(cu)
+                val newCompilationUnitTuid = ci.calculateTuidFromEObject(cu)
                 val packagePartOfNewTuid = getPackagePart(newCompilationUnitTuid)
     			for (Correspondence corr : ci.getAllCorrespondences()) {
     				if (corr instanceof IntegrationCorrespondence) {
     					val integrationCorr = corr as IntegrationCorrespondence
 	    				if (integrationCorr.isCreatedByIntegration()) {
-	    					val allTUIDs = new ArrayList<TUID>()
-	    					allTUIDs.addAll(corr.getATUIDs())
-	    					allTUIDs.addAll(corr.getBTUIDs())
-	    					for (TUID tuid : allTUIDs) {
+	    					val allTuids = new ArrayList<Tuid>()
+	    					allTuids.addAll(corr.getATuids())
+	    					allTuids.addAll(corr.getBTuids())
+	    					for (Tuid tuid : allTuids) {
 	    						val packagePart = getPackagePart(tuid)
 	    						if (packagePartOfNewTuid.startsWith(packagePart)) {
 	    							val command = new Callable<ChangePropagationResult>() {
@@ -116,7 +116,7 @@ class IntegrationChange2CommandTransformer {
         return null
 	}
 	
-	private def String getPackagePart(TUID newCompilationUnitTuid) {
+	private def String getPackagePart(Tuid newCompilationUnitTuid) {
 		val originalTuidAsString = newCompilationUnitTuid.toString()
 		val lastSlashIndex = originalTuidAsString.lastIndexOf("/")
 		return originalTuidAsString.substring(0, lastSlashIndex)

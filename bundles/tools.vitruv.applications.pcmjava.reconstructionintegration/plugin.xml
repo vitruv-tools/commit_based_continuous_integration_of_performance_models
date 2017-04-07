@@ -39,7 +39,7 @@
   </extension>
   <extension point="org.eclipse.ui.commands">
     <command
-          defaultHandler="tools.vitruv.applications.pcmjava.reconstructionintegration.handler.PCMIntegrationHandler"
+          defaultHandler="tools.vitruv.applications.pcmjava.reconstructionintegration.handler.PcmIntegrationHandler"
           description="Does Something useful"
           id="tools.vitruv.applications.pcmjava.reconstructionintegration"
           name="Integrate that shit">

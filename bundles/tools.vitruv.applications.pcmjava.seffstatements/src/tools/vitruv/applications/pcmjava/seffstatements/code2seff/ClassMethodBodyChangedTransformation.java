@@ -22,7 +22,7 @@ import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFind
 import org.somox.gast2seff.visitors.VisitorUtils;
 
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
-import tools.vitruv.framework.tuid.TUID;
+import tools.vitruv.framework.tuid.Tuid;
 import tools.vitruv.framework.userinteraction.UserInteracting;
 import tools.vitruv.framework.util.command.ChangePropagationResult;
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
@@ -179,8 +179,8 @@ public class ClassMethodBodyChangedTransformation {
             return;
         }
         for (final AbstractAction correspondingAbstractAction : correspondingAbstractActions) {
-            final TUID tuidToRemove = ci.calculateTUIDFromEObject(correspondingAbstractAction);
-            ci.removeCorrespondencesThatInvolveAtLeastAndDependendForTUIDs(CollectionBridge.toSet(tuidToRemove));
+            final Tuid tuidToRemove = ci.calculateTuidFromEObject(correspondingAbstractAction);
+            ci.removeCorrespondencesThatInvolveAtLeastAndDependendForTuids(CollectionBridge.toSet(tuidToRemove));
             EcoreUtil.remove(correspondingAbstractAction);
         }
 

@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.util.CodeIntegrationUtils;
-import tools.vitruv.applications.pcmjava.util.PCMJavaRepositoryCreationUtil;
+import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
 import tools.vitruv.domains.java.builder.VitruviusJavaBuilder;
 import tools.vitruv.domains.java.builder.VitruviusJavaBuilderApplicator;
 import tools.vitruv.domains.java.JavaNamespace;
@@ -36,7 +36,7 @@ import tools.vitruv.domains.pcm.PcmNamespace;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.metamodel.Metamodel;
 import tools.vitruv.framework.correspondence.Correspondence;
-import tools.vitruv.framework.tuid.TUID;
+import tools.vitruv.framework.tuid.Tuid;
 import tools.vitruv.framework.util.datatypes.VURI;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
 import tools.vitruv.framework.vsum.VirtualModelConfiguration;
@@ -126,7 +126,7 @@ public class CodeIntegrationTest {
         Assert.assertNotNull(vsumFolder);
 
         VirtualModelConfiguration config = new VirtualModelConfiguration();
-        for (Metamodel metamodel : PCMJavaRepositoryCreationUtil.createPcmJamoppMetamodels()) {
+        for (Metamodel metamodel : PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels()) {
         	config.addMetamodel(metamodel);
         }
         virtualModel = new VirtualModelImpl(META_PROJECT_NAME, config);
@@ -152,34 +152,34 @@ public class CodeIntegrationTest {
         Assert.assertNotNull(correspondences);
         Assert.assertFalse(correspondences.isEmpty());
 
-        final TUID frameCodeTuid = TUID.getInstance(
+        final Tuid frameCodeTuid = Tuid.getInstance(
                 "http://www.emftext.org/java#platform:/resource/eu.fpetersen.cbs.pc/src/eu/fpetersen/cbs/pc/data/Frame.java#classifier-_-Frame");
-        final List<TUID> frameCodeTuids = Collections.singletonList(frameCodeTuid);
-        final Set<Correspondence> frameCodeCorrs = ci.getCorrespondencesForTUIDs(frameCodeTuids);
+        final List<Tuid> frameCodeTuids = Collections.singletonList(frameCodeTuid);
+        final Set<Correspondence> frameCodeCorrs = ci.getCorrespondencesForTuids(frameCodeTuids);
 
         Assert.assertNotNull(frameCodeCorrs);
         Assert.assertFalse(frameCodeCorrs.isEmpty());
         Assert.assertEquals(1, frameCodeCorrs.size());
 
         final Correspondence frameCorr = frameCodeCorrs.iterator().next();
-        if (frameCorr.getATUIDs().contains(frameCodeTuid)) {
-            final EList<TUID> bs = frameCorr.getBTUIDs();
+        if (frameCorr.getATuids().contains(frameCodeTuid)) {
+            final EList<Tuid> bs = frameCorr.getBTuids();
             Assert.assertNotNull(bs);
             Assert.assertEquals(1, bs.size());
 
-            final TUID b = bs.get(0);
+            final Tuid b = bs.get(0);
             Assert.assertEquals(
-                    TUID.getInstance(
+                    Tuid.getInstance(
                             "http://palladiosimulator.org/PalladioComponentModel/Repository/5.1#platform:/resource/eu.fpetersen.cbs.pc/model/internal_architecture_model.repository#id=_auhdcMWvEeWLAeSW2tt_XQ#id=_auwuAMWvEeWLAeSW2tt_XQ"),
                     b);
-        } else if (frameCorr.getBTUIDs().contains(frameCodeTuid)) {
-            final EList<TUID> as = frameCorr.getATUIDs();
+        } else if (frameCorr.getBTuids().contains(frameCodeTuid)) {
+            final EList<Tuid> as = frameCorr.getATuids();
             Assert.assertNotNull(as);
             Assert.assertEquals(1, as.size());
 
-            final TUID a = as.get(0);
+            final Tuid a = as.get(0);
             Assert.assertEquals(
-                    TUID.getInstance(
+                    Tuid.getInstance(
                             "http://palladiosimulator.org/PalladioComponentModel/Repository/5.1#platform:/resource/eu.fpetersen.cbs.pc/model/internal_architecture_model.repository#id=_auhdcMWvEeWLAeSW2tt_XQ#id=_auwuAMWvEeWLAeSW2tt_XQ"),
                     a);
         } else {

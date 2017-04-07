@@ -21,10 +21,10 @@ import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.palladiosimulator.pcm.repository.Repository;
 import org.palladiosimulator.pcm.repository.RepositoryComponent;
 
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.PCMRepositoryExtractor;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.strategies.PCMRepositoryIntegrationStrategy;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.util.PCMMetaModelConverter;
-import tools.vitruv.applications.pcmjava.util.PCMJavaRepositoryCreationUtil;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.PcmRepositoryExtractor;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.strategies.PcmRepositoryIntegrationStrategy;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.util.PcmMetaModelConverter;
+import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
 import tools.vitruv.extensions.constructionsimulation.traversal.util.UnorderedReferencesRespectingEqualityHelper;
 import tools.vitruv.extensions.constructionsimulation.util.IntegrationUtil;
 import tools.vitruv.framework.change.description.VitruviusChange;
@@ -103,9 +103,9 @@ public class ModelIntegrationComparatorTest {
 
         // update the PCM parameter definitions
         resource = this.updateParameterDef(resource, uri);
-        final PCMRepositoryIntegrationStrategy integrator = new PCMRepositoryIntegrationStrategy();
+        final PcmRepositoryIntegrationStrategy integrator = new PcmRepositoryIntegrationStrategy();
         // TODO This vsum has no change transformers, we have to add the correct ones!
-        VirtualModel vsum = IntegrationUtil.createVSUM(PCMJavaRepositoryCreationUtil.createPcmJamoppMetamodels());
+        VirtualModel vsum = IntegrationUtil.createVsum(PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels());
 
         List<VitruviusChange> changes = null;
 
@@ -115,10 +115,10 @@ public class ModelIntegrationComparatorTest {
             e.printStackTrace();
         }
 
-        final PCMRepositoryExtractor pre = new PCMRepositoryExtractor();
+        final PcmRepositoryExtractor pre = new PcmRepositoryExtractor();
 
         final Repository originalRepo = pre.getImpl(integrator.getModel());
-        final PCMModelBuilder builder = new PCMModelBuilder(changes);
+        final PcmModelBuilder builder = new PcmModelBuilder(changes);
         final Repository integratedRepo = builder.createPCMModel();
 
         // remove excluded elements from original model or else EqualityHelper will always say
@@ -169,10 +169,10 @@ public class ModelIntegrationComparatorTest {
      */
     private IResource updateParameterDef(IResource resource, URI uri) {
         // 1. Update model to current PCM version
-        final File updatedModel = PCMMetaModelConverter.convertPCM(resource.getLocation(), false);
+        final File updatedModel = PcmMetaModelConverter.convertPCM(resource.getLocation(), false);
 
         // 2. update resource if model got updated
-        if (PCMMetaModelConverter.isModelUpdated()) {
+        if (PcmMetaModelConverter.isModelUpdated()) {
 
             // create new uri
             uri = uri.trimSegments(1);

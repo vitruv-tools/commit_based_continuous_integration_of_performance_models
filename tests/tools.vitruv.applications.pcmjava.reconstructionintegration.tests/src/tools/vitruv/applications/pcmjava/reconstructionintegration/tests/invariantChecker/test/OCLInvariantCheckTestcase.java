@@ -48,7 +48,7 @@ public class OCLInvariantCheckTestcase {
         }
 
         final String path = "Testmodels/InvalidComponentName.repository";
-        final Resource r = RepositoryModelLoader.loadPCMResource(path);
+        final Resource r = RepositoryModelLoader.loadPcmResource(path);
         final Repository repo = (Repository) r.getContents().get(0);
 
         final boolean check = ocl.check(repo, inv);

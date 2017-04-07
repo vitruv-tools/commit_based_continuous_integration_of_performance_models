@@ -47,8 +47,8 @@ abstract class BasicCorrespondenceModelTransformation implements ICreateCorrespo
 		var deresolvedB = deresolveIfNesessary(objectB)
 
 		// check if the correspondence was already created, because the SCDM may contain duplicate entries
-		var identifier = getCorrespondenceModel.calculateTUIDFromEObject(deresolvedA).toString +
-			getCorrespondenceModel.calculateTUIDFromEObject(deresolvedB).toString
+		var identifier = getCorrespondenceModel.calculateTuidFromEObject(deresolvedA).toString +
+			getCorrespondenceModel.calculateTuidFromEObject(deresolvedB).toString
 		if (!existingEntries.contains(identifier)) {
 			var correspondence = getCorrespondenceModel.createAndAddCorrespondence(deresolvedA, deresolvedB);
 			existingEntries.add(identifier);

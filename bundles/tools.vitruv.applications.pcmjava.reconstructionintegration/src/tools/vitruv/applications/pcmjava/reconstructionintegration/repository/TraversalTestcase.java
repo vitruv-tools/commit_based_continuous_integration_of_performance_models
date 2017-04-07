@@ -8,7 +8,7 @@ import org.palladiosimulator.pcm.repository.Repository;
 
 import tools.vitruv.framework.change.description.VitruviusChangeFactory;
 import tools.vitruv.framework.metamodel.Metamodel;
-import tools.vitruv.applications.pcmjava.util.PCMJavaRepositoryCreationUtil;
+import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
 import tools.vitruv.domains.pcm.util.RepositoryModelLoader;
 import tools.vitruv.extensions.constructionsimulation.traversal.ITraversalStrategy;
 import tools.vitruv.framework.change.description.VitruviusChange;
@@ -36,7 +36,7 @@ public class TraversalTestcase {
         // load model
         final String path = "Testmodels/small_example.repository";
         // String path = "Testmodels/interface_inheritance.repository";
-        final Resource r = RepositoryModelLoader.loadPCMResource(path);
+        final Resource r = RepositoryModelLoader.loadPcmResource(path);
 
         // traverse model and get ordered list of changes
         final Repository repo = (Repository) r.getContents().get(0);
@@ -51,10 +51,10 @@ public class TraversalTestcase {
         }
 
         // create syncManager
-        final Iterable<Metamodel> metamodels = PCMJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
+        final Iterable<Metamodel> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
         // TODO Create correct change2command transformings here
         //final Change2CommandTransformingProvidingImpl change2CommandTransformingProviding = new Change2CommandTransformingProvidingImpl();
-        final InternalVirtualModel vsum = TestUtil.createVSUM("testVsum", metamodels);
+        final InternalVirtualModel vsum = TestUtil.createVirtualModel("testVsum", metamodels);
 
         final VitruviusChange compositeChange = VitruviusChangeFactory.getInstance().createCompositeChange(changes);
         // propagate changes

@@ -18,7 +18,7 @@ import org.palladiosimulator.pcm.core.entity.Entity;
 import org.palladiosimulator.pcm.repository.Parameter;
 import org.palladiosimulator.pcm.repository.RepositoryPackage;
 
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.PCMRepositorytoJaMoPPInvariantEnforcer;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.PcmRepositorytoJavaInvariantEnforcer;
 
  
 /**
@@ -27,7 +27,7 @@ import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantchec
  * @author Johannes Hoor
  *
  */
-public class PJIE_BeginCharOCL extends PCMRepositorytoJaMoPPInvariantEnforcer {
+public class PJIE_BeginCharOCL extends PcmRepositorytoJavaInvariantEnforcer {
 
     private int renameCtr = 0;
 

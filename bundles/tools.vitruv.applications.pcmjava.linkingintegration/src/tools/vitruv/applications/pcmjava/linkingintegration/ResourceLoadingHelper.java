@@ -100,7 +100,7 @@ public class ResourceLoadingHelper {
      * @return resource file
      */
     public static Resource loadPCMRepositoryResource(final String path) {
-        return RepositoryModelLoader.loadPCMResource(path);
+        return RepositoryModelLoader.loadPcmResource(path);
     }
 
 }

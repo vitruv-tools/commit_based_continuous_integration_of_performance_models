@@ -9,14 +9,14 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
 
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.PCMRepositorytoJaMoPPInvariantEnforcer;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.PcmRepositorytoJavaInvariantEnforcer;
 
  
 /**
  * Example for an invariant enforcers that uses a QVTo-refinement transformation. For details see
  * "PCMtoJaMoPPComponentInterfaceImplementsAmbiguity"
  */
-public class PJIE_ComponentInterfaceImplementsAmbiguity extends PCMRepositorytoJaMoPPInvariantEnforcer {
+public class PJIE_ComponentInterfaceImplementsAmbiguity extends PcmRepositorytoJavaInvariantEnforcer {
 
     private String outFilePath = null; // optional path to the output file. If not set overwrite
 

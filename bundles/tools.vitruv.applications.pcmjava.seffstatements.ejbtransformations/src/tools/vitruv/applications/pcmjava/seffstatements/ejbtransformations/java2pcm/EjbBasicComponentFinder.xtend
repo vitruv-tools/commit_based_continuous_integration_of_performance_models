@@ -52,7 +52,7 @@ class EjbBasicComponentFinder implements BasicComponentFinding {
     private def Package createPackage(JavaRoot cu,  List<String> namespace) {
         val jaMoPPPackage = ContainersFactory.eINSTANCE.createPackage();
         jaMoPPPackage.getNamespaces().addAll(namespace);
-        // attach dummy resource in order to enable TUID calculation
+        // attach dummy resource in order to enable Tuid calculation
         val vuri = VURI.getInstance(cu.eResource());
         var String packageURIString = vuri.toString();
         val lastSegment = vuri.getLastSegment();

@@ -16,7 +16,7 @@ import tools.vitruv.framework.change.description.VitruviusChange;
 import tools.vitruv.framework.util.datatypes.VURI;
 import tools.vitruv.framework.change.echange.EChange;
 import tools.vitruv.framework.change.echange.feature.reference.InsertEReference;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.util.PCMChangeBuildHelper;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.util.PcmChangeBuildHelper;
 import tools.vitruv.extensions.constructionsimulation.traversal.EMFTraversalStrategy;
 import tools.vitruv.framework.change.description.CompositeContainerChange;
 import tools.vitruv.framework.change.description.VitruviusChangeFactory;
@@ -86,7 +86,7 @@ public abstract class ComposedEntitiesTraversalStrategy extends EMFTraversalStra
     private void traverseAssemblyContexts(final ComposedProvidingRequiringEntity entity) {
 
         for (final AssemblyContext context : entity.getAssemblyContexts__ComposedStructure()) {
-            final EChange assemblyContextChange = PCMChangeBuildHelper.createChangeFromAssemblyContext(context);
+            final EChange assemblyContextChange = PcmChangeBuildHelper.createChangeFromAssemblyContext(context);
             this.addChange(VitruviusChangeFactory.getInstance().createConcreteChange(assemblyContextChange, this.vuri), this.changeList);
         }
 
@@ -102,7 +102,7 @@ public abstract class ComposedEntitiesTraversalStrategy extends EMFTraversalStra
     private void traverseRolesAndDelegations(final ComposedProvidingRequiringEntity entity) {
 
         // roleDelegationChanges should look like this: ((Role)(Delegation)+)*
-        final EList<EChange> roleDelegationChanges = PCMChangeBuildHelper.createChangesFromRolesAndDelegations(entity);
+        final EList<EChange> roleDelegationChanges = PcmChangeBuildHelper.createChangesFromRolesAndDelegations(entity);
 
         // last element a role?
         if (roleDelegationChanges.size() > 0) {
@@ -146,7 +146,7 @@ public abstract class ComposedEntitiesTraversalStrategy extends EMFTraversalStra
         for (final Connector connector : entity.getConnectors__ComposedStructure()) {
 
             if (connector instanceof AssemblyConnector) {
-                final EChange assemblyConnectorChange = PCMChangeBuildHelper.createChangeFromConnector(connector);
+                final EChange assemblyConnectorChange = PcmChangeBuildHelper.createChangeFromConnector(connector);
                 this.addChange(VitruviusChangeFactory.getInstance().createConcreteChange(assemblyConnectorChange, this.vuri), this.changeList);
             }
 

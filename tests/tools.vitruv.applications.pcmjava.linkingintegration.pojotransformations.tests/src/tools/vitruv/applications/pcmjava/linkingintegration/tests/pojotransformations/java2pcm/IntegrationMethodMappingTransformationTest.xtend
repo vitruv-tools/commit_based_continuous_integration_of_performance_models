@@ -4,7 +4,7 @@ import tools.vitruv.applications.pcmjava.tests.util.CompilationUnitManipulatorHe
 import org.junit.Test
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTestCBSNamespace
 
-class IntegrationMethodMappingTransformationTest extends Java2PCMPackageIntegrationMappingTransformationTest{
+class IntegrationMethodMappingTransformationTest extends Java2PcmPackageIntegrationMappingTransformationTest{
 	
 	@Test
 	def public void addMethodInIntegratedArea() throws Throwable{

@@ -27,15 +27,15 @@ import org.palladiosimulator.pcm.repository.impl.RepositoryImpl;
 
 import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.InvariantEnforcerFacade;
 import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.InvariantEnforcerFacadeBuilder;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.PCMRepositoryElementSelector;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.PCMRepositoryExtractor;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PCMtoJaMoPPBeginChar;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PCMtoJaMoPPComponentInterfaceImplementsAmbiguity;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PCMtoJaMoPPJavaKeywords;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PCMtoJaMoPPSameIdentifier;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PCMtoJaMoPPSpecialChars;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PCMtoJaMoPPVitruviusKeywords;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PCMtoJaMoPPWhiteSpace;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.PcmRepositoryElementSelector;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.PcmRepositoryExtractor;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PcmtoJavaBeginChar;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PcmToJavaComponentInterfaceImplementsAmbiguity;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PcmToJavaKeywords;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PcmToJavaSameIdentifier;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PcmToJavaSpecialChars;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PcmToJavaVitruviusKeywords;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PcmToJavaWhiteSpace;
 import tools.vitruv.domains.pcm.util.RepositoryModelLoader;
 import tools.vitruv.extensions.constructionsimulation.invariantcheckers.InvariantEnforcer;
 
@@ -151,7 +151,7 @@ public class SingleEnforcerTests {
     }
 
     private Repository getRepository(final Resource r) {
-        final PCMRepositoryExtractor rootExtractor = new PCMRepositoryExtractor();
+        final PcmRepositoryExtractor rootExtractor = new PcmRepositoryExtractor();
         return rootExtractor.getImpl(r);
     }
 
@@ -186,9 +186,9 @@ public class SingleEnforcerTests {
     @Test
     public void beginCharTest() {
         final String path = "Testmodels/invariantTests/beginchar.repository";
-        final Resource r = RepositoryModelLoader.loadPCMResource(path);
+        final Resource r = RepositoryModelLoader.loadPcmResource(path);
         final InvariantEnforcerFacade tester = InvariantEnforcerFacadeBuilder
-                .buildInvariantEnforcerFacade(new PCMRepositoryElementSelector(), new PCMtoJaMoPPBeginChar());
+                .buildInvariantEnforcerFacade(new PcmRepositoryElementSelector(), new PcmtoJavaBeginChar());
         final Resource rMod = tester.loadEnforceReturn(r);
         final String tmpURI = rMod.getURI().toFileString().replaceFirst("beginchar", "begincharMOD");
         final URI fileURI = URI.createFileURI(new File(tmpURI).getAbsolutePath());
@@ -215,8 +215,8 @@ public class SingleEnforcerTests {
     @Test
     public void sameidentifierTest() {
         final String path = "Testmodels/invariantTests/sameidentifier.repository";
-        final Resource r = RepositoryModelLoader.loadPCMResource(path);
-        final PCMtoJaMoPPSameIdentifier tester = new PCMtoJaMoPPSameIdentifier();
+        final Resource r = RepositoryModelLoader.loadPcmResource(path);
+        final PcmToJavaSameIdentifier tester = new PcmToJavaSameIdentifier();
         final Resource rMod = tester.loadEnforceReturn(r);
         final String tmpURI = rMod.getURI().toFileString().replaceFirst("sameidentifier", "sameidentifierMOD");
         final URI fileURI = URI.createFileURI(new File(tmpURI).getAbsolutePath());
@@ -237,8 +237,8 @@ public class SingleEnforcerTests {
     @Test
     public void ambiguityTest() {
         final String path = "Testmodels/invariantTests/ambig.repository";
-        final Resource r = RepositoryModelLoader.loadPCMResource(path);
-        final PCMtoJaMoPPComponentInterfaceImplementsAmbiguity tester = new PCMtoJaMoPPComponentInterfaceImplementsAmbiguity();
+        final Resource r = RepositoryModelLoader.loadPcmResource(path);
+        final PcmToJavaComponentInterfaceImplementsAmbiguity tester = new PcmToJavaComponentInterfaceImplementsAmbiguity();
         final Resource rMod = tester.loadEnforceReturn(r);
         final String tmpURI = rMod.getURI().toFileString().replaceFirst("ambig", "ambigMOD");
         final URI fileURI = URI.createFileURI(new File(tmpURI).getAbsolutePath());
@@ -269,9 +269,9 @@ public class SingleEnforcerTests {
     @Test
     public void specialcharsTest() {
         final String path = "Testmodels/invariantTests/specialchars.repository";
-        final Resource r = RepositoryModelLoader.loadPCMResource(path);
+        final Resource r = RepositoryModelLoader.loadPcmResource(path);
         final InvariantEnforcerFacade tester = InvariantEnforcerFacadeBuilder
-                .buildInvariantEnforcerFacade(new PCMRepositoryElementSelector(), new PCMtoJaMoPPSpecialChars());
+                .buildInvariantEnforcerFacade(new PcmRepositoryElementSelector(), new PcmToJavaSpecialChars());
         final Resource rMod = tester.loadEnforceReturn(r);
         final String tmpURI = rMod.getURI().toFileString().replaceFirst("specialchars", "specialcharsMOD");
         final URI fileURI = URI.createFileURI(new File(tmpURI).getAbsolutePath());
@@ -296,9 +296,9 @@ public class SingleEnforcerTests {
     @Test
     public void vitkeywordTest() {
         final String path = "Testmodels/invariantTests/vitkeyword.repository";
-        final Resource r = RepositoryModelLoader.loadPCMResource(path);
+        final Resource r = RepositoryModelLoader.loadPcmResource(path);
         final InvariantEnforcerFacade tester = InvariantEnforcerFacadeBuilder
-                .buildInvariantEnforcerFacade(new PCMRepositoryElementSelector(), new PCMtoJaMoPPVitruviusKeywords());
+                .buildInvariantEnforcerFacade(new PcmRepositoryElementSelector(), new PcmToJavaVitruviusKeywords());
         final Resource rMod = tester.loadEnforceReturn(r);
         final String tmpURI = rMod.getURI().toFileString().replaceFirst("vitkeyword", "vitkeywordMOD");
         final URI fileURI = URI.createFileURI(new File(tmpURI).getAbsolutePath());
@@ -324,9 +324,9 @@ public class SingleEnforcerTests {
     @Test
     public void whitespaceTest() {
         final String path = "Testmodels/invariantTests/whitespace.repository";
-        final Resource r = RepositoryModelLoader.loadPCMResource(path);
+        final Resource r = RepositoryModelLoader.loadPcmResource(path);
         final InvariantEnforcerFacade tester = InvariantEnforcerFacadeBuilder
-                .buildInvariantEnforcerFacade(new PCMRepositoryElementSelector(), new PCMtoJaMoPPWhiteSpace());
+                .buildInvariantEnforcerFacade(new PcmRepositoryElementSelector(), new PcmToJavaWhiteSpace());
         final Resource rMod = tester.loadEnforceReturn(r);
         final String tmpURI = rMod.getURI().toFileString().replaceFirst("whitespace", "whitespaceMOD");
         final URI fileURI = URI.createFileURI(new File(tmpURI).getAbsolutePath());
@@ -355,9 +355,9 @@ public class SingleEnforcerTests {
     @Test
     public void javakeywordsTest() {
         final String path = "Testmodels/invariantTests/javakeywords.repository";
-        final Resource r = RepositoryModelLoader.loadPCMResource(path);
+        final Resource r = RepositoryModelLoader.loadPcmResource(path);
         final InvariantEnforcerFacade tester = InvariantEnforcerFacadeBuilder
-                .buildInvariantEnforcerFacade(new PCMRepositoryElementSelector(), new PCMtoJaMoPPJavaKeywords());
+                .buildInvariantEnforcerFacade(new PcmRepositoryElementSelector(), new PcmToJavaKeywords());
         final Resource rMod = tester.loadEnforceReturn(r);
         final String tmpURI = rMod.getURI().toFileString().replaceFirst("javakeywords", "javakeywordsMOD");
         final URI fileURI = URI.createFileURI(new File(tmpURI).getAbsolutePath());

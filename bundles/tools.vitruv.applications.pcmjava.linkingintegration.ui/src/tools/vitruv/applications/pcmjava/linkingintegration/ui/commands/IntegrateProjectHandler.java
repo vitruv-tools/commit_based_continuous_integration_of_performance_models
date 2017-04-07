@@ -17,8 +17,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jst.ws.internal.common.ResourceUtils;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import tools.vitruv.applications.pcmjava.util.PCMJavaRepositoryCreationUtil;
-import tools.vitruv.applications.pcmjava.linkingintegration.PCMJaMoPPCorrespondenceModelTransformation;
+import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
+import tools.vitruv.applications.pcmjava.linkingintegration.PcmJavaCorrespondenceModelTransformation;
 import tools.vitruv.framework.metamodel.Metamodel;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
 import tools.vitruv.framework.vsum.VirtualModelConfiguration;
@@ -72,7 +72,7 @@ public class IntegrateProjectHandler extends AbstractHandler {
             throw new IllegalArgumentException("Run SoMoX first!");
         }
 
-        final Iterable<Metamodel> metamodels = PCMJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
+        final Iterable<Metamodel> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
         VirtualModelConfiguration config = new VirtualModelConfiguration();
         for (Metamodel metamodel : metamodels) {
         	config.addMetamodel(metamodel);
@@ -80,7 +80,7 @@ public class IntegrateProjectHandler extends AbstractHandler {
         // TODO HK Use other name
         final InternalVirtualModel vsum = new VirtualModelImpl("virtuvius.meta", config);
 
-        final PCMJaMoPPCorrespondenceModelTransformation transformation = new PCMJaMoPPCorrespondenceModelTransformation(
+        final PcmJavaCorrespondenceModelTransformation transformation = new PcmJavaCorrespondenceModelTransformation(
                 scdmPath.toString(), pcmPath.toString(), jamoppPaths, vsum, projectBase);
 
         transformation.createCorrespondences();

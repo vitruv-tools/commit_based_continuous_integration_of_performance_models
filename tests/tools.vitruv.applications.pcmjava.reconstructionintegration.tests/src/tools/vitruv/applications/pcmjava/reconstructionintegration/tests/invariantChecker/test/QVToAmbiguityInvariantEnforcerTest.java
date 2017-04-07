@@ -17,7 +17,7 @@ import org.palladiosimulator.pcm.repository.OperationInterface;
 import org.palladiosimulator.pcm.repository.OperationSignature;
 import org.palladiosimulator.pcm.repository.Repository;
 
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.PCMRepositoryExtractor;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.PcmRepositoryExtractor;
 import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.withocl.PJIE_ComponentInterfaceImplementsAmbiguity;
 import tools.vitruv.domains.pcm.util.RepositoryModelLoader;
 
@@ -59,7 +59,7 @@ public class QVToAmbiguityInvariantEnforcerTest {
         // workspace
         final IFile file = testProject.getFile("Testmodels/TwoInterfaces.repository");
         final String path = file.getLocation().toOSString();
-        this.model = RepositoryModelLoader.loadPCMResource(path);
+        this.model = RepositoryModelLoader.loadPcmResource(path);
 
     }
 
@@ -77,7 +77,7 @@ public class QVToAmbiguityInvariantEnforcerTest {
         // workspace, not in test workspace
 
         final Resource rMod = tester.loadEnforceReturn(this.model);
-        final PCMRepositoryExtractor rootExtractor = new PCMRepositoryExtractor();
+        final PcmRepositoryExtractor rootExtractor = new PcmRepositoryExtractor();
         final Repository repository = rootExtractor.getImpl(rMod);
         final EList<Interface> interfaces = repository.getInterfaces__Repository();
 

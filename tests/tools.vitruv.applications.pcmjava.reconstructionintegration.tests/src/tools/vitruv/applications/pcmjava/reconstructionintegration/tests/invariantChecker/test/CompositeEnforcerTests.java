@@ -24,14 +24,14 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.InvariantEnforcerFacadeBuilder;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.PCMRepositoryElementSelector;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PCMtoJaMoPPBeginChar;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PCMtoJaMoPPComponentInterfaceImplementsAmbiguity;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PCMtoJaMoPPJavaKeywords;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PCMtoJaMoPPSameIdentifier;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PCMtoJaMoPPSpecialChars;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PCMtoJaMoPPVitruviusKeywords;
-import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PCMtoJaMoPPWhiteSpace;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.PcmRepositoryElementSelector;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PcmtoJavaBeginChar;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PcmToJavaComponentInterfaceImplementsAmbiguity;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PcmToJavaKeywords;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PcmToJavaSameIdentifier;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PcmToJavaSpecialChars;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PcmToJavaVitruviusKeywords;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.pcmjamoppenforcer.PcmToJavaWhiteSpace;
 import tools.vitruv.domains.pcm.util.RepositoryModelLoader;
 import tools.vitruv.extensions.constructionsimulation.invariantcheckers.InvariantEnforcer;
 
@@ -110,27 +110,27 @@ public class CompositeEnforcerTests {
     @Test
     public void allEnforcerTest() {
         final String path = "Testmodels/invariantTests/allViolations.repository";
-        Resource model = RepositoryModelLoader.loadPCMResource(path);
+        Resource model = RepositoryModelLoader.loadPcmResource(path);
 
         final List<InvariantEnforcer> enforcers = new ArrayList<>();
-        enforcers.add(new PCMtoJaMoPPComponentInterfaceImplementsAmbiguity());
+        enforcers.add(new PcmToJavaComponentInterfaceImplementsAmbiguity());
 
-        enforcers.add(InvariantEnforcerFacadeBuilder.buildInvariantEnforcerFacade(new PCMRepositoryElementSelector(),
-                new PCMtoJaMoPPJavaKeywords()));
+        enforcers.add(InvariantEnforcerFacadeBuilder.buildInvariantEnforcerFacade(new PcmRepositoryElementSelector(),
+                new PcmToJavaKeywords()));
 
-        enforcers.add(InvariantEnforcerFacadeBuilder.buildInvariantEnforcerFacade(new PCMRepositoryElementSelector(),
-                new PCMtoJaMoPPSpecialChars()));
+        enforcers.add(InvariantEnforcerFacadeBuilder.buildInvariantEnforcerFacade(new PcmRepositoryElementSelector(),
+                new PcmToJavaSpecialChars()));
 
-        enforcers.add(InvariantEnforcerFacadeBuilder.buildInvariantEnforcerFacade(new PCMRepositoryElementSelector(),
-                new PCMtoJaMoPPVitruviusKeywords()));
+        enforcers.add(InvariantEnforcerFacadeBuilder.buildInvariantEnforcerFacade(new PcmRepositoryElementSelector(),
+                new PcmToJavaVitruviusKeywords()));
 
-        enforcers.add(InvariantEnforcerFacadeBuilder.buildInvariantEnforcerFacade(new PCMRepositoryElementSelector(),
-                new PCMtoJaMoPPWhiteSpace()));
+        enforcers.add(InvariantEnforcerFacadeBuilder.buildInvariantEnforcerFacade(new PcmRepositoryElementSelector(),
+                new PcmToJavaWhiteSpace()));
 
-        enforcers.add(InvariantEnforcerFacadeBuilder.buildInvariantEnforcerFacade(new PCMRepositoryElementSelector(),
-                new PCMtoJaMoPPBeginChar()));
+        enforcers.add(InvariantEnforcerFacadeBuilder.buildInvariantEnforcerFacade(new PcmRepositoryElementSelector(),
+                new PcmtoJavaBeginChar()));
 
-        enforcers.add(new PCMtoJaMoPPSameIdentifier());
+        enforcers.add(new PcmToJavaSameIdentifier());
 
         for (final InvariantEnforcer enf : enforcers) {
             model = enf.loadEnforceReturn(model);

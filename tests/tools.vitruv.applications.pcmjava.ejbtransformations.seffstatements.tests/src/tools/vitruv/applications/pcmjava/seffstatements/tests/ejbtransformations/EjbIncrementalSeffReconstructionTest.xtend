@@ -5,24 +5,24 @@ import org.palladiosimulator.pcm.repository.BasicComponent
 import org.palladiosimulator.pcm.repository.OperationInterface
 import org.palladiosimulator.pcm.repository.OperationRequiredRole
 import org.palladiosimulator.pcm.repository.Repository
-import tools.vitruv.applications.pcmjava.tests.util.PCM2JaMoPPTestUtils
-import tools.vitruv.applications.pcmjava.seffstatements.tests.pojotransformations.IncrementalSEFFReconstructionTest
 import tools.vitruv.applications.pcmjava.tests.ejbtransformations.java2pcm.EjbClassMappingTest
 import tools.vitruv.applications.pcmjava.tests.ejbtransformations.java2pcm.EjbJava2PcmTransformationTest
 import org.junit.Test
 import org.junit.Ignore
-import tools.vitruv.applications.pcmjava.seffstatements.ejbtransformations.JavaToPcmEjbWithSeffstatmentsChangePropagationSpecification
+import tools.vitruv.applications.pcmjava.tests.util.Pcm2JavaTestUtils
+import tools.vitruv.applications.pcmjava.seffstatements.ejbtransformations.Java2PcmEjbWithSeffstatmentsChangePropagationSpecification
+import tools.vitruv.applications.pcmjava.seffstatements.tests.pojotransformations.IncrementalSeffReconstructionTest
 
-class EjbIncrementalSeffReconstructionTest extends IncrementalSEFFReconstructionTest {
+class EjbIncrementalSeffReconstructionTest extends IncrementalSeffReconstructionTest {
 
 	override protected createChangePropagationSpecifications() {
-		return #[new JavaToPcmEjbWithSeffstatmentsChangePropagationSpecification()];
+		return #[new Java2PcmEjbWithSeffstatmentsChangePropagationSpecification()];
 	}
 
 	@Override
 	override public void beforeTest() throws Throwable {
 		super.beforeTest()
-		super.setWebGUIPackageName = PCM2JaMoPPTestUtils.REPOSITORY_NAME
+		super.setWebGUIPackageName = Pcm2JavaTestUtils.REPOSITORY_NAME
 	}
 
 	@Ignore
@@ -42,27 +42,27 @@ class EjbIncrementalSeffReconstructionTest extends IncrementalSEFFReconstruction
 
 		// create packages and component implementing classes
 		val ConcreteClassifier classifier = super.createClassInPackage(this.mainPackage,
-			MEDIA_STORE_CLASSNAME) as ConcreteClassifier
+			IncrementalSeffReconstructionTest.MEDIA_STORE_CLASSNAME) as ConcreteClassifier
 		this.addAnnotationToClassifier(classifier, EjbClassMappingTest.STATELESS_ANNOTATION_NAME, BasicComponent,
-			MEDIA_STORE_CLASSNAME)
+			IncrementalSeffReconstructionTest.MEDIA_STORE_CLASSNAME)
 
 		val ConcreteClassifier webGUIclassifier = super.createClassInPackage(this.mainPackage,
-			WEBGUI_CLASSNAME) as ConcreteClassifier
+			IncrementalSeffReconstructionTest.WEBGUI_CLASSNAME) as ConcreteClassifier
 		this.addAnnotationToClassifier(webGUIclassifier, EjbClassMappingTest.STATELESS_ANNOTATION_NAME, BasicComponent,
-			WEBGUI_CLASSNAME)
+			IncrementalSeffReconstructionTest.WEBGUI_CLASSNAME)
 
-		val String webGuiInterfaceName = "I" + WEBGUI;
-		val String mediaStoreInterfaceName = "I" + MEDIA_STORE;
+		val String webGuiInterfaceName = "I" + IncrementalSeffReconstructionTest.WEBGUI;
+		val String mediaStoreInterfaceName = "I" + IncrementalSeffReconstructionTest.MEDIA_STORE;
 
 		// create interfaces
 		val webGuiIf = super.
-			createInterfaceInPackageBasedOnJaMoPPPackageWithoutCorrespondence(PCM2JaMoPPTestUtils.REPOSITORY_NAME,
+			createInterfaceInPackageBasedOnJaMoPPPackageWithoutCorrespondence(Pcm2JavaTestUtils.REPOSITORY_NAME,
 				webGuiInterfaceName)
 		this.addAnnotationToClassifier(webGuiIf, EjbJava2PcmTransformationTest.REMOTE_ANNOTATION_NAME,
 			OperationInterface, webGuiInterfaceName)
 
 		val mediaStoreIf = super.
-			createInterfaceInPackageBasedOnJaMoPPPackageWithoutCorrespondence(PCM2JaMoPPTestUtils.REPOSITORY_NAME,
+			createInterfaceInPackageBasedOnJaMoPPPackageWithoutCorrespondence(Pcm2JavaTestUtils.REPOSITORY_NAME,
 				mediaStoreInterfaceName)
 		this.addAnnotationToClassifier(mediaStoreIf, EjbJava2PcmTransformationTest.REMOTE_ANNOTATION_NAME,
 			OperationInterface, mediaStoreInterfaceName)
@@ -81,20 +81,20 @@ class EjbIncrementalSeffReconstructionTest extends IncrementalSEFFReconstruction
 		this.downloadOpSig = super.addMethodToInterfaceWithCorrespondence(mediaStoreInterfaceName, downloadMethodName);
 
 		// create implements
-		super.addImplementsCorrespondingToOperationProvidedRoleToClass(WEBGUI_CLASSNAME, webGuiInterfaceName);
-		super.addImplementsCorrespondingToOperationProvidedRoleToClass(MEDIA_STORE_CLASSNAME, mediaStoreInterfaceName);
+		super.addImplementsCorrespondingToOperationProvidedRoleToClass(IncrementalSeffReconstructionTest.WEBGUI_CLASSNAME, webGuiInterfaceName);
+		super.addImplementsCorrespondingToOperationProvidedRoleToClass(IncrementalSeffReconstructionTest.MEDIA_STORE_CLASSNAME, mediaStoreInterfaceName);
 
 		// create class methods in component implementing classes in order to create SEFF
 		// correspondences
-		this.addClassMethodToClassThatOverridesInterfaceMethod(WEBGUI_CLASSNAME, httpUploadMethodName);
-		this.addClassMethodToClassThatOverridesInterfaceMethod(WEBGUI_CLASSNAME, httpDownloadMethodName);
-		this.addClassMethodToClassThatOverridesInterfaceMethod(MEDIA_STORE_CLASSNAME, uploadMethodName);
-		this.addClassMethodToClassThatOverridesInterfaceMethod(MEDIA_STORE_CLASSNAME, downloadMethodName);
+		this.addClassMethodToClassThatOverridesInterfaceMethod(IncrementalSeffReconstructionTest.WEBGUI_CLASSNAME, httpUploadMethodName);
+		this.addClassMethodToClassThatOverridesInterfaceMethod(IncrementalSeffReconstructionTest.WEBGUI_CLASSNAME, httpDownloadMethodName);
+		this.addClassMethodToClassThatOverridesInterfaceMethod(IncrementalSeffReconstructionTest.MEDIA_STORE_CLASSNAME, uploadMethodName);
+		this.addClassMethodToClassThatOverridesInterfaceMethod(IncrementalSeffReconstructionTest.MEDIA_STORE_CLASSNAME, downloadMethodName);
 
 		// create requiredRole from webgui to IMediaStore
-		this.addFieldToClassWithName(WEBGUI_CLASSNAME, mediaStoreInterfaceName, "i" + MEDIA_STORE, null);
-		this.webGUIRequiresIMediaStoreRole = super.addAnnotationToField("i" + MEDIA_STORE,
-			EjbClassMappingTest.EJB_FIELD_ANNOTATION_NAME, OperationRequiredRole, WEBGUI_CLASSNAME)
+		this.addFieldToClassWithName(IncrementalSeffReconstructionTest.WEBGUI_CLASSNAME, mediaStoreInterfaceName, "i" + IncrementalSeffReconstructionTest.MEDIA_STORE, null);
+		this.webGUIRequiresIMediaStoreRole = super.addAnnotationToField("i" + IncrementalSeffReconstructionTest.MEDIA_STORE,
+			EjbClassMappingTest.EJB_FIELD_ANNOTATION_NAME, OperationRequiredRole, IncrementalSeffReconstructionTest.WEBGUI_CLASSNAME)
 		return repo;
 	}
 

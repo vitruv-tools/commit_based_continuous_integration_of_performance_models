@@ -23,13 +23,13 @@ import tools.vitruv.framework.change.processing.impl.AbstractChangePropagationSp
 import tools.vitruv.framework.util.command.ChangePropagationResult
 
 class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpecification {
-	private val Code2SEFFFactory code2SEFFfactory;
+	private val Code2SeffFactory code2SeffFactory;
 	private val MetamodelPair metamodelPair;
 	
-	new(UserInteracting userInteracting, Code2SEFFFactory code2SEFFfactory) {
+	new(UserInteracting userInteracting, Code2SeffFactory code2SEFFfactory) {
 		super(userInteracting);
 		this.metamodelPair = new MetamodelPair(JavaPackage.eNS_URI, PcmPackage.eNS_URI);
-		this.code2SEFFfactory = code2SEFFfactory
+		this.code2SeffFactory = code2SEFFfactory
 	}
 
 	override getMetamodelPair() {
@@ -112,15 +112,15 @@ class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpec
 		val JavaFeatureEChange<?, ?> eFeatureChange = emfChange.getEChanges().get(0) as JavaFeatureEChange<?, ?>;
 		val oldMethod = eFeatureChange.getOldAffectedEObject() as Method;
 		val newMethod = eFeatureChange.getAffectedEObject() as Method;
-		val basicComponentFinding = code2SEFFfactory.createBasicComponentFinding
+		val basicComponentFinding = code2SeffFactory.createBasicComponentFinding
 		val BasicComponent myBasicComponent = basicComponentFinding.findBasicComponentForMethod(newMethod,
 			correspondenceModel);
-		val classification = code2SEFFfactory.createAbstractFunctionClassificationStrategy(basicComponentFinding,
+		val classification = code2SeffFactory.createAbstractFunctionClassificationStrategy(basicComponentFinding,
 			correspondenceModel, myBasicComponent);
-		val InterfaceOfExternalCallFinding interfaceOfExternalCallFinder = code2SEFFfactory.
+		val InterfaceOfExternalCallFinding interfaceOfExternalCallFinder = code2SeffFactory.
 			createInterfaceOfExternalCallFinding(correspondenceModel,
 				myBasicComponent);
-			val ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding = code2SEFFfactory.
+			val ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding = code2SeffFactory.
 				createResourceDemandingBehaviourForClassMethodFinding(correspondenceModel);
 			val ClassMethodBodyChangedTransformation methodBodyChanged = new ClassMethodBodyChangedTransformation(
 				oldMethod, newMethod, basicComponentFinding, classification, interfaceOfExternalCallFinder,

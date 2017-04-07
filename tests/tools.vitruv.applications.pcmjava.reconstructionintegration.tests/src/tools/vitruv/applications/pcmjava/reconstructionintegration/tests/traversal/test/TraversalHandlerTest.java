@@ -13,7 +13,7 @@ import org.palladiosimulator.pcm.repository.Repository;
 import tools.vitruv.framework.change.description.VitruviusChangeFactory;
 import tools.vitruv.framework.metamodel.Metamodel;
 import tools.vitruv.applications.pcmjava.reconstructionintegration.repository.RepositoryTraversalStrategy;
-import tools.vitruv.applications.pcmjava.util.PCMJavaRepositoryCreationUtil;
+import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
 import tools.vitruv.framework.change.description.VitruviusChange;
 import tools.vitruv.framework.tests.util.TestUtil;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
@@ -46,10 +46,10 @@ public class TraversalHandlerTest {
     @Before
     public void setUpTest() throws Exception {
 
-        final Iterable<Metamodel> metamodels = PCMJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
+        final Iterable<Metamodel> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
         // TODO Use the correct change2command transformings here
 //        final Change2CommandTransformingProviding change2CommandTransformingProviding = new Change2CommandTransformingProvidingImpl();
-        this.vsum = TestUtil.createVSUM("testvsum", metamodels);
+        this.vsum = TestUtil.createVirtualModel("testvsum", metamodels);
         this.resourceSet = new ResourceSetImpl();
     }
 
@@ -62,7 +62,7 @@ public class TraversalHandlerTest {
         final String path = "JUnitTestmodels/basicTestcaseModel.repository";
 
         // load model
-        final Resource r = RepositoryModelLoader.loadPCMResource(path);
+        final Resource r = RepositoryModelLoader.loadPcmResource(path);
 
         // traverse model and get ordered list of changes
         final Repository repo = (Repository) r.getContents().get(0);

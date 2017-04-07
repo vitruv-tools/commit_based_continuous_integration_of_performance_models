@@ -20,7 +20,7 @@
   </extension>
   <extension point="org.eclipse.ui.commands">
     <command
-          defaultHandler="tools.vitruv.applications.pcmjava.reconstructionintegration.transformations.JaMoPPIntegrationHandler"
+          defaultHandler="tools.vitruv.applications.pcmjava.reconstructionintegration.transformations.JavaIntegrationHandler"
           description="Integrates Code"
           id="tools.vitruv.applications.pcmjava.reconstructionintegration.jamopp"
           name="IntegrateCode">

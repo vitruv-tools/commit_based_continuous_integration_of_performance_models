@@ -18,8 +18,8 @@ public class InvariantEnforcerFacadeBuilder {
      *            the enforcer
      * @return the dynamic invariant enforcer
      */
-    public static InvariantEnforcerFacade buildInvariantEnforcerFacade(final PCMElementSelector<?> strategy,
-            final PCMtoJaMoPPRenameInvariantEnforcer enforcer) {
+    public static InvariantEnforcerFacade buildInvariantEnforcerFacade(final PcmElementSelector<?> strategy,
+            final PcmtoJavaRenameInvariantEnforcer enforcer) {
         final InvariantEnforcerFacade dEnforcer = new InvariantEnforcerFacade(strategy, enforcer);
         strategy.setLogger(dEnforcer.logger);
         strategy.setParentEnforcer(dEnforcer);

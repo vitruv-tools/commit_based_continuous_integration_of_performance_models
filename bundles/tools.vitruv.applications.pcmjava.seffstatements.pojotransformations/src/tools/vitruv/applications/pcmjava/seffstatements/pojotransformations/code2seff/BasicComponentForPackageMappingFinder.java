@@ -59,7 +59,7 @@ public class BasicComponentForPackageMappingFinder implements BasicComponentFind
     private Package createPackage(final JavaRoot cu, final List<String> namespace) {
         final Package jaMoPPPackage = ContainersFactory.eINSTANCE.createPackage();
         jaMoPPPackage.getNamespaces().addAll(namespace);
-        // attach dummy resource in order to enable TUID calculation
+        // attach dummy resource in order to enable Tuid calculation
         final VURI vuri = VURI.getInstance(cu.eResource());
         String packageURIString = vuri.toString();
         final String lastSegment = vuri.getLastSegment();

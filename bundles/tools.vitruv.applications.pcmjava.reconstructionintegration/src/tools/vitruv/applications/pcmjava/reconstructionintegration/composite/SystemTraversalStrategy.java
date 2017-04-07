@@ -5,7 +5,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.palladiosimulator.pcm.system.System;
 
-import tools.vitruv.applications.pcmjava.reconstructionintegration.util.PCMChangeBuildHelper;
+import tools.vitruv.applications.pcmjava.reconstructionintegration.util.PcmChangeBuildHelper;
 import tools.vitruv.extensions.constructionsimulation.traversal.ITraversalStrategy;
 import tools.vitruv.framework.change.description.VitruviusChange;
 import tools.vitruv.framework.util.datatypes.VURI;
@@ -55,7 +55,7 @@ public class SystemTraversalStrategy extends ComposedEntitiesTraversalStrategy i
      */
     private void traverseSystem(final System system) {
 
-        final EChange systemChange = PCMChangeBuildHelper.createChangeFromSystem(system);
+        final EChange systemChange = PcmChangeBuildHelper.createChangeFromSystem(system);
         this.addChange(VitruviusChangeFactory.getInstance().createConcreteChange(systemChange, this.vuri), this.changeList);
 
     }

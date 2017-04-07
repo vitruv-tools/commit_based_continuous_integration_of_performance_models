@@ -5,10 +5,10 @@ import org.somox.gast2seff.visitors.AbstractFunctionClassificationStrategy
 import org.somox.gast2seff.visitors.InterfaceOfExternalCallFinding
 import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding
-import tools.vitruv.applications.pcmjava.seffstatements.code2seff.Code2SEFFFactory
 import tools.vitruv.framework.correspondence.CorrespondenceModel
+import tools.vitruv.applications.pcmjava.seffstatements.code2seff.Code2SeffFactory
 
-class EjbJava2PcmCode2SeffFactory implements Code2SEFFFactory {
+class EjbJava2PcmCode2SeffFactory implements Code2SeffFactory {
 	override BasicComponentFinding createBasicComponentFinding() {
 		return new EjbBasicComponentFinder()
 	}

@@ -51,7 +51,7 @@ public class OCLQueryExecutionTestcase {
 
         // String path = "Testmodels/InvalidComponentName.repository";
         final String path = "Testmodels/small_example.repository";
-        final Resource r = RepositoryModelLoader.loadPCMResource(path);
+        final Resource r = RepositoryModelLoader.loadPcmResource(path);
         final Repository repo = (Repository) r.getContents().get(0);
 
         final Query<EClassifier, EClass, EObject> eval = ocl.createQuery(query);

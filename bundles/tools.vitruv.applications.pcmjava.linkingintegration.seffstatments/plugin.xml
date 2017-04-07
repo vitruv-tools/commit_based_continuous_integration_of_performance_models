@@ -4,7 +4,7 @@
    <extension
          point="tools.vitruv.applications.pcmjava.linkingintegration.pcmjamoppintegrationextending.afterbasictransformation">
       <provides
-            provider="tools.vitruv.applications.pcmjava.linkingintegration.seffstatments.PCMJaMoPPCorrespondenceModelForSEFFTransformation">
+            provider="tools.vitruv.applications.pcmjava.linkingintegration.seffstatments.PcmJavaCorrespondenceModelForSeffTransformation">
       </provides>
    </extension>
 
