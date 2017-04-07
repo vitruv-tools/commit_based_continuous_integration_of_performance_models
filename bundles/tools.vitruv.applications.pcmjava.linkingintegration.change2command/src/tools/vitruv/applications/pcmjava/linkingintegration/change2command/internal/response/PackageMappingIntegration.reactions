@@ -23,18 +23,18 @@ execute actions in pcm
 
 //empty implementation for add and remove imports
 reaction AddImportReaction {
-	after list entry created and inserted in java::JavaRoot[imports]
+	after element created and inserted in java::JavaRoot[imports]
 	call {}
 }
 
 reaction RemoveImportReaction {
-	after list entry deleted and removed in java::JavaRoot[imports]
+	after element deleted and removed from java::JavaRoot[imports]
 	call {}
 }
 
 reaction RenameMethod {
-	after value replaced for java::Method[name]
-	call renamedMethod(change.affectedEObject, change.newValue)
+	after attribute replaced at java::Method[name]
+	call renamedMethod(affectedEObject, newValue)
 }
 
 routine renamedMethod(java::Method method, String newMethodName) {
@@ -50,15 +50,16 @@ routine renamedMethod(java::Method method, String newMethodName) {
 }
 
 reaction RemoveMethodEvent {
-	after list entry deleted and removed in java::ConcreteClassifier[members]
+	after element deleted and removed from java::ConcreteClassifier[members]
 		with { 
-			if (change.oldValue instanceof Method){
+			// TODO replace with element filter in trigger
+			if (oldValue instanceof Method){
 			// EvaluationHelper.
 				return true
 			}	
 			return false
 		}
-	call removedMethodEvent(change.oldValue as Method)
+	call removedMethodEvent(oldValue as Method)
 } 
 
 routine removedMethodEvent(java::Method method) {
@@ -74,9 +75,9 @@ routine removedMethodEvent(java::Method method) {
 }
 
 reaction AddMethodEvent {
-	after list entry created and inserted in java::ConcreteClassifier[members]
-		with change.newValue instanceof Method
-	call addedMethodEvent(change.affectedEObject, change.newValue as Method)
+	after element created and inserted in java::ConcreteClassifier[members]
+		with newValue instanceof Method // TODO replace with element filter in trigger
+	call addedMethodEvent(affectedEObject, newValue as Method)
 }
 
 routine addedMethodEvent(java::ConcreteClassifier clazz, java::Method method) {
@@ -107,8 +108,8 @@ routine createOperationSignature(pcm::OperationInterface opInterface, java::Meth
 }
 
 reaction CreateMetodParameterEvent {
-	after list entry created and inserted in java::Method[parameters]
-	call createdMethodParameterEvent(change.affectedEObject, change.newValue)
+	after element created and inserted in java::Method[parameters]
+	call createdMethodParameterEvent(affectedEObject, newValue)
 }
 
 routine createdMethodParameterEvent(java::Method method, java::Parameter parameter) {
@@ -129,8 +130,8 @@ routine createdMethodParameterEvent(java::Method method, java::Parameter paramet
 }
 
 reaction MethodParameterNameChangeEvent {
-	after value replaced for java::Parameter[name]
-	call methodParameterNameChangedEvent(change.affectedEObject, change.oldValue, change.newValue)
+	after attribute replaced at java::Parameter[name]
+	call methodParameterNameChangedEvent(affectedEObject, oldValue, newValue)
 }
 
 routine methodParameterNameChangedEvent(java::Parameter parameter, String oldParameterName, String newParameterName) {
@@ -146,8 +147,8 @@ routine methodParameterNameChangedEvent(java::Parameter parameter, String oldPar
 }	
 
 reaction ChangeMethodTypeEvent {
-	after value replaced for java::Method[typeReference]
-	call changedMethodType(change.affectedEObject, change.newValue)
+	after element replaced at java::Method[typeReference]
+	call changedMethodType(affectedEObject, newValue)
 }
 	
 routine changedMethodType(java::Method method, java::TypeReference newType) {
@@ -167,9 +168,9 @@ routine changedMethodType(java::Method method, java::TypeReference newType) {
 }
 
 reaction RemoveFieldEvent {
-	after list entry deleted and removed in java::ConcreteClassifier[members]
-		with change.oldValue instanceof Field
-	call removedFieldEvent(change.oldValue as Field)
+	after element deleted and removed from java::ConcreteClassifier[members]
+		with oldValue instanceof Field // TODO replace with element filter in trigger
+	call removedFieldEvent(oldValue as Field)
 }
 	
 routine removedFieldEvent(java::Field field) {
@@ -187,9 +188,9 @@ routine removedFieldEvent(java::Field field) {
 }
 	
 reaction AddFieldEvent {
-	after list entry created and inserted in java::ConcreteClassifier[members]
-		with change.newValue instanceof Field
-	call addedFieldEvent(change.affectedEObject, change.newValue as Field)
+	after element created and inserted in java::ConcreteClassifier[members]
+		with newValue instanceof Field // TODO replace with element filter in trigger
+	call addedFieldEvent(affectedEObject, newValue as Field)
 }
 
 routine addedFieldEvent(java::ConcreteClassifier clazz, java::Field field) {
@@ -219,8 +220,8 @@ routine createRequiredRole(pcm::BasicComponent basicComponent, pcm::OperationInt
 }
 
 reaction ChangeFieldTypeEvent {
-	after value replaced for java::Field[typeReference]
-	call changedFieldTypeEvent(change.affectedEObject, change.oldValue, change.newValue)
+	after element replaced at java::Field[typeReference]
+	call changedFieldTypeEvent(affectedEObject, oldValue, newValue)
 }
 
 routine changedFieldTypeEvent(java::Field field, java::TypeReference oldType, java::TypeReference newType) {
@@ -267,12 +268,12 @@ routine removeRequiredRoleAndCorrespondence(pcm::OperationRequiredRole orr, java
 
 // empty implementation for changeFieldModifier, because the change is not architectural relevant
 reaction ChangeFieldModifierEvent {
-	after list entry created and inserted in java::Field[annotationsAndModifiers]
+	after element created and inserted in java::Field[annotationsAndModifiers]
 	call { }
 }
 
 reaction RemoveFieldModifierEvent {
-	after list entry deleted and removed in java::Field[annotationsAndModifiers]
+	after element deleted and removed from java::Field[annotationsAndModifiers]
 	call { }
 }
 
@@ -280,8 +281,8 @@ reaction RemoveFieldModifierEvent {
 // if the method was non-public and is public now and the classifier has a corresponding interface 
 //--> ask user whether to add the signature to the corresponding interface 
 reaction ChangeMethodModifierEvent {
-	after list entry created and inserted in java::Method[annotationsAndModifiers]
-	call changedMethodModifierEvent(change.affectedEObject, change.newValue)
+	after element created and inserted in java::Method[annotationsAndModifiers]
+	call changedMethodModifierEvent(affectedEObject, newValue)
 }
 
 routine changedMethodModifierEvent(java::Method method, java::AnnotationInstanceOrModifier annotationOrModifier) {

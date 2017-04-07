@@ -65,12 +65,12 @@ public class RemovedFieldEventRoutine extends AbstractRepairRoutineRealization {
     if (namedElement == null) {
     	return;
     }
-    initializeRetrieveElementState(namedElement);
+    registerObjectUnderModification(namedElement);
     removeCorrespondenceBetween(userExecution.getElement1(field, namedElement), userExecution.getElement2(field, namedElement));
     
     // val updatedElement userExecution.getElement3(field, namedElement);
     userExecution.update0Element(field, namedElement);
     
-    postprocessElementStates();
+    postprocessElements();
   }
 }

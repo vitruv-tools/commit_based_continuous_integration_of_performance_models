@@ -29,8 +29,8 @@ import org.junit.Test;
 
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.util.CodeIntegrationUtils;
 import tools.vitruv.applications.pcmjava.util.PCMJavaRepositoryCreationUtil;
-import tools.vitruv.domains.java.builder.JavaAddBuilder;
-import tools.vitruv.domains.java.builder.JavaBuilder;
+import tools.vitruv.domains.java.builder.VitruviusJavaBuilder;
+import tools.vitruv.domains.java.builder.VitruviusJavaBuilderApplicator;
 import tools.vitruv.domains.java.JavaNamespace;
 import tools.vitruv.domains.pcm.PcmNamespace;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
@@ -131,11 +131,11 @@ public class CodeIntegrationTest {
         }
         virtualModel = new VirtualModelImpl(META_PROJECT_NAME, config);
         // add PCM Java Builder to Project under test
-        final JavaAddBuilder pcmJavaBuilder = new JavaAddBuilder();
-        pcmJavaBuilder.addBuilderToProject(this.testProject, META_PROJECT_NAME, Collections.singletonList(PcmNamespace.REPOSITORY_FILE_EXTENSION));
+        final VitruviusJavaBuilderApplicator pcmJavaBuilder = new VitruviusJavaBuilderApplicator();
+        pcmJavaBuilder.addToProject(this.testProject, META_PROJECT_NAME, Collections.singletonList(PcmNamespace.REPOSITORY_FILE_EXTENSION));
         // build the project
         progress = new DoneFlagProgressMonitor();
-        this.testProject.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, JavaBuilder.BUILDER_ID,
+        this.testProject.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, VitruviusJavaBuilder.BUILDER_ID,
                 new HashMap<String, String>(), progress);
         while (!progress.isDone()) {
             Thread.sleep(100);

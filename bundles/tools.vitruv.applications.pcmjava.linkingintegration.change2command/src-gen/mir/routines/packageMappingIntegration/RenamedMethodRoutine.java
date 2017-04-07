@@ -57,10 +57,10 @@ public class RenamedMethodRoutine extends AbstractRepairRoutineRealization {
     if (operationSignature == null) {
     	return;
     }
-    initializeRetrieveElementState(operationSignature);
+    registerObjectUnderModification(operationSignature);
     // val updatedElement userExecution.getElement1(method, newMethodName, operationSignature);
     userExecution.update0Element(method, newMethodName, operationSignature);
     
-    postprocessElementStates();
+    postprocessElements();
   }
 }

@@ -59,6 +59,6 @@ public class RemoveRequiredRoleAndCorrespondenceRoutine extends AbstractRepairRo
     // val updatedElement userExecution.getElement3(orr, field);
     userExecution.update0Element(orr, field);
     
-    postprocessElementStates();
+    postprocessElements();
   }
 }

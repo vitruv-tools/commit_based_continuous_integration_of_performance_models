@@ -29,11 +29,11 @@ class Java2PCMPackageIntegrationMappingTransformationTest extends Java2PCMPackag
 		return #[new Java2PcmIntegrationChangePropagationSpecification(), new Pcm2JavaIntegrationChangePropagationSpecification()];
 	}
 
-	override protected void beforeTest(Description description) throws Throwable {
-		super.beforeTest(description)
+	override public void beforeTest() throws Throwable {
+		super.beforeTest()
 	}
 
-	override protected void createTestProject(Description description) throws CoreException {
+	override protected void createTestProject(String name) throws CoreException {
 		val workspace = ResourcesPlugin.getWorkspace()
 		this.currentTestProjectName = CodeIntegrationTestCBSNamespace.TEST_PROJECT_NAME
 		CodeIntegrationUtils.importTestProjectFromBundleData(workspace, this.currentTestProjectName,

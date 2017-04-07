@@ -68,13 +68,12 @@ public class CreateRequiredRoleRoutine extends AbstractRepairRoutineRealization 
     getLogger().debug("   Field: " + this.field);
     
     OperationRequiredRole opRequiredRole = RepositoryFactoryImpl.eINSTANCE.createOperationRequiredRole();
-    initializeCreateElementState(opRequiredRole);
     
     addCorrespondenceBetween(userExecution.getElement1(basicComponent, opInterface, field, opRequiredRole), userExecution.getElement2(basicComponent, opInterface, field, opRequiredRole), "");
     
     // val updatedElement userExecution.getElement3(basicComponent, opInterface, field, opRequiredRole);
     userExecution.update0Element(basicComponent, opInterface, field, opRequiredRole);
     
-    postprocessElementStates();
+    postprocessElements();
   }
 }

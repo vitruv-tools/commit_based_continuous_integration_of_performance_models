@@ -62,7 +62,7 @@ public class AddedFieldEventRoutine extends AbstractRepairRoutineRealization {
     if (basicComponent == null) {
     	return;
     }
-    initializeRetrieveElementState(basicComponent);
+    registerObjectUnderModification(basicComponent);
     OperationInterface opInterface = getCorrespondingElement(
     	userExecution.getCorrepondenceSourceOpInterface(clazz, field, basicComponent), // correspondence source supplier
     	OperationInterface.class,
@@ -71,9 +71,9 @@ public class AddedFieldEventRoutine extends AbstractRepairRoutineRealization {
     if (opInterface == null) {
     	return;
     }
-    initializeRetrieveElementState(opInterface);
+    registerObjectUnderModification(opInterface);
     userExecution.callRoutine1(clazz, field, basicComponent, opInterface, actionsFacade);
     
-    postprocessElementStates();
+    postprocessElements();
   }
 }

@@ -69,10 +69,10 @@ public class ChangedMethodTypeRoutine extends AbstractRepairRoutineRealization {
     if (opSignature == null) {
     	return;
     }
-    initializeRetrieveElementState(opSignature);
+    registerObjectUnderModification(opSignature);
     // val updatedElement userExecution.getElement1(method, newType, opSignature);
     userExecution.update0Element(method, newType, opSignature);
     
-    postprocessElementStates();
+    postprocessElements();
   }
 }

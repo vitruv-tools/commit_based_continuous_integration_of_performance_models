@@ -22,7 +22,7 @@ import tools.vitruv.framework.change.echange.root.RemoveRootEObject
 import tools.vitruv.framework.change.echange.feature.FeatureEChange
 import tools.vitruv.framework.correspondence.CorrespondenceModel
 import tools.vitruv.extensions.integration.correspondence.integration.IntegrationCorrespondence;
-import mir.reactions.reactionsJavaTo5_1.packageMappingIntegration.ExecutorJavaTo5_1
+import mir.reactions.reactionsJavaToPcm.packageMappingIntegration.ExecutorJavaToPcm
 import tools.vitruv.framework.util.command.ChangePropagationResult
 
 class IntegrationChange2CommandTransformer {
@@ -63,12 +63,12 @@ class IntegrationChange2CommandTransformer {
 	}
 	
 	def doesReactionHandleChange(EChange change, CorrespondenceModel correspondenceModel) {
-		val executor = new ExecutorJavaTo5_1(userInteracting)
+		val executor = new ExecutorJavaToPcm(userInteracting)
 		return executor.doesHandleChange(change, correspondenceModel);
 	}
 	
 	def executeReactions(EChange change, CorrespondenceModel correspondenceModel) {
-		val executor = new ExecutorJavaTo5_1(userInteracting)
+		val executor = new ExecutorJavaToPcm(userInteracting)
 		return executor.propagateChange(change, correspondenceModel)
 	}
 	
@@ -193,11 +193,11 @@ class IntegrationChange2CommandTransformer {
         val ci = correspondenceModel
         var EObject eObj = null
         if (eChange instanceof FeatureEChange<?,?>) {
-            eObj = eChange.getAffectedEObject()
+            eObj = eChange.getAffectedEObject() as EObject
         } else if (eChange instanceof InsertRootEObject<?>) {
-            eObj = eChange.getNewValue()
+            eObj = eChange.getNewValue() as EObject
         } else if (eChange instanceof RemoveRootEObject<?>) {
-            eObj = eChange.getOldValue()
+            eObj = eChange.getOldValue() as EObject
         }
 
         val  integrationView = ci.getView(typeof(IntegrationCorrespondence))

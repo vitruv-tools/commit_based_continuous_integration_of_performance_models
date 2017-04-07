@@ -6,10 +6,9 @@ import org.palladiosimulator.pcm.repository.OperationInterface
 import org.palladiosimulator.pcm.repository.OperationRequiredRole
 import org.palladiosimulator.pcm.repository.Repository
 import tools.vitruv.applications.pcmjava.tests.util.PCM2JaMoPPTestUtils
-import org.junit.runner.Description
 import tools.vitruv.applications.pcmjava.seffstatements.tests.pojotransformations.IncrementalSEFFReconstructionTest
-import tools.vitruv.applications.pcmjava.tests.ejbtransformations.java2pcm.EJBClassMappingTest
-import tools.vitruv.applications.pcmjava.tests.ejbtransformations.java2pcm.EJBJaMoPP2PCMTransformationTest
+import tools.vitruv.applications.pcmjava.tests.ejbtransformations.java2pcm.EjbClassMappingTest
+import tools.vitruv.applications.pcmjava.tests.ejbtransformations.java2pcm.EjbJava2PcmTransformationTest
 import org.junit.Test
 import org.junit.Ignore
 import tools.vitruv.applications.pcmjava.seffstatements.ejbtransformations.JavaToPcmEjbWithSeffstatmentsChangePropagationSpecification
@@ -21,8 +20,8 @@ class EJBIncrementalSEFFReconstructionTest extends IncrementalSEFFReconstruction
 	}
 
 	@Override
-	override protected void beforeTest(Description description) throws Throwable {
-		super.beforeTest(description)
+	override public void beforeTest() throws Throwable {
+		super.beforeTest()
 		super.setWebGUIPackageName = PCM2JaMoPPTestUtils.REPOSITORY_NAME
 	}
 
@@ -44,12 +43,12 @@ class EJBIncrementalSEFFReconstructionTest extends IncrementalSEFFReconstruction
 		// create packages and component implementing classes
 		val ConcreteClassifier classifier = super.createClassInPackage(this.mainPackage,
 			MEDIA_STORE_CLASSNAME) as ConcreteClassifier
-		this.addAnnotationToClassifier(classifier, EJBClassMappingTest.STATELESS_ANNOTATION_NAME, BasicComponent,
+		this.addAnnotationToClassifier(classifier, EjbClassMappingTest.STATELESS_ANNOTATION_NAME, BasicComponent,
 			MEDIA_STORE_CLASSNAME)
 
 		val ConcreteClassifier webGUIclassifier = super.createClassInPackage(this.mainPackage,
 			WEBGUI_CLASSNAME) as ConcreteClassifier
-		this.addAnnotationToClassifier(webGUIclassifier, EJBClassMappingTest.STATELESS_ANNOTATION_NAME, BasicComponent,
+		this.addAnnotationToClassifier(webGUIclassifier, EjbClassMappingTest.STATELESS_ANNOTATION_NAME, BasicComponent,
 			WEBGUI_CLASSNAME)
 
 		val String webGuiInterfaceName = "I" + WEBGUI;
@@ -59,13 +58,13 @@ class EJBIncrementalSEFFReconstructionTest extends IncrementalSEFFReconstruction
 		val webGuiIf = super.
 			createInterfaceInPackageBasedOnJaMoPPPackageWithoutCorrespondence(PCM2JaMoPPTestUtils.REPOSITORY_NAME,
 				webGuiInterfaceName)
-		this.addAnnotationToClassifier(webGuiIf, EJBJaMoPP2PCMTransformationTest.REMOTE_ANNOTATION_NAME,
+		this.addAnnotationToClassifier(webGuiIf, EjbJava2PcmTransformationTest.REMOTE_ANNOTATION_NAME,
 			OperationInterface, webGuiInterfaceName)
 
 		val mediaStoreIf = super.
 			createInterfaceInPackageBasedOnJaMoPPPackageWithoutCorrespondence(PCM2JaMoPPTestUtils.REPOSITORY_NAME,
 				mediaStoreInterfaceName)
-		this.addAnnotationToClassifier(mediaStoreIf, EJBJaMoPP2PCMTransformationTest.REMOTE_ANNOTATION_NAME,
+		this.addAnnotationToClassifier(mediaStoreIf, EjbJava2PcmTransformationTest.REMOTE_ANNOTATION_NAME,
 			OperationInterface, mediaStoreInterfaceName)
 
 		val String uploadMethodName = "upload";
@@ -95,7 +94,7 @@ class EJBIncrementalSEFFReconstructionTest extends IncrementalSEFFReconstruction
 		// create requiredRole from webgui to IMediaStore
 		this.addFieldToClassWithName(WEBGUI_CLASSNAME, mediaStoreInterfaceName, "i" + MEDIA_STORE, null);
 		this.webGUIRequiresIMediaStoreRole = super.addAnnotationToField("i" + MEDIA_STORE,
-			EJBClassMappingTest.EJB_FIELD_ANNOTATION_NAME, OperationRequiredRole, WEBGUI_CLASSNAME)
+			EjbClassMappingTest.EJB_FIELD_ANNOTATION_NAME, OperationRequiredRole, WEBGUI_CLASSNAME)
 		return repo;
 	}
 

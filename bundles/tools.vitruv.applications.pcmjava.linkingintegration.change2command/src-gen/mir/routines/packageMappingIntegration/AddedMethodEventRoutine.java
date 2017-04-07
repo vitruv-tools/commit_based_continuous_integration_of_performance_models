@@ -55,9 +55,9 @@ public class AddedMethodEventRoutine extends AbstractRepairRoutineRealization {
     if (opInterface == null) {
     	return;
     }
-    initializeRetrieveElementState(opInterface);
+    registerObjectUnderModification(opInterface);
     userExecution.callRoutine1(clazz, method, opInterface, actionsFacade);
     
-    postprocessElementStates();
+    postprocessElements();
   }
 }

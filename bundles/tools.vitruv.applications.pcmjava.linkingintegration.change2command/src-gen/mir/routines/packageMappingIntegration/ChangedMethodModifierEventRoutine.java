@@ -81,7 +81,7 @@ public class ChangedMethodModifierEventRoutine extends AbstractRepairRoutineReal
     	OperationSignature.class,
     	(OperationSignature _element) -> true, // correspondence precondition checker
     	null);
-    initializeRetrieveElementState(operationSignature);
+    registerObjectUnderModification(operationSignature);
     OperationInterface operationInterface = getCorrespondingElement(
     	userExecution.getCorrepondenceSourceOperationInterface(method, annotationOrModifier, operationSignature), // correspondence source supplier
     	OperationInterface.class,
@@ -90,9 +90,9 @@ public class ChangedMethodModifierEventRoutine extends AbstractRepairRoutineReal
     if (operationInterface == null) {
     	return;
     }
-    initializeRetrieveElementState(operationInterface);
+    registerObjectUnderModification(operationInterface);
     userExecution.callRoutine1(method, annotationOrModifier, operationSignature, operationInterface, actionsFacade);
     
-    postprocessElementStates();
+    postprocessElements();
   }
 }

@@ -61,10 +61,10 @@ public class MethodParameterNameChangedEventRoutine extends AbstractRepairRoutin
     if (pcmParam == null) {
     	return;
     }
-    initializeRetrieveElementState(pcmParam);
+    registerObjectUnderModification(pcmParam);
     // val updatedElement userExecution.getElement1(parameter, oldParameterName, newParameterName, pcmParam);
     userExecution.update0Element(parameter, oldParameterName, newParameterName, pcmParam);
     
-    postprocessElementStates();
+    postprocessElements();
   }
 }

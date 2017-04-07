@@ -26,6 +26,8 @@ import org.palladiosimulator.pcm.system.System;
 
 import tools.vitruv.extensions.constructionsimulation.traversal.util.ChangeBuildHelper;
 import tools.vitruv.framework.change.echange.EChange;
+import tools.vitruv.framework.change.echange.eobject.CreateEObject;
+import tools.vitruv.framework.change.echange.eobject.EobjectFactory;
 import tools.vitruv.framework.change.echange.feature.reference.InsertEReference;
 import tools.vitruv.framework.change.echange.feature.reference.ReferenceFactory;
 import tools.vitruv.framework.change.echange.root.InsertRootEObject;
@@ -181,11 +183,13 @@ public class PCMChangeBuildHelper extends ChangeBuildHelper {
     public static EList<EChange> createChangeFromProvidesComponent(final ProvidesComponentType component) {
         final EList<EChange> compositeChanges = new BasicEList<EChange>();
 
+        final CreateEObject<EObject> createChange = EobjectFactory.eINSTANCE.createCreateEObject();
         final InsertEReference<EObject,EObject> componentChange = ReferenceFactory.eINSTANCE
                 .createInsertEReference();
-        componentChange.setIsCreate(true);
+        createChange.setAffectedEObject(component);
         componentChange.setNewValue(component);
 
+        compositeChanges.add(createChange);
         compositeChanges.add(componentChange);
 
         for (final ProvidedRole role : component.getProvidedRoles_InterfaceProvidingEntity()) {
@@ -205,11 +209,13 @@ public class PCMChangeBuildHelper extends ChangeBuildHelper {
     public static EList<EChange> createChangeFromCompleteComponent(final CompleteComponentType component) {
         final EList<EChange> compositeChanges = new BasicEList<EChange>();
 
+        final CreateEObject<EObject> createChange = EobjectFactory.eINSTANCE.createCreateEObject();
         final InsertEReference<EObject,EObject> componentChange = ReferenceFactory.eINSTANCE
                 .createInsertEReference();
-        componentChange.setIsCreate(true);
+        createChange.setAffectedEObject(component);
         componentChange.setNewValue(component);
 
+        compositeChanges.add(createChange);
         compositeChanges.add(componentChange);
 
         for (final ProvidedRole role : component.getProvidedRoles_InterfaceProvidingEntity()) {

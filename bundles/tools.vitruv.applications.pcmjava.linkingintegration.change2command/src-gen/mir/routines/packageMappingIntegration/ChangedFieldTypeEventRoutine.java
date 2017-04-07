@@ -96,19 +96,19 @@ public class ChangedFieldTypeEventRoutine extends AbstractRepairRoutineRealizati
     	OperationInterface.class,
     	(OperationInterface _element) -> true, // correspondence precondition checker
     	null);
-    initializeRetrieveElementState(oldCorrespondingOpInterface);
+    registerObjectUnderModification(oldCorrespondingOpInterface);
     OperationInterface opInterface = getCorrespondingElement(
     	userExecution.getCorrepondenceSourceOpInterface(field, oldType, newType, oldCorrespondingOpInterface), // correspondence source supplier
     	OperationInterface.class,
     	(OperationInterface _element) -> true, // correspondence precondition checker
     	null);
-    initializeRetrieveElementState(opInterface);
+    registerObjectUnderModification(opInterface);
     OperationRequiredRole opRequiredRole = getCorrespondingElement(
     	userExecution.getCorrepondenceSourceOpRequiredRole(field, oldType, newType, oldCorrespondingOpInterface, opInterface), // correspondence source supplier
     	OperationRequiredRole.class,
     	(OperationRequiredRole _element) -> true, // correspondence precondition checker
     	null);
-    initializeRetrieveElementState(opRequiredRole);
+    registerObjectUnderModification(opRequiredRole);
     BasicComponent basicComponent = getCorrespondingElement(
     	userExecution.getCorrepondenceSourceBasicComponent(field, oldType, newType, oldCorrespondingOpInterface, opInterface, opRequiredRole), // correspondence source supplier
     	BasicComponent.class,
@@ -117,9 +117,9 @@ public class ChangedFieldTypeEventRoutine extends AbstractRepairRoutineRealizati
     if (basicComponent == null) {
     	return;
     }
-    initializeRetrieveElementState(basicComponent);
+    registerObjectUnderModification(basicComponent);
     userExecution.callRoutine1(field, oldType, newType, oldCorrespondingOpInterface, opInterface, opRequiredRole, basicComponent, actionsFacade);
     
-    postprocessElementStates();
+    postprocessElements();
   }
 }

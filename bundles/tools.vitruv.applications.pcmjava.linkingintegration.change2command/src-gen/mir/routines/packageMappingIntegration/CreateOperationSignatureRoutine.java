@@ -65,6 +65,6 @@ public class CreateOperationSignatureRoutine extends AbstractRepairRoutineRealiz
     // val updatedElement userExecution.getElement1(opInterface, newMethod);
     userExecution.update0Element(opInterface, newMethod);
     
-    postprocessElementStates();
+    postprocessElements();
   }
 }

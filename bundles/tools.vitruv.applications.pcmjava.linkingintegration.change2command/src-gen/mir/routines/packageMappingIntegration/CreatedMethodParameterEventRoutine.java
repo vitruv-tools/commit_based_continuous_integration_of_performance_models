@@ -83,12 +83,12 @@ public class CreatedMethodParameterEventRoutine extends AbstractRepairRoutineRea
     if (opSignature == null) {
     	return;
     }
-    initializeRetrieveElementState(opSignature);
+    registerObjectUnderModification(opSignature);
     addCorrespondenceBetween(userExecution.getElement1(method, parameter, opSignature), userExecution.getElement2(method, parameter, opSignature), "");
     
     // val updatedElement userExecution.getElement3(method, parameter, opSignature);
     userExecution.update0Element(method, parameter, opSignature);
     
-    postprocessElementStates();
+    postprocessElements();
   }
 }

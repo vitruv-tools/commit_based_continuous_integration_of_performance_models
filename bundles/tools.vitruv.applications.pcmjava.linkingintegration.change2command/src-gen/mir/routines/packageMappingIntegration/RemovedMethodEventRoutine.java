@@ -63,12 +63,12 @@ public class RemovedMethodEventRoutine extends AbstractRepairRoutineRealization 
     if (opSig == null) {
     	return;
     }
-    initializeRetrieveElementState(opSig);
+    registerObjectUnderModification(opSig);
     removeCorrespondenceBetween(userExecution.getElement1(method, opSig), userExecution.getElement2(method, opSig));
     
     // val updatedElement userExecution.getElement3(method, opSig);
     userExecution.update0Element(method, opSig);
     
-    postprocessElementStates();
+    postprocessElements();
   }
 }

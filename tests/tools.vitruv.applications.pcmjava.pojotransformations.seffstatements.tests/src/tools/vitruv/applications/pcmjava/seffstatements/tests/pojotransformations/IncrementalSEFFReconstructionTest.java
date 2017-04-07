@@ -13,7 +13,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.text.edits.InsertEdit;
 import org.emftext.language.java.members.Method;
 import org.junit.Test;
-import org.junit.runner.Description;
 import org.palladiosimulator.pcm.repository.OperationRequiredRole;
 import org.palladiosimulator.pcm.repository.OperationSignature;
 import org.palladiosimulator.pcm.repository.Repository;
@@ -65,8 +64,8 @@ public class IncrementalSEFFReconstructionTest extends JaMoPP2PCMTransformationT
      * methods each ((web)download and (web)upload).
      */
     @Override
-    protected void beforeTest(final Description description) throws Throwable {
-        super.beforeTest(description);
+    public void beforeTest() throws Throwable {
+        super.beforeTest();
         this.repository = this.createMediaStoreViaCode();
         this.webGUIPackageName = WEBGUI;
     }

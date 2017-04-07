@@ -60,11 +60,10 @@ public class AddedMethodEventParserRoutine extends AbstractRepairRoutineRealizat
     if (opInterface == null) {
     	return;
     }
-    initializeRetrieveElementState(opInterface);
+    registerObjectUnderModification(opInterface);
     OperationSignature opSig = RepositoryFactoryImpl.eINSTANCE.createOperationSignature();
-    initializeCreateElementState(opSig);
     userExecution.updateOpSigElement(clazz, method, opInterface, opSig);
     
-    postprocessElementStates();
+    postprocessElements();
   }
 }
