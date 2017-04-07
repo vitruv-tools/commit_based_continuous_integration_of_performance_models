@@ -9,7 +9,7 @@ import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponent
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.Code2SEFFFactory;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
 
-public class POJOJava2PCMCode2SEFFFactory implements Code2SEFFFactory {
+public class PojoJavaToPcmCodeToSeffFactory implements Code2SEFFFactory {
 
     @Override
     public BasicComponentFinding createBasicComponentFinding() {

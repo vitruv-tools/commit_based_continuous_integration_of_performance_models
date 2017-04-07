@@ -17,7 +17,7 @@ import tools.vitruv.framework.correspondence.CorrespondenceModel;
  * @author langhamm
  *
  */
-public class EJBCorrepondenceTypeDecider implements CorrespondenceTypeDeciding {
+public class EjbCorrepondenceTypeDecider implements CorrespondenceTypeDeciding {
 
     @Override
     public boolean useIntegratedCorrespondence(final EObject objectA, final EObject objectB,

@@ -7,7 +7,7 @@ import org.junit.runners.Suite
 @RunWith(Suite)
 
 @SuiteClasses( #[
-	EJBIncrementalSEFFReconstructionTest
+	EjbIncrementalSeffReconstructionTest
 ])
 class PcmJavaSeffstatementsEjbTransformationsTestSuite {
 	

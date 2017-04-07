@@ -8,9 +8,9 @@ import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponent
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.Code2SEFFFactory
 import tools.vitruv.framework.correspondence.CorrespondenceModel
 
-class EJBJava2PCMCode2SEFFFactory implements Code2SEFFFactory {
+class EjbJava2PcmCode2SeffFactory implements Code2SEFFFactory {
 	override BasicComponentFinding createBasicComponentFinding() {
-		return new EJBBasicComponentFinder()
+		return new EjbBasicComponentFinder()
 	}
 
 	override InterfaceOfExternalCallFinding createInterfaceOfExternalCallFinding(
@@ -20,13 +20,13 @@ class EJBJava2PCMCode2SEFFFactory implements Code2SEFFFactory {
 
 	override ResourceDemandingBehaviourForClassMethodFinding createResourceDemandingBehaviourForClassMethodFinding(
 		CorrespondenceModel correspondenceModel) {
-		return new ResourceDemandingBehaviourForClassMethodFinder4EJB(correspondenceModel)
+		return new ResourceDemandingBehaviourForClassMethodFinderForEjb(correspondenceModel)
 	}
 
 	override AbstractFunctionClassificationStrategy createAbstractFunctionClassificationStrategy(
 		BasicComponentFinding basicComponentFinding, CorrespondenceModel correspondenceModel,
 		BasicComponent basicComponent) {
-		return new EJB2PCMFunctionClassificationStrategy(basicComponentFinding, correspondenceModel,
+		return new Ejb2PcmFunctionClassificationStrategy(basicComponentFinding, correspondenceModel,
 			basicComponent)
 	}
 }

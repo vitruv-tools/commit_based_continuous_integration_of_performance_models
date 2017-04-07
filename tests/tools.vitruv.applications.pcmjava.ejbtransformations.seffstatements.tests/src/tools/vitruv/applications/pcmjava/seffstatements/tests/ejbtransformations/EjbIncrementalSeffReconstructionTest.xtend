@@ -13,7 +13,7 @@ import org.junit.Test
 import org.junit.Ignore
 import tools.vitruv.applications.pcmjava.seffstatements.ejbtransformations.JavaToPcmEjbWithSeffstatmentsChangePropagationSpecification
 
-class EJBIncrementalSEFFReconstructionTest extends IncrementalSEFFReconstructionTest {
+class EjbIncrementalSeffReconstructionTest extends IncrementalSEFFReconstructionTest {
 
 	override protected createChangePropagationSpecifications() {
 		return #[new JavaToPcmEjbWithSeffstatmentsChangePropagationSpecification()];

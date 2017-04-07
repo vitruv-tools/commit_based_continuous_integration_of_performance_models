@@ -4,7 +4,7 @@
    <extension
          point="tools.vitruv.applications.pcmjava.linkingintegration.correspondencetypedeciding">
       <provides
-            provider="tools.vitruv.applications.pcmjava.linkingintegration.ejbtransformations.EJBCorrepondenceTypeDecider">
+            provider="tools.vitruv.applications.pcmjava.linkingintegration.ejbtransformations.EjbCorrepondenceTypeDecider">
       </provides>
    </extension>
 </plugin>
