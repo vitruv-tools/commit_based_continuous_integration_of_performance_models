@@ -18,12 +18,12 @@ public class IntegrationClassMappingTransformationTest extends Java2PcmPackageIn
 
 	@Test
 	public void testAddClassInNonIntegratedArea() throws Throwable {
-		this.testUserInteractor.addNextSelections(SELECT_BASIC_COMPONENT);
+		this.getUserInteractor().addNextSelections(SELECT_BASIC_COMPONENT);
 		final BasicComponent bc = super.createSecondPackage(BasicComponent.class, NAME_OF_NOT_INTEGRATED_PACKAGE);
 
 		// add Class in package that should correspond to a basic component
 		// after it has been added
-		this.testUserInteractor.addNextSelections(0);
+		this.getUserInteractor().addNextSelections(0);
 		BasicComponent bcForClass = super.addClassInSecondPackage(BasicComponent.class);
 
 		super.assertRepositoryAndPCMName(bc.getRepository__RepositoryComponent(), bc, bcForClass.getEntityName());

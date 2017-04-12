@@ -257,7 +257,7 @@ public class IncrementalSeffReconstructionTest extends Java2PcmTransformationTes
         final String downloadHelperCode = "\npublic void " + methodName + "( " + parameterCode + "){\n}\n";
         this.createClassInPackage(this.getPackageWithNameFromCorrespondenceModel(packageName), className);
         CompilationUnitManipulatorHelper.addMethodToCompilationUnit(className, downloadHelperCode,
-                this.currentTestProject, this);
+                this.getCurrentTestProject(), this);
         this.editMethod(codeForHelper, className, methodName, false);
     }
 
@@ -278,7 +278,7 @@ public class IncrementalSeffReconstructionTest extends Java2PcmTransformationTes
         final String compilationUnitName = WEBGUI + "Impl";
         final String methodHeader = "private void " + methodName + "(){\n}";
         CompilationUnitManipulatorHelper.addMethodToCompilationUnit(compilationUnitName, methodHeader,
-                this.currentTestProject, this);
+                this.getCurrentTestProject(), this);
         this.editMethod(methodContent, compilationUnitName, methodName, false);
 
     }
@@ -297,7 +297,7 @@ public class IncrementalSeffReconstructionTest extends Java2PcmTransformationTes
 
     private String getExternalCallToOtherComponentClassCode() throws Throwable {
         final ICompilationUnit icu = CompilationUnitManipulatorHelper
-                .findICompilationUnitWithClassName(WEBGUI_CLASSNAME, this.currentTestProject);
+                .findICompilationUnitWithClassName(WEBGUI_CLASSNAME, this.getCurrentTestProject());
         super.importCompilationUnitWithName(MEDIA_STORE_CLASSNAME, icu);
         String code = MEDIA_STORE_CLASSNAME + " " + MEDIA_STORE_CLASSNAME.toLowerCase() + " = " + "new "
                 + MEDIA_STORE_CLASSNAME + "();";
@@ -315,7 +315,7 @@ public class IncrementalSeffReconstructionTest extends Java2PcmTransformationTes
             final String methodName, final boolean shouldHaveCorrespndingSEFFAfterEdit)
                     throws Throwable, JavaModelException {
         final ICompilationUnit iCu = CompilationUnitManipulatorHelper
-                .findICompilationUnitWithClassName(compilationUnitName, this.currentTestProject);
+                .findICompilationUnitWithClassName(compilationUnitName, this.getCurrentTestProject());
         final IMethod iMethod = super.findIMethodByName(compilationUnitName, methodName, iCu);
         int offset = iMethod.getSourceRange().getOffset();
         offset += iMethod.getSource().length() - 2;

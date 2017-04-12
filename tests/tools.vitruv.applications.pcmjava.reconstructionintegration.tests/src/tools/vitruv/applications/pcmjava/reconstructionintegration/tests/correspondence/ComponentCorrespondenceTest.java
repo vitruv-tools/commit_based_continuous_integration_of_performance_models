@@ -36,7 +36,7 @@ public class ComponentCorrespondenceTest extends BasicCorrespondenceTest {
 
         // Execute the synchronization and check if the source code updated
         // correctly
-        this.triggerSynchronization(VURI.getInstance(basicComponent.eResource()));
+        this.saveAndSynchronizeChanges(basicComponent);
         this.assertBasicComponentCorrespondences(basicComponent);
     }
 

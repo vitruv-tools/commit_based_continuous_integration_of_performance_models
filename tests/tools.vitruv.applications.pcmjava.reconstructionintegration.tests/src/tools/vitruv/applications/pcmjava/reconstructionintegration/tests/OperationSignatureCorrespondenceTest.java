@@ -43,7 +43,7 @@ public class OperationSignatureCorrespondenceTest extends BasicCorrespondenceTes
         signature.setEntityName("SignatureRenamed");
 
         // Save and execute synchronization
-        this.triggerSynchronization(VURI.getInstance(signature.eResource()));
+        this.saveAndSynchronizeChanges(signature);
 
         // Check if corresponding JaMoPP Method is available and has
         // updated correctly

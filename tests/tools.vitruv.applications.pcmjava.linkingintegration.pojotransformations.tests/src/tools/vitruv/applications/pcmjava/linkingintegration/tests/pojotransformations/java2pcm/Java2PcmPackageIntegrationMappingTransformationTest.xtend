@@ -44,7 +44,7 @@ class Java2PcmPackageIntegrationMappingTransformationTest extends Java2PcmPackag
 	}
 
 	def protected void assertMessage(int expectedSize, String... expectedMessages) {
-		val Collection<String> messageLog = super.testUserInteractor.getMessageLog();
+		val Collection<String> messageLog = super.getUserInteractor().getMessageLog();
 		assertEquals("Size of message log is wrong", expectedSize, messageLog.size());
 
 		val Iterator<String> iterator = messageLog.iterator();
