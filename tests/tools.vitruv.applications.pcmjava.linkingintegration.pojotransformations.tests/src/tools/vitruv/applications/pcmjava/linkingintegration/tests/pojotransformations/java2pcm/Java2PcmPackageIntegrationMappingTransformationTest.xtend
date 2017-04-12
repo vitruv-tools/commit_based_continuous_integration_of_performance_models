@@ -34,11 +34,11 @@ class Java2PcmPackageIntegrationMappingTransformationTest extends Java2PcmPackag
 
 	override protected initializeTestProject(String name) throws CoreException {
 		val workspace = ResourcesPlugin.getWorkspace()
-		this.currentTestProjectName = CodeIntegrationTestCBSNamespace.TEST_PROJECT_NAME
-		CodeIntegrationUtils.importTestProjectFromBundleData(workspace, this.currentTestProjectName,
+		val testProjectName = CodeIntegrationTestCBSNamespace.TEST_PROJECT_NAME
+		CodeIntegrationUtils.importTestProjectFromBundleData(workspace, testProjectName,
 			CodeIntegrationTestCBSNamespace.TEST_BUNDLE_NAME, CodeIntegrationTestCBSNamespace.SOURCE_CODE_PATH)
 
-		val testProject = workspace.getRoot().getProject(CodeIntegrationTestCBSNamespace.TEST_PROJECT_NAME)
+		val testProject = workspace.getRoot().getProject(testProjectName)
 		CodeIntegrationUtils.integratProject(currentTestProject)
 		return testProject;
 	}
