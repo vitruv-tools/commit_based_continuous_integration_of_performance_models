@@ -32,14 +32,15 @@ class Java2PcmPackageIntegrationMappingTransformationTest extends Java2PcmPackag
 		super.beforeTest()
 	}
 
-	override protected void createTestProject(String name) throws CoreException {
+	override protected initializeTestProject(String name) throws CoreException {
 		val workspace = ResourcesPlugin.getWorkspace()
 		this.currentTestProjectName = CodeIntegrationTestCBSNamespace.TEST_PROJECT_NAME
 		CodeIntegrationUtils.importTestProjectFromBundleData(workspace, this.currentTestProjectName,
 			CodeIntegrationTestCBSNamespace.TEST_BUNDLE_NAME, CodeIntegrationTestCBSNamespace.SOURCE_CODE_PATH)
 
-		this.currentTestProject = workspace.getRoot().getProject(CodeIntegrationTestCBSNamespace.TEST_PROJECT_NAME)
+		val testProject = workspace.getRoot().getProject(CodeIntegrationTestCBSNamespace.TEST_PROJECT_NAME)
 		CodeIntegrationUtils.integratProject(currentTestProject)
+		return testProject;
 	}
 
 	def protected void assertMessage(int expectedSize, String... expectedMessages) {
