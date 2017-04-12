@@ -64,9 +64,13 @@ public class IncrementalSeffReconstructionTest extends Java2PcmTransformationTes
      * methods each ((web)download and (web)upload).
      */
     @Override
-    public void beforeTest() throws Throwable {
+    public void beforeTest() {
         super.beforeTest();
-        this.repository = this.createMediaStoreViaCode();
+        try {
+        	this.repository = this.createMediaStoreViaCode();
+        } catch (Throwable t) {
+        	fail("Exception during model creationg");
+        }
         this.webGUIPackageName = WEBGUI;
     }
 

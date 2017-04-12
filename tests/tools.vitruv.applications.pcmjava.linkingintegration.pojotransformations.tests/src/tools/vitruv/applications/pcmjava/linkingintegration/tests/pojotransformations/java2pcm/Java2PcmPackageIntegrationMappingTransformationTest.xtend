@@ -1,7 +1,6 @@
 package tools.vitruv.applications.pcmjava.linkingintegration.tests.pojotransformations.java2pcm
 
 import org.eclipse.core.resources.ResourcesPlugin
-import org.eclipse.core.runtime.CoreException
 import java.util.Iterator
 import java.util.Collection
 import static org.junit.Assert.assertEquals
@@ -28,11 +27,11 @@ class Java2PcmPackageIntegrationMappingTransformationTest extends Java2PcmPackag
 		return #[new Java2PcmIntegrationChangePropagationSpecification(), new Pcm2JavaIntegrationChangePropagationSpecification()];
 	}
 
-	override public void beforeTest() throws Throwable {
+	override public void beforeTest() {
 		super.beforeTest()
 	}
 
-	override protected initializeTestProject(String name) throws CoreException {
+	override protected initializeTestProject(String name) {
 		val workspace = ResourcesPlugin.getWorkspace()
 		val testProjectName = CodeIntegrationTestCBSNamespace.TEST_PROJECT_NAME
 		CodeIntegrationUtils.importTestProjectFromBundleData(workspace, testProjectName,

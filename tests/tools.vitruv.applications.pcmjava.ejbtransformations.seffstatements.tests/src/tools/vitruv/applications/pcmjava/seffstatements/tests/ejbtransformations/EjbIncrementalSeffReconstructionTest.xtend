@@ -20,7 +20,7 @@ class EjbIncrementalSeffReconstructionTest extends IncrementalSeffReconstruction
 	}
 
 	@Override
-	override public void beforeTest() throws Throwable {
+	override public void beforeTest() {
 		super.beforeTest()
 		super.setWebGUIPackageName = Pcm2JavaTestUtils.REPOSITORY_NAME
 	}
