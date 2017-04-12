@@ -1,6 +1,5 @@
 package tools.vitruv.applications.pcmjava.reconstructionintegration.tests.correspondence;
 
-import java.util.Collections;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.emftext.language.java.classifiers.Class;
@@ -12,7 +11,6 @@ import org.palladiosimulator.pcm.repository.RepositoryComponent;
 import org.palladiosimulator.pcm.repository.RepositoryPackage;
 
 import tools.vitruv.applications.pcmjava.reconstructionintegration.tests.BasicCorrespondenceTest;
-import tools.vitruv.framework.util.datatypes.VURI;
 
 /**
  * Class for testing correspondences between PCM components and Java classes.
@@ -29,7 +27,6 @@ public class ComponentCorrespondenceTest extends BasicCorrespondenceTest {
     public void testRenameBasicComponent() throws Throwable {
 
         // Get a component and rename it
-        this.changeRecorder.beginRecording(VURI.getInstance(pcmRepo.eResource()), Collections.singletonList(this.pcmRepo));
         final BasicComponent basicComponent = (BasicComponent) EcoreUtil.getObjectByType(this.pcmRepo.eContents(),
                 RepositoryPackage.eINSTANCE.getBasicComponent());
         basicComponent.setEntityName("ComponentRenamed");

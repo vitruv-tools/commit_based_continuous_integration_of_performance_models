@@ -101,6 +101,7 @@ public class BasicCorrespondenceTest extends Pcm2JavaTransformationTest {
         final ModelInstance pcmInstance = this.getVirtualModel().getModelInstance(sourceModelURI);
 
         this.pcmRepo = pcmInstance.getUniqueRootEObjectIfCorrectlyTyped(Repository.class);
+        startRecordingChanges(pcmRepo);
     }
 
     /*

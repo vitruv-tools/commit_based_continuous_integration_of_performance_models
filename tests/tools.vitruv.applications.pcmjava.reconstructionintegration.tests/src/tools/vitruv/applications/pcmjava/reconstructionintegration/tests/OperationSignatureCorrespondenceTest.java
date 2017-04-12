@@ -2,7 +2,6 @@ package tools.vitruv.applications.pcmjava.reconstructionintegration.tests;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Collections;
 import java.util.Iterator;
 
 import org.emftext.language.java.members.Method;
@@ -11,8 +10,6 @@ import org.junit.Test;
 import org.palladiosimulator.pcm.repository.Interface;
 import org.palladiosimulator.pcm.repository.OperationInterface;
 import org.palladiosimulator.pcm.repository.OperationSignature;
-
-import tools.vitruv.framework.util.datatypes.VURI;
 
 /**
  * Class for testing correspondences between PCM operationSignatures and JaMoPP interfaceMethods.
@@ -39,7 +36,6 @@ public class OperationSignatureCorrespondenceTest extends BasicCorrespondenceTes
         assertNotNull("PCM Repository doesn't contain any OperationSignatures!", signature);
 
         // Start change recorder and rename signature
-        this.changeRecorder.beginRecording(VURI.getInstance(pcmRepo.eResource()), Collections.singletonList(pcmRepo));
         signature.setEntityName("SignatureRenamed");
 
         // Save and execute synchronization
