@@ -47,8 +47,6 @@ public class TraversalHandlerTest {
     public void setUpTest() throws Exception {
 
         final Iterable<Metamodel> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
-        // TODO Use the correct change2command transformings here
-//        final Change2CommandTransformingProviding change2CommandTransformingProviding = new Change2CommandTransformingProvidingImpl();
         this.vsum = TestUtil.createVirtualModel("testvsum", metamodels);
         this.resourceSet = new ResourceSetImpl();
     }

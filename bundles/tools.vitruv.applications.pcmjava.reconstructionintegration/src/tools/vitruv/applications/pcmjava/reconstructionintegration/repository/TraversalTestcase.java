@@ -52,8 +52,6 @@ public class TraversalTestcase {
 
         // create syncManager
         final Iterable<Metamodel> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
-        // TODO Create correct change2command transformings here
-        //final Change2CommandTransformingProvidingImpl change2CommandTransformingProviding = new Change2CommandTransformingProvidingImpl();
         final InternalVirtualModel vsum = TestUtil.createVirtualModel("testVsum", metamodels);
 
         final VitruviusChange compositeChange = VitruviusChangeFactory.getInstance().createCompositeChange(changes);
