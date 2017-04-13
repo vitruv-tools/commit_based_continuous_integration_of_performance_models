@@ -14,6 +14,7 @@ import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegratio
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Java2PcmIntegrationChangePropagationSpecification
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Pcm2JavaIntegrationChangePropagationSpecification
 import tools.vitruv.applications.pcmjava.tests.pojotransformations.java2pcm.Java2PcmPackageMappingTransformationTest
+import org.eclipse.core.resources.IProject
 
 class Java2PcmPackageIntegrationMappingTransformationTest extends Java2PcmPackageMappingTransformationTest {
 
@@ -27,18 +28,22 @@ class Java2PcmPackageIntegrationMappingTransformationTest extends Java2PcmPackag
 		return #[new Java2PcmIntegrationChangePropagationSpecification(), new Pcm2JavaIntegrationChangePropagationSpecification()];
 	}
 
+	new() {
+		testProjectCreator = [name | initializeTestProject(name)];
+	}
+	
 	override public void beforeTest() {
 		super.beforeTest()
 	}
 
-	override protected initializeTestProject(String name) {
+	def static private IProject initializeTestProject(String name) {
 		val workspace = ResourcesPlugin.getWorkspace()
 		val testProjectName = CodeIntegrationTestCBSNamespace.TEST_PROJECT_NAME
 		CodeIntegrationUtils.importTestProjectFromBundleData(workspace, testProjectName,
 			CodeIntegrationTestCBSNamespace.TEST_BUNDLE_NAME, CodeIntegrationTestCBSNamespace.SOURCE_CODE_PATH)
 
 		val testProject = workspace.getRoot().getProject(testProjectName)
-		CodeIntegrationUtils.integratProject(currentTestProject)
+		CodeIntegrationUtils.integratProject(testProject)
 		return testProject;
 	}
 
