@@ -111,7 +111,7 @@ public class BasicCorrespondenceTest extends Pcm2JavaTransformationTest {
      * PCM2JaMoPPTransformationTest#getCorrespondenceModel()
      */
     @Override
-    protected CorrespondenceModel getCorrespondenceModel() throws Throwable {
+    protected CorrespondenceModel getCorrespondenceModel() {
         final CorrespondenceModel correspondenceModel2 = this.transformation.getCorrespondenceModel();
         return correspondenceModel2;
     }
