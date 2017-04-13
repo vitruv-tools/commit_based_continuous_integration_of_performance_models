@@ -15,7 +15,6 @@ import org.palladiosimulator.pcm.repository.Repository;
 import tools.vitruv.applications.pcmjava.reconstructionintegration.transformations.PcmJavaCorrespondenceModelTransformation;
 import tools.vitruv.applications.pcmjava.tests.pojotransformations.pcm2java.Pcm2JavaTransformationTest;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
-import tools.vitruv.framework.tests.util.TestUtil;
 import tools.vitruv.framework.util.datatypes.ModelInstance;
 import tools.vitruv.framework.util.datatypes.VURI;
 
@@ -97,7 +96,7 @@ public class BasicCorrespondenceTest extends Pcm2JavaTransformationTest {
         }
 
         // Add the PCM model to Vitruvius
-        final VURI sourceModelURI = VURI.getInstance(TestUtil.PROJECT_URI + "/" + PCM_REPOSITORY);
+        final VURI sourceModelURI = VURI.getInstance(getCurrentTestProject().getName() + "/" + PCM_REPOSITORY);
         final ModelInstance pcmInstance = this.getVirtualModel().getModelInstance(sourceModelURI);
 
         this.pcmRepo = pcmInstance.getUniqueRootEObjectIfCorrectlyTyped(Repository.class);
