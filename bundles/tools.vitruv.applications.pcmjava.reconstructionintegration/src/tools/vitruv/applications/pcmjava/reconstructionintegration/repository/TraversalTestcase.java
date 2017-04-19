@@ -7,7 +7,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.palladiosimulator.pcm.repository.Repository;
 
 import tools.vitruv.framework.change.description.VitruviusChangeFactory;
-import tools.vitruv.framework.metamodel.Metamodel;
+import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
 import tools.vitruv.domains.pcm.util.RepositoryModelLoader;
 import tools.vitruv.extensions.constructionsimulation.traversal.ITraversalStrategy;
@@ -51,8 +51,8 @@ public class TraversalTestcase {
         }
 
         // create syncManager
-        final Iterable<Metamodel> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
-        final InternalVirtualModel vsum = TestUtil.createVirtualModel("testVsum", metamodels);
+        final Iterable<VitruvDomain> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
+        final InternalVirtualModel vsum = TestUtil.createVirtualModel("testVsum", true, metamodels);
 
         final VitruviusChange compositeChange = VitruviusChangeFactory.getInstance().createCompositeChange(changes);
         // propagate changes

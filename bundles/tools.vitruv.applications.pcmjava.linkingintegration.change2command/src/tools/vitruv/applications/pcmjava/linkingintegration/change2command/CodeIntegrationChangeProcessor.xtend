@@ -8,24 +8,17 @@ import tools.vitruv.framework.change.description.TransactionalChange
 import tools.vitruv.framework.change.description.CompositeTransactionalChange
 import tools.vitruv.framework.change.description.ConcreteChange
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.internal.IntegrationChange2CommandResult
-import tools.vitruv.framework.util.datatypes.MetamodelPair
-import tools.vitruv.domains.java.JavaNamespace
-import tools.vitruv.domains.pcm.PcmNamespace
 import tools.vitruv.framework.change.processing.impl.AbstractChangePropagationSpecification
 import tools.vitruv.framework.util.command.ChangePropagationResult
+import tools.vitruv.domains.java.JavaDomainProvider
+import tools.vitruv.domains.pcm.PcmDomainProvider
 
 class CodeIntegrationChangeProcessor extends AbstractChangePropagationSpecification {
 	private val IntegrationChange2CommandTransformer integrationTransformer;
-	private val MetamodelPair metamodelPair;
 	
 	new(UserInteracting userInteracting) {
-		super(userInteracting);
-		this.metamodelPair = new MetamodelPair(JavaNamespace.METAMODEL_NAMESPACE, PcmNamespace.METAMODEL_NAMESPACE);
+		super(userInteracting, new JavaDomainProvider().domain, new PcmDomainProvider().domain);
 		this.integrationTransformer = new IntegrationChange2CommandTransformer(getUserInteracting());
-	}
-	
-	override getMetamodelPair() {
-		return metamodelPair;
 	}
 	
 	override doesHandleChange(TransactionalChange change, CorrespondenceModel correspondenceModel) {

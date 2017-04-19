@@ -34,7 +34,7 @@ import tools.vitruv.domains.java.builder.VitruviusJavaBuilderApplicator;
 import tools.vitruv.domains.java.JavaNamespace;
 import tools.vitruv.domains.pcm.PcmNamespace;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
-import tools.vitruv.framework.metamodel.Metamodel;
+import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.framework.correspondence.Correspondence;
 import tools.vitruv.framework.tuid.Tuid;
 import tools.vitruv.framework.util.datatypes.VURI;
@@ -126,7 +126,7 @@ public class CodeIntegrationTest {
         Assert.assertNotNull(vsumFolder);
 
         VirtualModelConfiguration config = new VirtualModelConfiguration();
-        for (Metamodel metamodel : PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels()) {
+        for (VitruvDomain metamodel : PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels()) {
         	config.addMetamodel(metamodel);
         }
         virtualModel = new VirtualModelImpl(META_PROJECT_NAME, config);

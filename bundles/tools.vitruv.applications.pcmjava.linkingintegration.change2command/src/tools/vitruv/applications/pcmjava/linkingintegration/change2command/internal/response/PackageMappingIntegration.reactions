@@ -18,8 +18,8 @@ import "http://palladiosimulator.org/PalladioComponentModel/5.1" as pcm
 
 // TODO We can convert several custom statements to reactions language statements, e.g. correspondence creation, element creation
 reactions: PackageMappingIntegration
-in reaction to changes in java
-execute actions in pcm
+in reaction to changes in Java
+execute actions in PCM
 
 //empty implementation for add and remove imports
 reaction AddImportReaction {

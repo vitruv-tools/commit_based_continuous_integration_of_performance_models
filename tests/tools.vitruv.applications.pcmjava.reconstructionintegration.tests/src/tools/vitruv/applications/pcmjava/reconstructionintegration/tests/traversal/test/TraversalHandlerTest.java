@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.palladiosimulator.pcm.repository.Repository;
 
 import tools.vitruv.framework.change.description.VitruviusChangeFactory;
-import tools.vitruv.framework.metamodel.Metamodel;
+import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.applications.pcmjava.reconstructionintegration.repository.RepositoryTraversalStrategy;
 import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
 import tools.vitruv.framework.change.description.VitruviusChange;
@@ -46,8 +46,8 @@ public class TraversalHandlerTest {
     @Before
     public void setUpTest() throws Exception {
 
-        final Iterable<Metamodel> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
-        this.vsum = TestUtil.createVirtualModel("testvsum", metamodels);
+        final Iterable<VitruvDomain> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
+        this.vsum = TestUtil.createVirtualModel("testvsum", true, metamodels);
         this.resourceSet = new ResourceSetImpl();
     }
 

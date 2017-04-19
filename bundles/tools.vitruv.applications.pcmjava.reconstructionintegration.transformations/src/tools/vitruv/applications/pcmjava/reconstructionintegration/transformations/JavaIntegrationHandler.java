@@ -11,7 +11,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
 import tools.vitruv.extensions.constructionsimulation.handler.IntegrationHandler;
 import tools.vitruv.extensions.constructionsimulation.util.IntegrationUtil;
-import tools.vitruv.framework.metamodel.Metamodel;
+import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
 
 public class JavaIntegrationHandler extends IntegrationHandler<IJavaProject> {
@@ -54,7 +54,7 @@ public class JavaIntegrationHandler extends IntegrationHandler<IJavaProject> {
             throw new IllegalArgumentException("Run SoMoX first!");
         }
 
-        final Iterable<Metamodel> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
+        final Iterable<VitruvDomain> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
         final InternalVirtualModel vsum = IntegrationUtil.createVsum(metamodels);
 //        vsum.getOrCreateAllCorrespondenceModelsForMM(
 //                metaRepository.getMetamodel(VURI.getInstance(PcmNamespace.PCM_METAMODEL_NAMESPACE)));

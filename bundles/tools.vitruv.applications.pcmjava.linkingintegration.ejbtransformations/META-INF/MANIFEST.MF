@@ -15,5 +15,6 @@ Require-Bundle: com.google.guava,
  tools.vitruv.framework.change.processing,
  tools.vitruv.applications.pcmjava.ejbtransformations.java2pcm,
  tools.vitruv.applications.pcmjava.linkingintegration,
- tools.vitruv.applications.pcmjava.linkingintegration.change2command
+ tools.vitruv.applications.pcmjava.linkingintegration.change2command,
+ tools.vitruv.framework.metamodel
 

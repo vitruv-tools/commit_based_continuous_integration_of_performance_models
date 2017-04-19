@@ -19,7 +19,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 
 import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
 import tools.vitruv.applications.pcmjava.linkingintegration.PcmJavaCorrespondenceModelTransformation;
-import tools.vitruv.framework.metamodel.Metamodel;
+import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
 import tools.vitruv.framework.vsum.VirtualModelConfiguration;
 import tools.vitruv.framework.vsum.VirtualModelImpl;
@@ -72,9 +72,9 @@ public class IntegrateProjectHandler extends AbstractHandler {
             throw new IllegalArgumentException("Run SoMoX first!");
         }
 
-        final Iterable<Metamodel> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
+        final Iterable<VitruvDomain> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
         VirtualModelConfiguration config = new VirtualModelConfiguration();
-        for (Metamodel metamodel : metamodels) {
+        for (VitruvDomain metamodel : metamodels) {
         	config.addMetamodel(metamodel);
         }
         // TODO HK Use other name

@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Vitruvius PCM-Java Linking Integration Change2Command Specification
 Bundle-SymbolicName: tools.vitruv.applications.pcmjava.linkingintegration.change2command
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: tools.vitruv.applications.pcmjava.linkingintegration.change2command
 Require-Bundle: org.apache.log4j,
  com.google.guava,
@@ -26,4 +25,7 @@ Require-Bundle: org.apache.log4j,
  tools.vitruv.extensions.integration.correspondence,
  tools.vitruv.applications.pcmjava.pojotransformations.pcm2java,
  tools.vitruv.applications.pcmjava.pojotransformations.java2pcm,
- tools.vitruv.applications.pcmjava.util
+ tools.vitruv.applications.pcmjava.util,
+ tools.vitruv.domains.java,
+ tools.vitruv.domains.pcm
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

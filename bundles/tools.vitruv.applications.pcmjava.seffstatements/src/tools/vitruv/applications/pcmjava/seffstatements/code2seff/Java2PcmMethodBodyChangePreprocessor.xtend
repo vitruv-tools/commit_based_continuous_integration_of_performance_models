@@ -16,26 +16,19 @@ import tools.vitruv.framework.correspondence.CorrespondenceModel
 import java.util.ArrayList
 import tools.vitruv.framework.change.description.CompositeTransactionalChange
 import tools.vitruv.framework.change.description.TransactionalChange
-import tools.vitruv.framework.util.datatypes.MetamodelPair
-import org.emftext.language.java.JavaPackage
-import org.palladiosimulator.pcm.PcmPackage
 import tools.vitruv.framework.change.processing.impl.AbstractChangePropagationSpecification
 import tools.vitruv.framework.util.command.ChangePropagationResult
+import tools.vitruv.domains.java.JavaDomainProvider
+import tools.vitruv.domains.pcm.PcmDomainProvider
 
 class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpecification {
 	private val Code2SeffFactory code2SeffFactory;
-	private val MetamodelPair metamodelPair;
 	
 	new(UserInteracting userInteracting, Code2SeffFactory code2SEFFfactory) {
-		super(userInteracting);
-		this.metamodelPair = new MetamodelPair(JavaPackage.eNS_URI, PcmPackage.eNS_URI);
+		super(userInteracting, new JavaDomainProvider().domain, new PcmDomainProvider().domain);
 		this.code2SeffFactory = code2SEFFfactory
 	}
 
-	override getMetamodelPair() {
-		return metamodelPair;
-	}
-	
 	override propagateChange(TransactionalChange change, CorrespondenceModel correspondenceModel) {
 		if (doesHandleChange(change, correspondenceModel)) {
 			val compositeChange = change as CompositeTransactionalChange;

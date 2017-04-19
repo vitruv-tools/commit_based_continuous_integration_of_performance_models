@@ -28,7 +28,7 @@ import tools.vitruv.extensions.constructionsimulation.invariantcheckers.IMModelI
 import tools.vitruv.extensions.constructionsimulation.traversal.util.UnorderedReferencesRespectingEqualityHelper;
 import tools.vitruv.extensions.constructionsimulation.util.IntegrationUtil;
 import tools.vitruv.extensions.constructionsimulation.util.ResourceHelper;
-import tools.vitruv.framework.metamodel.Metamodel;
+import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.framework.util.bridges.EMFBridge;
 import tools.vitruv.framework.util.datatypes.ModelInstance;
 import tools.vitruv.framework.util.datatypes.VURI;
@@ -69,7 +69,7 @@ public class PcmIntegrationHandler extends IntegrationHandler<IFile> {
 
         if (vmodel == null) {
         	// TODO No change2command transformers are added here
-        	final Iterable<Metamodel> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
+        	final Iterable<VitruvDomain> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
             vmodel = IntegrationUtil.createVsum(metamodels);
         }
 
@@ -100,7 +100,7 @@ public class PcmIntegrationHandler extends IntegrationHandler<IFile> {
         }
 
         // create underlying elements (MetaRepo, VSUM,...)
-        final Iterable<Metamodel> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
+        final Iterable<VitruvDomain> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
         final InternalVirtualModel vmodel = IntegrationUtil.createVsum(metamodels);
 
         // find all referenced repositories and integrate them first
