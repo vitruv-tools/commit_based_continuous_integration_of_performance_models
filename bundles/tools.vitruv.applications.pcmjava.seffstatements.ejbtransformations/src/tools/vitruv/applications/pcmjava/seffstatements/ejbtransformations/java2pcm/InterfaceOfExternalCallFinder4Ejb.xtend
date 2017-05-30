@@ -11,6 +11,7 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF
 import java.util.Set
 import org.apache.log4j.Logger
 import tools.vitruv.framework.correspondence.CorrespondenceModel
+import org.emftext.language.java.statements.Statement
 
 class InterfaceOfExternalCallFinder4Ejb implements InterfaceOfExternalCallFinding {
 	
@@ -24,7 +25,7 @@ class InterfaceOfExternalCallFinder4Ejb implements InterfaceOfExternalCallFindin
 		this.basicComponent = basicComponent
 	}
 
-	override InterfacePortOperationTuple getCalledInterfacePort(Method calledMethod) {
+	override InterfacePortOperationTuple getCalledInterfacePort(Method calledMethod, Statement statement) {
 		val interfacePortOperationTuple = new org.somox.gast2seff.visitors.InterfaceOfExternalCallFinding.InterfacePortOperationTuple
 		val OperationSignature opSig = calledMethod.queryInterfaceOperation
 		if(null != opSig){

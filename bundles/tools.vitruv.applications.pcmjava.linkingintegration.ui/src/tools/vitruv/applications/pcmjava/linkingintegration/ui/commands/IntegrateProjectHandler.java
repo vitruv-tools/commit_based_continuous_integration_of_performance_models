@@ -20,6 +20,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
 import tools.vitruv.applications.pcmjava.linkingintegration.PcmJavaCorrespondenceModelTransformation;
 import tools.vitruv.framework.domains.VitruvDomain;
+import tools.vitruv.framework.userinteraction.impl.UserInteractor;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
 import tools.vitruv.framework.vsum.VirtualModelConfiguration;
 import tools.vitruv.framework.vsum.VirtualModelImpl;
@@ -78,7 +79,8 @@ public class IntegrateProjectHandler extends AbstractHandler {
         	config.addMetamodel(metamodel);
         }
         // TODO HK Use other name
-        final InternalVirtualModel vsum = new VirtualModelImpl("virtuvius.meta", config);
+        File vsumFolder = new File(project.getLocation().toFile(), "virtuvius.meta");
+        final InternalVirtualModel vsum = new VirtualModelImpl(vsumFolder, new UserInteractor(), config);
 
         final PcmJavaCorrespondenceModelTransformation transformation = new PcmJavaCorrespondenceModelTransformation(
                 scdmPath.toString(), pcmPath.toString(), jamoppPaths, vsum, projectBase);

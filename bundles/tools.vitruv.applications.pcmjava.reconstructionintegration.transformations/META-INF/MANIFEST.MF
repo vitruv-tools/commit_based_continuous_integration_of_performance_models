@@ -33,6 +33,7 @@ Require-Bundle: org.apache.commons.logging,
  tools.vitruv.extensions.constructionsimulation.util,
  tools.vitruv.extensions.constructionsimulation,
  tools.vitruv.domains.pcm.util,
- tools.vitruv.applications.pcmjava.util
+ tools.vitruv.applications.pcmjava.util,
+ org.eclipse.core.commands
 Export-Package: tools.vitruv.applications.pcmjava.reconstructionintegration.transformations
 

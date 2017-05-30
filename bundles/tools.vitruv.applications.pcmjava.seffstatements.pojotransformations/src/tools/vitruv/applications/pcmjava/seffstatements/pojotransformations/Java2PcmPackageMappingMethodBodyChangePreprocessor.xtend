@@ -6,6 +6,6 @@ import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code
 
 class Java2PcmPackageMappingMethodBodyChangePreprocessor extends Java2PcmMethodBodyChangePreprocessor {
 	new(UserInteracting userInteracting) {
-		super(userInteracting, new PojoJava2PcmCodeToSeffFactory());
+		super(new PojoJava2PcmCodeToSeffFactory());
 	}
 }

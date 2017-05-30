@@ -1,5 +1,8 @@
 package tools.vitruv.applications.pcmjava.reconstructionintegration.tests.traversal.test;
 
+import java.io.File;
+import java.util.Collections;
+
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -16,6 +19,7 @@ import tools.vitruv.applications.pcmjava.reconstructionintegration.repository.Re
 import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
 import tools.vitruv.framework.change.description.VitruviusChange;
 import tools.vitruv.framework.tests.util.TestUtil;
+import tools.vitruv.framework.userinteraction.impl.UserInteractor;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
 import tools.vitruv.domains.pcm.util.RepositoryModelLoader;
 import tools.vitruv.extensions.constructionsimulation.traversal.ITraversalStrategy;
@@ -45,9 +49,8 @@ public class TraversalHandlerTest {
      */
     @Before
     public void setUpTest() throws Exception {
-
         final Iterable<VitruvDomain> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
-        this.vsum = TestUtil.createVirtualModel("testvsum", true, metamodels);
+        this.vsum = TestUtil.createVirtualModel("testvsum", true, metamodels, Collections.emptyList(), new UserInteractor());
         this.resourceSet = new ResourceSetImpl();
     }
 

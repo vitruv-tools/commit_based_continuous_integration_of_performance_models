@@ -48,7 +48,7 @@ public class ChangedMethodModifierEventRoutine extends AbstractRepairRoutineReal
       } else {
         if (((!Objects.equal(null, operationSignature)) && ((annotationOrModifier instanceof Protected) || (annotationOrModifier instanceof Private)))) {
           String _entityName = operationSignature.getEntityName();
-          String _plus = ("Public method with correspondence has been made private. \r\n\t\t\t\t\tThe corresponding operaitonSignature " + _entityName);
+          String _plus = ("Public method with correspondence has been made private. \n\t\t\t\t\tThe corresponding operaitonSignature " + _entityName);
           String _plus_1 = (_plus + " will be deleted as well.");
           this.userInteracting.showMessage(UserInteractionType.MODAL, _plus_1);
           HashSet<EObject> _newHashSet = Sets.<EObject>newHashSet(operationSignature);

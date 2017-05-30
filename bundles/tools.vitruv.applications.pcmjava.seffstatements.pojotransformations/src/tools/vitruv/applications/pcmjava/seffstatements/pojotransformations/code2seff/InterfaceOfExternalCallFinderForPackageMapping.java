@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.emftext.language.java.members.Method;
+import org.emftext.language.java.statements.Statement;
 import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.palladiosimulator.pcm.repository.OperationInterface;
 import org.palladiosimulator.pcm.repository.OperationRequiredRole;
@@ -45,7 +46,7 @@ public class InterfaceOfExternalCallFinderForPackageMapping implements Interface
      * once by a given component. Both limitations are, however, OK for the beginning.
      */
     @Override
-    public InterfacePortOperationTuple getCalledInterfacePort(final Method calledMethod) {
+    public InterfacePortOperationTuple getCalledInterfacePort(final Method calledMethod, Statement statement) {
         final InterfacePortOperationTuple interfacePortOperationTuple = new InterfacePortOperationTuple();
         final OperationSignature opSig = this.queryInterfaceOperation(calledMethod);
         if (null != opSig) {

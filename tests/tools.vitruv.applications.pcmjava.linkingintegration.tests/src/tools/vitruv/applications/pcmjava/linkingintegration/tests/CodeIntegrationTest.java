@@ -1,5 +1,6 @@
 package tools.vitruv.applications.pcmjava.linkingintegration.tests;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
@@ -37,6 +38,7 @@ import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.framework.correspondence.Correspondence;
 import tools.vitruv.framework.tuid.Tuid;
+import tools.vitruv.framework.userinteraction.impl.UserInteractor;
 import tools.vitruv.framework.util.datatypes.VURI;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
 import tools.vitruv.framework.vsum.VirtualModelConfiguration;
@@ -129,10 +131,11 @@ public class CodeIntegrationTest {
         for (VitruvDomain metamodel : PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels()) {
         	config.addMetamodel(metamodel);
         }
-        virtualModel = new VirtualModelImpl(META_PROJECT_NAME, config);
+        File vsumFile = new File(testProject.getLocation().toFile(), META_PROJECT_NAME);
+		virtualModel = new VirtualModelImpl(vsumFile, new UserInteractor(), config);
         // add PCM Java Builder to Project under test
         final VitruviusJavaBuilderApplicator pcmJavaBuilder = new VitruviusJavaBuilderApplicator();
-        pcmJavaBuilder.addToProject(this.testProject, META_PROJECT_NAME, Collections.singletonList(PcmNamespace.REPOSITORY_FILE_EXTENSION));
+        pcmJavaBuilder.addToProject(this.testProject, vsumFile, Collections.singletonList(PcmNamespace.REPOSITORY_FILE_EXTENSION));
         // build the project
         progress = new DoneFlagProgressMonitor();
         this.testProject.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, VitruviusJavaBuilder.BUILDER_ID,
@@ -188,10 +191,8 @@ public class CodeIntegrationTest {
     }
 
     protected CorrespondenceModel getCorrespondenceModel() throws Throwable {
-        final VURI jaMoPPVURI = VURI.getInstance(JavaNamespace.METAMODEL_NAMESPACE);
-        final VURI pcmVURI = VURI.getInstance(PcmNamespace.METAMODEL_NAMESPACE);
         final CorrespondenceModel corresponcenceInstance = virtualModel
-                .getCorrespondenceModel(pcmVURI, jaMoPPVURI);
+                .getCorrespondenceModel();
         return corresponcenceInstance;
     }
 

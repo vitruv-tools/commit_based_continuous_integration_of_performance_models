@@ -1,25 +1,25 @@
 package tools.vitruv.applications.pcmjava.seffstatements.code2seff
 
-import tools.vitruv.framework.userinteraction.UserInteracting
-import org.palladiosimulator.pcm.repository.BasicComponent
-import org.somox.gast2seff.visitors.InterfaceOfExternalCallFinding
-import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding
-import org.emftext.language.java.members.Method
-import tools.vitruv.framework.change.description.ConcreteChange
-import tools.vitruv.domains.java.echange.feature.JavaFeatureEChange
-import tools.vitruv.framework.change.echange.feature.reference.UpdateReferenceEChange
-import org.emftext.language.java.statements.StatementsPackage
-import tools.vitruv.framework.change.echange.feature.reference.RemoveEReference
-import tools.vitruv.framework.change.echange.feature.reference.InsertEReference
-import org.emftext.language.java.statements.Statement
-import tools.vitruv.framework.correspondence.CorrespondenceModel
 import java.util.ArrayList
-import tools.vitruv.framework.change.description.CompositeTransactionalChange
-import tools.vitruv.framework.change.description.TransactionalChange
-import tools.vitruv.framework.change.processing.impl.AbstractChangePropagationSpecification
-import tools.vitruv.framework.util.command.ChangePropagationResult
+import org.emftext.language.java.members.Method
+import org.emftext.language.java.statements.Statement
+import org.emftext.language.java.statements.StatementsPackage
+import org.palladiosimulator.pcm.repository.BasicComponent
+import org.somox.gast2seff.visitors.InterfaceOfExternalCallFindingFactory
+import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding
 import tools.vitruv.domains.java.JavaDomainProvider
+import tools.vitruv.domains.java.echange.feature.JavaFeatureEChange
 import tools.vitruv.domains.pcm.PcmDomainProvider
+import tools.vitruv.framework.change.description.CompositeTransactionalChange
+import tools.vitruv.framework.change.description.ConcreteChange
+import tools.vitruv.framework.change.description.TransactionalChange
+import tools.vitruv.framework.change.echange.feature.reference.InsertEReference
+import tools.vitruv.framework.change.echange.feature.reference.RemoveEReference
+import tools.vitruv.framework.change.echange.feature.reference.UpdateReferenceEChange
+import tools.vitruv.framework.change.processing.impl.AbstractChangePropagationSpecification
+import tools.vitruv.framework.correspondence.CorrespondenceModel
+import tools.vitruv.framework.userinteraction.UserInteracting
+import tools.vitruv.framework.util.command.ChangePropagationResult
 
 class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpecification {
 	private val Code2SeffFactory code2SeffFactory;
@@ -41,7 +41,7 @@ class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpec
 	override doesHandleChange(TransactionalChange change, CorrespondenceModel correspondenceModel) {
 		if (!(change instanceof CompositeTransactionalChange)) {
 			return false;
-		}
+		} 
 		val eChanges = new ArrayList<JavaFeatureEChange<?, ?>>();
 		for (eChange : change.EChanges) {
 			if (eChange instanceof UpdateReferenceEChange<?>) {
@@ -110,13 +110,13 @@ class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpec
 			correspondenceModel);
 		val classification = code2SeffFactory.createAbstractFunctionClassificationStrategy(basicComponentFinding,
 			correspondenceModel, myBasicComponent);
-		val InterfaceOfExternalCallFinding interfaceOfExternalCallFinder = code2SeffFactory.
-			createInterfaceOfExternalCallFinding(correspondenceModel,
+		val InterfaceOfExternalCallFindingFactory interfaceOfExternalCallFinderFactory = code2SeffFactory.
+			createInterfaceOfExternalCallFindingFactory(correspondenceModel,
 				myBasicComponent);
 			val ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding = code2SeffFactory.
 				createResourceDemandingBehaviourForClassMethodFinding(correspondenceModel);
 			val ClassMethodBodyChangedTransformation methodBodyChanged = new ClassMethodBodyChangedTransformation(
-				oldMethod, newMethod, basicComponentFinding, classification, interfaceOfExternalCallFinder,
+				oldMethod, newMethod, basicComponentFinding, classification, interfaceOfExternalCallFinderFactory,
 				resourceDemandingBehaviourForClassMethodFinding);
 				return methodBodyChanged.execute(correspondenceModel, userInteracting);
 			}

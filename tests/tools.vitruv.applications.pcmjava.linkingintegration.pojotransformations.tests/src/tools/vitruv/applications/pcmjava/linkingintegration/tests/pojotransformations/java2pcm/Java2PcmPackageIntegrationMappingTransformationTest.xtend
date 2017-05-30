@@ -29,7 +29,7 @@ class Java2PcmPackageIntegrationMappingTransformationTest extends Java2PcmPackag
 	}
 
 	new() {
-		testProjectCreator = [name | initializeTestProject(name)];
+		testProjectCreator = [name | initializeTestProject(name).location.toFile];
 	}
 	
 	override public void beforeTest() {

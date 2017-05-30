@@ -23,6 +23,7 @@ Require-Bundle: org.junit,
  tools.vitruv.domains.java.builder,
  tools.vitruv.applications.pcmjava.util,
  tools.vitruv.applications.pcmjava.linkingintegration,
- tools.vitruv.applications.pcmjava.linkingintegration.ui
+ tools.vitruv.applications.pcmjava.linkingintegration.ui,
+ tools.vitruv.framework.userinteraction
 Export-Package: tools.vitruv.applications.pcmjava.linkingintegration.tests,
  tools.vitruv.applications.pcmjava.linkingintegration.tests.util

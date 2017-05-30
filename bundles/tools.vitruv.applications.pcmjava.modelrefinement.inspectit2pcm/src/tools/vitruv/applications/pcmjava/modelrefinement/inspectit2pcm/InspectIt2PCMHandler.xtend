@@ -2,12 +2,7 @@ package tools.vitruv.applications.pcmjava.modelrefinement.inspectit2pcm
 
 import de.uka.ipd.sdq.workflow.jobs.JobFailedException
 import de.uka.ipd.sdq.workflow.jobs.UserCanceledException
-import tools.vitruv.framework.metarepository.MetaRepositoryImpl
-import tools.vitruv.framework.util.bridges.CollectionBridge
-import tools.vitruv.framework.util.bridges.EMFBridge
-import tools.vitruv.framework.util.bridges.EclipseBridge
-import tools.vitruv.framework.util.bridges.EcoreResourceBridge
-import tools.vitruv.framework.vsum.VSUMImpl
+import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.util.ArrayList
@@ -41,19 +36,26 @@ import org.palladiosimulator.pcm.repository.Repository
 import org.palladiosimulator.pcm.seff.ServiceEffectSpecification
 import org.somox.analyzer.SimpleAnalysisResult
 import org.somox.analyzer.simplemodelanalyzer.jobs.SoMoXBlackboard
-import org.somox.ejbmox.inspectit2pcm.II2PCMConfiguration
-import org.somox.ejbmox.inspectit2pcm.II2PCMJob
+import org.somox.ejbmox.inspectit2pcm.launch.II2PCMConfiguration
 import org.somox.ejbmox.inspectit2pcm.launch.II2PCMConfigurationBuilder
 import org.somox.ejbmox.inspectit2pcm.launch.InspectIT2PCMConfigurationAttributes
+import org.somox.ejbmox.inspectit2pcm.workflow.II2PCMJob
 import org.somox.sourcecodedecorator.SourceCodeDecoratorRepository
 import org.somox.sourcecodedecorator.SourcecodedecoratorFactory
+import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil
+import tools.vitruv.framework.correspondence.CorrespondenceModel
+import tools.vitruv.framework.userinteraction.impl.UserInteractor
+import tools.vitruv.framework.util.bridges.CollectionBridge
+import tools.vitruv.framework.util.bridges.EMFBridge
+import tools.vitruv.framework.util.bridges.EclipseBridge
+import tools.vitruv.framework.util.bridges.EcoreResourceBridge
+import tools.vitruv.framework.vsum.VirtualModelConfiguration
+import tools.vitruv.framework.vsum.VirtualModelImpl
 
 import static extension tools.vitruv.framework.correspondence.CorrespondenceModelUtil.*
-import tools.vitruv.framework.correspondence.CorrespondenceModel
-import tools.vitruv.domains.java.util.JaMoPPNamespace
-import tools.vitruv.domains.pcm.util.PCMNamespace
-import tools.vitruv.framework.util.datatypes.VURI
-import tools.vitruv.applications.pcmjava.util.PCMJavaRepositoryCreationUtil
+import tools.vitruv.framework.vsum.InternalVirtualModel
+import org.eclipse.core.resources.ResourcesPlugin
+import tools.vitruv.framework.tests.util.TestUtil
 
 /** 
  * Handler to enrich the coevolved PCM models with resource demands. Is based on the II2PCMJob from
@@ -74,12 +76,12 @@ class InspectIt2PCMHandler extends AbstractHandler {
 		val II2PCMJob ii2PCMJob = new II2PCMJob()
 		val II2PCMConfiguration ii2PCMConfiguration = this.createIIC2PCMConfiguration(project)
 		ii2PCMJob.setJobConfiguration(ii2PCMConfiguration)
-		val vsumImpl = getVSUM
-		val SoMoXBlackboard blackboard = this.createSoMoXBlackboard(project, vsumImpl)
+		val virtualModelImpl = this.virtualModel
+		val SoMoXBlackboard blackboard = this.createSoMoXBlackboard(project, virtualModelImpl)
 		ii2PCMJob.setBlackboard(blackboard)
 		try {
-			//necessary in order to allow manipulation of the repo. 
-			vsumImpl.createRecordingCommandAndExecuteCommandOnTransactionalDomain(new Callable<Void>() {
+			//necessary in order to allow manipulation of the repo.
+			virtualModelImpl.executeCommand(new Callable<Void>() {
 
            override public Void call() throws Exception {
 				ii2PCMJob.execute(new NullProgressMonitor())
@@ -90,7 +92,7 @@ class InspectIt2PCMHandler extends AbstractHandler {
 			throw new RuntimeException('''Could not execute II2PCM Job. Reason: «e.toString()»''', e)
 		} catch (UserCanceledException e) {
 			throw new RuntimeException('''Could not execute II2PCM Job. Reason: «e.toString()»''', e)
-		}
+		} 
 
 		return null
 	}
@@ -126,13 +128,13 @@ class InspectIt2PCMHandler extends AbstractHandler {
 		return newConfigBuilder.buildConfiguration(attributes)
 	}
 
-	def private SoMoXBlackboard createSoMoXBlackboard(IProject project, VSUMImpl vsum) {
+	def private SoMoXBlackboard createSoMoXBlackboard(IProject project, VirtualModelImpl virutalModel) {
 		val SoMoXBlackboard blackboard = new SoMoXBlackboard()
 		val SimpleAnalysisResult anlysisResult = new SimpleAnalysisResult(null)
 		val Repository repository = this.findRepositoryInProject(project)
 		anlysisResult.setInternalArchitectureModel(repository)
 		val SourceCodeDecoratorRepository sourceCodeDecorator = this.
-			createSourceCodeDecoratorModelFromVitruvCorrespondenceModel(repository, vsum)
+			createSourceCodeDecoratorModelFromVitruvCorrespondenceModel(repository, virutalModel)
 		anlysisResult.setSourceCodeDecoratorRepository(sourceCodeDecorator)
 		blackboard.setAnalysisResult(anlysisResult)
 		return blackboard
@@ -190,10 +192,11 @@ class InspectIt2PCMHandler extends AbstractHandler {
 	 * not complete. It only contains the SEFF2MethodMappings and the InterfaceSourceCodeLinks -
 	 * nothing else.
 	 */
-	def private SourceCodeDecoratorRepository createSourceCodeDecoratorModelFromVitruvCorrespondenceModel(Repository repo, VSUMImpl vsum) {
+	def private SourceCodeDecoratorRepository createSourceCodeDecoratorModelFromVitruvCorrespondenceModel(Repository repo, 
+		VirtualModelImpl virtualModel) {
 		val SourceCodeDecoratorRepository sourceCodeDecoratorModel = SourcecodedecoratorFactory.eINSTANCE.
 			createSourceCodeDecoratorRepository()
-		val CorrespondenceModel correspondenceModel = this.getCorrespondenceModel(vsum)
+		val CorrespondenceModel correspondenceModel = this.getCorrespondenceModel(virtualModel)
 		val methods = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(Method)
 		for (Method method : methods) {
 			if (method instanceof ClassMethod) {
@@ -231,19 +234,18 @@ class InspectIt2PCMHandler extends AbstractHandler {
 		return sourceCodeDecoratorModel
 	}
 
-	def private CorrespondenceModel getCorrespondenceModel(VSUMImpl vsum) {
-		val VURI jaMoPPVURI = VURI.getInstance(JaMoPPNamespace.JAMOPP_METAMODEL_NAMESPACE)
-		val VURI pcmVURI = VURI.getInstance(PCMNamespace.PCM_METAMODEL_NAMESPACE)
-		val CorrespondenceModel correspondenceModel = vsum.
-			getCorrespondenceModel(pcmVURI, jaMoPPVURI)
-		return correspondenceModel
+	def private CorrespondenceModel getCorrespondenceModel(VirtualModelImpl virtualModel) {
+		return virtualModel.getCorrespondenceModel();
 	}
 	
-	def private getVSUM(){
-		val MetaRepositoryImpl metaRepository = PCMJavaRepositoryCreationUtil.createPCMJavaMetarepository()
-		val VSUMImpl vsum = new VSUMImpl(metaRepository, metaRepository)
-		vsum.getOrCreateAllCorrespondenceModelsForMM(
-			metaRepository.getMetamodel(VURI.getInstance(PCMNamespace.PCM_METAMODEL_NAMESPACE)))
-		return vsum
+	def private getVirtualModel(){
+		val metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels
+		val virtualModelConfig = new VirtualModelConfiguration
+		metamodels.forEach[virtualModelConfig.addMetamodel(it)]
+		val project = TestUtil.createPlatformProject("PcmJavaInspectItMM", false)
+		val vsumFolder = project.location.toFile
+		val VirtualModelImpl virtualModel = new VirtualModelImpl(vsumFolder, new UserInteractor, virtualModelConfig) 
+		virtualModel.getCorrespondenceModel();
+		return virtualModel
 	}
 }

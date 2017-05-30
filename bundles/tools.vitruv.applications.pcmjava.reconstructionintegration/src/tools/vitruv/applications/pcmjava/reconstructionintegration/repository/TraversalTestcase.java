@@ -1,18 +1,21 @@
 package tools.vitruv.applications.pcmjava.reconstructionintegration.repository;
 
+import java.util.Collections;
+
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.palladiosimulator.pcm.repository.Repository;
 
-import tools.vitruv.framework.change.description.VitruviusChangeFactory;
-import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
 import tools.vitruv.domains.pcm.util.RepositoryModelLoader;
 import tools.vitruv.extensions.constructionsimulation.traversal.ITraversalStrategy;
 import tools.vitruv.framework.change.description.VitruviusChange;
+import tools.vitruv.framework.change.description.VitruviusChangeFactory;
+import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.framework.tests.util.TestUtil;
+import tools.vitruv.framework.userinteraction.impl.UserInteractor;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
 
 /**
@@ -52,11 +55,11 @@ public class TraversalTestcase {
 
         // create syncManager
         final Iterable<VitruvDomain> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
-        final InternalVirtualModel vsum = TestUtil.createVirtualModel("testVsum", true, metamodels);
+        InternalVirtualModel vsum = TestUtil.createVirtualModel("testVsum", true, metamodels, Collections.emptyList(), new UserInteractor());
 
         final VitruviusChange compositeChange = VitruviusChangeFactory.getInstance().createCompositeChange(changes);
         // propagate changes
-        vsum.propagateChange(compositeChange);
+        vsum.propagateChange(compositeChange); 
 
         logger.info("Integration done");
 

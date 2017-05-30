@@ -54,9 +54,7 @@ class PcmJavaCorrespondenceModelTransformation extends BasicCorrespondenceModelT
 	new(String scdmPath, String pcmPath, String jamoppPath, InternalVirtualModel vsum) {
 		
 		// Initialize CorrepondenceInstance for PCM <-> JaMoPP mappings
-		var mmUriA = VURI.getInstance(PcmNamespace.METAMODEL_NAMESPACE)
-		var mmURiB = VURI.getInstance(JavaNamespace.METAMODEL_NAMESPACE)
-		this.cInstance = vsum.getCorrespondenceModel(mmUriA, mmURiB);
+		this.cInstance = vsum.getCorrespondenceModel();
 		
 		this.scdmPath = scdmPath;
 		this.pcmPath = pcmPath;
@@ -136,7 +134,7 @@ class PcmJavaCorrespondenceModelTransformation extends BasicCorrespondenceModelT
 
 		// CompositeComponents do not have a corresponding implementing class
 		// TODO: What correspondence for compComponent ?
-		if (pcmComponent instanceof BasicComponent) {
+		if (pcmComponent instanceof BasicComponent) { 
 
 			// TODO: Decide which class actually is the implementing class for the component
 			var jamoppClass = resolveJaMoppProxy(componentClassLink.implementingClasses.get(0)) as ClassImpl

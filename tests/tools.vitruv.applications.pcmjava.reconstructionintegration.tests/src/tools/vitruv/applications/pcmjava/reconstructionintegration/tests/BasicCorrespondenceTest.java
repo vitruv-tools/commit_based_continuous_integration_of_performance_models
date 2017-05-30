@@ -96,7 +96,7 @@ public class BasicCorrespondenceTest extends Pcm2JavaTransformationTest {
         }
 
         // Add the PCM model to Vitruvius
-        final VURI sourceModelURI = VURI.getInstance(getCurrentTestProject().getName() + "/" + PCM_REPOSITORY);
+        final VURI sourceModelURI = VURI.getInstance(getCurrentTestProjectFolder().getName() + "/" + PCM_REPOSITORY);
         final ModelInstance pcmInstance = this.getVirtualModel().getModelInstance(sourceModelURI);
 
         this.pcmRepo = pcmInstance.getUniqueRootEObjectIfCorrectlyTyped(Repository.class);

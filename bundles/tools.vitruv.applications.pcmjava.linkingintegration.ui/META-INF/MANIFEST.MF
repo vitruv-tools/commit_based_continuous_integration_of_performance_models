@@ -17,5 +17,6 @@ Require-Bundle: org.apache.log4j,
  tools.vitruv.framework.util,
  tools.vitruv.framework.correspondence,
  tools.vitruv.applications.pcmjava.util,
- tools.vitruv.applications.pcmjava.linkingintegration 
+ tools.vitruv.applications.pcmjava.linkingintegration,
+ tools.vitruv.framework.userinteraction
 Export-Package: tools.vitruv.applications.pcmjava.linkingintegration.ui.commands
