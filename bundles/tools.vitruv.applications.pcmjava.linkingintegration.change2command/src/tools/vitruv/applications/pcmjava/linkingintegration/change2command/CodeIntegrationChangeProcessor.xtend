@@ -1,6 +1,5 @@
 package tools.vitruv.applications.pcmjava.linkingintegration.change2command
 
-import tools.vitruv.framework.userinteraction.UserInteracting
 import tools.vitruv.framework.correspondence.CorrespondenceModel
 import java.util.ArrayList
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.internal.IntegrationChange2CommandTransformer
@@ -16,8 +15,8 @@ import tools.vitruv.domains.pcm.PcmDomainProvider
 class CodeIntegrationChangeProcessor extends AbstractChangePropagationSpecification {
 	private val IntegrationChange2CommandTransformer integrationTransformer;
 	
-	new(UserInteracting userInteracting) {
-		super(userInteracting, new JavaDomainProvider().domain, new PcmDomainProvider().domain);
+	new() {
+		super(new JavaDomainProvider().domain, new PcmDomainProvider().domain);
 		this.integrationTransformer = new IntegrationChange2CommandTransformer(getUserInteracting());
 	}
 	

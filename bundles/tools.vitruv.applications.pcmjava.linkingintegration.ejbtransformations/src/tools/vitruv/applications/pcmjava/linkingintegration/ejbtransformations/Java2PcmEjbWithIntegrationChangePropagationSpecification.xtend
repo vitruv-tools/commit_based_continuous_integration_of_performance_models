@@ -6,6 +6,6 @@ import tools.vitruv.applications.pcmjava.ejbtransformations.java2pcm.change2comm
 class Java2PcmEjbWithIntegrationChangePropagationSpecification extends EjbJava2PcmChangePropagationSpecification {
 	override setup() {
 		super.setup();
-		addChangePreprocessor(new CodeIntegrationChangeProcessor(userInteracting));
+		addChangePreprocessor(new CodeIntegrationChangeProcessor());
 	}
 }

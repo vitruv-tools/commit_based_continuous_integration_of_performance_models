@@ -63,12 +63,14 @@ class IntegrationChange2CommandTransformer {
 	}
 	
 	def doesReactionHandleChange(EChange change, CorrespondenceModel correspondenceModel) {
-		val executor = new ExecutorJavaToPcm(userInteracting)
+		val executor = new ExecutorJavaToPcm()
+		executor.userInteracting = userInteracting
 		return executor.doesHandleChange(change, correspondenceModel);
 	}
 	
 	def executeReactions(EChange change, CorrespondenceModel correspondenceModel) {
-		val executor = new ExecutorJavaToPcm(userInteracting)
+		val executor = new ExecutorJavaToPcm()
+		executor.userInteracting = userInteracting
 		return executor.propagateChange(change, correspondenceModel)
 	}
 	

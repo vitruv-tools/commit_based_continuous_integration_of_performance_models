@@ -24,8 +24,8 @@ import tools.vitruv.domains.pcm.PcmDomainProvider
 class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpecification {
 	private val Code2SeffFactory code2SeffFactory;
 	
-	new(UserInteracting userInteracting, Code2SeffFactory code2SEFFfactory) {
-		super(userInteracting, new JavaDomainProvider().domain, new PcmDomainProvider().domain);
+	new(Code2SeffFactory code2SEFFfactory) {
+		super(new JavaDomainProvider().domain, new PcmDomainProvider().domain);
 		this.code2SeffFactory = code2SEFFfactory
 	}
 

@@ -6,7 +6,7 @@ class Pcm2JavaIntegrationChangePropagationSpecification extends Pcm2JavaChangePr
 	
 	override protected setup() {
 		super.setup();
-		addChangePreprocessor(new CodeIntegrationChangeProcessor(userInteracting));
+		addChangePreprocessor(new CodeIntegrationChangeProcessor());
 	}
 	
 }

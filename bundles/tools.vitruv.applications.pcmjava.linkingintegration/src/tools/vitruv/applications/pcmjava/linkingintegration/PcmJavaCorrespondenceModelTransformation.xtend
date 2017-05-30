@@ -1,6 +1,5 @@
 package tools.vitruv.applications.pcmjava.linkingintegration
 
-import tools.vitruv.framework.util.datatypes.VURI
 import tools.vitruv.framework.correspondence.Correspondence
 import tools.vitruv.framework.util.VitruviusConstants
 import tools.vitruv.framework.util.bridges.EMFBridge
@@ -36,8 +35,6 @@ import static extension tools.vitruv.framework.correspondence.CorrespondenceMode
 import static extension tools.vitruv.framework.util.bridges.CollectionBridge.*
 import org.emftext.language.java.members.Constructor
 import org.emftext.language.java.parameters.Parametrizable
-import tools.vitruv.domains.pcm.PcmNamespace
-import tools.vitruv.domains.java.JavaNamespace
 import tools.vitruv.framework.correspondence.CorrespondenceModel
 import tools.vitruv.extensions.integration.correspondence.util.IntegrationCorrespondenceHelper
 import tools.vitruv.framework.vsum.InternalVirtualModel
@@ -74,11 +71,7 @@ class PcmJavaCorrespondenceModelTransformation {
 
 	new(String scdmPath, String pcmPath, List<IPath> jamoppPaths, InternalVirtualModel vsum, IPath projectBase) {
 
-		// Initialize CorrepondenceInstance for PCM <-> JaMoPP mappings
-		var mmUriA = VURI.getInstance(PcmNamespace.METAMODEL_NAMESPACE)
-		var mmURiB = VURI.getInstance(JavaNamespace.METAMODEL_NAMESPACE)
-		// FIXME do that without a cast
-		this.cInstance = vsum.getCorrespondenceModel(mmUriA, mmURiB)
+		this.cInstance = vsum.getCorrespondenceModel()
 
 		this.scdmPath = scdmPath
 		this.pcmPath = pcmPath
