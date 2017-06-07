@@ -32,14 +32,12 @@ import tools.vitruv.applications.pcmjava.linkingintegration.tests.util.CodeInteg
 import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
 import tools.vitruv.domains.java.builder.VitruviusJavaBuilder;
 import tools.vitruv.domains.java.builder.VitruviusJavaBuilderApplicator;
-import tools.vitruv.domains.java.JavaNamespace;
 import tools.vitruv.domains.pcm.PcmNamespace;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.framework.correspondence.Correspondence;
 import tools.vitruv.framework.tuid.Tuid;
 import tools.vitruv.framework.userinteraction.impl.UserInteractor;
-import tools.vitruv.framework.util.datatypes.VURI;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
 import tools.vitruv.framework.vsum.VirtualModelConfiguration;
 import tools.vitruv.framework.vsum.VirtualModelImpl;

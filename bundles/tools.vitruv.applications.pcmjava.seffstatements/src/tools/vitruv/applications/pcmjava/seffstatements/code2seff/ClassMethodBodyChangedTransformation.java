@@ -16,7 +16,6 @@ import org.palladiosimulator.pcm.seff.StartAction;
 import org.palladiosimulator.pcm.seff.StopAction;
 import org.somox.gast2seff.visitors.FunctionCallClassificationVisitor;
 import org.somox.gast2seff.visitors.IFunctionClassificationStrategy;
-import org.somox.gast2seff.visitors.InterfaceOfExternalCallFinding;
 import org.somox.gast2seff.visitors.InterfaceOfExternalCallFindingFactory;
 import org.somox.gast2seff.visitors.MethodCallFinder;
 import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding;

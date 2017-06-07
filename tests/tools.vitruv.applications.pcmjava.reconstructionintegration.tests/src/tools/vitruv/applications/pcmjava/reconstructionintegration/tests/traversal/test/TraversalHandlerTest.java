@@ -1,6 +1,5 @@
 package tools.vitruv.applications.pcmjava.reconstructionintegration.tests.traversal.test;
 
-import java.io.File;
 import java.util.Collections;
 
 import org.eclipse.emf.common.util.EList;

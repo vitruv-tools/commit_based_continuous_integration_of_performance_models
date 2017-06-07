@@ -1,6 +1,5 @@
 package tools.vitruv.applications.pcmjava.reconstructionintegration.transformations
 
-import tools.vitruv.framework.util.datatypes.VURI
 import java.util.HashSet
 import java.util.Set
 import org.apache.log4j.Level
@@ -24,8 +23,6 @@ import org.somox.sourcecodedecorator.InterfaceSourceCodeLink
 import org.somox.sourcecodedecorator.MethodLevelSourceCodeLink
 import org.somox.sourcecodedecorator.impl.SourceCodeDecoratorRepositoryImpl
 import tools.vitruv.framework.correspondence.CorrespondenceModel
-import tools.vitruv.domains.pcm.PcmNamespace
-import tools.vitruv.domains.java.JavaNamespace
 import tools.vitruv.framework.vsum.InternalVirtualModel
 import tools.vitruv.applications.pcmjava.reconstructionintegration.transformations.util.JamoppResourceHelper
 
