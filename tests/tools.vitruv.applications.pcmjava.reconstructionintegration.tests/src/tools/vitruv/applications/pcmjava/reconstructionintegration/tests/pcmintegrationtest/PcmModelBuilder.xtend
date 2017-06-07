@@ -274,7 +274,7 @@ class PcmModelBuilder {
 	
 	def createParameter(Parameter newValue) {
 		val par = RepositoryFactory.eINSTANCE.createParameter
-		par.entityName = newValue.entityName
+		par.parameterName = newValue.parameterName
 		
 		if (newValue.dataType__Parameter instanceof CollectionDataType) {
 			val dataTypeId = findDataTypeId(newValue.dataType__Parameter as CollectionDataType)

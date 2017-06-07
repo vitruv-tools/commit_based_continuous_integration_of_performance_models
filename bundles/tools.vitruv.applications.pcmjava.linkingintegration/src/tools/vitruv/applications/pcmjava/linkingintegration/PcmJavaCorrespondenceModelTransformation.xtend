@@ -237,7 +237,7 @@ class PcmJavaCorrespondenceModelTransformation {
 		for (pcmParam : pcmMethod.parameters__OperationSignature) {
 
 			// Find matching jaMopp parameter by name
-			var jamoppParam = jamoppParametrizable.parameters.findFirst[jp|jp.name.equals(pcmParam.entityName)]
+			var jamoppParam = jamoppParametrizable.parameters.findFirst[jp|jp.name.equals(pcmParam.parameterName)]
 			if (jamoppParam != null) {
 
 				// 8. PCM Parameter <-> jaMopp Parameter correspondence	

@@ -180,7 +180,7 @@ class PcmJavaCorrespondenceModelTransformation extends BasicCorrespondenceModelT
 		for (pcmParam : pcmMethod.parameters__OperationSignature) {
 
 			// Find matching jaMopp parameter by name
-			var jamoppParam = jamoppMethod.parameters.findFirst[jp|jp.name.equals(pcmParam.entityName)];
+			var jamoppParam = jamoppMethod.parameters.findFirst[jp|jp.name.equals(pcmParam.parameterName)];
 			if (jamoppParam != null) {
 
 				// 8. PCM Parameter <-> jaMopp Parameter correspondence	

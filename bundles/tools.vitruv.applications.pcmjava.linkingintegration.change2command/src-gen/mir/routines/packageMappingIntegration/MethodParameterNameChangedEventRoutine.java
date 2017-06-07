@@ -26,7 +26,7 @@ public class MethodParameterNameChangedEventRoutine extends AbstractRepairRoutin
     
     public void update0Element(final Parameter parameter, final String oldParameterName, final String newParameterName, final org.palladiosimulator.pcm.repository.Parameter pcmParam) {
       this.userInteracting.showMessage(UserInteractionType.MODAL, ((("Renamed method parameter " + oldParameterName) + " to ") + newParameterName));
-      pcmParam.setEntityName(newParameterName);
+      pcmParam.setParameterName(newParameterName);
     }
     
     public EObject getCorrepondenceSourcePcmParam(final Parameter parameter, final String oldParameterName, final String newParameterName) {

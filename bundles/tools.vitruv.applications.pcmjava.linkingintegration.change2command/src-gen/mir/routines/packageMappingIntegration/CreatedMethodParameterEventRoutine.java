@@ -43,7 +43,7 @@ public class CreatedMethodParameterEventRoutine extends AbstractRepairRoutineRea
         this.userInteracting, _repository__Interface, _arrayDimension);
       pcmParameter.setDataType__Parameter(_correspondingPCMDataTypeForTypeReference);
       String _name = parameter.getName();
-      pcmParameter.setEntityName(_name);
+      pcmParameter.setParameterName(_name);
     }
     
     public EObject getElement2(final Method method, final Parameter parameter, final OperationSignature opSignature) {

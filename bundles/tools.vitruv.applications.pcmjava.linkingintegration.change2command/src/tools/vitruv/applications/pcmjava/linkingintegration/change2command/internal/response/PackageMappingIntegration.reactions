@@ -124,7 +124,7 @@ routine createdMethodParameterEvent(java::Method method, java::Parameter paramet
 			pcmParameter.dataType__Parameter = TypeReferenceCorrespondenceHelper.
 				getCorrespondingPCMDataTypeForTypeReference(parameter.typeReference, correspondenceModel,
 					userInteracting, opSignature.interface__OperationSignature.repository__Interface, parameter.arrayDimension)
-			pcmParameter.entityName = parameter.name
+			pcmParameter.parameterName = parameter.name
 		}
 	}
 }
@@ -141,7 +141,7 @@ routine methodParameterNameChangedEvent(java::Parameter parameter, String oldPar
 	action {
 		update pcmParam {
 			userInteracting.showMessage(UserInteractionType.MODAL, "Renamed method parameter " + oldParameterName +  " to " + newParameterName)
-			pcmParam.entityName = newParameterName
+			pcmParam.parameterName = newParameterName
 		}
 	}
 }	

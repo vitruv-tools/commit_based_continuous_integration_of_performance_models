@@ -204,7 +204,7 @@ public class SingleEnforcerTests {
                 .get(0).getEntityName().equals("RN0_badMethod"));
         assertTrue(repo.getInterfaces__Repository().get(1).getEntityName().equals("RN1_BadInterface"));
         assertTrue(((OperationInterface) repo.getInterfaces__Repository().get(1)).getSignatures__OperationInterface()
-                .get(0).getParameters__OperationSignature().get(0).getEntityName().equals("RN2_Badparam"));
+                .get(0).getParameters__OperationSignature().get(0).getParameterName().equals("RN2_Badparam"));
 
         this.redoInvariantCheck(rMod, tester, ctr);
     }
@@ -286,7 +286,7 @@ public class SingleEnforcerTests {
         assertTrue(((OperationInterface) repo.getInterfaces__Repository().get(0)).getSignatures__OperationInterface()
                 .get(0).getEntityName().equals("bad_1Method"));
         assertTrue(((OperationInterface) repo.getInterfaces__Repository().get(0)).getSignatures__OperationInterface()
-                .get(0).getParameters__OperationSignature().get(1).getEntityName().equals("bad_2_2_2_2"));
+                .get(0).getParameters__OperationSignature().get(1).getParameterName().equals("bad_2_2_2_2"));
         this.redoInvariantCheck(rMod, tester, ctr);
     }
 
@@ -343,7 +343,7 @@ public class SingleEnforcerTests {
         assertTrue(((OperationInterface) repo.getInterfaces__Repository().get(1)).getSignatures__OperationInterface()
                 .get(1).getEntityName().equals("bad_method"));
         assertTrue(((OperationInterface) repo.getInterfaces__Repository().get(0)).getSignatures__OperationInterface()
-                .get(0).getParameters__OperationSignature().get(0).getEntityName().equals("bad_param"));
+                .get(0).getParameters__OperationSignature().get(0).getParameterName().equals("bad_param"));
 
         this.redoInvariantCheck(rMod, tester, ctr);
 
@@ -373,7 +373,7 @@ public class SingleEnforcerTests {
         assertTrue(((OperationInterface) repo.getInterfaces__Repository().get(2)).getSignatures__OperationInterface()
                 .get(0).getEntityName().equals("RN2_break"));
         assertTrue(((OperationInterface) repo.getInterfaces__Repository().get(1)).getSignatures__OperationInterface()
-                .get(0).getParameters__OperationSignature().get(0).getEntityName().equals("RN1_goto"));
+                .get(0).getParameters__OperationSignature().get(0).getParameterName().equals("RN1_goto"));
 
         this.redoInvariantCheck(rMod, tester, ctr);
 
