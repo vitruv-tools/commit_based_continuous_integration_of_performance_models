@@ -4,19 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Stream;
 
 import org.apache.log4j.Logger;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -107,29 +102,23 @@ public class CodeIntegrationTest {
         CodeIntegrationUtils.integratProject(getTestProject());
 
         final IWorkspace workspace = ResourcesPlugin.getWorkspace();
-        final IProject metaProject = workspace.getRoot().getProject(META_PROJECT_NAME);
+        final File metaProject = new File(workspace.getRoot().getLocation().toFile(), META_PROJECT_NAME);
         DoneFlagProgressMonitor progress = new DoneFlagProgressMonitor();
-        metaProject.refreshLocal(IResource.DEPTH_INFINITE, progress);
-        while (!progress.isDone()) {
-            Thread.sleep(100);
-        }
         Assert.assertNotNull(metaProject);
 
-        final IFolder corrFolder = metaProject.getFolder("correspondence");
+        final File corrFolder = new File(metaProject, "correspondence");
         Assert.assertNotNull(corrFolder);
-        final IResource[] members = corrFolder.members();
-
-        final Stream<IResource> correspondenceFiles = Arrays.asList(members).stream().filter(r -> r instanceof IFile);
-        Assert.assertEquals(1, correspondenceFiles.filter(r -> r.getName().endsWith(".correspondence")).count());
-
-        final IFolder vsumFolder = metaProject.getFolder("vsum");
+        final File correspondenceFile = new File(corrFolder, "Correspondences.correspondence");
+        Assert.assertNotNull(correspondenceFile);
+        
+        final File vsumFolder = new File(metaProject, "vsum");
         Assert.assertNotNull(vsumFolder);
 
         VirtualModelConfiguration config = new VirtualModelConfiguration();
         for (VitruvDomain metamodel : PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels()) {
         	config.addMetamodel(metamodel);
         }
-        File vsumFile = new File(testProject.getLocation().toFile(), META_PROJECT_NAME);
+        File vsumFile = new File(workspace.getRoot().getLocation().toFile(), META_PROJECT_NAME);
 		virtualModel = new VirtualModelImpl(vsumFile, new UserInteractor(), config);
         // add PCM Java Builder to Project under test
         final VitruviusJavaBuilderApplicator pcmJavaBuilder = new VitruviusJavaBuilderApplicator();
@@ -171,7 +160,7 @@ public class CodeIntegrationTest {
             final Tuid b = bs.get(0);
             Assert.assertEquals(
                     Tuid.getInstance(
-                            "http://palladiosimulator.org/PalladioComponentModel/Repository/5.1#platform:/resource/eu.fpetersen.cbs.pc/model/internal_architecture_model.repository#id=_auhdcMWvEeWLAeSW2tt_XQ#id=_auwuAMWvEeWLAeSW2tt_XQ"),
+                            "http://palladiosimulator.org/PalladioComponentModel/5.2#platform:/resource/eu.fpetersen.cbs.pc/model/internal_architecture_model.repository#<root>-_-Repository-_-id=_auhdcMWvEeWLAeSW2tt_XQ#dataTypes__Repository-_-CompositeDataType-_-id=_auwuAMWvEeWLAeSW2tt_XQ"),
                     b);
         } else if (frameCorr.getBTuids().contains(frameCodeTuid)) {
             final EList<Tuid> as = frameCorr.getATuids();
@@ -181,7 +170,7 @@ public class CodeIntegrationTest {
             final Tuid a = as.get(0);
             Assert.assertEquals(
                     Tuid.getInstance(
-                            "http://palladiosimulator.org/PalladioComponentModel/Repository/5.1#platform:/resource/eu.fpetersen.cbs.pc/model/internal_architecture_model.repository#id=_auhdcMWvEeWLAeSW2tt_XQ#id=_auwuAMWvEeWLAeSW2tt_XQ"),
+                            "http://palladiosimulator.org/PalladioComponentModel/5.2#platform:/resource/eu.fpetersen.cbs.pc/model/internal_architecture_model.repository#<root>-_-Repository-_-id=_auhdcMWvEeWLAeSW2tt_XQ#dataTypes__Repository-_-CompositeDataType-_-id=_auwuAMWvEeWLAeSW2tt_XQ"),
                     a);
         } else {
             Assert.assertTrue(false);

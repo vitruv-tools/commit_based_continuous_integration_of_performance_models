@@ -10,6 +10,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.viewers.ISelection;
@@ -79,7 +80,7 @@ public class IntegrateProjectHandler extends AbstractHandler {
         	config.addMetamodel(metamodel);
         }
         // TODO HK Use other name
-        File vsumFolder = new File(project.getLocation().toFile(), "virtuvius.meta");
+        File vsumFolder = new File(ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile(), "vitruvius.meta");
         final InternalVirtualModel vsum = new VirtualModelImpl(vsumFolder, new UserInteractor(), config);
 
         final PcmJavaCorrespondenceModelTransformation transformation = new PcmJavaCorrespondenceModelTransformation(
