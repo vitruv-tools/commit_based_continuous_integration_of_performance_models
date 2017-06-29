@@ -34,7 +34,7 @@
     </category>
     <command
           categoryId="tools.vitruv.casestudies.pcmjava.modelrefinement.inspectit2pcm"
-          defaultHandler="tools.vitruv.casestudies.pcmjava.modelrefinement.inspectit2pcm.InspectIt2PCMHandler"
+          defaultHandler="tools.vitruv.applications.pcmjava.modelrefinement.inspectit2pcm.InspectIt2PCMHandler"
           description="Apply scm changes to files"
           id="tools.vitruv.casestudies.pcmjava.modelrefinement.inspectit2pcm"
           name="Apply SCM Changes">

@@ -2,7 +2,6 @@ package tools.vitruv.applications.pcmjava.modelrefinement.inspectit2pcm
 
 import de.uka.ipd.sdq.workflow.jobs.JobFailedException
 import de.uka.ipd.sdq.workflow.jobs.UserCanceledException
-import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 import java.util.ArrayList
@@ -46,16 +45,15 @@ import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil
 import tools.vitruv.framework.correspondence.CorrespondenceModel
 import tools.vitruv.framework.userinteraction.impl.UserInteractor
 import tools.vitruv.framework.util.bridges.CollectionBridge
-import tools.vitruv.framework.util.bridges.EMFBridge
 import tools.vitruv.framework.util.bridges.EclipseBridge
 import tools.vitruv.framework.util.bridges.EcoreResourceBridge
 import tools.vitruv.framework.vsum.VirtualModelConfiguration
 import tools.vitruv.framework.vsum.VirtualModelImpl
 
 import static extension tools.vitruv.framework.correspondence.CorrespondenceModelUtil.*
-import tools.vitruv.framework.vsum.InternalVirtualModel
-import org.eclipse.core.resources.ResourcesPlugin
 import tools.vitruv.framework.tests.util.TestUtil
+import edu.kit.ipd.sdq.commons.util.org.eclipse.emf.common.util.URIUtil
+import edu.kit.ipd.sdq.commons.util.org.eclipse.core.resources.IResourceUtil
 
 /** 
  * Handler to enrich the coevolved PCM models with resource demands. Is based on the II2PCMJob from
@@ -142,9 +140,9 @@ class InspectIt2PCMHandler extends AbstractHandler {
 
 	def private Repository findRepositoryInProject(IProject project) {
 		val IResource repoResource = this.findResourceWithEnding(project, null, "repository", true)
-		val URI emfURIRepo = EMFBridge.getEMFPlatformUriForIResource(repoResource)
+		val URI emfURIRepo = IResourceUtil.getEMFPlatformURI(repoResource)
 		val ResourceSet rs = new ResourceSetImpl()
-		val Resource resource = EcoreResourceBridge.loadResourceAtURI(emfURIRepo, rs)
+		val Resource resource = URIUtil.loadResourceAtURI(emfURIRepo, rs)
 		val Repository repo = EcoreResourceBridge.
 			getUniqueContentRootIfCorrectlyTyped(resource, "repository", Repository)
 		return repo

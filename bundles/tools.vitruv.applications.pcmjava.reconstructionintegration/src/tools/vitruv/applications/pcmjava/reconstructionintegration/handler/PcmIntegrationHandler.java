@@ -16,6 +16,8 @@ import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.repository.Repository;
 import org.palladiosimulator.pcm.repository.RepositoryComponent;
 
+import edu.kit.ipd.sdq.commons.util.org.eclipse.core.resources.IResourceUtil;
+import edu.kit.ipd.sdq.commons.util.org.eclipse.emf.common.util.URIUtil;
 import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.PcmRepositoryExtractor;
 import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.PcmSystemExtractor;
 import tools.vitruv.applications.pcmjava.reconstructionintegration.strategies.PcmRepositoryIntegrationStrategy;
@@ -29,7 +31,6 @@ import tools.vitruv.extensions.constructionsimulation.traversal.util.UnorderedRe
 import tools.vitruv.extensions.constructionsimulation.util.IntegrationUtil;
 import tools.vitruv.extensions.constructionsimulation.util.ResourceHelper;
 import tools.vitruv.framework.domains.VitruvDomain;
-import tools.vitruv.framework.util.bridges.EMFBridge;
 import tools.vitruv.framework.util.datatypes.ModelInstance;
 import tools.vitruv.framework.util.datatypes.VURI;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
@@ -56,7 +57,7 @@ public class PcmIntegrationHandler extends IntegrationHandler<IFile> {
         Logger.getRootLogger().setLevel(Level.ALL);
 
         // get URI from resource
-        final URI uri = EMFBridge.getEMFPlatformUriForIResource(resource);
+        final URI uri = IResourceUtil.getEMFPlatformURI(resource);
 
         // update the PCM parameter definitions
         resource = this.updateParameterDef(resource, uri);
@@ -175,7 +176,7 @@ public class PcmIntegrationHandler extends IntegrationHandler<IFile> {
 
             // set resource to new file
             final IProject project = resource.getProject();
-            IPath iPathForEMFUri = EMFBridge.getIPathForEMFUri(uri);
+            IPath iPathForEMFUri = URIUtil.getIPathForEMFUri(uri);
 
             // remove project folder from path
             iPathForEMFUri = iPathForEMFUri.removeFirstSegments(1);
