@@ -38,6 +38,7 @@ import org.emftext.language.java.parameters.Parametrizable
 import tools.vitruv.framework.correspondence.CorrespondenceModel
 import tools.vitruv.extensions.integration.correspondence.util.IntegrationCorrespondenceHelper
 import tools.vitruv.framework.vsum.InternalVirtualModel
+import static extension edu.kit.ipd.sdq.commons.util.java.lang.IterableUtil.*
 
 /**
  * Class that creates correspondences between PCM and JaMopp model elements.
