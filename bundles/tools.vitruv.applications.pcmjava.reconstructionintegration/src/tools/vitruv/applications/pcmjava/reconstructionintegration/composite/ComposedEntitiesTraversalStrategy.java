@@ -87,7 +87,7 @@ public abstract class ComposedEntitiesTraversalStrategy extends EMFTraversalStra
 
         for (final AssemblyContext context : entity.getAssemblyContexts__ComposedStructure()) {
             final EChange assemblyContextChange = PcmChangeBuildHelper.createChangeFromAssemblyContext(context);
-            this.addChange(VitruviusChangeFactory.getInstance().createConcreteChange(assemblyContextChange, this.vuri), this.changeList);
+            this.addChange(VitruviusChangeFactory.getInstance().createConcreteChangeWithVuri(assemblyContextChange, this.vuri), this.changeList);
         }
 
     }
@@ -123,12 +123,12 @@ public abstract class ComposedEntitiesTraversalStrategy extends EMFTraversalStra
             final InsertEReference<EObject, ?> change = (InsertEReference<EObject, ?>) roleDelegationChanges.get(i);
             if (change.getNewValue() instanceof Role) {
                 compChange = VitruviusChangeFactory.getInstance().createCompositeContainerChange();
-                compChange.addChange(VitruviusChangeFactory.getInstance().createConcreteChange(roleDelegationChanges.get(i), this.vuri));
-                compChange.addChange(VitruviusChangeFactory.getInstance().createConcreteChange(roleDelegationChanges.get(i + 1), this.vuri));
+                compChange.addChange(VitruviusChangeFactory.getInstance().createConcreteChangeWithVuri(roleDelegationChanges.get(i), this.vuri));
+                compChange.addChange(VitruviusChangeFactory.getInstance().createConcreteChangeWithVuri(roleDelegationChanges.get(i + 1), this.vuri));
                 this.addChange(compChange, this.changeList);
                 i++;
             } else {
-                this.addChange(VitruviusChangeFactory.getInstance().createConcreteChange(roleDelegationChanges.get(i), this.vuri), this.changeList);
+                this.addChange(VitruviusChangeFactory.getInstance().createConcreteChangeWithVuri(roleDelegationChanges.get(i), this.vuri), this.changeList);
             }
 
         }
@@ -147,7 +147,7 @@ public abstract class ComposedEntitiesTraversalStrategy extends EMFTraversalStra
 
             if (connector instanceof AssemblyConnector) {
                 final EChange assemblyConnectorChange = PcmChangeBuildHelper.createChangeFromConnector(connector);
-                this.addChange(VitruviusChangeFactory.getInstance().createConcreteChange(assemblyConnectorChange, this.vuri), this.changeList);
+                this.addChange(VitruviusChangeFactory.getInstance().createConcreteChangeWithVuri(assemblyConnectorChange, this.vuri), this.changeList);
             }
 
         }

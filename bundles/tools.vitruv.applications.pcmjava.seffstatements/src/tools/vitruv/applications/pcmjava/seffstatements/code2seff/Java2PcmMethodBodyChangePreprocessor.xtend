@@ -19,7 +19,7 @@ import tools.vitruv.framework.change.echange.feature.reference.UpdateReferenceEC
 import tools.vitruv.framework.change.processing.impl.AbstractChangePropagationSpecification
 import tools.vitruv.framework.correspondence.CorrespondenceModel
 import tools.vitruv.framework.userinteraction.UserInteracting
-import tools.vitruv.framework.util.command.ChangePropagationResult
+import tools.vitruv.framework.util.command.ResourceAccess
 
 class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpecification {
 	private val Code2SeffFactory code2SeffFactory;
@@ -29,13 +29,12 @@ class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpec
 		this.code2SeffFactory = code2SEFFfactory
 	}
 
-	override propagateChange(TransactionalChange change, CorrespondenceModel correspondenceModel) {
+	override propagateChange(TransactionalChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
 		if (doesHandleChange(change, correspondenceModel)) {
 			val compositeChange = change as CompositeTransactionalChange;
 			// TODO HK We should exchange the change with an empty one here
-			return executeClassMethodBodyChangeRefiner(correspondenceModel, userInteracting, compositeChange);
+			executeClassMethodBodyChangeRefiner(correspondenceModel, userInteracting, compositeChange);
 		}
-		return new ChangePropagationResult();
 	}
 
 	override doesHandleChange(TransactionalChange change, CorrespondenceModel correspondenceModel) {
@@ -99,7 +98,7 @@ class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpec
 		return true
 	}
 
-	private def ChangePropagationResult executeClassMethodBodyChangeRefiner(CorrespondenceModel correspondenceModel,
+	private def void executeClassMethodBodyChangeRefiner(CorrespondenceModel correspondenceModel,
 		UserInteracting userInteracting, CompositeTransactionalChange compositeChange) {
 		val ConcreteChange emfChange = compositeChange.getChanges().get(0) as ConcreteChange;
 		val JavaFeatureEChange<?, ?> eFeatureChange = emfChange.getEChanges().get(0) as JavaFeatureEChange<?, ?>;
@@ -118,7 +117,7 @@ class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpec
 			val ClassMethodBodyChangedTransformation methodBodyChanged = new ClassMethodBodyChangedTransformation(
 				oldMethod, newMethod, basicComponentFinding, classification, interfaceOfExternalCallFinderFactory,
 				resourceDemandingBehaviourForClassMethodFinding);
-				return methodBodyChanged.execute(correspondenceModel, userInteracting);
+				methodBodyChanged.execute(correspondenceModel, userInteracting);
 			}
 
 		}

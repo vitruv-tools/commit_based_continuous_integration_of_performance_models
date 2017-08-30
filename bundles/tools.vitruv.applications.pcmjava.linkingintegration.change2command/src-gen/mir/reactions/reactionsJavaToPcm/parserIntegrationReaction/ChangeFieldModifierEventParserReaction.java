@@ -12,19 +12,14 @@ import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHavi
 import tools.vitruv.framework.change.echange.EChange;
 import tools.vitruv.framework.change.echange.compound.CreateAndInsertNonRoot;
 import tools.vitruv.framework.change.echange.feature.reference.InsertEReference;
-import tools.vitruv.framework.userinteraction.UserInteracting;
 
 @SuppressWarnings("all")
 class ChangeFieldModifierEventParserReaction extends AbstractReactionRealization {
-  public ChangeFieldModifierEventParserReaction(final UserInteracting userInteracting) {
-    super(userInteracting);
-  }
-  
   public void executeReaction(final EChange change) {
-    InsertEReference<Field, AnnotationInstanceOrModifier> typedChange = ((CreateAndInsertNonRoot<Field, AnnotationInstanceOrModifier>)change).getInsertChange();
-    Field affectedEObject = typedChange.getAffectedEObject();
+    InsertEReference<org.emftext.language.java.members.Field, org.emftext.language.java.modifiers.AnnotationInstanceOrModifier> typedChange = ((CreateAndInsertNonRoot<org.emftext.language.java.members.Field, org.emftext.language.java.modifiers.AnnotationInstanceOrModifier>)change).getInsertChange();
+    org.emftext.language.java.members.Field affectedEObject = typedChange.getAffectedEObject();
     EReference affectedFeature = typedChange.getAffectedFeature();
-    AnnotationInstanceOrModifier newValue = typedChange.getNewValue();
+    org.emftext.language.java.modifiers.AnnotationInstanceOrModifier newValue = typedChange.getNewValue();
     mir.routines.parserIntegrationReaction.RoutinesFacade routinesFacade = new mir.routines.parserIntegrationReaction.RoutinesFacade(this.executionState, this);
     mir.reactions.reactionsJavaToPcm.parserIntegrationReaction.ChangeFieldModifierEventParserReaction.ActionUserExecution userExecution = new mir.reactions.reactionsJavaToPcm.parserIntegrationReaction.ChangeFieldModifierEventParserReaction.ActionUserExecution(this.executionState, this);
     userExecution.callRoutine1(affectedEObject, affectedFeature, newValue, routinesFacade);
@@ -35,14 +30,14 @@ class ChangeFieldModifierEventParserReaction extends AbstractReactionRealization
   }
   
   private boolean checkChangeProperties(final EChange change) {
-    InsertEReference<Field, AnnotationInstanceOrModifier> relevantChange = ((CreateAndInsertNonRoot<Field, AnnotationInstanceOrModifier>)change).getInsertChange();
-    if (!(relevantChange.getAffectedEObject() instanceof Field)) {
+    InsertEReference<org.emftext.language.java.members.Field, org.emftext.language.java.modifiers.AnnotationInstanceOrModifier> relevantChange = ((CreateAndInsertNonRoot<org.emftext.language.java.members.Field, org.emftext.language.java.modifiers.AnnotationInstanceOrModifier>)change).getInsertChange();
+    if (!(relevantChange.getAffectedEObject() instanceof org.emftext.language.java.members.Field)) {
     	return false;
     }
     if (!relevantChange.getAffectedFeature().getName().equals("annotationsAndModifiers")) {
     	return false;
     }
-    if (!(relevantChange.getNewValue() instanceof AnnotationInstanceOrModifier)) {
+    if (!(relevantChange.getNewValue() instanceof org.emftext.language.java.modifiers.AnnotationInstanceOrModifier)) {
     	return false;
     }
     return true;

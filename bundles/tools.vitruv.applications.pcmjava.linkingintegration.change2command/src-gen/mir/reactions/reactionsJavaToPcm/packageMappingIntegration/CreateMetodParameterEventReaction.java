@@ -12,19 +12,14 @@ import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHavi
 import tools.vitruv.framework.change.echange.EChange;
 import tools.vitruv.framework.change.echange.compound.CreateAndInsertNonRoot;
 import tools.vitruv.framework.change.echange.feature.reference.InsertEReference;
-import tools.vitruv.framework.userinteraction.UserInteracting;
 
 @SuppressWarnings("all")
 class CreateMetodParameterEventReaction extends AbstractReactionRealization {
-  public CreateMetodParameterEventReaction(final UserInteracting userInteracting) {
-    super(userInteracting);
-  }
-  
   public void executeReaction(final EChange change) {
-    InsertEReference<Method, Parameter> typedChange = ((CreateAndInsertNonRoot<Method, Parameter>)change).getInsertChange();
-    Method affectedEObject = typedChange.getAffectedEObject();
+    InsertEReference<org.emftext.language.java.members.Method, org.emftext.language.java.parameters.Parameter> typedChange = ((CreateAndInsertNonRoot<org.emftext.language.java.members.Method, org.emftext.language.java.parameters.Parameter>)change).getInsertChange();
+    org.emftext.language.java.members.Method affectedEObject = typedChange.getAffectedEObject();
     EReference affectedFeature = typedChange.getAffectedFeature();
-    Parameter newValue = typedChange.getNewValue();
+    org.emftext.language.java.parameters.Parameter newValue = typedChange.getNewValue();
     mir.routines.packageMappingIntegration.RoutinesFacade routinesFacade = new mir.routines.packageMappingIntegration.RoutinesFacade(this.executionState, this);
     mir.reactions.reactionsJavaToPcm.packageMappingIntegration.CreateMetodParameterEventReaction.ActionUserExecution userExecution = new mir.reactions.reactionsJavaToPcm.packageMappingIntegration.CreateMetodParameterEventReaction.ActionUserExecution(this.executionState, this);
     userExecution.callRoutine1(affectedEObject, affectedFeature, newValue, routinesFacade);
@@ -35,14 +30,14 @@ class CreateMetodParameterEventReaction extends AbstractReactionRealization {
   }
   
   private boolean checkChangeProperties(final EChange change) {
-    InsertEReference<Method, Parameter> relevantChange = ((CreateAndInsertNonRoot<Method, Parameter>)change).getInsertChange();
-    if (!(relevantChange.getAffectedEObject() instanceof Method)) {
+    InsertEReference<org.emftext.language.java.members.Method, org.emftext.language.java.parameters.Parameter> relevantChange = ((CreateAndInsertNonRoot<org.emftext.language.java.members.Method, org.emftext.language.java.parameters.Parameter>)change).getInsertChange();
+    if (!(relevantChange.getAffectedEObject() instanceof org.emftext.language.java.members.Method)) {
     	return false;
     }
     if (!relevantChange.getAffectedFeature().getName().equals("parameters")) {
     	return false;
     }
-    if (!(relevantChange.getNewValue() instanceof Parameter)) {
+    if (!(relevantChange.getNewValue() instanceof org.emftext.language.java.parameters.Parameter)) {
     	return false;
     }
     return true;

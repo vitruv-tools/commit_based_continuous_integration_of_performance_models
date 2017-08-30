@@ -6,11 +6,10 @@ import tools.vitruv.applications.pcmjava.linkingintegration.change2command.inter
 import tools.vitruv.framework.change.description.TransactionalChange
 import tools.vitruv.framework.change.description.CompositeTransactionalChange
 import tools.vitruv.framework.change.description.ConcreteChange
-import tools.vitruv.applications.pcmjava.linkingintegration.change2command.internal.IntegrationChange2CommandResult
 import tools.vitruv.framework.change.processing.impl.AbstractChangePropagationSpecification
-import tools.vitruv.framework.util.command.ChangePropagationResult
 import tools.vitruv.domains.java.JavaDomainProvider
 import tools.vitruv.domains.pcm.PcmDomainProvider
+import tools.vitruv.framework.util.command.ResourceAccess
 
 class CodeIntegrationChangeProcessor extends AbstractChangePropagationSpecification {
 	private val IntegrationChange2CommandTransformer integrationTransformer;
@@ -24,32 +23,30 @@ class CodeIntegrationChangeProcessor extends AbstractChangePropagationSpecificat
 		return true;
 	}
 	
-	override propagateChange(TransactionalChange change, CorrespondenceModel correspondenceModel) {
-		val propagationResult = new ChangePropagationResult();
-		val integrationResult = change.performIntegration(correspondenceModel);
-		propagationResult.integrateResult(integrationResult.propagationResult);
-		return propagationResult;
+	override propagateChange(TransactionalChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
+		change.performIntegration(correspondenceModel, resourceAccess);
 	}
 	
-	def dispatch IntegrationChange2CommandResult performIntegration(CompositeTransactionalChange change, CorrespondenceModel correspondenceModel) {
-		val propagationResult = new ChangePropagationResult();
+	def dispatch boolean performIntegration(CompositeTransactionalChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
 		val integratedChanges = new ArrayList<TransactionalChange>();
+		var performedIntegration = true; 
 		for (innerChange : change.changes) {
-			val integrationResult = innerChange.performIntegration(correspondenceModel);
-			if (integrationResult.isIntegrationChange) {
+			val integrationResult = innerChange.performIntegration(correspondenceModel, resourceAccess);
+			if (integrationResult) {
 				integratedChanges += innerChange;
-				propagationResult.integrateResult(integrationResult.propagationResult);
+			} else {
+				performedIntegration = false;
 			}
 		}
 		for (integratedChange : integratedChanges) {
 			change.removeChange(integratedChange);
 		}
-		return new IntegrationChange2CommandResult(propagationResult);
+		return performedIntegration;
 	}
 	
-	def dispatch IntegrationChange2CommandResult performIntegration(ConcreteChange change, CorrespondenceModel correspondenceModel) {
+	def dispatch boolean performIntegration(ConcreteChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
 		// Special behavior for changes to integrated elements
-		return integrationTransformer.compute(change.EChange, correspondenceModel);
+		return integrationTransformer.compute(change.EChange, correspondenceModel, resourceAccess);
 //		} else {
 //			nonIntegratedEChanges += eChange;
 //		}

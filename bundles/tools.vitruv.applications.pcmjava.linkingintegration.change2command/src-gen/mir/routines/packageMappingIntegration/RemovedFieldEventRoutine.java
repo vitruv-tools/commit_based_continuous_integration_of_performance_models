@@ -53,24 +53,26 @@ public class RemovedFieldEventRoutine extends AbstractRepairRoutineRealization {
   
   private Field field;
   
-  protected void executeRoutine() throws IOException {
+  protected boolean executeRoutine() throws IOException {
     getLogger().debug("Called routine RemovedFieldEventRoutine with input:");
-    getLogger().debug("   Field: " + this.field);
+    getLogger().debug("   field: " + this.field);
     
-    NamedElement namedElement = getCorrespondingElement(
+    org.palladiosimulator.pcm.core.entity.NamedElement namedElement = getCorrespondingElement(
     	userExecution.getCorrepondenceSourceNamedElement(field), // correspondence source supplier
-    	NamedElement.class,
-    	(NamedElement _element) -> true, // correspondence precondition checker
+    	org.palladiosimulator.pcm.core.entity.NamedElement.class,
+    	(org.palladiosimulator.pcm.core.entity.NamedElement _element) -> true, // correspondence precondition checker
     	null);
     if (namedElement == null) {
-    	return;
+    	return false;
     }
     registerObjectUnderModification(namedElement);
-    removeCorrespondenceBetween(userExecution.getElement1(field, namedElement), userExecution.getElement2(field, namedElement));
+    removeCorrespondenceBetween(userExecution.getElement1(field, namedElement), userExecution.getElement2(field, namedElement), "");
     
     // val updatedElement userExecution.getElement3(field, namedElement);
     userExecution.update0Element(field, namedElement);
     
     postprocessElements();
+    
+    return true;
   }
 }

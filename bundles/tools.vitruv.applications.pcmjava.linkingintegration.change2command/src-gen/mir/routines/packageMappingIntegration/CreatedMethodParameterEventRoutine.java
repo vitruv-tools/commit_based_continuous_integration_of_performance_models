@@ -5,11 +5,7 @@ import mir.routines.packageMappingIntegration.RoutinesFacade;
 import org.eclipse.emf.ecore.EObject;
 import org.emftext.language.java.members.Method;
 import org.emftext.language.java.parameters.Parameter;
-import org.emftext.language.java.types.TypeReference;
-import org.palladiosimulator.pcm.repository.DataType;
-import org.palladiosimulator.pcm.repository.OperationInterface;
 import org.palladiosimulator.pcm.repository.OperationSignature;
-import org.palladiosimulator.pcm.repository.Repository;
 import org.palladiosimulator.pcm.repository.RepositoryFactory;
 import tools.vitruv.applications.pcmjava.util.java2pcm.TypeReferenceCorrespondenceHelper;
 import tools.vitruv.extensions.dslsruntime.reactions.AbstractRepairRoutineRealization;
@@ -35,15 +31,9 @@ public class CreatedMethodParameterEventRoutine extends AbstractRepairRoutineRea
     public void update0Element(final Method method, final Parameter parameter, final OperationSignature opSignature) {
       this.userInteracting.showMessage(UserInteractionType.MODAL, ("Created new parameter for OperationSiganture" + opSignature));
       final org.palladiosimulator.pcm.repository.Parameter pcmParameter = RepositoryFactory.eINSTANCE.createParameter();
-      TypeReference _typeReference = parameter.getTypeReference();
-      OperationInterface _interface__OperationSignature = opSignature.getInterface__OperationSignature();
-      Repository _repository__Interface = _interface__OperationSignature.getRepository__Interface();
-      long _arrayDimension = parameter.getArrayDimension();
-      DataType _correspondingPCMDataTypeForTypeReference = TypeReferenceCorrespondenceHelper.getCorrespondingPCMDataTypeForTypeReference(_typeReference, this.correspondenceModel, 
-        this.userInteracting, _repository__Interface, _arrayDimension);
-      pcmParameter.setDataType__Parameter(_correspondingPCMDataTypeForTypeReference);
-      String _name = parameter.getName();
-      pcmParameter.setParameterName(_name);
+      pcmParameter.setDataType__Parameter(TypeReferenceCorrespondenceHelper.getCorrespondingPCMDataTypeForTypeReference(parameter.getTypeReference(), this.correspondenceModel, 
+        this.userInteracting, opSignature.getInterface__OperationSignature().getRepository__Interface(), parameter.getArrayDimension()));
+      pcmParameter.setParameterName(parameter.getName());
     }
     
     public EObject getElement2(final Method method, final Parameter parameter, final OperationSignature opSignature) {
@@ -70,18 +60,18 @@ public class CreatedMethodParameterEventRoutine extends AbstractRepairRoutineRea
   
   private Parameter parameter;
   
-  protected void executeRoutine() throws IOException {
+  protected boolean executeRoutine() throws IOException {
     getLogger().debug("Called routine CreatedMethodParameterEventRoutine with input:");
-    getLogger().debug("   Method: " + this.method);
-    getLogger().debug("   Parameter: " + this.parameter);
+    getLogger().debug("   method: " + this.method);
+    getLogger().debug("   parameter: " + this.parameter);
     
-    OperationSignature opSignature = getCorrespondingElement(
+    org.palladiosimulator.pcm.repository.OperationSignature opSignature = getCorrespondingElement(
     	userExecution.getCorrepondenceSourceOpSignature(method, parameter), // correspondence source supplier
-    	OperationSignature.class,
-    	(OperationSignature _element) -> true, // correspondence precondition checker
+    	org.palladiosimulator.pcm.repository.OperationSignature.class,
+    	(org.palladiosimulator.pcm.repository.OperationSignature _element) -> true, // correspondence precondition checker
     	null);
     if (opSignature == null) {
-    	return;
+    	return false;
     }
     registerObjectUnderModification(opSignature);
     addCorrespondenceBetween(userExecution.getElement1(method, parameter, opSignature), userExecution.getElement2(method, parameter, opSignature), "");
@@ -90,5 +80,7 @@ public class CreatedMethodParameterEventRoutine extends AbstractRepairRoutineRea
     userExecution.update0Element(method, parameter, opSignature);
     
     postprocessElements();
+    
+    return true;
   }
 }

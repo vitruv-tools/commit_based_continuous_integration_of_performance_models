@@ -26,7 +26,6 @@ import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
 import tools.vitruv.framework.tuid.Tuid;
 import tools.vitruv.framework.userinteraction.UserInteracting;
 import tools.vitruv.framework.util.bridges.CollectionBridge;
-import tools.vitruv.framework.util.command.ChangePropagationResult;
 
 /**
  * Class that keeps changes within a class method body consistent with the
@@ -75,12 +74,12 @@ public class ClassMethodBodyChangedTransformation {
 	 * (and its inner methods)
 	 *
 	 */
-	public ChangePropagationResult execute(final CorrespondenceModel correspondenceModel,
+	public void execute(final CorrespondenceModel correspondenceModel,
 			final UserInteracting userInteracting) {
 		if (!this.isArchitectureRelevantChange(correspondenceModel)) {
 			logger.debug("Change with oldMethod " + this.oldMethod + " and newMethod: " + this.newMethod
 					+ " is not an architecture relevant change");
-			return new ChangePropagationResult();
+			return;
 		}
 		// 1)
 		this.removeCorrespondingAbstractActions(correspondenceModel);
@@ -98,7 +97,7 @@ public class ClassMethodBodyChangedTransformation {
 		// 4)
 		this.createNewCorrespondences(correspondenceModel, resourceDemandingBehaviour, basicComponent);
 
-		return new ChangePropagationResult();
+		return;
 	}
 
 	/**

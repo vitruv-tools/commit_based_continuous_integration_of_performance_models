@@ -12,19 +12,14 @@ import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHavi
 import tools.vitruv.framework.change.echange.EChange;
 import tools.vitruv.framework.change.echange.compound.CreateAndInsertNonRoot;
 import tools.vitruv.framework.change.echange.feature.reference.InsertEReference;
-import tools.vitruv.framework.userinteraction.UserInteracting;
 
 @SuppressWarnings("all")
 class AddImportReactionReaction extends AbstractReactionRealization {
-  public AddImportReactionReaction(final UserInteracting userInteracting) {
-    super(userInteracting);
-  }
-  
   public void executeReaction(final EChange change) {
-    InsertEReference<JavaRoot, Import> typedChange = ((CreateAndInsertNonRoot<JavaRoot, Import>)change).getInsertChange();
-    JavaRoot affectedEObject = typedChange.getAffectedEObject();
+    InsertEReference<org.emftext.language.java.containers.JavaRoot, org.emftext.language.java.imports.Import> typedChange = ((CreateAndInsertNonRoot<org.emftext.language.java.containers.JavaRoot, org.emftext.language.java.imports.Import>)change).getInsertChange();
+    org.emftext.language.java.containers.JavaRoot affectedEObject = typedChange.getAffectedEObject();
     EReference affectedFeature = typedChange.getAffectedFeature();
-    Import newValue = typedChange.getNewValue();
+    org.emftext.language.java.imports.Import newValue = typedChange.getNewValue();
     mir.routines.packageMappingIntegration.RoutinesFacade routinesFacade = new mir.routines.packageMappingIntegration.RoutinesFacade(this.executionState, this);
     mir.reactions.reactionsJavaToPcm.packageMappingIntegration.AddImportReactionReaction.ActionUserExecution userExecution = new mir.reactions.reactionsJavaToPcm.packageMappingIntegration.AddImportReactionReaction.ActionUserExecution(this.executionState, this);
     userExecution.callRoutine1(affectedEObject, affectedFeature, newValue, routinesFacade);
@@ -35,14 +30,14 @@ class AddImportReactionReaction extends AbstractReactionRealization {
   }
   
   private boolean checkChangeProperties(final EChange change) {
-    InsertEReference<JavaRoot, Import> relevantChange = ((CreateAndInsertNonRoot<JavaRoot, Import>)change).getInsertChange();
-    if (!(relevantChange.getAffectedEObject() instanceof JavaRoot)) {
+    InsertEReference<org.emftext.language.java.containers.JavaRoot, org.emftext.language.java.imports.Import> relevantChange = ((CreateAndInsertNonRoot<org.emftext.language.java.containers.JavaRoot, org.emftext.language.java.imports.Import>)change).getInsertChange();
+    if (!(relevantChange.getAffectedEObject() instanceof org.emftext.language.java.containers.JavaRoot)) {
     	return false;
     }
     if (!relevantChange.getAffectedFeature().getName().equals("imports")) {
     	return false;
     }
-    if (!(relevantChange.getNewValue() instanceof Import)) {
+    if (!(relevantChange.getNewValue() instanceof org.emftext.language.java.imports.Import)) {
     	return false;
     }
     return true;

@@ -233,20 +233,20 @@ routine changedFieldTypeEvent(java::Field field, java::TypeReference oldType, ja
 	}
 	action {
 		call {
-			if(null != oldCorrespondingOpInterface && null != opInterface && null != opRequiredRole){
+			if(null !== oldCorrespondingOpInterface && null !== opInterface && null !== opRequiredRole){
 				// reset required role 
 				userInteracting.showMessage(UserInteractionType.MODAL, "the operation required role has been changed")
 				opRequiredRole.requiredInterface__OperationRequiredRole = opInterface
 				return
 			}
-			if(null == oldCorrespondingOpInterface && null != opInterface){
+			if(null === oldCorrespondingOpInterface && null !== opInterface){
 				// new required role needs to be added 
 				userInteracting.showMessage(UserInteractionType.MODAL, "Create OperationRequiredRole between Component " + 
 					basicComponent.entityName + " and Interface " + opInterface.entityName)
 				createRequiredRole(basicComponent, opInterface, field)
 				return
 			}
-			if(null != oldCorrespondingOpInterface && null == opInterface && null != opRequiredRole){
+			if(null !== oldCorrespondingOpInterface && null === opInterface && null !== opRequiredRole){
 				// remove required role and correspondence
 				userInteracting.showMessage(UserInteractionType.MODAL, "Remove OperationRequiredRole between Component " + 
 					basicComponent.entityName + " and Interface " + oldCorrespondingOpInterface.entityName)
@@ -296,7 +296,7 @@ routine changedMethodModifierEvent(java::Method method, java::AnnotationInstance
 				//new public method created	
 				createOperationSignature(operationInterface, method)
 				return
-			} else if (null!=operationSignature &&(annotationOrModifier instanceof Protected || annotationOrModifier instanceof Private)){		
+			} else if (null!==operationSignature &&(annotationOrModifier instanceof Protected || annotationOrModifier instanceof Private)){		
 				// public method with corresponding signature has been deleted
 				userInteracting.showMessage(UserInteractionType.MODAL, "Public method with correspondence has been made private. 
 					The corresponding operaitonSignature " + operationSignature.entityName + " will be deleted as well.")

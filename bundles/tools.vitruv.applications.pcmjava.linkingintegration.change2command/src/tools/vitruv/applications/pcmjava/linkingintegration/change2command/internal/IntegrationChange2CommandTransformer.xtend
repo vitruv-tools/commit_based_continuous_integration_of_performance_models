@@ -23,7 +23,7 @@ import tools.vitruv.framework.change.echange.feature.FeatureEChange
 import tools.vitruv.framework.correspondence.CorrespondenceModel
 import tools.vitruv.extensions.integration.correspondence.integration.IntegrationCorrespondence;
 import mir.reactions.reactionsJavaToPcm.packageMappingIntegration.ExecutorJavaToPcm
-import tools.vitruv.framework.util.command.ChangePropagationResult
+import tools.vitruv.framework.util.command.ResourceAccess
 
 class IntegrationChange2CommandTransformer {
 	
@@ -33,33 +33,34 @@ class IntegrationChange2CommandTransformer {
 		this.userInteracting = userInteracting
 	}
 	
-	def compute(EChange change, CorrespondenceModel correspondenceModel) {
-		val propagationResult = executeIntegration(change, correspondenceModel)
-		return new IntegrationChange2CommandResult(propagationResult);
+	def compute(EChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
+		return executeIntegration(change, correspondenceModel, resourceAccess)
 	}
 	
-	private def executeIntegration(EChange change, CorrespondenceModel correspondenceModel) {
+	private def boolean executeIntegration(EChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
 		// Since all correspondences are considered (not only IntegrationCorrespondences),
 		// only return reaction commands, if one of the other 2 checks are successful
 		val existsReaction = doesReactionHandleChange(change, correspondenceModel); 
 		val newClassOrInterfaceInIntegratedAreaCommand = createNewClassOrInterfaceInIntegratedAreaCommand(
 			change, correspondenceModel)
-    	if (newClassOrInterfaceInIntegratedAreaCommand != null) {
+    	if (newClassOrInterfaceInIntegratedAreaCommand !== null) {
     		if (existsReaction) {
-				return executeReactions(change, correspondenceModel);
+				executeReactions(change, correspondenceModel, resourceAccess);
+				return true;
 			}
-			val result = newClassOrInterfaceInIntegratedAreaCommand.call()
-    		return result;
+			newClassOrInterfaceInIntegratedAreaCommand.call()
+    		return true;
     	}
     	val defaultIntegrationChangeCommand = getDefaultIntegrationChangeCommand(change, correspondenceModel)
-    	if (defaultIntegrationChangeCommand != null) {
+    	if (defaultIntegrationChangeCommand !== null) {
     		if (existsReaction) {
-				return executeReactions(change, correspondenceModel);
+				executeReactions(change, correspondenceModel, resourceAccess);
+				return true;
 			}
-    		val result = defaultIntegrationChangeCommand.call()
-    		return result
+    		defaultIntegrationChangeCommand.call()
+    		return true
     	}
-    	return null
+    	return false
 	}
 	
 	def doesReactionHandleChange(EChange change, CorrespondenceModel correspondenceModel) {
@@ -68,10 +69,10 @@ class IntegrationChange2CommandTransformer {
 		return executor.doesHandleChange(change, correspondenceModel);
 	}
 	
-	def executeReactions(EChange change, CorrespondenceModel correspondenceModel) {
+	def executeReactions(EChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
 		val executor = new ExecutorJavaToPcm()
 		executor.userInteracting = userInteracting
-		return executor.propagateChange(change, correspondenceModel)
+		executor.propagateChange(change, correspondenceModel, resourceAccess)
 	}
 	
 	private def createNewClassOrInterfaceInIntegratedAreaCommand(EChange eChange, CorrespondenceModel correspondenceModel) {
@@ -101,10 +102,10 @@ class IntegrationChange2CommandTransformer {
 	    					for (Tuid tuid : allTuids) {
 	    						val packagePart = getPackagePart(tuid)
 	    						if (packagePartOfNewTuid.startsWith(packagePart)) {
-	    							val command = new Callable<ChangePropagationResult>() {
+	    							val command = new Callable<Void>() {
 										override call() throws Exception {
 											showNewTypeInIntegratedAreaDialog()
-											return new ChangePropagationResult()
+											return null
 										}
 									}
 	    							return command
@@ -133,7 +134,7 @@ class IntegrationChange2CommandTransformer {
 	
 	private def getDefaultIntegrationChangeCommand(EChange eChange, CorrespondenceModel correspondenceModel) {
         val correspondingIntegratedEObjects = getCorrespondingEObjectsIfIntegrated(eChange, correspondenceModel)
-        if (correspondingIntegratedEObjects != null) {
+        if (correspondingIntegratedEObjects !== null) {
 	    	val buffer = new StringBuffer()
 	    	buffer.append("Elements in change were integrated into Vitruvius.\n")
 	    	buffer.append("Please fix manually. Corresponding object(s):\n")
@@ -142,10 +143,10 @@ class IntegrationChange2CommandTransformer {
 	    		buffer.append("\n")
 	    		buffer.append(name)
 	    	}
-			val command = new Callable<ChangePropagationResult>() {
+			val command = new Callable<Void>() {
 					override call() throws Exception {
 						userInteracting.showMessage(UserInteractionType.MODAL, buffer.toString())
-						return new ChangePropagationResult()
+						return null
 					}
 				}
 	    	return command
@@ -157,12 +158,12 @@ class IntegrationChange2CommandTransformer {
     	var name = getDirectNameIfNamed(obj)
 		val className = obj.eClass().getName()
     	var container = obj.eContainer()
-    	while (name == null) {
-    		if (container == null) {
+    	while (name === null) {
+    		if (container === null) {
     			name = className
     		} else {
     			val containerName = getDirectNameIfNamed(container)
-    			if (containerName != null) {
+    			if (containerName !== null) {
     				val containerClassName = container.eClass().getName()
 					name = className + " in " + containerClassName + ": " + containerName
     			} else {
@@ -203,7 +204,7 @@ class IntegrationChange2CommandTransformer {
         }
 
         val  integrationView = ci.getView(typeof(IntegrationCorrespondence))
-        if (eObj != null) {
+        if (eObj !== null) {
             val set = CollectionBridge.toSet(eObj)
             val Set<IntegrationCorrespondence> correspondences = integrationView
                     .getCorrespondencesThatInvolveAtLeast(set)

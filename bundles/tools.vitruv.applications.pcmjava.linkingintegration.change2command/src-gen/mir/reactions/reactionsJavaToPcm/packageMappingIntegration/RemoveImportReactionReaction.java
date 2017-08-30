@@ -12,19 +12,14 @@ import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHavi
 import tools.vitruv.framework.change.echange.EChange;
 import tools.vitruv.framework.change.echange.compound.RemoveAndDeleteNonRoot;
 import tools.vitruv.framework.change.echange.feature.reference.RemoveEReference;
-import tools.vitruv.framework.userinteraction.UserInteracting;
 
 @SuppressWarnings("all")
 class RemoveImportReactionReaction extends AbstractReactionRealization {
-  public RemoveImportReactionReaction(final UserInteracting userInteracting) {
-    super(userInteracting);
-  }
-  
   public void executeReaction(final EChange change) {
-    RemoveEReference<JavaRoot, Import> typedChange = ((RemoveAndDeleteNonRoot<JavaRoot, Import>)change).getRemoveChange();
-    JavaRoot affectedEObject = typedChange.getAffectedEObject();
+    RemoveEReference<org.emftext.language.java.containers.JavaRoot, org.emftext.language.java.imports.Import> typedChange = ((RemoveAndDeleteNonRoot<org.emftext.language.java.containers.JavaRoot, org.emftext.language.java.imports.Import>)change).getRemoveChange();
+    org.emftext.language.java.containers.JavaRoot affectedEObject = typedChange.getAffectedEObject();
     EReference affectedFeature = typedChange.getAffectedFeature();
-    Import oldValue = typedChange.getOldValue();
+    org.emftext.language.java.imports.Import oldValue = typedChange.getOldValue();
     mir.routines.packageMappingIntegration.RoutinesFacade routinesFacade = new mir.routines.packageMappingIntegration.RoutinesFacade(this.executionState, this);
     mir.reactions.reactionsJavaToPcm.packageMappingIntegration.RemoveImportReactionReaction.ActionUserExecution userExecution = new mir.reactions.reactionsJavaToPcm.packageMappingIntegration.RemoveImportReactionReaction.ActionUserExecution(this.executionState, this);
     userExecution.callRoutine1(affectedEObject, affectedFeature, oldValue, routinesFacade);
@@ -35,14 +30,14 @@ class RemoveImportReactionReaction extends AbstractReactionRealization {
   }
   
   private boolean checkChangeProperties(final EChange change) {
-    RemoveEReference<JavaRoot, Import> relevantChange = ((RemoveAndDeleteNonRoot<JavaRoot, Import>)change).getRemoveChange();
-    if (!(relevantChange.getAffectedEObject() instanceof JavaRoot)) {
+    RemoveEReference<org.emftext.language.java.containers.JavaRoot, org.emftext.language.java.imports.Import> relevantChange = ((RemoveAndDeleteNonRoot<org.emftext.language.java.containers.JavaRoot, org.emftext.language.java.imports.Import>)change).getRemoveChange();
+    if (!(relevantChange.getAffectedEObject() instanceof org.emftext.language.java.containers.JavaRoot)) {
     	return false;
     }
     if (!relevantChange.getAffectedFeature().getName().equals("imports")) {
     	return false;
     }
-    if (!(relevantChange.getOldValue() instanceof Import)) {
+    if (!(relevantChange.getOldValue() instanceof org.emftext.language.java.imports.Import)) {
     	return false;
     }
     return true;

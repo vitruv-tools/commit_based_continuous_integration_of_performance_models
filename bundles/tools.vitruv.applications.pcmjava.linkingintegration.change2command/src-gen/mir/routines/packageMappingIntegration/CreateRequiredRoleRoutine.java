@@ -7,7 +7,6 @@ import org.emftext.language.java.members.Field;
 import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.palladiosimulator.pcm.repository.OperationInterface;
 import org.palladiosimulator.pcm.repository.OperationRequiredRole;
-import org.palladiosimulator.pcm.repository.impl.RepositoryFactoryImpl;
 import tools.vitruv.extensions.dslsruntime.reactions.AbstractRepairRoutineRealization;
 import tools.vitruv.extensions.dslsruntime.reactions.ReactionExecutionState;
 import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHaving;
@@ -61,13 +60,14 @@ public class CreateRequiredRoleRoutine extends AbstractRepairRoutineRealization 
   
   private Field field;
   
-  protected void executeRoutine() throws IOException {
+  protected boolean executeRoutine() throws IOException {
     getLogger().debug("Called routine CreateRequiredRoleRoutine with input:");
-    getLogger().debug("   BasicComponent: " + this.basicComponent);
-    getLogger().debug("   OperationInterface: " + this.opInterface);
-    getLogger().debug("   Field: " + this.field);
+    getLogger().debug("   basicComponent: " + this.basicComponent);
+    getLogger().debug("   opInterface: " + this.opInterface);
+    getLogger().debug("   field: " + this.field);
     
-    OperationRequiredRole opRequiredRole = RepositoryFactoryImpl.eINSTANCE.createOperationRequiredRole();
+    org.palladiosimulator.pcm.repository.OperationRequiredRole opRequiredRole = org.palladiosimulator.pcm.repository.impl.RepositoryFactoryImpl.eINSTANCE.createOperationRequiredRole();
+    notifyObjectCreated(opRequiredRole);
     
     addCorrespondenceBetween(userExecution.getElement1(basicComponent, opInterface, field, opRequiredRole), userExecution.getElement2(basicComponent, opInterface, field, opRequiredRole), "");
     
@@ -75,5 +75,7 @@ public class CreateRequiredRoleRoutine extends AbstractRepairRoutineRealization 
     userExecution.update0Element(basicComponent, opInterface, field, opRequiredRole);
     
     postprocessElements();
+    
+    return true;
   }
 }

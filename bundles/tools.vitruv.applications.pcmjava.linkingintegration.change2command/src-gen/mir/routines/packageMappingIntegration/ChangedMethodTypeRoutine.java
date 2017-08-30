@@ -6,7 +6,6 @@ import org.eclipse.emf.ecore.EObject;
 import org.emftext.language.java.members.Method;
 import org.emftext.language.java.types.TypeReference;
 import org.palladiosimulator.pcm.repository.DataType;
-import org.palladiosimulator.pcm.repository.OperationInterface;
 import org.palladiosimulator.pcm.repository.OperationSignature;
 import org.palladiosimulator.pcm.repository.Repository;
 import tools.vitruv.applications.pcmjava.util.java2pcm.TypeReferenceCorrespondenceHelper;
@@ -31,11 +30,9 @@ public class ChangedMethodTypeRoutine extends AbstractRepairRoutineRealization {
     }
     
     public void update0Element(final Method method, final TypeReference newType, final OperationSignature opSignature) {
-      OperationInterface _interface__OperationSignature = opSignature.getInterface__OperationSignature();
-      final Repository repo = _interface__OperationSignature.getRepository__Interface();
-      long _arrayDimension = method.getArrayDimension();
+      final Repository repo = opSignature.getInterface__OperationSignature().getRepository__Interface();
       final DataType newReturnValue = TypeReferenceCorrespondenceHelper.getCorrespondingPCMDataTypeForTypeReference(newType, 
-        this.correspondenceModel, this.userInteracting, repo, _arrayDimension);
+        this.correspondenceModel, this.userInteracting, repo, method.getArrayDimension());
       opSignature.setReturnType__OperationSignature(newReturnValue);
       this.userInteracting.showMessage(UserInteractionType.MODAL, ("Changed return type of opSig to " + newReturnValue));
     }
@@ -56,23 +53,25 @@ public class ChangedMethodTypeRoutine extends AbstractRepairRoutineRealization {
   
   private TypeReference newType;
   
-  protected void executeRoutine() throws IOException {
+  protected boolean executeRoutine() throws IOException {
     getLogger().debug("Called routine ChangedMethodTypeRoutine with input:");
-    getLogger().debug("   Method: " + this.method);
-    getLogger().debug("   TypeReference: " + this.newType);
+    getLogger().debug("   method: " + this.method);
+    getLogger().debug("   newType: " + this.newType);
     
-    OperationSignature opSignature = getCorrespondingElement(
+    org.palladiosimulator.pcm.repository.OperationSignature opSignature = getCorrespondingElement(
     	userExecution.getCorrepondenceSourceOpSignature(method, newType), // correspondence source supplier
-    	OperationSignature.class,
-    	(OperationSignature _element) -> true, // correspondence precondition checker
+    	org.palladiosimulator.pcm.repository.OperationSignature.class,
+    	(org.palladiosimulator.pcm.repository.OperationSignature _element) -> true, // correspondence precondition checker
     	null);
     if (opSignature == null) {
-    	return;
+    	return false;
     }
     registerObjectUnderModification(opSignature);
     // val updatedElement userExecution.getElement1(method, newType, opSignature);
     userExecution.update0Element(method, newType, opSignature);
     
     postprocessElements();
+    
+    return true;
   }
 }

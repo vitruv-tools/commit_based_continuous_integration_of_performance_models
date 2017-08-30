@@ -12,9 +12,8 @@ public class RoutinesFacade extends AbstractRepairRoutinesFacade {
     super(reactionExecutionState, calledBy);
   }
   
-  public void addedMethodEventParser(final ConcreteClassifier clazz, final Method method) {
-    mir.routines.parserIntegrationReaction.AddedMethodEventParserRoutine effect = new mir.routines.parserIntegrationReaction.AddedMethodEventParserRoutine(this.executionState, calledBy,
-    	clazz, method);
-    effect.applyRoutine();
+  public boolean addedMethodEventParser(final ConcreteClassifier clazz, final Method method) {
+    mir.routines.parserIntegrationReaction.AddedMethodEventParserRoutine effect = new mir.routines.parserIntegrationReaction.AddedMethodEventParserRoutine(this.executionState, calledBy, clazz, method);
+    return effect.applyRoutine();
   }
 }

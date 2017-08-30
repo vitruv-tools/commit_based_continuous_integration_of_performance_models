@@ -38,8 +38,7 @@ public class CreateOperationSignatureRoutine extends AbstractRepairRoutineRealiz
       final int selection = this.userInteracting.selectFromMessage(UserInteractionType.MODAL, _plus_3, "Yes", "No");
       if ((selection == 0)) {
         OperationSignature opSig = RepositoryFactory.eINSTANCE.createOperationSignature();
-        String _name_1 = newMethod.getName();
-        opSig.setEntityName(_name_1);
+        opSig.setEntityName(newMethod.getName());
         opSig.setInterface__OperationSignature(opInterface);
         CorrespondenceModelUtil.createAndAddCorrespondence(this.correspondenceModel, opSig, newMethod);
       }
@@ -57,14 +56,16 @@ public class CreateOperationSignatureRoutine extends AbstractRepairRoutineRealiz
   
   private Method newMethod;
   
-  protected void executeRoutine() throws IOException {
+  protected boolean executeRoutine() throws IOException {
     getLogger().debug("Called routine CreateOperationSignatureRoutine with input:");
-    getLogger().debug("   OperationInterface: " + this.opInterface);
-    getLogger().debug("   Method: " + this.newMethod);
+    getLogger().debug("   opInterface: " + this.opInterface);
+    getLogger().debug("   newMethod: " + this.newMethod);
     
     // val updatedElement userExecution.getElement1(opInterface, newMethod);
     userExecution.update0Element(opInterface, newMethod);
     
     postprocessElements();
+    
+    return true;
   }
 }

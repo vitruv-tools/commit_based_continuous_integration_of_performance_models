@@ -51,24 +51,26 @@ public class RemovedMethodEventRoutine extends AbstractRepairRoutineRealization 
   
   private Method method;
   
-  protected void executeRoutine() throws IOException {
+  protected boolean executeRoutine() throws IOException {
     getLogger().debug("Called routine RemovedMethodEventRoutine with input:");
-    getLogger().debug("   Method: " + this.method);
+    getLogger().debug("   method: " + this.method);
     
-    OperationSignature opSig = getCorrespondingElement(
+    org.palladiosimulator.pcm.repository.OperationSignature opSig = getCorrespondingElement(
     	userExecution.getCorrepondenceSourceOpSig(method), // correspondence source supplier
-    	OperationSignature.class,
-    	(OperationSignature _element) -> true, // correspondence precondition checker
+    	org.palladiosimulator.pcm.repository.OperationSignature.class,
+    	(org.palladiosimulator.pcm.repository.OperationSignature _element) -> true, // correspondence precondition checker
     	null);
     if (opSig == null) {
-    	return;
+    	return false;
     }
     registerObjectUnderModification(opSig);
-    removeCorrespondenceBetween(userExecution.getElement1(method, opSig), userExecution.getElement2(method, opSig));
+    removeCorrespondenceBetween(userExecution.getElement1(method, opSig), userExecution.getElement2(method, opSig), "");
     
     // val updatedElement userExecution.getElement3(method, opSig);
     userExecution.update0Element(method, opSig);
     
     postprocessElements();
+    
+    return true;
   }
 }

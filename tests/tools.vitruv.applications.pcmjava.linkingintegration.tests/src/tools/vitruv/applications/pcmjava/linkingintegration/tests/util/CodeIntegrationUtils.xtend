@@ -30,7 +30,6 @@ class CodeIntegrationUtils {
 	 	String testBundleName, String testSourceAndModelFolder)
             throws IOException, URISyntaxException, InvocationTargetException, InterruptedException {
         val IOverwriteQuery overwriteQuery = new IOverwriteQuery() {
-            @Override
             override String queryOverwrite( String file) {
                 return ALL;
             }

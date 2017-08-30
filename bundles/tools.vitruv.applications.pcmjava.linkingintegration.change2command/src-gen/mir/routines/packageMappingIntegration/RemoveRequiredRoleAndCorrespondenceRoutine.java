@@ -49,16 +49,18 @@ public class RemoveRequiredRoleAndCorrespondenceRoutine extends AbstractRepairRo
   
   private Field field;
   
-  protected void executeRoutine() throws IOException {
+  protected boolean executeRoutine() throws IOException {
     getLogger().debug("Called routine RemoveRequiredRoleAndCorrespondenceRoutine with input:");
-    getLogger().debug("   OperationRequiredRole: " + this.orr);
-    getLogger().debug("   Field: " + this.field);
+    getLogger().debug("   orr: " + this.orr);
+    getLogger().debug("   field: " + this.field);
     
-    removeCorrespondenceBetween(userExecution.getElement1(orr, field), userExecution.getElement2(orr, field));
+    removeCorrespondenceBetween(userExecution.getElement1(orr, field), userExecution.getElement2(orr, field), "");
     
     // val updatedElement userExecution.getElement3(orr, field);
     userExecution.update0Element(orr, field);
     
     postprocessElements();
+    
+    return true;
   }
 }

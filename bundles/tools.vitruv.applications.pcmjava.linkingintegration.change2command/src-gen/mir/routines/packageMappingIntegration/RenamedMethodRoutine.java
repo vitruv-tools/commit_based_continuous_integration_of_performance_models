@@ -44,23 +44,25 @@ public class RenamedMethodRoutine extends AbstractRepairRoutineRealization {
   
   private String newMethodName;
   
-  protected void executeRoutine() throws IOException {
+  protected boolean executeRoutine() throws IOException {
     getLogger().debug("Called routine RenamedMethodRoutine with input:");
-    getLogger().debug("   Method: " + this.method);
-    getLogger().debug("   String: " + this.newMethodName);
+    getLogger().debug("   method: " + this.method);
+    getLogger().debug("   newMethodName: " + this.newMethodName);
     
-    OperationSignature operationSignature = getCorrespondingElement(
+    org.palladiosimulator.pcm.repository.OperationSignature operationSignature = getCorrespondingElement(
     	userExecution.getCorrepondenceSourceOperationSignature(method, newMethodName), // correspondence source supplier
-    	OperationSignature.class,
-    	(OperationSignature _element) -> true, // correspondence precondition checker
+    	org.palladiosimulator.pcm.repository.OperationSignature.class,
+    	(org.palladiosimulator.pcm.repository.OperationSignature _element) -> true, // correspondence precondition checker
     	null);
     if (operationSignature == null) {
-    	return;
+    	return false;
     }
     registerObjectUnderModification(operationSignature);
     // val updatedElement userExecution.getElement1(method, newMethodName, operationSignature);
     userExecution.update0Element(method, newMethodName, operationSignature);
     
     postprocessElements();
+    
+    return true;
   }
 }

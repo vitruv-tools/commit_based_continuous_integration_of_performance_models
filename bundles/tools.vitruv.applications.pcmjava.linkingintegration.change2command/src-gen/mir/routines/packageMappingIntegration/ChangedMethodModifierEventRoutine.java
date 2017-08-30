@@ -1,9 +1,7 @@
 package mir.routines.packageMappingIntegration;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 import java.io.IOException;
-import java.util.HashSet;
 import mir.routines.packageMappingIntegration.RoutinesFacade;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -46,13 +44,12 @@ public class ChangedMethodModifierEventRoutine extends AbstractRepairRoutineReal
         _routinesFacade.createOperationSignature(operationInterface, method);
         return;
       } else {
-        if (((!Objects.equal(null, operationSignature)) && ((annotationOrModifier instanceof Protected) || (annotationOrModifier instanceof Private)))) {
+        if (((null != operationSignature) && ((annotationOrModifier instanceof Protected) || (annotationOrModifier instanceof Private)))) {
           String _entityName = operationSignature.getEntityName();
           String _plus = ("Public method with correspondence has been made private. \r\n\t\t\t\t\tThe corresponding operaitonSignature " + _entityName);
           String _plus_1 = (_plus + " will be deleted as well.");
           this.userInteracting.showMessage(UserInteractionType.MODAL, _plus_1);
-          HashSet<EObject> _newHashSet = Sets.<EObject>newHashSet(operationSignature);
-          this.correspondenceModel.removeCorrespondencesThatInvolveAtLeastAndDependend(_newHashSet);
+          this.correspondenceModel.removeCorrespondencesThatInvolveAtLeastAndDependend(Sets.<EObject>newHashSet(operationSignature));
           EcoreUtil.remove(operationSignature);
           return;
         }
@@ -71,28 +68,30 @@ public class ChangedMethodModifierEventRoutine extends AbstractRepairRoutineReal
   
   private AnnotationInstanceOrModifier annotationOrModifier;
   
-  protected void executeRoutine() throws IOException {
+  protected boolean executeRoutine() throws IOException {
     getLogger().debug("Called routine ChangedMethodModifierEventRoutine with input:");
-    getLogger().debug("   Method: " + this.method);
-    getLogger().debug("   AnnotationInstanceOrModifier: " + this.annotationOrModifier);
+    getLogger().debug("   method: " + this.method);
+    getLogger().debug("   annotationOrModifier: " + this.annotationOrModifier);
     
-    OperationSignature operationSignature = getCorrespondingElement(
+    org.palladiosimulator.pcm.repository.OperationSignature operationSignature = getCorrespondingElement(
     	userExecution.getCorrepondenceSourceOperationSignature(method, annotationOrModifier), // correspondence source supplier
-    	OperationSignature.class,
-    	(OperationSignature _element) -> true, // correspondence precondition checker
+    	org.palladiosimulator.pcm.repository.OperationSignature.class,
+    	(org.palladiosimulator.pcm.repository.OperationSignature _element) -> true, // correspondence precondition checker
     	null);
     registerObjectUnderModification(operationSignature);
-    OperationInterface operationInterface = getCorrespondingElement(
+    org.palladiosimulator.pcm.repository.OperationInterface operationInterface = getCorrespondingElement(
     	userExecution.getCorrepondenceSourceOperationInterface(method, annotationOrModifier, operationSignature), // correspondence source supplier
-    	OperationInterface.class,
-    	(OperationInterface _element) -> true, // correspondence precondition checker
+    	org.palladiosimulator.pcm.repository.OperationInterface.class,
+    	(org.palladiosimulator.pcm.repository.OperationInterface _element) -> true, // correspondence precondition checker
     	null);
     if (operationInterface == null) {
-    	return;
+    	return false;
     }
     registerObjectUnderModification(operationInterface);
     userExecution.callRoutine1(method, annotationOrModifier, operationSignature, operationInterface, actionsFacade);
     
     postprocessElements();
+    
+    return true;
   }
 }

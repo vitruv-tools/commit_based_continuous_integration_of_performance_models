@@ -13,19 +13,14 @@ import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHavi
 import tools.vitruv.framework.change.echange.EChange;
 import tools.vitruv.framework.change.echange.compound.CreateAndInsertNonRoot;
 import tools.vitruv.framework.change.echange.feature.reference.InsertEReference;
-import tools.vitruv.framework.userinteraction.UserInteracting;
 
 @SuppressWarnings("all")
 class AddMethodEventParserReaction extends AbstractReactionRealization {
-  public AddMethodEventParserReaction(final UserInteracting userInteracting) {
-    super(userInteracting);
-  }
-  
   public void executeReaction(final EChange change) {
-    InsertEReference<ConcreteClassifier, Member> typedChange = ((CreateAndInsertNonRoot<ConcreteClassifier, Member>)change).getInsertChange();
-    ConcreteClassifier affectedEObject = typedChange.getAffectedEObject();
+    InsertEReference<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member> typedChange = ((CreateAndInsertNonRoot<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member>)change).getInsertChange();
+    org.emftext.language.java.classifiers.ConcreteClassifier affectedEObject = typedChange.getAffectedEObject();
     EReference affectedFeature = typedChange.getAffectedFeature();
-    Member newValue = typedChange.getNewValue();
+    org.emftext.language.java.members.Member newValue = typedChange.getNewValue();
     mir.routines.parserIntegrationReaction.RoutinesFacade routinesFacade = new mir.routines.parserIntegrationReaction.RoutinesFacade(this.executionState, this);
     mir.reactions.reactionsJavaToPcm.parserIntegrationReaction.AddMethodEventParserReaction.ActionUserExecution userExecution = new mir.reactions.reactionsJavaToPcm.parserIntegrationReaction.AddMethodEventParserReaction.ActionUserExecution(this.executionState, this);
     userExecution.callRoutine1(affectedEObject, affectedFeature, newValue, routinesFacade);
@@ -36,14 +31,14 @@ class AddMethodEventParserReaction extends AbstractReactionRealization {
   }
   
   private boolean checkChangeProperties(final EChange change) {
-    InsertEReference<ConcreteClassifier, Member> relevantChange = ((CreateAndInsertNonRoot<ConcreteClassifier, Member>)change).getInsertChange();
-    if (!(relevantChange.getAffectedEObject() instanceof ConcreteClassifier)) {
+    InsertEReference<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member> relevantChange = ((CreateAndInsertNonRoot<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member>)change).getInsertChange();
+    if (!(relevantChange.getAffectedEObject() instanceof org.emftext.language.java.classifiers.ConcreteClassifier)) {
     	return false;
     }
     if (!relevantChange.getAffectedFeature().getName().equals("members")) {
     	return false;
     }
-    if (!(relevantChange.getNewValue() instanceof Member)) {
+    if (!(relevantChange.getNewValue() instanceof org.emftext.language.java.members.Member)) {
     	return false;
     }
     return true;
@@ -58,10 +53,10 @@ class AddMethodEventParserReaction extends AbstractReactionRealization {
     	return false;
     }
     getLogger().debug("Passed change properties check of reaction " + this.getClass().getName());
-    InsertEReference<ConcreteClassifier, Member> typedChange = ((CreateAndInsertNonRoot<ConcreteClassifier, Member>)change).getInsertChange();
-    ConcreteClassifier affectedEObject = typedChange.getAffectedEObject();
+    InsertEReference<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member> typedChange = ((CreateAndInsertNonRoot<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member>)change).getInsertChange();
+    org.emftext.language.java.classifiers.ConcreteClassifier affectedEObject = typedChange.getAffectedEObject();
     EReference affectedFeature = typedChange.getAffectedFeature();
-    Member newValue = typedChange.getNewValue();
+    org.emftext.language.java.members.Member newValue = typedChange.getNewValue();
     if (!checkUserDefinedPrecondition(affectedEObject, affectedFeature, newValue)) {
     	return false;
     }

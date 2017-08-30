@@ -13,19 +13,14 @@ import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHavi
 import tools.vitruv.framework.change.echange.EChange;
 import tools.vitruv.framework.change.echange.compound.RemoveAndDeleteNonRoot;
 import tools.vitruv.framework.change.echange.feature.reference.RemoveEReference;
-import tools.vitruv.framework.userinteraction.UserInteracting;
 
 @SuppressWarnings("all")
 class RemoveFieldEventReaction extends AbstractReactionRealization {
-  public RemoveFieldEventReaction(final UserInteracting userInteracting) {
-    super(userInteracting);
-  }
-  
   public void executeReaction(final EChange change) {
-    RemoveEReference<ConcreteClassifier, Member> typedChange = ((RemoveAndDeleteNonRoot<ConcreteClassifier, Member>)change).getRemoveChange();
-    ConcreteClassifier affectedEObject = typedChange.getAffectedEObject();
+    RemoveEReference<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member> typedChange = ((RemoveAndDeleteNonRoot<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member>)change).getRemoveChange();
+    org.emftext.language.java.classifiers.ConcreteClassifier affectedEObject = typedChange.getAffectedEObject();
     EReference affectedFeature = typedChange.getAffectedFeature();
-    Member oldValue = typedChange.getOldValue();
+    org.emftext.language.java.members.Member oldValue = typedChange.getOldValue();
     mir.routines.packageMappingIntegration.RoutinesFacade routinesFacade = new mir.routines.packageMappingIntegration.RoutinesFacade(this.executionState, this);
     mir.reactions.reactionsJavaToPcm.packageMappingIntegration.RemoveFieldEventReaction.ActionUserExecution userExecution = new mir.reactions.reactionsJavaToPcm.packageMappingIntegration.RemoveFieldEventReaction.ActionUserExecution(this.executionState, this);
     userExecution.callRoutine1(affectedEObject, affectedFeature, oldValue, routinesFacade);
@@ -36,14 +31,14 @@ class RemoveFieldEventReaction extends AbstractReactionRealization {
   }
   
   private boolean checkChangeProperties(final EChange change) {
-    RemoveEReference<ConcreteClassifier, Member> relevantChange = ((RemoveAndDeleteNonRoot<ConcreteClassifier, Member>)change).getRemoveChange();
-    if (!(relevantChange.getAffectedEObject() instanceof ConcreteClassifier)) {
+    RemoveEReference<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member> relevantChange = ((RemoveAndDeleteNonRoot<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member>)change).getRemoveChange();
+    if (!(relevantChange.getAffectedEObject() instanceof org.emftext.language.java.classifiers.ConcreteClassifier)) {
     	return false;
     }
     if (!relevantChange.getAffectedFeature().getName().equals("members")) {
     	return false;
     }
-    if (!(relevantChange.getOldValue() instanceof Member)) {
+    if (!(relevantChange.getOldValue() instanceof org.emftext.language.java.members.Member)) {
     	return false;
     }
     return true;
@@ -58,10 +53,10 @@ class RemoveFieldEventReaction extends AbstractReactionRealization {
     	return false;
     }
     getLogger().debug("Passed change properties check of reaction " + this.getClass().getName());
-    RemoveEReference<ConcreteClassifier, Member> typedChange = ((RemoveAndDeleteNonRoot<ConcreteClassifier, Member>)change).getRemoveChange();
-    ConcreteClassifier affectedEObject = typedChange.getAffectedEObject();
+    RemoveEReference<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member> typedChange = ((RemoveAndDeleteNonRoot<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member>)change).getRemoveChange();
+    org.emftext.language.java.classifiers.ConcreteClassifier affectedEObject = typedChange.getAffectedEObject();
     EReference affectedFeature = typedChange.getAffectedFeature();
-    Member oldValue = typedChange.getOldValue();
+    org.emftext.language.java.members.Member oldValue = typedChange.getOldValue();
     if (!checkUserDefinedPrecondition(affectedEObject, affectedFeature, oldValue)) {
     	return false;
     }

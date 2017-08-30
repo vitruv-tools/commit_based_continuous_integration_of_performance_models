@@ -12,19 +12,14 @@ import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHavi
 import tools.vitruv.framework.change.echange.EChange;
 import tools.vitruv.framework.change.echange.compound.RemoveAndDeleteNonRoot;
 import tools.vitruv.framework.change.echange.feature.reference.RemoveEReference;
-import tools.vitruv.framework.userinteraction.UserInteracting;
 
 @SuppressWarnings("all")
 class RemoveFieldModifierEventParserReaction extends AbstractReactionRealization {
-  public RemoveFieldModifierEventParserReaction(final UserInteracting userInteracting) {
-    super(userInteracting);
-  }
-  
   public void executeReaction(final EChange change) {
-    RemoveEReference<Field, AnnotationInstanceOrModifier> typedChange = ((RemoveAndDeleteNonRoot<Field, AnnotationInstanceOrModifier>)change).getRemoveChange();
-    Field affectedEObject = typedChange.getAffectedEObject();
+    RemoveEReference<org.emftext.language.java.members.Field, org.emftext.language.java.modifiers.AnnotationInstanceOrModifier> typedChange = ((RemoveAndDeleteNonRoot<org.emftext.language.java.members.Field, org.emftext.language.java.modifiers.AnnotationInstanceOrModifier>)change).getRemoveChange();
+    org.emftext.language.java.members.Field affectedEObject = typedChange.getAffectedEObject();
     EReference affectedFeature = typedChange.getAffectedFeature();
-    AnnotationInstanceOrModifier oldValue = typedChange.getOldValue();
+    org.emftext.language.java.modifiers.AnnotationInstanceOrModifier oldValue = typedChange.getOldValue();
     mir.routines.parserIntegrationReaction.RoutinesFacade routinesFacade = new mir.routines.parserIntegrationReaction.RoutinesFacade(this.executionState, this);
     mir.reactions.reactionsJavaToPcm.parserIntegrationReaction.RemoveFieldModifierEventParserReaction.ActionUserExecution userExecution = new mir.reactions.reactionsJavaToPcm.parserIntegrationReaction.RemoveFieldModifierEventParserReaction.ActionUserExecution(this.executionState, this);
     userExecution.callRoutine1(affectedEObject, affectedFeature, oldValue, routinesFacade);
@@ -35,14 +30,14 @@ class RemoveFieldModifierEventParserReaction extends AbstractReactionRealization
   }
   
   private boolean checkChangeProperties(final EChange change) {
-    RemoveEReference<Field, AnnotationInstanceOrModifier> relevantChange = ((RemoveAndDeleteNonRoot<Field, AnnotationInstanceOrModifier>)change).getRemoveChange();
-    if (!(relevantChange.getAffectedEObject() instanceof Field)) {
+    RemoveEReference<org.emftext.language.java.members.Field, org.emftext.language.java.modifiers.AnnotationInstanceOrModifier> relevantChange = ((RemoveAndDeleteNonRoot<org.emftext.language.java.members.Field, org.emftext.language.java.modifiers.AnnotationInstanceOrModifier>)change).getRemoveChange();
+    if (!(relevantChange.getAffectedEObject() instanceof org.emftext.language.java.members.Field)) {
     	return false;
     }
     if (!relevantChange.getAffectedFeature().getName().equals("annotationsAndModifiers")) {
     	return false;
     }
-    if (!(relevantChange.getOldValue() instanceof AnnotationInstanceOrModifier)) {
+    if (!(relevantChange.getOldValue() instanceof org.emftext.language.java.modifiers.AnnotationInstanceOrModifier)) {
     	return false;
     }
     return true;

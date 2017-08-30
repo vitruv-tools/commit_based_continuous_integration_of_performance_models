@@ -47,11 +47,11 @@ public class MethodParameterNameChangedEventRoutine extends AbstractRepairRoutin
   
   private String newParameterName;
   
-  protected void executeRoutine() throws IOException {
+  protected boolean executeRoutine() throws IOException {
     getLogger().debug("Called routine MethodParameterNameChangedEventRoutine with input:");
-    getLogger().debug("   Parameter: " + this.parameter);
-    getLogger().debug("   String: " + this.oldParameterName);
-    getLogger().debug("   String: " + this.newParameterName);
+    getLogger().debug("   parameter: " + this.parameter);
+    getLogger().debug("   oldParameterName: " + this.oldParameterName);
+    getLogger().debug("   newParameterName: " + this.newParameterName);
     
     org.palladiosimulator.pcm.repository.Parameter pcmParam = getCorrespondingElement(
     	userExecution.getCorrepondenceSourcePcmParam(parameter, oldParameterName, newParameterName), // correspondence source supplier
@@ -59,12 +59,14 @@ public class MethodParameterNameChangedEventRoutine extends AbstractRepairRoutin
     	(org.palladiosimulator.pcm.repository.Parameter _element) -> true, // correspondence precondition checker
     	null);
     if (pcmParam == null) {
-    	return;
+    	return false;
     }
     registerObjectUnderModification(pcmParam);
     // val updatedElement userExecution.getElement1(parameter, oldParameterName, newParameterName, pcmParam);
     userExecution.update0Element(parameter, oldParameterName, newParameterName, pcmParam);
     
     postprocessElements();
+    
+    return true;
   }
 }

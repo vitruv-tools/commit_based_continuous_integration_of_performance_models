@@ -49,31 +49,33 @@ public class AddedFieldEventRoutine extends AbstractRepairRoutineRealization {
   
   private Field field;
   
-  protected void executeRoutine() throws IOException {
+  protected boolean executeRoutine() throws IOException {
     getLogger().debug("Called routine AddedFieldEventRoutine with input:");
-    getLogger().debug("   ConcreteClassifier: " + this.clazz);
-    getLogger().debug("   Field: " + this.field);
+    getLogger().debug("   clazz: " + this.clazz);
+    getLogger().debug("   field: " + this.field);
     
-    BasicComponent basicComponent = getCorrespondingElement(
+    org.palladiosimulator.pcm.repository.BasicComponent basicComponent = getCorrespondingElement(
     	userExecution.getCorrepondenceSourceBasicComponent(clazz, field), // correspondence source supplier
-    	BasicComponent.class,
-    	(BasicComponent _element) -> true, // correspondence precondition checker
+    	org.palladiosimulator.pcm.repository.BasicComponent.class,
+    	(org.palladiosimulator.pcm.repository.BasicComponent _element) -> true, // correspondence precondition checker
     	null);
     if (basicComponent == null) {
-    	return;
+    	return false;
     }
     registerObjectUnderModification(basicComponent);
-    OperationInterface opInterface = getCorrespondingElement(
+    org.palladiosimulator.pcm.repository.OperationInterface opInterface = getCorrespondingElement(
     	userExecution.getCorrepondenceSourceOpInterface(clazz, field, basicComponent), // correspondence source supplier
-    	OperationInterface.class,
-    	(OperationInterface _element) -> true, // correspondence precondition checker
+    	org.palladiosimulator.pcm.repository.OperationInterface.class,
+    	(org.palladiosimulator.pcm.repository.OperationInterface _element) -> true, // correspondence precondition checker
     	null);
     if (opInterface == null) {
-    	return;
+    	return false;
     }
     registerObjectUnderModification(opInterface);
     userExecution.callRoutine1(clazz, field, basicComponent, opInterface, actionsFacade);
     
     postprocessElements();
+    
+    return true;
   }
 }

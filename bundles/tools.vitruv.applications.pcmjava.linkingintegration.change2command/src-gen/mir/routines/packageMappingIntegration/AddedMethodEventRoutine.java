@@ -42,22 +42,24 @@ public class AddedMethodEventRoutine extends AbstractRepairRoutineRealization {
   
   private Method method;
   
-  protected void executeRoutine() throws IOException {
+  protected boolean executeRoutine() throws IOException {
     getLogger().debug("Called routine AddedMethodEventRoutine with input:");
-    getLogger().debug("   ConcreteClassifier: " + this.clazz);
-    getLogger().debug("   Method: " + this.method);
+    getLogger().debug("   clazz: " + this.clazz);
+    getLogger().debug("   method: " + this.method);
     
-    OperationInterface opInterface = getCorrespondingElement(
+    org.palladiosimulator.pcm.repository.OperationInterface opInterface = getCorrespondingElement(
     	userExecution.getCorrepondenceSourceOpInterface(clazz, method), // correspondence source supplier
-    	OperationInterface.class,
-    	(OperationInterface _element) -> true, // correspondence precondition checker
+    	org.palladiosimulator.pcm.repository.OperationInterface.class,
+    	(org.palladiosimulator.pcm.repository.OperationInterface _element) -> true, // correspondence precondition checker
     	null);
     if (opInterface == null) {
-    	return;
+    	return false;
     }
     registerObjectUnderModification(opInterface);
     userExecution.callRoutine1(clazz, method, opInterface, actionsFacade);
     
     postprocessElements();
+    
+    return true;
   }
 }
