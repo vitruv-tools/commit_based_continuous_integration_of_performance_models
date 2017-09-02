@@ -58,7 +58,9 @@ public class AddedFieldEventRoutine extends AbstractRepairRoutineRealization {
     	userExecution.getCorrepondenceSourceBasicComponent(clazz, field), // correspondence source supplier
     	org.palladiosimulator.pcm.repository.BasicComponent.class,
     	(org.palladiosimulator.pcm.repository.BasicComponent _element) -> true, // correspondence precondition checker
-    	null);
+    	null, 
+    	false // asserted
+    	);
     if (basicComponent == null) {
     	return false;
     }
@@ -67,7 +69,9 @@ public class AddedFieldEventRoutine extends AbstractRepairRoutineRealization {
     	userExecution.getCorrepondenceSourceOpInterface(clazz, field, basicComponent), // correspondence source supplier
     	org.palladiosimulator.pcm.repository.OperationInterface.class,
     	(org.palladiosimulator.pcm.repository.OperationInterface _element) -> true, // correspondence precondition checker
-    	null);
+    	null, 
+    	false // asserted
+    	);
     if (opInterface == null) {
     	return false;
     }

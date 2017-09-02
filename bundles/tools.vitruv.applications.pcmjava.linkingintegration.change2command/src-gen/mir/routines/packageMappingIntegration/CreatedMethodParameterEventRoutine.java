@@ -69,7 +69,9 @@ public class CreatedMethodParameterEventRoutine extends AbstractRepairRoutineRea
     	userExecution.getCorrepondenceSourceOpSignature(method, parameter), // correspondence source supplier
     	org.palladiosimulator.pcm.repository.OperationSignature.class,
     	(org.palladiosimulator.pcm.repository.OperationSignature _element) -> true, // correspondence precondition checker
-    	null);
+    	null, 
+    	false // asserted
+    	);
     if (opSignature == null) {
     	return false;
     }

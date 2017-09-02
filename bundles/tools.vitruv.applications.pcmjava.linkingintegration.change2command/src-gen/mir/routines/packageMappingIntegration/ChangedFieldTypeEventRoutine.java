@@ -1,6 +1,7 @@
 package mir.routines.packageMappingIntegration;
 
 import java.io.IOException;
+import java.util.Optional;
 import mir.routines.packageMappingIntegration.RoutinesFacade;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.xbase.lib.Extension;
@@ -26,7 +27,7 @@ public class ChangedFieldTypeEventRoutine extends AbstractRepairRoutineRealizati
       super(reactionExecutionState);
     }
     
-    public EObject getCorrepondenceSourceBasicComponent(final Field field, final TypeReference oldType, final TypeReference newType, final OperationInterface oldCorrespondingOpInterface, final OperationInterface opInterface, final OperationRequiredRole opRequiredRole) {
+    public EObject getCorrepondenceSourceBasicComponent(final Field field, final TypeReference oldType, final TypeReference newType, final Optional<OperationInterface> oldCorrespondingOpInterface, final Optional<OperationInterface> opInterface, final Optional<OperationRequiredRole> opRequiredRole) {
       ConcreteClassifier _containingConcreteClassifier = field.getContainingConcreteClassifier();
       return _containingConcreteClassifier;
     }
@@ -35,38 +36,39 @@ public class ChangedFieldTypeEventRoutine extends AbstractRepairRoutineRealizati
       return oldType;
     }
     
-    public EObject getCorrepondenceSourceOpRequiredRole(final Field field, final TypeReference oldType, final TypeReference newType, final OperationInterface oldCorrespondingOpInterface, final OperationInterface opInterface) {
+    public EObject getCorrepondenceSourceOpRequiredRole(final Field field, final TypeReference oldType, final TypeReference newType, final Optional<OperationInterface> oldCorrespondingOpInterface, final Optional<OperationInterface> opInterface) {
       return field;
     }
     
-    public EObject getCorrepondenceSourceOpInterface(final Field field, final TypeReference oldType, final TypeReference newType, final OperationInterface oldCorrespondingOpInterface) {
+    public EObject getCorrepondenceSourceOpInterface(final Field field, final TypeReference oldType, final TypeReference newType, final Optional<OperationInterface> oldCorrespondingOpInterface) {
       return newType;
     }
     
-    public void callRoutine1(final Field field, final TypeReference oldType, final TypeReference newType, final OperationInterface oldCorrespondingOpInterface, final OperationInterface opInterface, final OperationRequiredRole opRequiredRole, final BasicComponent basicComponent, @Extension final RoutinesFacade _routinesFacade) {
-      if ((((null != oldCorrespondingOpInterface) && (null != opInterface)) && (null != opRequiredRole))) {
+    public void callRoutine1(final Field field, final TypeReference oldType, final TypeReference newType, final Optional<OperationInterface> oldCorrespondingOpInterface, final Optional<OperationInterface> opInterface, final Optional<OperationRequiredRole> opRequiredRole, final BasicComponent basicComponent, @Extension final RoutinesFacade _routinesFacade) {
+      if (((oldCorrespondingOpInterface.isPresent() && opInterface.isPresent()) && opRequiredRole.isPresent())) {
         this.userInteracting.showMessage(UserInteractionType.MODAL, "the operation required role has been changed");
-        opRequiredRole.setRequiredInterface__OperationRequiredRole(opInterface);
+        OperationRequiredRole _get = opRequiredRole.get();
+        _get.setRequiredInterface__OperationRequiredRole(opInterface.get());
         return;
       }
-      if (((null == oldCorrespondingOpInterface) && (null != opInterface))) {
+      if (((!oldCorrespondingOpInterface.isPresent()) && opInterface.isPresent())) {
         String _entityName = basicComponent.getEntityName();
         String _plus = ("Create OperationRequiredRole between Component " + _entityName);
         String _plus_1 = (_plus + " and Interface ");
-        String _entityName_1 = opInterface.getEntityName();
+        String _entityName_1 = opInterface.get().getEntityName();
         String _plus_2 = (_plus_1 + _entityName_1);
         this.userInteracting.showMessage(UserInteractionType.MODAL, _plus_2);
-        _routinesFacade.createRequiredRole(basicComponent, opInterface, field);
+        _routinesFacade.createRequiredRole(basicComponent, opInterface.get(), field);
         return;
       }
-      if ((((null != oldCorrespondingOpInterface) && (null == opInterface)) && (null != opRequiredRole))) {
+      if (((oldCorrespondingOpInterface.isPresent() && (!opInterface.isPresent())) && opRequiredRole.isPresent())) {
         String _entityName_2 = basicComponent.getEntityName();
         String _plus_3 = ("Remove OperationRequiredRole between Component " + _entityName_2);
         String _plus_4 = (_plus_3 + " and Interface ");
-        String _entityName_3 = oldCorrespondingOpInterface.getEntityName();
+        String _entityName_3 = oldCorrespondingOpInterface.get().getEntityName();
         String _plus_5 = (_plus_4 + _entityName_3);
         this.userInteracting.showMessage(UserInteractionType.MODAL, _plus_5);
-        _routinesFacade.removeRequiredRoleAndCorrespondence(opRequiredRole, field);
+        _routinesFacade.removeRequiredRoleAndCorrespondence(opRequiredRole.get(), field);
       }
     }
   }
@@ -90,29 +92,40 @@ public class ChangedFieldTypeEventRoutine extends AbstractRepairRoutineRealizati
     getLogger().debug("   oldType: " + this.oldType);
     getLogger().debug("   newType: " + this.newType);
     
-    org.palladiosimulator.pcm.repository.OperationInterface oldCorrespondingOpInterface = getCorrespondingElement(
-    	userExecution.getCorrepondenceSourceOldCorrespondingOpInterface(field, oldType, newType), // correspondence source supplier
-    	org.palladiosimulator.pcm.repository.OperationInterface.class,
-    	(org.palladiosimulator.pcm.repository.OperationInterface _element) -> true, // correspondence precondition checker
-    	null);
-    registerObjectUnderModification(oldCorrespondingOpInterface);
-    org.palladiosimulator.pcm.repository.OperationInterface opInterface = getCorrespondingElement(
-    	userExecution.getCorrepondenceSourceOpInterface(field, oldType, newType, oldCorrespondingOpInterface), // correspondence source supplier
-    	org.palladiosimulator.pcm.repository.OperationInterface.class,
-    	(org.palladiosimulator.pcm.repository.OperationInterface _element) -> true, // correspondence precondition checker
-    	null);
-    registerObjectUnderModification(opInterface);
-    org.palladiosimulator.pcm.repository.OperationRequiredRole opRequiredRole = getCorrespondingElement(
-    	userExecution.getCorrepondenceSourceOpRequiredRole(field, oldType, newType, oldCorrespondingOpInterface, opInterface), // correspondence source supplier
-    	org.palladiosimulator.pcm.repository.OperationRequiredRole.class,
-    	(org.palladiosimulator.pcm.repository.OperationRequiredRole _element) -> true, // correspondence precondition checker
-    	null);
-    registerObjectUnderModification(opRequiredRole);
+    	Optional<org.palladiosimulator.pcm.repository.OperationInterface> oldCorrespondingOpInterface = Optional.ofNullable(getCorrespondingElement(
+    		userExecution.getCorrepondenceSourceOldCorrespondingOpInterface(field, oldType, newType), // correspondence source supplier
+    		org.palladiosimulator.pcm.repository.OperationInterface.class,
+    		(org.palladiosimulator.pcm.repository.OperationInterface _element) -> true, // correspondence precondition checker
+    		null, 
+    		false // asserted
+    		)
+    );
+    registerObjectUnderModification(oldCorrespondingOpInterface.isPresent() ? oldCorrespondingOpInterface.get() : null);
+    	Optional<org.palladiosimulator.pcm.repository.OperationInterface> opInterface = Optional.ofNullable(getCorrespondingElement(
+    		userExecution.getCorrepondenceSourceOpInterface(field, oldType, newType, oldCorrespondingOpInterface), // correspondence source supplier
+    		org.palladiosimulator.pcm.repository.OperationInterface.class,
+    		(org.palladiosimulator.pcm.repository.OperationInterface _element) -> true, // correspondence precondition checker
+    		null, 
+    		false // asserted
+    		)
+    );
+    registerObjectUnderModification(opInterface.isPresent() ? opInterface.get() : null);
+    	Optional<org.palladiosimulator.pcm.repository.OperationRequiredRole> opRequiredRole = Optional.ofNullable(getCorrespondingElement(
+    		userExecution.getCorrepondenceSourceOpRequiredRole(field, oldType, newType, oldCorrespondingOpInterface, opInterface), // correspondence source supplier
+    		org.palladiosimulator.pcm.repository.OperationRequiredRole.class,
+    		(org.palladiosimulator.pcm.repository.OperationRequiredRole _element) -> true, // correspondence precondition checker
+    		null, 
+    		false // asserted
+    		)
+    );
+    registerObjectUnderModification(opRequiredRole.isPresent() ? opRequiredRole.get() : null);
     org.palladiosimulator.pcm.repository.BasicComponent basicComponent = getCorrespondingElement(
     	userExecution.getCorrepondenceSourceBasicComponent(field, oldType, newType, oldCorrespondingOpInterface, opInterface, opRequiredRole), // correspondence source supplier
     	org.palladiosimulator.pcm.repository.BasicComponent.class,
     	(org.palladiosimulator.pcm.repository.BasicComponent _element) -> true, // correspondence precondition checker
-    	null);
+    	null, 
+    	false // asserted
+    	);
     if (basicComponent == null) {
     	return false;
     }

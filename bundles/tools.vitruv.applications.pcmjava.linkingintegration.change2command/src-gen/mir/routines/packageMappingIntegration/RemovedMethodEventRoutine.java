@@ -59,7 +59,9 @@ public class RemovedMethodEventRoutine extends AbstractRepairRoutineRealization 
     	userExecution.getCorrepondenceSourceOpSig(method), // correspondence source supplier
     	org.palladiosimulator.pcm.repository.OperationSignature.class,
     	(org.palladiosimulator.pcm.repository.OperationSignature _element) -> true, // correspondence precondition checker
-    	null);
+    	null, 
+    	false // asserted
+    	);
     if (opSig == null) {
     	return false;
     }

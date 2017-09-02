@@ -61,7 +61,9 @@ public class RemovedFieldEventRoutine extends AbstractRepairRoutineRealization {
     	userExecution.getCorrepondenceSourceNamedElement(field), // correspondence source supplier
     	org.palladiosimulator.pcm.core.entity.NamedElement.class,
     	(org.palladiosimulator.pcm.core.entity.NamedElement _element) -> true, // correspondence precondition checker
-    	null);
+    	null, 
+    	false // asserted
+    	);
     if (namedElement == null) {
     	return false;
     }

@@ -57,7 +57,9 @@ public class MethodParameterNameChangedEventRoutine extends AbstractRepairRoutin
     	userExecution.getCorrepondenceSourcePcmParam(parameter, oldParameterName, newParameterName), // correspondence source supplier
     	org.palladiosimulator.pcm.repository.Parameter.class,
     	(org.palladiosimulator.pcm.repository.Parameter _element) -> true, // correspondence precondition checker
-    	null);
+    	null, 
+    	false // asserted
+    	);
     if (pcmParam == null) {
     	return false;
     }

@@ -53,7 +53,9 @@ public class RenamedMethodRoutine extends AbstractRepairRoutineRealization {
     	userExecution.getCorrepondenceSourceOperationSignature(method, newMethodName), // correspondence source supplier
     	org.palladiosimulator.pcm.repository.OperationSignature.class,
     	(org.palladiosimulator.pcm.repository.OperationSignature _element) -> true, // correspondence precondition checker
-    	null);
+    	null, 
+    	false // asserted
+    	);
     if (operationSignature == null) {
     	return false;
     }

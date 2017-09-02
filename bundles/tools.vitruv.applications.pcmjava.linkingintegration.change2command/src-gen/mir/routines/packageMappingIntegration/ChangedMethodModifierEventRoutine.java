@@ -2,6 +2,7 @@ package mir.routines.packageMappingIntegration;
 
 import com.google.common.collect.Sets;
 import java.io.IOException;
+import java.util.Optional;
 import mir.routines.packageMappingIntegration.RoutinesFacade;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -34,23 +35,23 @@ public class ChangedMethodModifierEventRoutine extends AbstractRepairRoutineReal
       return method;
     }
     
-    public EObject getCorrepondenceSourceOperationInterface(final Method method, final AnnotationInstanceOrModifier annotationOrModifier, final OperationSignature operationSignature) {
+    public EObject getCorrepondenceSourceOperationInterface(final Method method, final AnnotationInstanceOrModifier annotationOrModifier, final Optional<OperationSignature> operationSignature) {
       ConcreteClassifier _containingConcreteClassifier = method.getContainingConcreteClassifier();
       return _containingConcreteClassifier;
     }
     
-    public void callRoutine1(final Method method, final AnnotationInstanceOrModifier annotationOrModifier, final OperationSignature operationSignature, final OperationInterface operationInterface, @Extension final RoutinesFacade _routinesFacade) {
+    public void callRoutine1(final Method method, final AnnotationInstanceOrModifier annotationOrModifier, final Optional<OperationSignature> operationSignature, final OperationInterface operationInterface, @Extension final RoutinesFacade _routinesFacade) {
       if ((annotationOrModifier instanceof Public)) {
         _routinesFacade.createOperationSignature(operationInterface, method);
         return;
       } else {
-        if (((null != operationSignature) && ((annotationOrModifier instanceof Protected) || (annotationOrModifier instanceof Private)))) {
-          String _entityName = operationSignature.getEntityName();
+        if ((operationSignature.isPresent() && ((annotationOrModifier instanceof Protected) || (annotationOrModifier instanceof Private)))) {
+          String _entityName = operationSignature.get().getEntityName();
           String _plus = ("Public method with correspondence has been made private. \r\n\t\t\t\t\tThe corresponding operaitonSignature " + _entityName);
           String _plus_1 = (_plus + " will be deleted as well.");
           this.userInteracting.showMessage(UserInteractionType.MODAL, _plus_1);
-          this.correspondenceModel.removeCorrespondencesThatInvolveAtLeastAndDependend(Sets.<EObject>newHashSet(operationSignature));
-          EcoreUtil.remove(operationSignature);
+          this.correspondenceModel.removeCorrespondencesThatInvolveAtLeastAndDependend(Sets.<EObject>newHashSet(operationSignature.get()));
+          EcoreUtil.remove(operationSignature.get());
           return;
         }
       }
@@ -73,17 +74,22 @@ public class ChangedMethodModifierEventRoutine extends AbstractRepairRoutineReal
     getLogger().debug("   method: " + this.method);
     getLogger().debug("   annotationOrModifier: " + this.annotationOrModifier);
     
-    org.palladiosimulator.pcm.repository.OperationSignature operationSignature = getCorrespondingElement(
-    	userExecution.getCorrepondenceSourceOperationSignature(method, annotationOrModifier), // correspondence source supplier
-    	org.palladiosimulator.pcm.repository.OperationSignature.class,
-    	(org.palladiosimulator.pcm.repository.OperationSignature _element) -> true, // correspondence precondition checker
-    	null);
-    registerObjectUnderModification(operationSignature);
+    	Optional<org.palladiosimulator.pcm.repository.OperationSignature> operationSignature = Optional.ofNullable(getCorrespondingElement(
+    		userExecution.getCorrepondenceSourceOperationSignature(method, annotationOrModifier), // correspondence source supplier
+    		org.palladiosimulator.pcm.repository.OperationSignature.class,
+    		(org.palladiosimulator.pcm.repository.OperationSignature _element) -> true, // correspondence precondition checker
+    		null, 
+    		false // asserted
+    		)
+    );
+    registerObjectUnderModification(operationSignature.isPresent() ? operationSignature.get() : null);
     org.palladiosimulator.pcm.repository.OperationInterface operationInterface = getCorrespondingElement(
     	userExecution.getCorrepondenceSourceOperationInterface(method, annotationOrModifier, operationSignature), // correspondence source supplier
     	org.palladiosimulator.pcm.repository.OperationInterface.class,
     	(org.palladiosimulator.pcm.repository.OperationInterface _element) -> true, // correspondence precondition checker
-    	null);
+    	null, 
+    	false // asserted
+    	);
     if (operationInterface == null) {
     	return false;
     }

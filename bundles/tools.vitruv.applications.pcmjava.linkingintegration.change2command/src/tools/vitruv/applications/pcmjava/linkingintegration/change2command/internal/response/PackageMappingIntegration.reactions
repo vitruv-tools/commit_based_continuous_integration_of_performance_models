@@ -233,24 +233,24 @@ routine changedFieldTypeEvent(java::Field field, java::TypeReference oldType, ja
 	}
 	action {
 		call {
-			if(null !== oldCorrespondingOpInterface && null !== opInterface && null !== opRequiredRole){
+			if(oldCorrespondingOpInterface.present && opInterface.present && opRequiredRole.present){
 				// reset required role 
 				userInteracting.showMessage(UserInteractionType.MODAL, "the operation required role has been changed")
-				opRequiredRole.requiredInterface__OperationRequiredRole = opInterface
+				opRequiredRole.get.requiredInterface__OperationRequiredRole = opInterface.get
 				return
 			}
-			if(null === oldCorrespondingOpInterface && null !== opInterface){
+			if(!oldCorrespondingOpInterface.present && opInterface.present){
 				// new required role needs to be added 
 				userInteracting.showMessage(UserInteractionType.MODAL, "Create OperationRequiredRole between Component " + 
-					basicComponent.entityName + " and Interface " + opInterface.entityName)
-				createRequiredRole(basicComponent, opInterface, field)
+					basicComponent.entityName + " and Interface " + opInterface.get.entityName)
+				createRequiredRole(basicComponent, opInterface.get, field)
 				return
 			}
-			if(null !== oldCorrespondingOpInterface && null === opInterface && null !== opRequiredRole){
+			if(oldCorrespondingOpInterface.present && !opInterface.present && opRequiredRole.present){
 				// remove required role and correspondence
 				userInteracting.showMessage(UserInteractionType.MODAL, "Remove OperationRequiredRole between Component " + 
-					basicComponent.entityName + " and Interface " + oldCorrespondingOpInterface.entityName)
-				removeRequiredRoleAndCorrespondence(opRequiredRole, field)
+					basicComponent.entityName + " and Interface " + oldCorrespondingOpInterface.get.entityName)
+				removeRequiredRoleAndCorrespondence(opRequiredRole.get, field)
 			}
 		}
 	}
@@ -296,12 +296,12 @@ routine changedMethodModifierEvent(java::Method method, java::AnnotationInstance
 				//new public method created	
 				createOperationSignature(operationInterface, method)
 				return
-			} else if (null!==operationSignature &&(annotationOrModifier instanceof Protected || annotationOrModifier instanceof Private)){		
+			} else if (operationSignature.present &&(annotationOrModifier instanceof Protected || annotationOrModifier instanceof Private)){		
 				// public method with corresponding signature has been deleted
 				userInteracting.showMessage(UserInteractionType.MODAL, "Public method with correspondence has been made private. 
-					The corresponding operaitonSignature " + operationSignature.entityName + " will be deleted as well.")
-				correspondenceModel.removeCorrespondencesThatInvolveAtLeastAndDependend(Sets.newHashSet(operationSignature))
-				EcoreUtil.remove(operationSignature)
+					The corresponding operaitonSignature " + operationSignature.get.entityName + " will be deleted as well.")
+				correspondenceModel.removeCorrespondencesThatInvolveAtLeastAndDependend(Sets.newHashSet(operationSignature.get))
+				EcoreUtil.remove(operationSignature.get)
 				return
 			}
 		}
