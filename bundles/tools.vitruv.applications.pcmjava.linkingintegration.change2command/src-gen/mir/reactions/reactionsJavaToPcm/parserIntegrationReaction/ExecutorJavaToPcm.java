@@ -10,8 +10,8 @@ public class ExecutorJavaToPcm extends AbstractReactionsExecutor {
   }
   
   protected void setup() {
-    this.addReaction(mir.reactions.reactionsJavaToPcm.parserIntegrationReaction.ChangeFieldModifierEventParserReaction.getExpectedChangeType(), new mir.reactions.reactionsJavaToPcm.parserIntegrationReaction.ChangeFieldModifierEventParserReaction());
-    this.addReaction(mir.reactions.reactionsJavaToPcm.parserIntegrationReaction.RemoveFieldModifierEventParserReaction.getExpectedChangeType(), new mir.reactions.reactionsJavaToPcm.parserIntegrationReaction.RemoveFieldModifierEventParserReaction());
-    this.addReaction(mir.reactions.reactionsJavaToPcm.parserIntegrationReaction.AddMethodEventParserReaction.getExpectedChangeType(), new mir.reactions.reactionsJavaToPcm.parserIntegrationReaction.AddMethodEventParserReaction());
+    this.addReaction(new mir.reactions.reactionsJavaToPcm.parserIntegrationReaction.ChangeFieldModifierEventParserReaction());
+    this.addReaction(new mir.reactions.reactionsJavaToPcm.parserIntegrationReaction.RemoveFieldModifierEventParserReaction());
+    this.addReaction(new mir.reactions.reactionsJavaToPcm.parserIntegrationReaction.AddMethodEventParserReaction());
   }
 }

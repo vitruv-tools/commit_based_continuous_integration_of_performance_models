@@ -13,49 +13,66 @@ import tools.vitruv.framework.change.echange.feature.attribute.ReplaceSingleValu
 
 @SuppressWarnings("all")
 class RenameMethodReaction extends AbstractReactionRealization {
+  private ReplaceSingleValuedEAttribute<Method, String> replaceChange;
+  
+  private int currentlyMatchedChange;
+  
   public void executeReaction(final EChange change) {
-    ReplaceSingleValuedEAttribute<org.emftext.language.java.members.Method, java.lang.String> typedChange = (ReplaceSingleValuedEAttribute<org.emftext.language.java.members.Method, java.lang.String>)change;
-    org.emftext.language.java.members.Method affectedEObject = typedChange.getAffectedEObject();
-    EAttribute affectedFeature = typedChange.getAffectedFeature();
-    java.lang.String oldValue = typedChange.getOldValue();
-    java.lang.String newValue = typedChange.getNewValue();
+    if (!checkPrecondition(change)) {
+    	return;
+    }
+    org.emftext.language.java.members.Method affectedEObject = replaceChange.getAffectedEObject();
+    EAttribute affectedFeature = replaceChange.getAffectedFeature();
+    java.lang.String oldValue = replaceChange.getOldValue();
+    java.lang.String newValue = replaceChange.getNewValue();
+    				
+    getLogger().trace("Passed complete precondition check of Reaction " + this.getClass().getName());
+    				
     mir.routines.packageMappingIntegration.RoutinesFacade routinesFacade = new mir.routines.packageMappingIntegration.RoutinesFacade(this.executionState, this);
     mir.reactions.reactionsJavaToPcm.packageMappingIntegration.RenameMethodReaction.ActionUserExecution userExecution = new mir.reactions.reactionsJavaToPcm.packageMappingIntegration.RenameMethodReaction.ActionUserExecution(this.executionState, this);
-    userExecution.callRoutine1(affectedEObject, affectedFeature, oldValue, newValue, routinesFacade);
+    userExecution.callRoutine1(replaceChange, affectedEObject, affectedFeature, oldValue, newValue, routinesFacade);
+    
+    resetChanges();
   }
   
-  public static Class<? extends EChange> getExpectedChangeType() {
-    return ReplaceSingleValuedEAttribute.class;
-  }
-  
-  private boolean checkChangeProperties(final EChange change) {
-    ReplaceSingleValuedEAttribute<org.emftext.language.java.members.Method, java.lang.String> relevantChange = (ReplaceSingleValuedEAttribute<org.emftext.language.java.members.Method, java.lang.String>)change;
-    if (!(relevantChange.getAffectedEObject() instanceof org.emftext.language.java.members.Method)) {
-    	return false;
-    }
-    if (!relevantChange.getAffectedFeature().getName().equals("name")) {
-    	return false;
-    }
-    if (relevantChange.isFromNonDefaultValue() && !(relevantChange.getOldValue() instanceof java.lang.String)) {
-    	return false;
-    }
-    if (relevantChange.isToNonDefaultValue() && !(relevantChange.getNewValue() instanceof java.lang.String)) {
-    	return false;
-    }
-    return true;
+  private void resetChanges() {
+    replaceChange = null;
+    currentlyMatchedChange = 0;
   }
   
   public boolean checkPrecondition(final EChange change) {
-    if (!(change instanceof ReplaceSingleValuedEAttribute)) {
-    	return false;
+    if (currentlyMatchedChange == 0) {
+    	if (!matchReplaceChange(change)) {
+    		resetChanges();
+    		return false;
+    	} else {
+    		currentlyMatchedChange++;
+    	}
     }
-    getLogger().trace("Passed change type check of reaction " + this.getClass().getName());
-    if (!checkChangeProperties(change)) {
-    	return false;
-    }
-    getLogger().trace("Passed change properties check of reaction " + this.getClass().getName());
-    getLogger().trace("Passed complete precondition check of reaction " + this.getClass().getName());
+    
     return true;
+  }
+  
+  private boolean matchReplaceChange(final EChange change) {
+    if (change instanceof ReplaceSingleValuedEAttribute<?, ?>) {
+    	ReplaceSingleValuedEAttribute<org.emftext.language.java.members.Method, java.lang.String> _localTypedChange = (ReplaceSingleValuedEAttribute<org.emftext.language.java.members.Method, java.lang.String>) change;
+    	if (!(_localTypedChange.getAffectedEObject() instanceof org.emftext.language.java.members.Method)) {
+    		return false;
+    	}
+    	if (!_localTypedChange.getAffectedFeature().getName().equals("name")) {
+    		return false;
+    	}
+    	if (_localTypedChange.isFromNonDefaultValue() && !(_localTypedChange.getOldValue() instanceof java.lang.String)) {
+    		return false;
+    	}
+    	if (_localTypedChange.isToNonDefaultValue() && !(_localTypedChange.getNewValue() instanceof java.lang.String)) {
+    		return false;
+    	}
+    	this.replaceChange = (ReplaceSingleValuedEAttribute<org.emftext.language.java.members.Method, java.lang.String>) change;
+    	return true;
+    }
+    
+    return false;
   }
   
   private static class ActionUserExecution extends AbstractRepairRoutineRealization.UserExecution {
@@ -63,7 +80,7 @@ class RenameMethodReaction extends AbstractReactionRealization {
       super(reactionExecutionState);
     }
     
-    public void callRoutine1(final Method affectedEObject, final EAttribute affectedFeature, final String oldValue, final String newValue, @Extension final RoutinesFacade _routinesFacade) {
+    public void callRoutine1(final ReplaceSingleValuedEAttribute replaceChange, final Method affectedEObject, final EAttribute affectedFeature, final String oldValue, final String newValue, @Extension final RoutinesFacade _routinesFacade) {
       _routinesFacade.renamedMethod(affectedEObject, newValue);
     }
   }

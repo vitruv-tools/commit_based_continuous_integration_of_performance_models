@@ -1,6 +1,7 @@
 package mir.reactions.reactionsJavaToPcm.packageMappingIntegration;
 
 import mir.routines.packageMappingIntegration.RoutinesFacade;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.xtext.xbase.lib.Extension;
 import org.emftext.language.java.classifiers.ConcreteClassifier;
@@ -11,60 +12,102 @@ import tools.vitruv.extensions.dslsruntime.reactions.AbstractRepairRoutineRealiz
 import tools.vitruv.extensions.dslsruntime.reactions.ReactionExecutionState;
 import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHaving;
 import tools.vitruv.framework.change.echange.EChange;
-import tools.vitruv.framework.change.echange.compound.RemoveAndDeleteNonRoot;
+import tools.vitruv.framework.change.echange.eobject.DeleteEObject;
 import tools.vitruv.framework.change.echange.feature.reference.RemoveEReference;
 
 @SuppressWarnings("all")
 class RemoveMethodEventReaction extends AbstractReactionRealization {
+  private RemoveEReference<ConcreteClassifier, Member> removeChange;
+  
+  private DeleteEObject<EObject> deleteChange;
+  
+  private int currentlyMatchedChange;
+  
   public void executeReaction(final EChange change) {
-    RemoveEReference<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member> typedChange = ((RemoveAndDeleteNonRoot<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member>)change).getRemoveChange();
-    org.emftext.language.java.classifiers.ConcreteClassifier affectedEObject = typedChange.getAffectedEObject();
-    EReference affectedFeature = typedChange.getAffectedFeature();
-    org.emftext.language.java.members.Member oldValue = typedChange.getOldValue();
+    if (!checkPrecondition(change)) {
+    	return;
+    }
+    org.emftext.language.java.classifiers.ConcreteClassifier affectedEObject = removeChange.getAffectedEObject();
+    EReference affectedFeature = removeChange.getAffectedFeature();
+    org.emftext.language.java.members.Member oldValue = removeChange.getOldValue();
+    int index = removeChange.getIndex();
+    				
+    getLogger().trace("Passed change matching of Reaction " + this.getClass().getName());
+    if (!checkUserDefinedPrecondition(removeChange, affectedEObject, affectedFeature, oldValue, index)) {
+    	resetChanges();
+    	return;
+    }
+    getLogger().trace("Passed complete precondition check of Reaction " + this.getClass().getName());
+    				
     mir.routines.packageMappingIntegration.RoutinesFacade routinesFacade = new mir.routines.packageMappingIntegration.RoutinesFacade(this.executionState, this);
     mir.reactions.reactionsJavaToPcm.packageMappingIntegration.RemoveMethodEventReaction.ActionUserExecution userExecution = new mir.reactions.reactionsJavaToPcm.packageMappingIntegration.RemoveMethodEventReaction.ActionUserExecution(this.executionState, this);
-    userExecution.callRoutine1(affectedEObject, affectedFeature, oldValue, routinesFacade);
+    userExecution.callRoutine1(removeChange, affectedEObject, affectedFeature, oldValue, index, routinesFacade);
+    
+    resetChanges();
   }
   
-  public static Class<? extends EChange> getExpectedChangeType() {
-    return RemoveAndDeleteNonRoot.class;
+  private boolean matchDeleteChange(final EChange change) {
+    if (change instanceof DeleteEObject<?>) {
+    	DeleteEObject<org.eclipse.emf.ecore.EObject> _localTypedChange = (DeleteEObject<org.eclipse.emf.ecore.EObject>) change;
+    	if (!(_localTypedChange.getAffectedEObject() instanceof org.eclipse.emf.ecore.EObject)) {
+    		return false;
+    	}
+    	this.deleteChange = (DeleteEObject<org.eclipse.emf.ecore.EObject>) change;
+    	return true;
+    }
+    
+    return false;
   }
   
-  private boolean checkChangeProperties(final EChange change) {
-    RemoveEReference<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member> relevantChange = ((RemoveAndDeleteNonRoot<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member>)change).getRemoveChange();
-    if (!(relevantChange.getAffectedEObject() instanceof org.emftext.language.java.classifiers.ConcreteClassifier)) {
-    	return false;
+  private void resetChanges() {
+    removeChange = null;
+    deleteChange = null;
+    currentlyMatchedChange = 0;
+  }
+  
+  private boolean matchRemoveChange(final EChange change) {
+    if (change instanceof RemoveEReference<?, ?>) {
+    	RemoveEReference<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member> _localTypedChange = (RemoveEReference<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member>) change;
+    	if (!(_localTypedChange.getAffectedEObject() instanceof org.emftext.language.java.classifiers.ConcreteClassifier)) {
+    		return false;
+    	}
+    	if (!_localTypedChange.getAffectedFeature().getName().equals("members")) {
+    		return false;
+    	}
+    	if (!(_localTypedChange.getOldValue() instanceof org.emftext.language.java.members.Member)) {
+    		return false;
+    	}
+    	this.removeChange = (RemoveEReference<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member>) change;
+    	return true;
     }
-    if (!relevantChange.getAffectedFeature().getName().equals("members")) {
-    	return false;
-    }
-    if (!(relevantChange.getOldValue() instanceof org.emftext.language.java.members.Member)) {
-    	return false;
-    }
-    return true;
+    
+    return false;
   }
   
   public boolean checkPrecondition(final EChange change) {
-    if (!(change instanceof RemoveAndDeleteNonRoot)) {
-    	return false;
+    if (currentlyMatchedChange == 0) {
+    	if (!matchRemoveChange(change)) {
+    		resetChanges();
+    		return false;
+    	} else {
+    		currentlyMatchedChange++;
+    	}
+    	return false; // Only proceed on the last of the expected changes
     }
-    getLogger().trace("Passed change type check of reaction " + this.getClass().getName());
-    if (!checkChangeProperties(change)) {
-    	return false;
+    if (currentlyMatchedChange == 1) {
+    	if (!matchDeleteChange(change)) {
+    		resetChanges();
+    		checkPrecondition(change); // Reexecute to potentially register this as first change
+    		return false;
+    	} else {
+    		currentlyMatchedChange++;
+    	}
     }
-    getLogger().trace("Passed change properties check of reaction " + this.getClass().getName());
-    RemoveEReference<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member> typedChange = ((RemoveAndDeleteNonRoot<org.emftext.language.java.classifiers.ConcreteClassifier, org.emftext.language.java.members.Member>)change).getRemoveChange();
-    org.emftext.language.java.classifiers.ConcreteClassifier affectedEObject = typedChange.getAffectedEObject();
-    EReference affectedFeature = typedChange.getAffectedFeature();
-    org.emftext.language.java.members.Member oldValue = typedChange.getOldValue();
-    if (!checkUserDefinedPrecondition(affectedEObject, affectedFeature, oldValue)) {
-    	return false;
-    }
-    getLogger().trace("Passed complete precondition check of reaction " + this.getClass().getName());
+    
     return true;
   }
   
-  private boolean checkUserDefinedPrecondition(final ConcreteClassifier affectedEObject, final EReference affectedFeature, final Member oldValue) {
+  private boolean checkUserDefinedPrecondition(final RemoveEReference removeChange, final ConcreteClassifier affectedEObject, final EReference affectedFeature, final Member oldValue, final int index) {
     if ((oldValue instanceof Method)) {
       return true;
     }
@@ -76,7 +119,7 @@ class RemoveMethodEventReaction extends AbstractReactionRealization {
       super(reactionExecutionState);
     }
     
-    public void callRoutine1(final ConcreteClassifier affectedEObject, final EReference affectedFeature, final Member oldValue, @Extension final RoutinesFacade _routinesFacade) {
+    public void callRoutine1(final RemoveEReference removeChange, final ConcreteClassifier affectedEObject, final EReference affectedFeature, final Member oldValue, final int index, @Extension final RoutinesFacade _routinesFacade) {
       _routinesFacade.removedMethodEvent(((Method) oldValue));
     }
   }
