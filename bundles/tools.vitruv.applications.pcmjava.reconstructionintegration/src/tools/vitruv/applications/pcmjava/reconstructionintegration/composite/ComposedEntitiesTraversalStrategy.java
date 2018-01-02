@@ -1,5 +1,8 @@
 package tools.vitruv.applications.pcmjava.reconstructionintegration.composite;
 
+import static tools.vitruv.applications.pcmjava.reconstructionintegration.util.PcmChangeBuildHelper.*;
+import java.util.List;
+
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
@@ -86,8 +89,8 @@ public abstract class ComposedEntitiesTraversalStrategy extends EMFTraversalStra
     private void traverseAssemblyContexts(final ComposedProvidingRequiringEntity entity) {
 
         for (final AssemblyContext context : entity.getAssemblyContexts__ComposedStructure()) {
-            final EChange assemblyContextChange = PcmChangeBuildHelper.createChangeFromAssemblyContext(context);
-            this.addChange(VitruviusChangeFactory.getInstance().createConcreteChangeWithVuri(assemblyContextChange, this.vuri), this.changeList);
+            final List<EChange> assemblyContextChanges = PcmChangeBuildHelper.createChangeFromAssemblyContext(context);
+            this.addChange(encapsulateChanges(assemblyContextChanges, this.vuri), this.changeList);
         }
 
     }
@@ -146,8 +149,8 @@ public abstract class ComposedEntitiesTraversalStrategy extends EMFTraversalStra
         for (final Connector connector : entity.getConnectors__ComposedStructure()) {
 
             if (connector instanceof AssemblyConnector) {
-                final EChange assemblyConnectorChange = PcmChangeBuildHelper.createChangeFromConnector(connector);
-                this.addChange(VitruviusChangeFactory.getInstance().createConcreteChangeWithVuri(assemblyConnectorChange, this.vuri), this.changeList);
+                final List<EChange> assemblyConnectorChanges = PcmChangeBuildHelper.createChangeFromConnector(connector);
+                this.addChange(PcmChangeBuildHelper.encapsulateChanges(assemblyConnectorChanges, this.vuri), this.changeList);
             }
 
         }

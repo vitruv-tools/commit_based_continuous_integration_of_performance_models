@@ -17,9 +17,9 @@ import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.applications.pcmjava.reconstructionintegration.repository.RepositoryTraversalStrategy;
 import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
 import tools.vitruv.framework.change.description.VitruviusChange;
-import tools.vitruv.framework.tests.util.TestUtil;
 import tools.vitruv.framework.userinteraction.impl.UserInteractor;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
+import tools.vitruv.testutils.util.TestUtil;
 import tools.vitruv.domains.pcm.util.RepositoryModelLoader;
 import tools.vitruv.extensions.constructionsimulation.traversal.ITraversalStrategy;
 

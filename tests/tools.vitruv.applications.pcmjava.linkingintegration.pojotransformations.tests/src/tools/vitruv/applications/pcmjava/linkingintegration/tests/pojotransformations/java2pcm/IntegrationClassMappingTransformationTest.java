@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.palladiosimulator.pcm.repository.BasicComponent;
 
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTestCBSNamespace;
+import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.Java2PcmUserSelection;
 
 public class IntegrationClassMappingTransformationTest extends Java2PcmPackageIntegrationMappingTransformationTest {
 
@@ -18,7 +19,7 @@ public class IntegrationClassMappingTransformationTest extends Java2PcmPackageIn
 
 	@Test
 	public void testAddClassInNonIntegratedArea() throws Throwable {
-		this.getUserInteractor().addNextSelections(SELECT_BASIC_COMPONENT);
+		this.getUserInteractor().addNextSelections(Java2PcmUserSelection.SELECT_BASIC_COMPONENT.getSelection());
 		final BasicComponent bc = super.createSecondPackage(BasicComponent.class, NAME_OF_NOT_INTEGRATED_PACKAGE);
 
 		// add Class in package that should correspond to a basic component

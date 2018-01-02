@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.palladiosimulator.pcm.repository.OperationInterface;
 
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTestCBSNamespace;
+import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.Java2PcmUserSelection;
 
 public class IntegrationInterfaceMappingTransformationTest extends Java2PcmPackageIntegrationMappingTransformationTest{
 
@@ -22,7 +23,7 @@ public class IntegrationInterfaceMappingTransformationTest extends Java2PcmPacka
 	
 	@Test
 	public void addInterfaceInNonIntegratedArea() throws Throwable{
-		this.getUserInteractor().addNextSelections(SELECT_NOTHING_DECIDE_LATER);
+		this.getUserInteractor().addNextSelections(Java2PcmUserSelection.SELECT_NOTHING_DECIDE_LATER.getSelection());
 		createPackageWithPackageInfo(NAME_OF_NOT_INTEGRATED_PACKAGE);
 		
 		this.getUserInteractor().addNextSelections(0);
