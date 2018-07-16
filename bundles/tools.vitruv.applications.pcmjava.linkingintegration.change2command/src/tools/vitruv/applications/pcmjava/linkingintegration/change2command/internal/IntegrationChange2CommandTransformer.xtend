@@ -21,9 +21,14 @@ import tools.vitruv.framework.change.echange.feature.reference.InsertEReference
 import tools.vitruv.framework.change.echange.root.RemoveRootEObject
 import tools.vitruv.framework.change.echange.feature.FeatureEChange
 import tools.vitruv.framework.correspondence.CorrespondenceModel
-import tools.vitruv.extensions.integration.correspondence.integration.IntegrationCorrespondence;
-import mir.reactions.reactionsJavaToPcm.packageMappingIntegration.ExecutorJavaToPcm
+import tools.vitruv.extensions.integration.correspondence.integration.IntegrationCorrespondence
+import mir.reactions.packageMappingIntegration.ReactionsExecutor
 import tools.vitruv.framework.util.command.ResourceAccess
+import tools.vitruv.framework.change.processing.ChangePropagationSpecification
+import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Pcm2JavaIntegrationChangePropagationSpecification
+import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Java2PcmIntegrationChangePropagationSpecification
+import tools.vitruv.framework.change.description.TransactionalChange
+import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.Java2PcmChangePropagationSpecification
 
 class IntegrationChange2CommandTransformer {
 	
@@ -33,11 +38,11 @@ class IntegrationChange2CommandTransformer {
 		this.userInteracting = userInteracting
 	}
 	
-	def compute(EChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
+	def compute(TransactionalChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
 		return executeIntegration(change, correspondenceModel, resourceAccess)
 	}
 	
-	private def boolean executeIntegration(EChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
+	private def boolean executeIntegration(TransactionalChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
 		// Since all correspondences are considered (not only IntegrationCorrespondences),
 		// only return reaction commands, if one of the other 2 checks are successful
 		val existsReaction = doesReactionHandleChange(change, correspondenceModel); 
@@ -63,19 +68,20 @@ class IntegrationChange2CommandTransformer {
     	return false
 	}
 	
-	def doesReactionHandleChange(EChange change, CorrespondenceModel correspondenceModel) {
-		val executor = new ExecutorJavaToPcm()
-		executor.userInteracting = userInteracting
-		return executor.doesHandleChange(change, correspondenceModel);
+	def doesReactionHandleChange(TransactionalChange change, CorrespondenceModel correspondenceModel) {
+		val changePropagationSpecifications = new Java2PcmIntegrationChangePropagationSpecification()
+		changePropagationSpecifications.userInteracting = userInteracting
+		return changePropagationSpecifications.doesHandleChange(change, correspondenceModel);
 	}
 	
-	def executeReactions(EChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
-		val executor = new ExecutorJavaToPcm()
-		executor.userInteracting = userInteracting
-		executor.propagateChange(change, correspondenceModel, resourceAccess)
+	def executeReactions(TransactionalChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
+		val changePropagationSpecifications= new Java2PcmChangePropagationSpecification();
+		
+		changePropagationSpecifications.userInteracting = userInteracting
+		changePropagationSpecifications.propagateChange(change, correspondenceModel, resourceAccess)
 	}
 	
-	private def createNewClassOrInterfaceInIntegratedAreaCommand(EChange eChange, CorrespondenceModel correspondenceModel) {
+	private def createNewClassOrInterfaceInIntegratedAreaCommand(TransactionalChange eChange, CorrespondenceModel correspondenceModel) {
         if (eChange instanceof InsertEReference<?,?> && (eChange as InsertEReference<?,?>).isContainment()) { 
         	//Check if this is a creation of a class or interface on file level.
         	//In this case we need to check if any siblings in the package have been integrated
@@ -132,7 +138,7 @@ class IntegrationChange2CommandTransformer {
 		userInteracting.showMessage(UserInteractionType.MODAL, buffer.toString())
 	}
 	
-	private def getDefaultIntegrationChangeCommand(EChange eChange, CorrespondenceModel correspondenceModel) {
+	private def getDefaultIntegrationChangeCommand(TransactionalChange eChange, CorrespondenceModel correspondenceModel) {
         val correspondingIntegratedEObjects = getCorrespondingEObjectsIfIntegrated(eChange, correspondenceModel)
         if (correspondingIntegratedEObjects !== null) {
 	    	val buffer = new StringBuffer()
@@ -191,7 +197,7 @@ class IntegrationChange2CommandTransformer {
      * 
      * @return set of corresponding EObjects if integrated, else null
      */
-    private def getCorrespondingEObjectsIfIntegrated(EChange eChange,
+    private def getCorrespondingEObjectsIfIntegrated(TransactionalChange eChange,
             CorrespondenceModel correspondenceModel) {
         val ci = correspondenceModel
         var EObject eObj = null

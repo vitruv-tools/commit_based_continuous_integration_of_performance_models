@@ -11,8 +11,6 @@ import tools.vitruv.framework.userinteraction.UserInteractionType;
 
 @SuppressWarnings("all")
 public class MethodParameterNameChangedEventRoutine extends AbstractRepairRoutineRealization {
-  private RoutinesFacade actionsFacade;
-  
   private MethodParameterNameChangedEventRoutine.ActionUserExecution userExecution;
   
   private static class ActionUserExecution extends AbstractRepairRoutineRealization.UserExecution {
@@ -34,10 +32,9 @@ public class MethodParameterNameChangedEventRoutine extends AbstractRepairRoutin
     }
   }
   
-  public MethodParameterNameChangedEventRoutine(final ReactionExecutionState reactionExecutionState, final CallHierarchyHaving calledBy, final Parameter parameter, final String oldParameterName, final String newParameterName) {
-    super(reactionExecutionState, calledBy);
+  public MethodParameterNameChangedEventRoutine(final RoutinesFacade routinesFacade, final ReactionExecutionState reactionExecutionState, final CallHierarchyHaving calledBy, final Parameter parameter, final String oldParameterName, final String newParameterName) {
+    super(routinesFacade, reactionExecutionState, calledBy);
     this.userExecution = new mir.routines.packageMappingIntegration.MethodParameterNameChangedEventRoutine.ActionUserExecution(getExecutionState(), this);
-    this.actionsFacade = new mir.routines.packageMappingIntegration.RoutinesFacade(getExecutionState(), this);
     this.parameter = parameter;this.oldParameterName = oldParameterName;this.newParameterName = newParameterName;
   }
   

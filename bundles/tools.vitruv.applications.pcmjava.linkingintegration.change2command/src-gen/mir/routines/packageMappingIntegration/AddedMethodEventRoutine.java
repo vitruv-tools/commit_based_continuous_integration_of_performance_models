@@ -13,8 +13,6 @@ import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHavi
 
 @SuppressWarnings("all")
 public class AddedMethodEventRoutine extends AbstractRepairRoutineRealization {
-  private RoutinesFacade actionsFacade;
-  
   private AddedMethodEventRoutine.ActionUserExecution userExecution;
   
   private static class ActionUserExecution extends AbstractRepairRoutineRealization.UserExecution {
@@ -31,10 +29,9 @@ public class AddedMethodEventRoutine extends AbstractRepairRoutineRealization {
     }
   }
   
-  public AddedMethodEventRoutine(final ReactionExecutionState reactionExecutionState, final CallHierarchyHaving calledBy, final ConcreteClassifier clazz, final Method method) {
-    super(reactionExecutionState, calledBy);
+  public AddedMethodEventRoutine(final RoutinesFacade routinesFacade, final ReactionExecutionState reactionExecutionState, final CallHierarchyHaving calledBy, final ConcreteClassifier clazz, final Method method) {
+    super(routinesFacade, reactionExecutionState, calledBy);
     this.userExecution = new mir.routines.packageMappingIntegration.AddedMethodEventRoutine.ActionUserExecution(getExecutionState(), this);
-    this.actionsFacade = new mir.routines.packageMappingIntegration.RoutinesFacade(getExecutionState(), this);
     this.clazz = clazz;this.method = method;
   }
   
@@ -58,7 +55,7 @@ public class AddedMethodEventRoutine extends AbstractRepairRoutineRealization {
     	return false;
     }
     registerObjectUnderModification(opInterface);
-    userExecution.callRoutine1(clazz, method, opInterface, actionsFacade);
+    userExecution.callRoutine1(clazz, method, opInterface, this.getRoutinesFacade());
     
     postprocessElements();
     

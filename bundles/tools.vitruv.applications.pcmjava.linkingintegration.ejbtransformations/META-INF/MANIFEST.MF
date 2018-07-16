@@ -16,5 +16,6 @@ Require-Bundle: com.google.guava,
  tools.vitruv.applications.pcmjava.ejbtransformations.java2pcm,
  tools.vitruv.applications.pcmjava.linkingintegration,
  tools.vitruv.applications.pcmjava.linkingintegration.change2command,
- tools.vitruv.framework.metamodel
+ tools.vitruv.framework.metamodel,
+ tools.vitruv.extensions.dslsruntime.reactions;bundle-version="0.2.0"
 

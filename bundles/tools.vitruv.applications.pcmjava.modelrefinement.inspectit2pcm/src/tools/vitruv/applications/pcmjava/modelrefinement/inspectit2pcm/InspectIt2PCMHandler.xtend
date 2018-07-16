@@ -2,6 +2,9 @@ package tools.vitruv.applications.pcmjava.modelrefinement.inspectit2pcm
 
 import de.uka.ipd.sdq.workflow.jobs.JobFailedException
 import de.uka.ipd.sdq.workflow.jobs.UserCanceledException
+import edu.kit.ipd.sdq.commons.util.java.lang.IterableUtil
+import edu.kit.ipd.sdq.commons.util.org.eclipse.core.resources.IResourceUtil
+import edu.kit.ipd.sdq.commons.util.org.eclipse.emf.common.util.URIUtil
 import java.io.FileInputStream
 import java.io.IOException
 import java.util.ArrayList
@@ -44,16 +47,12 @@ import org.somox.sourcecodedecorator.SourcecodedecoratorFactory
 import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil
 import tools.vitruv.framework.correspondence.CorrespondenceModel
 import tools.vitruv.framework.userinteraction.impl.UserInteractor
-import tools.vitruv.framework.util.bridges.CollectionBridge
-import tools.vitruv.framework.util.bridges.EclipseBridge
 import tools.vitruv.framework.util.bridges.EcoreResourceBridge
 import tools.vitruv.framework.vsum.VirtualModelConfiguration
 import tools.vitruv.framework.vsum.VirtualModelImpl
+import tools.vitruv.testutils.util.TestUtil
 
 import static extension tools.vitruv.framework.correspondence.CorrespondenceModelUtil.*
-import tools.vitruv.framework.tests.util.TestUtil
-import edu.kit.ipd.sdq.commons.util.org.eclipse.emf.common.util.URIUtil
-import edu.kit.ipd.sdq.commons.util.org.eclipse.core.resources.IResourceUtil
 
 /** 
  * Handler to enrich the coevolved PCM models with resource demands. Is based on the II2PCMJob from
@@ -87,9 +86,11 @@ class InspectIt2PCMHandler extends AbstractHandler {
             }
         });			
 		} catch (JobFailedException e) {
-			throw new RuntimeException('''Could not execute II2PCM Job. Reason: Â«e.toString()Â»''', e)
-		} catch (UserCanceledException e) {
-			throw new RuntimeException('''Could not execute II2PCM Job. Reason: Â«e.toString()Â»''', e)
+			throw new RuntimeException('''Could not execute II2PCM Job. Reason: «e.toString()»''', e)
+		} 
+		
+		catch (UserCanceledException e) {
+			throw new RuntimeException('''Could not execute II2PCM Job. Reason: «e.toString()»''', e)
 		} 
 
 		return null
@@ -170,18 +171,18 @@ class InspectIt2PCMHandler extends AbstractHandler {
 		}
 
 		if (claimOne) {
-			return CollectionBridge.claimOne(iResources)
+			return IterableUtil.claimOne(iResources) //CollectionBridge
 		} else {
-			return CollectionBridge.claimNotMany(iResources)
+			return IterableUtil.claimNotMany(iResources) //CollectionBridge
 		}
 	}
 
 	def private String findConfigFileOSString(IProject project) {
 		val IResource resource = this.findResourceWithEnding(project, INI_CONFIG_FILE_NAME, "ini", false)
-		if(null == resource){
+		if(null === resource){
 			return null
 		}
-		return EclipseBridge.getAbsolutePathString(resource)
+		return IResourceUtil.getAbsolutePathString(resource)
 	}
 
 	/** 

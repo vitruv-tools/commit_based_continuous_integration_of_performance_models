@@ -46,7 +46,7 @@ class CodeIntegrationChangeProcessor extends AbstractChangePropagationSpecificat
 	
 	def dispatch boolean performIntegration(ConcreteChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
 		// Special behavior for changes to integrated elements
-		return integrationTransformer.compute(change.EChange, correspondenceModel, resourceAccess);
+		return integrationTransformer.compute(change, correspondenceModel, resourceAccess);
 //		} else {
 //			nonIntegratedEChanges += eChange;
 //		}

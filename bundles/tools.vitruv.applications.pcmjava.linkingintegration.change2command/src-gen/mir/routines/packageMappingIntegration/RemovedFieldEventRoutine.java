@@ -13,8 +13,6 @@ import tools.vitruv.framework.userinteraction.UserInteractionType;
 
 @SuppressWarnings("all")
 public class RemovedFieldEventRoutine extends AbstractRepairRoutineRealization {
-  private RoutinesFacade actionsFacade;
-  
   private RemovedFieldEventRoutine.ActionUserExecution userExecution;
   
   private static class ActionUserExecution extends AbstractRepairRoutineRealization.UserExecution {
@@ -44,10 +42,9 @@ public class RemovedFieldEventRoutine extends AbstractRepairRoutineRealization {
     }
   }
   
-  public RemovedFieldEventRoutine(final ReactionExecutionState reactionExecutionState, final CallHierarchyHaving calledBy, final Field field) {
-    super(reactionExecutionState, calledBy);
+  public RemovedFieldEventRoutine(final RoutinesFacade routinesFacade, final ReactionExecutionState reactionExecutionState, final CallHierarchyHaving calledBy, final Field field) {
+    super(routinesFacade, reactionExecutionState, calledBy);
     this.userExecution = new mir.routines.packageMappingIntegration.RemovedFieldEventRoutine.ActionUserExecution(getExecutionState(), this);
-    this.actionsFacade = new mir.routines.packageMappingIntegration.RoutinesFacade(getExecutionState(), this);
     this.field = field;
   }
   

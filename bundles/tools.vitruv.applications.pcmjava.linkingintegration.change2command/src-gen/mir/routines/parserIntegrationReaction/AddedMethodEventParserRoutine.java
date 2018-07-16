@@ -14,8 +14,6 @@ import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
 
 @SuppressWarnings("all")
 public class AddedMethodEventParserRoutine extends AbstractRepairRoutineRealization {
-  private RoutinesFacade actionsFacade;
-  
   private AddedMethodEventParserRoutine.ActionUserExecution userExecution;
   
   private static class ActionUserExecution extends AbstractRepairRoutineRealization.UserExecution {
@@ -34,10 +32,9 @@ public class AddedMethodEventParserRoutine extends AbstractRepairRoutineRealizat
     }
   }
   
-  public AddedMethodEventParserRoutine(final ReactionExecutionState reactionExecutionState, final CallHierarchyHaving calledBy, final ConcreteClassifier clazz, final Method method) {
-    super(reactionExecutionState, calledBy);
+  public AddedMethodEventParserRoutine(final RoutinesFacade routinesFacade, final ReactionExecutionState reactionExecutionState, final CallHierarchyHaving calledBy, final ConcreteClassifier clazz, final Method method) {
+    super(routinesFacade, reactionExecutionState, calledBy);
     this.userExecution = new mir.routines.parserIntegrationReaction.AddedMethodEventParserRoutine.ActionUserExecution(getExecutionState(), this);
-    this.actionsFacade = new mir.routines.parserIntegrationReaction.RoutinesFacade(getExecutionState(), this);
     this.clazz = clazz;this.method = method;
   }
   

@@ -18,8 +18,6 @@ import tools.vitruv.framework.userinteraction.UserInteractionType;
 
 @SuppressWarnings("all")
 public class ChangedFieldTypeEventRoutine extends AbstractRepairRoutineRealization {
-  private RoutinesFacade actionsFacade;
-  
   private ChangedFieldTypeEventRoutine.ActionUserExecution userExecution;
   
   private static class ActionUserExecution extends AbstractRepairRoutineRealization.UserExecution {
@@ -73,10 +71,9 @@ public class ChangedFieldTypeEventRoutine extends AbstractRepairRoutineRealizati
     }
   }
   
-  public ChangedFieldTypeEventRoutine(final ReactionExecutionState reactionExecutionState, final CallHierarchyHaving calledBy, final Field field, final TypeReference oldType, final TypeReference newType) {
-    super(reactionExecutionState, calledBy);
+  public ChangedFieldTypeEventRoutine(final RoutinesFacade routinesFacade, final ReactionExecutionState reactionExecutionState, final CallHierarchyHaving calledBy, final Field field, final TypeReference oldType, final TypeReference newType) {
+    super(routinesFacade, reactionExecutionState, calledBy);
     this.userExecution = new mir.routines.packageMappingIntegration.ChangedFieldTypeEventRoutine.ActionUserExecution(getExecutionState(), this);
-    this.actionsFacade = new mir.routines.packageMappingIntegration.RoutinesFacade(getExecutionState(), this);
     this.field = field;this.oldType = oldType;this.newType = newType;
   }
   
@@ -130,7 +127,7 @@ public class ChangedFieldTypeEventRoutine extends AbstractRepairRoutineRealizati
     	return false;
     }
     registerObjectUnderModification(basicComponent);
-    userExecution.callRoutine1(field, oldType, newType, oldCorrespondingOpInterface, opInterface, opRequiredRole, basicComponent, actionsFacade);
+    userExecution.callRoutine1(field, oldType, newType, oldCorrespondingOpInterface, opInterface, opRequiredRole, basicComponent, this.getRoutinesFacade());
     
     postprocessElements();
     

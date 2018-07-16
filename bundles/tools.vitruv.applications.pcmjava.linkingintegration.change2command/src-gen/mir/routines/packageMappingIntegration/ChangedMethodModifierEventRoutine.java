@@ -22,8 +22,6 @@ import tools.vitruv.framework.userinteraction.UserInteractionType;
 
 @SuppressWarnings("all")
 public class ChangedMethodModifierEventRoutine extends AbstractRepairRoutineRealization {
-  private RoutinesFacade actionsFacade;
-  
   private ChangedMethodModifierEventRoutine.ActionUserExecution userExecution;
   
   private static class ActionUserExecution extends AbstractRepairRoutineRealization.UserExecution {
@@ -47,7 +45,7 @@ public class ChangedMethodModifierEventRoutine extends AbstractRepairRoutineReal
       } else {
         if ((operationSignature.isPresent() && ((annotationOrModifier instanceof Protected) || (annotationOrModifier instanceof Private)))) {
           String _entityName = operationSignature.get().getEntityName();
-          String _plus = ("Public method with correspondence has been made private. \r\n\t\t\t\t\tThe corresponding operaitonSignature " + _entityName);
+          String _plus = ("Public method with correspondence has been made private. \n\t\t\t\t\tThe corresponding operaitonSignature " + _entityName);
           String _plus_1 = (_plus + " will be deleted as well.");
           this.userInteracting.showMessage(UserInteractionType.MODAL, _plus_1);
           this.correspondenceModel.removeCorrespondencesThatInvolveAtLeastAndDependend(Sets.<EObject>newHashSet(operationSignature.get()));
@@ -58,10 +56,9 @@ public class ChangedMethodModifierEventRoutine extends AbstractRepairRoutineReal
     }
   }
   
-  public ChangedMethodModifierEventRoutine(final ReactionExecutionState reactionExecutionState, final CallHierarchyHaving calledBy, final Method method, final AnnotationInstanceOrModifier annotationOrModifier) {
-    super(reactionExecutionState, calledBy);
+  public ChangedMethodModifierEventRoutine(final RoutinesFacade routinesFacade, final ReactionExecutionState reactionExecutionState, final CallHierarchyHaving calledBy, final Method method, final AnnotationInstanceOrModifier annotationOrModifier) {
+    super(routinesFacade, reactionExecutionState, calledBy);
     this.userExecution = new mir.routines.packageMappingIntegration.ChangedMethodModifierEventRoutine.ActionUserExecution(getExecutionState(), this);
-    this.actionsFacade = new mir.routines.packageMappingIntegration.RoutinesFacade(getExecutionState(), this);
     this.method = method;this.annotationOrModifier = annotationOrModifier;
   }
   
@@ -94,7 +91,7 @@ public class ChangedMethodModifierEventRoutine extends AbstractRepairRoutineReal
     	return false;
     }
     registerObjectUnderModification(operationInterface);
-    userExecution.callRoutine1(method, annotationOrModifier, operationSignature, operationInterface, actionsFacade);
+    userExecution.callRoutine1(method, annotationOrModifier, operationSignature, operationInterface, this.getRoutinesFacade());
     
     postprocessElements();
     
