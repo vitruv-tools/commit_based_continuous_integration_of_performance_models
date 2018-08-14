@@ -82,7 +82,8 @@ public class CompositeTraversalStrategy extends ComposedEntitiesTraversalStrateg
                 // if the child of a composed entity is itself a composed entity it cannot be a root
                 // entity
                 if (child instanceof ComposedProvidingRequiringEntity) {
-                    rootEntities.remove(child);
+                	ComposedProvidingRequiringEntity typedChild = (ComposedProvidingRequiringEntity) child; 
+                    rootEntities.remove(typedChild);
                 }
             }
         }

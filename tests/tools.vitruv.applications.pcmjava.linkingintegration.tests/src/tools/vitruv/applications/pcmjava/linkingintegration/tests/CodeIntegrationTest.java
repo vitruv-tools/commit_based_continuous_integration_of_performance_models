@@ -32,7 +32,7 @@ import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.framework.correspondence.Correspondence;
 import tools.vitruv.framework.tuid.Tuid;
-import tools.vitruv.framework.userinteraction.impl.UserInteractor;
+import tools.vitruv.framework.userinteraction.UserInteractionFactory;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
 import tools.vitruv.framework.vsum.VirtualModelConfiguration;
 import tools.vitruv.framework.vsum.VirtualModelImpl;
@@ -119,7 +119,7 @@ public class CodeIntegrationTest {
         	config.addMetamodel(metamodel);
         }
         File vsumFile = new File(workspace.getRoot().getLocation().toFile(), META_PROJECT_NAME);
-		virtualModel = new VirtualModelImpl(vsumFile, new UserInteractor(), config);
+		virtualModel = new VirtualModelImpl(vsumFile, UserInteractionFactory.instance.createDialogUserInteractor(), config);
         // add PCM Java Builder to Project under test
         final VitruviusJavaBuilderApplicator pcmJavaBuilder = new VitruviusJavaBuilderApplicator();
         pcmJavaBuilder.addToProject(this.testProject, vsumFile, Collections.singletonList(PcmNamespace.REPOSITORY_FILE_EXTENSION));

@@ -28,7 +28,7 @@ class InterfaceOfExternalCallFinder4Ejb implements InterfaceOfExternalCallFindin
 	override InterfacePortOperationTuple getCalledInterfacePort(Method calledMethod, Statement statement) {
 		val interfacePortOperationTuple = new org.somox.gast2seff.visitors.InterfaceOfExternalCallFinding.InterfacePortOperationTuple
 		val OperationSignature opSig = calledMethod.queryInterfaceOperation
-		if(null != opSig){
+		if(null !== opSig){
 		interfacePortOperationTuple.signature = opSig;
             val accessedOpIf = opSig.getInterface__OperationSignature()
             for (RequiredRole requiredRole : this.basicComponent.getRequiredRoles_InterfaceRequiringEntity()) {
@@ -57,13 +57,13 @@ class InterfaceOfExternalCallFinder4Ejb implements InterfaceOfExternalCallFindin
     private def OperationSignature queryInterfaceOperation( Method invokedMethod) {
         val Set<OperationSignature> correspondingOpSigs = CorrespondenceModelUtil
                 .getCorrespondingEObjectsByType(this.correspondenceModel, invokedMethod, OperationSignature);
-        if (null != correspondingOpSigs && 0 < correspondingOpSigs.size()) {
+        if (null !== correspondingOpSigs && 0 < correspondingOpSigs.size()) {
             return correspondingOpSigs.iterator().next();
         }
         val Set<ResourceDemandingSEFF> correspondingRDSEFFs = CorrespondenceModelUtil
                 .getCorrespondingEObjectsByType(this.correspondenceModel, invokedMethod,
                         ResourceDemandingSEFF);
-        if (null != correspondingRDSEFFs && 0 < correspondingRDSEFFs.size()) {
+        if (null !== correspondingRDSEFFs && 0 < correspondingRDSEFFs.size()) {
             for (ResourceDemandingSEFF seff : correspondingRDSEFFs) {
                 if (seff.getDescribedService__SEFF() instanceof OperationSignature) {
                     return seff.getDescribedService__SEFF() as OperationSignature;

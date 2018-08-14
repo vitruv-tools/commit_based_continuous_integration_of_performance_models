@@ -16,19 +16,19 @@ class ReactionsExecutor extends AbstractReactionsExecutor {
   }
   
   protected void setup() {
-    this.addReaction(new mir.reactions.packageMappingIntegration.AddImportReactionReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("PackageMappingIntegration"))));
-    this.addReaction(new mir.reactions.packageMappingIntegration.RemoveImportReactionReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("PackageMappingIntegration"))));
-    this.addReaction(new mir.reactions.packageMappingIntegration.RenameMethodReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("PackageMappingIntegration"))));
-    this.addReaction(new mir.reactions.packageMappingIntegration.RemoveMethodEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("PackageMappingIntegration"))));
-    this.addReaction(new mir.reactions.packageMappingIntegration.AddMethodEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("PackageMappingIntegration"))));
-    this.addReaction(new mir.reactions.packageMappingIntegration.CreateMetodParameterEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("PackageMappingIntegration"))));
-    this.addReaction(new mir.reactions.packageMappingIntegration.MethodParameterNameChangeEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("PackageMappingIntegration"))));
-    this.addReaction(new mir.reactions.packageMappingIntegration.ChangeMethodTypeEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("PackageMappingIntegration"))));
-    this.addReaction(new mir.reactions.packageMappingIntegration.RemoveFieldEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("PackageMappingIntegration"))));
-    this.addReaction(new mir.reactions.packageMappingIntegration.AddFieldEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("PackageMappingIntegration"))));
-    this.addReaction(new mir.reactions.packageMappingIntegration.ChangeFieldTypeEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("PackageMappingIntegration"))));
-    this.addReaction(new mir.reactions.packageMappingIntegration.ChangeFieldModifierEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("PackageMappingIntegration"))));
-    this.addReaction(new mir.reactions.packageMappingIntegration.RemoveFieldModifierEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("PackageMappingIntegration"))));
-    this.addReaction(new mir.reactions.packageMappingIntegration.ChangeMethodModifierEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("PackageMappingIntegration"))));
+    this.addReaction(new mir.reactions.packageMappingIntegration.AddImportReactionReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageMappingIntegration"))));
+    this.addReaction(new mir.reactions.packageMappingIntegration.RemoveImportReactionReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageMappingIntegration"))));
+    this.addReaction(new mir.reactions.packageMappingIntegration.RenameMethodReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageMappingIntegration"))));
+    this.addReaction(new mir.reactions.packageMappingIntegration.RemoveMethodEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageMappingIntegration"))));
+    this.addReaction(new mir.reactions.packageMappingIntegration.AddMethodEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageMappingIntegration"))));
+    this.addReaction(new mir.reactions.packageMappingIntegration.CreateMetodParameterEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageMappingIntegration"))));
+    this.addReaction(new mir.reactions.packageMappingIntegration.MethodParameterNameChangeEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageMappingIntegration"))));
+    this.addReaction(new mir.reactions.packageMappingIntegration.ChangeMethodTypeEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageMappingIntegration"))));
+    this.addReaction(new mir.reactions.packageMappingIntegration.RemoveFieldEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageMappingIntegration"))));
+    this.addReaction(new mir.reactions.packageMappingIntegration.AddFieldEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageMappingIntegration"))));
+    this.addReaction(new mir.reactions.packageMappingIntegration.ChangeFieldTypeEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageMappingIntegration"))));
+    this.addReaction(new mir.reactions.packageMappingIntegration.ChangeFieldModifierEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageMappingIntegration"))));
+    this.addReaction(new mir.reactions.packageMappingIntegration.RemoveFieldModifierEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageMappingIntegration"))));
+    this.addReaction(new mir.reactions.packageMappingIntegration.ChangeMethodModifierEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageMappingIntegration"))));
   }
 }

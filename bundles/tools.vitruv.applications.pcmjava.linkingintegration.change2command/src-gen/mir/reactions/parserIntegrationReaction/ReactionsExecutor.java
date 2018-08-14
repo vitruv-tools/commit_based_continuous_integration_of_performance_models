@@ -16,8 +16,8 @@ class ReactionsExecutor extends AbstractReactionsExecutor {
   }
   
   protected void setup() {
-    this.addReaction(new mir.reactions.parserIntegrationReaction.ChangeFieldModifierEventParserReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("ParserIntegrationReaction"))));
-    this.addReaction(new mir.reactions.parserIntegrationReaction.RemoveFieldModifierEventParserReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("ParserIntegrationReaction"))));
-    this.addReaction(new mir.reactions.parserIntegrationReaction.AddMethodEventParserReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("ParserIntegrationReaction"))));
+    this.addReaction(new mir.reactions.parserIntegrationReaction.ChangeFieldModifierEventParserReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("parserIntegrationReaction"))));
+    this.addReaction(new mir.reactions.parserIntegrationReaction.RemoveFieldModifierEventParserReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("parserIntegrationReaction"))));
+    this.addReaction(new mir.reactions.parserIntegrationReaction.AddMethodEventParserReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("parserIntegrationReaction"))));
   }
 }

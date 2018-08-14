@@ -14,7 +14,8 @@ import org.palladiosimulator.pcm.repository.OperationRequiredRole;
 import tools.vitruv.extensions.dslsruntime.reactions.AbstractRepairRoutineRealization;
 import tools.vitruv.extensions.dslsruntime.reactions.ReactionExecutionState;
 import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHaving;
-import tools.vitruv.framework.userinteraction.UserInteractionType;
+import tools.vitruv.framework.userinteraction.UserInteractionOptions;
+import tools.vitruv.framework.userinteraction.builder.NotificationInteractionBuilder;
 
 @SuppressWarnings("all")
 public class ChangedFieldTypeEventRoutine extends AbstractRepairRoutineRealization {
@@ -44,28 +45,30 @@ public class ChangedFieldTypeEventRoutine extends AbstractRepairRoutineRealizati
     
     public void callRoutine1(final Field field, final TypeReference oldType, final TypeReference newType, final Optional<OperationInterface> oldCorrespondingOpInterface, final Optional<OperationInterface> opInterface, final Optional<OperationRequiredRole> opRequiredRole, final BasicComponent basicComponent, @Extension final RoutinesFacade _routinesFacade) {
       if (((oldCorrespondingOpInterface.isPresent() && opInterface.isPresent()) && opRequiredRole.isPresent())) {
-        this.userInteracting.showMessage(UserInteractionType.MODAL, "the operation required role has been changed");
+        this.userInteractor.getNotificationDialogBuilder().message("the operation required role has been changed").windowModality(UserInteractionOptions.WindowModality.MODAL).startInteraction();
         OperationRequiredRole _get = opRequiredRole.get();
         _get.setRequiredInterface__OperationRequiredRole(opInterface.get());
         return;
       }
       if (((!oldCorrespondingOpInterface.isPresent()) && opInterface.isPresent())) {
+        NotificationInteractionBuilder _notificationDialogBuilder = this.userInteractor.getNotificationDialogBuilder();
         String _entityName = basicComponent.getEntityName();
         String _plus = ("Create OperationRequiredRole between Component " + _entityName);
         String _plus_1 = (_plus + " and Interface ");
         String _entityName_1 = opInterface.get().getEntityName();
         String _plus_2 = (_plus_1 + _entityName_1);
-        this.userInteracting.showMessage(UserInteractionType.MODAL, _plus_2);
+        _notificationDialogBuilder.message(_plus_2).windowModality(UserInteractionOptions.WindowModality.MODAL).startInteraction();
         _routinesFacade.createRequiredRole(basicComponent, opInterface.get(), field);
         return;
       }
       if (((oldCorrespondingOpInterface.isPresent() && (!opInterface.isPresent())) && opRequiredRole.isPresent())) {
+        NotificationInteractionBuilder _notificationDialogBuilder_1 = this.userInteractor.getNotificationDialogBuilder();
         String _entityName_2 = basicComponent.getEntityName();
         String _plus_3 = ("Remove OperationRequiredRole between Component " + _entityName_2);
         String _plus_4 = (_plus_3 + " and Interface ");
         String _entityName_3 = oldCorrespondingOpInterface.get().getEntityName();
         String _plus_5 = (_plus_4 + _entityName_3);
-        this.userInteracting.showMessage(UserInteractionType.MODAL, _plus_5);
+        _notificationDialogBuilder_1.message(_plus_5).windowModality(UserInteractionOptions.WindowModality.MODAL).startInteraction();
         _routinesFacade.removeRequiredRoleAndCorrespondence(opRequiredRole.get(), field);
       }
     }

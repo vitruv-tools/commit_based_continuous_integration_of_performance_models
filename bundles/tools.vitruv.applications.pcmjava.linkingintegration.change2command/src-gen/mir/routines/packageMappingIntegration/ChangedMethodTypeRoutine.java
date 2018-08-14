@@ -12,7 +12,7 @@ import tools.vitruv.applications.pcmjava.util.java2pcm.TypeReferenceCorresponden
 import tools.vitruv.extensions.dslsruntime.reactions.AbstractRepairRoutineRealization;
 import tools.vitruv.extensions.dslsruntime.reactions.ReactionExecutionState;
 import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHaving;
-import tools.vitruv.framework.userinteraction.UserInteractionType;
+import tools.vitruv.framework.userinteraction.UserInteractionOptions;
 
 @SuppressWarnings("all")
 public class ChangedMethodTypeRoutine extends AbstractRepairRoutineRealization {
@@ -30,9 +30,9 @@ public class ChangedMethodTypeRoutine extends AbstractRepairRoutineRealization {
     public void update0Element(final Method method, final TypeReference newType, final OperationSignature opSignature) {
       final Repository repo = opSignature.getInterface__OperationSignature().getRepository__Interface();
       final DataType newReturnValue = TypeReferenceCorrespondenceHelper.getCorrespondingPCMDataTypeForTypeReference(newType, 
-        this.correspondenceModel, this.userInteracting, repo, method.getArrayDimension());
+        this.correspondenceModel, this.userInteractor, repo, method.getArrayDimension());
       opSignature.setReturnType__OperationSignature(newReturnValue);
-      this.userInteracting.showMessage(UserInteractionType.MODAL, ("Changed return type of opSig to " + newReturnValue));
+      this.userInteractor.getNotificationDialogBuilder().message(("Changed return type of opSig to " + newReturnValue)).windowModality(UserInteractionOptions.WindowModality.MODAL).startInteraction();
     }
     
     public EObject getCorrepondenceSourceOpSignature(final Method method, final TypeReference newType) {

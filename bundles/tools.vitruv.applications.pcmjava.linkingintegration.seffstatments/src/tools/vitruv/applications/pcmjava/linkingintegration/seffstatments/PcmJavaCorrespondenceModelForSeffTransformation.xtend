@@ -78,7 +78,7 @@ class PcmJavaCorrespondenceModelForSeffTransformation implements PcmJavaIntegrat
 
 		val correspondences = currentCorrespondences.CInstance.getCorrespondences(CollectionBridge.toList(jaMoPPClass))
 		val correspondencesContainingBc = correspondences.filter [
-			null != it.^as.findFirst[type.isInstance(it)] || null != it.bs.findFirst [
+			null !== it.^as.findFirst[type.isInstance(it)] || null !== it.bs.findFirst [
 				type.isInstance(it)
 			]
 		]

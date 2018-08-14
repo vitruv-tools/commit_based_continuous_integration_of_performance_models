@@ -9,7 +9,7 @@ import org.palladiosimulator.pcm.core.entity.NamedElement;
 import tools.vitruv.extensions.dslsruntime.reactions.AbstractRepairRoutineRealization;
 import tools.vitruv.extensions.dslsruntime.reactions.ReactionExecutionState;
 import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHaving;
-import tools.vitruv.framework.userinteraction.UserInteractionType;
+import tools.vitruv.framework.userinteraction.UserInteractionOptions;
 
 @SuppressWarnings("all")
 public class RemovedFieldEventRoutine extends AbstractRepairRoutineRealization {
@@ -25,7 +25,7 @@ public class RemovedFieldEventRoutine extends AbstractRepairRoutineRealization {
     }
     
     public void update0Element(final Field field, final NamedElement namedElement) {
-      this.userInteracting.showMessage(UserInteractionType.MODAL, (((("Removed " + namedElement) + " because the corresponding field ") + field) + " has been removed"));
+      this.userInteractor.getNotificationDialogBuilder().message((((("Removed " + namedElement) + " because the corresponding field ") + field) + " has been removed")).windowModality(UserInteractionOptions.WindowModality.MODAL).startInteraction();
       EcoreUtil.remove(field);
     }
     

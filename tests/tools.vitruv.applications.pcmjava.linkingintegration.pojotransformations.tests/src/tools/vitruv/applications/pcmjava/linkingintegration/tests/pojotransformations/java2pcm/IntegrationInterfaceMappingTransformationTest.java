@@ -23,10 +23,10 @@ public class IntegrationInterfaceMappingTransformationTest extends Java2PcmPacka
 	
 	@Test
 	public void addInterfaceInNonIntegratedArea() throws Throwable{
-		this.getUserInteractor().addNextSelections(Java2PcmUserSelection.SELECT_NOTHING_DECIDE_LATER.getSelection());
+		this.getUserInteractor().addNextSingleSelection(Java2PcmUserSelection.SELECT_NOTHING_DECIDE_LATER.getSelection());
 		createPackageWithPackageInfo(NAME_OF_NOT_INTEGRATED_PACKAGE);
 		
-		this.getUserInteractor().addNextSelections(0);
+		this.getUserInteractor().addNextSingleSelection(0);
 		OperationInterface opInterface = createInterfaceInPackage(NAME_OF_NOT_INTEGRATED_PACKAGE,NAME_OF_NOT_INTEGRATED_INTERFACE, true);
 		
 		this.assertOperationInterface(opInterface.getRepository__Interface(), opInterface, NAME_OF_NOT_INTEGRATED_INTERFACE);

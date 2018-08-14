@@ -181,7 +181,7 @@ class PcmJavaCorrespondenceModelTransformation extends BasicCorrespondenceModelT
 
 			// Find matching jaMopp parameter by name
 			var jamoppParam = jamoppMethod.parameters.findFirst[jp|jp.name.equals(pcmParam.parameterName)];
-			if (jamoppParam != null) {
+			if (jamoppParam !== null) {
 
 				// 8. PCM Parameter <-> jaMopp Parameter correspondence	
 				addCorrespondence(pcmParam, jamoppParam as OrdinaryParameter, methodCorrespondence)
@@ -202,7 +202,7 @@ class PcmJavaCorrespondenceModelTransformation extends BasicCorrespondenceModelT
 		// 10. PCM DataType <-> JaMopp Type correspondence
 		var dataTypeCorrespondence = addCorrespondence(pcmDataType, jamoppType, parentCorrespondence)
 
-		if (dataTypeLink.innerDatatypeSourceCodeLink != null) {
+		if (dataTypeLink.innerDatatypeSourceCodeLink !== null) {
 			for (innerDataTypeLink : dataTypeLink.innerDatatypeSourceCodeLink) {
 				var innerDeclaration = innerDataTypeLink.innerDeclaration
 				var jamoppField = resolveJaMoppProxy(innerDataTypeLink.field) as Field
@@ -229,7 +229,7 @@ class PcmJavaCorrespondenceModelTransformation extends BasicCorrespondenceModelT
 	 * Returns the resolved EObject for the given jaMopp proxy.
 	 * */
 	private def EObject resolveJaMoppProxy(EObject proxy) {
-		if (proxy == null || !proxy.eIsProxy())
+		if (proxy === null || !proxy.eIsProxy())
 			return proxy;
 		return EcoreUtil.resolve(proxy, jaMoppResourceSet);
 	}
@@ -238,7 +238,7 @@ class PcmJavaCorrespondenceModelTransformation extends BasicCorrespondenceModelT
 	 * Returns top-level package of the loaded jamopp resource set.
 	 */
 	private def Package getRootPackage() {
-		if(rootPackage != null)
+		if(rootPackage !== null)
 			return rootPackage
 		
 		// Let's assume it's the one with the shortest namespace

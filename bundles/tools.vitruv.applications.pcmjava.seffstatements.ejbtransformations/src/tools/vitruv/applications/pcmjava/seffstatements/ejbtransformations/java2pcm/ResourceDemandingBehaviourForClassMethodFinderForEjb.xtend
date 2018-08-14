@@ -32,7 +32,7 @@ class ResourceDemandingBehaviourForClassMethodFinderForEjb implements ResourceDe
 	def private <T> T getFirstCorrespondingEObjectIfAny(ClassMethod classMethod, Class<T> correspondingClass) {
         val Set<T> correspondingObjects = CorrespondenceModelUtil
                 .getCorrespondingEObjectsByType(this.correspondenceModel, classMethod, correspondingClass);
-        if (correspondingObjects == null || correspondingObjects.isEmpty()) {
+        if (correspondingObjects === null || correspondingObjects.isEmpty()) {
             return null;
         }
         if (1 < correspondingObjects.size()) {

@@ -10,14 +10,14 @@ import org.emftext.language.java.modifiers.Private
 import org.emftext.language.java.modifiers.Protected
 import com.google.common.collect.Sets
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil
-import tools.vitruv.framework.userinteraction.UserInteractionType
 import tools.vitruv.applications.pcmjava.util.java2pcm.TypeReferenceCorrespondenceHelper
+import tools.vitruv.framework.userinteraction.UserInteractionOptions.WindowModality
 
 import "http://www.emftext.org/java" as java
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
 
 // TODO We can convert several custom statements to reactions language statements, e.g. correspondence creation, element creation
-reactions: PackageMappingIntegration
+reactions: packageMappingIntegration
 in reaction to changes in Java
 execute actions in PCM
 
@@ -95,9 +95,10 @@ routine createOperationSignature(pcm::OperationInterface opInterface, java::Meth
 	action {
 		update newMethod {
 			// ask user whether to add the new method to the operationInterface
-			val selection = userInteracting.selectFromMessage(UserInteractionType.MODAL, "Should the new method " + 
-				newMethod.name + " be part of the OperationInterface "+ opInterface.entityName+ "? " , "Yes", "No")
-			if(selection == 0){
+			val selection = userInteractor.confirmationDialogBuilder.message("Should the new method " + 
+				newMethod.name + " be part of the OperationInterface "+ opInterface.entityName+ "? ").windowModality(WindowModality.MODAL).
+				startInteraction;
+			if(selection){
 				var OperationSignature opSig = RepositoryFactory.eINSTANCE.createOperationSignature
 				opSig.entityName = newMethod.name
 				opSig.interface__OperationSignature = opInterface
@@ -119,11 +120,11 @@ routine createdMethodParameterEvent(java::Method method, java::Parameter paramet
 	action {
 		add correspondence between opSignature and parameter
 		update opSignature {
-			userInteracting.showMessage(UserInteractionType.MODAL, "Created new parameter for OperationSiganture" + opSignature)
+			userInteractor.notificationDialogBuilder.message("Created new parameter for OperationSiganture" + opSignature).windowModality(WindowModality.MODAL).startInteraction;
 			val pcmParameter = RepositoryFactory.eINSTANCE.createParameter
 			pcmParameter.dataType__Parameter = TypeReferenceCorrespondenceHelper.
 				getCorrespondingPCMDataTypeForTypeReference(parameter.typeReference, correspondenceModel,
-					userInteracting, opSignature.interface__OperationSignature.repository__Interface, parameter.arrayDimension)
+					userInteractor, opSignature.interface__OperationSignature.repository__Interface, parameter.arrayDimension)
 			pcmParameter.parameterName = parameter.name
 		}
 	}
@@ -140,7 +141,7 @@ routine methodParameterNameChangedEvent(java::Parameter parameter, String oldPar
 	}
 	action {
 		update pcmParam {
-			userInteracting.showMessage(UserInteractionType.MODAL, "Renamed method parameter " + oldParameterName +  " to " + newParameterName)
+			userInteractor.notificationDialogBuilder.message("Renamed method parameter " + oldParameterName +  " to " + newParameterName).windowModality(WindowModality.MODAL).startInteraction;
 			pcmParam.parameterName = newParameterName
 		}
 	}
@@ -160,9 +161,9 @@ routine changedMethodType(java::Method method, java::TypeReference newType) {
 			val Repository repo = opSignature.interface__OperationSignature.repository__Interface
 			val DataType newReturnValue = TypeReferenceCorrespondenceHelper.
 				getCorrespondingPCMDataTypeForTypeReference(newType,
-					correspondenceModel, userInteracting, repo, method.arrayDimension)
+					correspondenceModel, userInteractor, repo, method.arrayDimension)
 			opSignature.returnType__OperationSignature = newReturnValue
-			userInteracting.showMessage(UserInteractionType.MODAL, "Changed return type of opSig to " + newReturnValue)
+			userInteractor.notificationDialogBuilder.message("Changed return type of opSig to " + newReturnValue).windowModality(WindowModality.MODAL).startInteraction;
 		}
 	}
 }
@@ -180,7 +181,8 @@ routine removedFieldEvent(java::Field field) {
 	action {
 		remove correspondence between field and namedElement
 		update field {
-			userInteracting.showMessage(UserInteractionType.MODAL, "Removed " + namedElement + " because the corresponding field " + field + " has been removed"  )
+			userInteractor.notificationDialogBuilder.message("Removed " + namedElement + " because the corresponding field " + field + " has been removed").
+				windowModality(WindowModality.MODAL).startInteraction;
 			// TODO This is wrong, isnt't it? Should be "namedElement"!?
 			EcoreUtil.remove(field)
 		}
@@ -213,8 +215,8 @@ routine createRequiredRole(pcm::BasicComponent basicComponent, pcm::OperationInt
 		update opRequiredRole {
 			opRequiredRole.requiredInterface__OperationRequiredRole = opInterface
 			opRequiredRole.requiringEntity_RequiredRole = basicComponent
-			userInteracting.showMessage(UserInteractionType.MODAL, "Create OperationRequiredRole between Component " + 
-				basicComponent.entityName + " and Interface " + opInterface.entityName)	
+			userInteractor.notificationDialogBuilder.message("Create OperationRequiredRole between Component " + 
+				basicComponent.entityName + " and Interface " + opInterface.entityName).windowModality(WindowModality.MODAL).startInteraction;
 		}
 	}
 }
@@ -235,21 +237,21 @@ routine changedFieldTypeEvent(java::Field field, java::TypeReference oldType, ja
 		call {
 			if(oldCorrespondingOpInterface.present && opInterface.present && opRequiredRole.present){
 				// reset required role 
-				userInteracting.showMessage(UserInteractionType.MODAL, "the operation required role has been changed")
+				userInteractor.notificationDialogBuilder.message("the operation required role has been changed").windowModality(WindowModality.MODAL).startInteraction;
 				opRequiredRole.get.requiredInterface__OperationRequiredRole = opInterface.get
 				return
 			}
 			if(!oldCorrespondingOpInterface.present && opInterface.present){
 				// new required role needs to be added 
-				userInteracting.showMessage(UserInteractionType.MODAL, "Create OperationRequiredRole between Component " + 
-					basicComponent.entityName + " and Interface " + opInterface.get.entityName)
+				userInteractor.notificationDialogBuilder.message("Create OperationRequiredRole between Component " + 
+					basicComponent.entityName + " and Interface " + opInterface.get.entityName).windowModality(WindowModality.MODAL).startInteraction;
 				createRequiredRole(basicComponent, opInterface.get, field)
 				return
 			}
 			if(oldCorrespondingOpInterface.present && !opInterface.present && opRequiredRole.present){
 				// remove required role and correspondence
-				userInteracting.showMessage(UserInteractionType.MODAL, "Remove OperationRequiredRole between Component " + 
-					basicComponent.entityName + " and Interface " + oldCorrespondingOpInterface.get.entityName)
+				userInteractor.notificationDialogBuilder.message("Remove OperationRequiredRole between Component " + 
+					basicComponent.entityName + " and Interface " + oldCorrespondingOpInterface.get.entityName).windowModality(WindowModality.MODAL).startInteraction;
 				removeRequiredRoleAndCorrespondence(opRequiredRole.get, field)
 			}
 		}
@@ -298,8 +300,8 @@ routine changedMethodModifierEvent(java::Method method, java::AnnotationInstance
 				return
 			} else if (operationSignature.present &&(annotationOrModifier instanceof Protected || annotationOrModifier instanceof Private)){		
 				// public method with corresponding signature has been deleted
-				userInteracting.showMessage(UserInteractionType.MODAL, "Public method with correspondence has been made private. 
-					The corresponding operaitonSignature " + operationSignature.get.entityName + " will be deleted as well.")
+				userInteractor.notificationDialogBuilder.message("Public method with correspondence has been made private. 
+					The corresponding operaitonSignature " + operationSignature.get.entityName + " will be deleted as well.").windowModality(WindowModality.MODAL).startInteraction;
 				correspondenceModel.removeCorrespondencesThatInvolveAtLeastAndDependend(Sets.newHashSet(operationSignature.get))
 				EcoreUtil.remove(operationSignature.get)
 				return

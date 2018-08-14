@@ -11,7 +11,8 @@ import tools.vitruv.extensions.dslsruntime.reactions.AbstractRepairRoutineRealiz
 import tools.vitruv.extensions.dslsruntime.reactions.ReactionExecutionState;
 import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHaving;
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
-import tools.vitruv.framework.userinteraction.UserInteractionType;
+import tools.vitruv.framework.userinteraction.UserInteractionOptions;
+import tools.vitruv.framework.userinteraction.builder.ConfirmationInteractionBuilder;
 
 @SuppressWarnings("all")
 public class CreateOperationSignatureRoutine extends AbstractRepairRoutineRealization {
@@ -27,14 +28,15 @@ public class CreateOperationSignatureRoutine extends AbstractRepairRoutineRealiz
     }
     
     public void update0Element(final OperationInterface opInterface, final Method newMethod) {
+      ConfirmationInteractionBuilder _confirmationDialogBuilder = this.userInteractor.getConfirmationDialogBuilder();
       String _name = newMethod.getName();
       String _plus = ("Should the new method " + _name);
       String _plus_1 = (_plus + " be part of the OperationInterface ");
       String _entityName = opInterface.getEntityName();
       String _plus_2 = (_plus_1 + _entityName);
       String _plus_3 = (_plus_2 + "? ");
-      final int selection = this.userInteracting.selectFromMessage(UserInteractionType.MODAL, _plus_3, "Yes", "No");
-      if ((selection == 0)) {
+      final Boolean selection = _confirmationDialogBuilder.message(_plus_3).windowModality(UserInteractionOptions.WindowModality.MODAL).startInteraction();
+      if ((selection).booleanValue()) {
         OperationSignature opSig = RepositoryFactory.eINSTANCE.createOperationSignature();
         opSig.setEntityName(newMethod.getName());
         opSig.setInterface__OperationSignature(opInterface);

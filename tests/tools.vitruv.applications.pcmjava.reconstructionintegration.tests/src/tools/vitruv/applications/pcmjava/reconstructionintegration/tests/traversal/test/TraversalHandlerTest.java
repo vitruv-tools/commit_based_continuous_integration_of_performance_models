@@ -17,7 +17,7 @@ import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.applications.pcmjava.reconstructionintegration.repository.RepositoryTraversalStrategy;
 import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
 import tools.vitruv.framework.change.description.VitruviusChange;
-import tools.vitruv.framework.userinteraction.impl.UserInteractor;
+import tools.vitruv.framework.userinteraction.UserInteractionFactory;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
 import tools.vitruv.testutils.util.TestUtil;
 import tools.vitruv.domains.pcm.util.RepositoryModelLoader;
@@ -49,7 +49,7 @@ public class TraversalHandlerTest {
     @Before
     public void setUpTest() throws Exception {
         final Iterable<VitruvDomain> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
-        this.vsum = TestUtil.createVirtualModel("testvsum", true, metamodels, Collections.emptyList(), new UserInteractor());
+        this.vsum = TestUtil.createVirtualModel("testvsum", true, metamodels, Collections.emptyList(), UserInteractionFactory.instance.createDialogUserInteractor());
         this.resourceSet = new ResourceSetImpl();
     }
 

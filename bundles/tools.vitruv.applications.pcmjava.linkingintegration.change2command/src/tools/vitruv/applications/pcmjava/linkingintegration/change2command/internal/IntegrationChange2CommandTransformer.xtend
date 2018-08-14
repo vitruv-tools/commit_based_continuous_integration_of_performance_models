@@ -1,8 +1,6 @@
 package tools.vitruv.applications.pcmjava.linkingintegration.change2command.internal
 
 import tools.vitruv.framework.tuid.Tuid
-import tools.vitruv.framework.userinteraction.UserInteractionType
-import tools.vitruv.framework.userinteraction.UserInteracting
 import tools.vitruv.framework.correspondence.Correspondence
 import tools.vitruv.framework.util.bridges.CollectionBridge
 import java.util.ArrayList
@@ -15,26 +13,24 @@ import org.emftext.language.java.classifiers.Interface
 import org.emftext.language.java.containers.CompilationUnit
 
 import org.palladiosimulator.pcm.core.entity.NamedElement
-import tools.vitruv.framework.change.echange.EChange
 import tools.vitruv.framework.change.echange.root.InsertRootEObject
 import tools.vitruv.framework.change.echange.feature.reference.InsertEReference
 import tools.vitruv.framework.change.echange.root.RemoveRootEObject
 import tools.vitruv.framework.change.echange.feature.FeatureEChange
 import tools.vitruv.framework.correspondence.CorrespondenceModel
 import tools.vitruv.extensions.integration.correspondence.integration.IntegrationCorrespondence
-import mir.reactions.packageMappingIntegration.ReactionsExecutor
 import tools.vitruv.framework.util.command.ResourceAccess
-import tools.vitruv.framework.change.processing.ChangePropagationSpecification
-import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Pcm2JavaIntegrationChangePropagationSpecification
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Java2PcmIntegrationChangePropagationSpecification
 import tools.vitruv.framework.change.description.TransactionalChange
 import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.Java2PcmChangePropagationSpecification
+import tools.vitruv.framework.userinteraction.UserInteractor
+import tools.vitruv.framework.userinteraction.UserInteractionOptions.WindowModality
 
 class IntegrationChange2CommandTransformer {
 	
-	private UserInteracting userInteracting
+	private UserInteractor userInteracting
 	
-	new(UserInteracting userInteracting) {
+	new(UserInteractor userInteracting) {
 		this.userInteracting = userInteracting
 	}
 	
@@ -70,14 +66,14 @@ class IntegrationChange2CommandTransformer {
 	
 	def doesReactionHandleChange(TransactionalChange change, CorrespondenceModel correspondenceModel) {
 		val changePropagationSpecifications = new Java2PcmIntegrationChangePropagationSpecification()
-		changePropagationSpecifications.userInteracting = userInteracting
+		changePropagationSpecifications.userInteractor = userInteracting
 		return changePropagationSpecifications.doesHandleChange(change, correspondenceModel);
 	}
 	
 	def executeReactions(TransactionalChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
 		val changePropagationSpecifications= new Java2PcmChangePropagationSpecification();
 		
-		changePropagationSpecifications.userInteracting = userInteracting
+		changePropagationSpecifications.userInteractor = userInteracting
 		changePropagationSpecifications.propagateChange(change, correspondenceModel, resourceAccess)
 	}
 	
@@ -135,7 +131,7 @@ class IntegrationChange2CommandTransformer {
 		val buffer = new StringBuffer()
 		buffer.append("Created class or interface in area with integrated objects.\n")
 		buffer.append("Please handle consistency manually.")
-		userInteracting.showMessage(UserInteractionType.MODAL, buffer.toString())
+		userInteracting.notificationDialogBuilder.message(buffer.toString()).windowModality(WindowModality.MODAL).startInteraction;
 	}
 	
 	private def getDefaultIntegrationChangeCommand(TransactionalChange eChange, CorrespondenceModel correspondenceModel) {
@@ -151,7 +147,7 @@ class IntegrationChange2CommandTransformer {
 	    	}
 			val command = new Callable<Void>() {
 					override call() throws Exception {
-						userInteracting.showMessage(UserInteractionType.MODAL, buffer.toString())
+						userInteracting.notificationDialogBuilder.message(buffer.toString()).windowModality(WindowModality.MODAL).startInteraction;
 						return null
 					}
 				}
