@@ -43,13 +43,13 @@ class Ejb2PcmFunctionClassificationStrategy extends AbstractFunctionClassificati
         }
         val Set<OperationSignature> correspondingSignatures = CorrespondenceModelUtil
                 .getCorrespondingEObjectsByType(this.correspondenceModel, method, OperationSignature);
-        if (null != correspondingSignatures && !correspondingSignatures.isEmpty()) {
+        if (null !== correspondingSignatures && !correspondingSignatures.isEmpty()) {
             return true;
         }
         if (method instanceof ClassMethod) {
             val BasicComponent basicComponent = this.basicComponentFinding.findBasicComponentForMethod(method,
                     this.correspondenceModel);
-            if (null == basicComponent || basicComponent.getId().equals(this.basicComponent.getId())) {
+            if (null === basicComponent || basicComponent.getId().equals(this.basicComponent.getId())) {
                 return false;
             }
             return true;
@@ -61,7 +61,7 @@ class Ejb2PcmFunctionClassificationStrategy extends AbstractFunctionClassificati
 	override protected boolean isLibraryCall(Method method) {
 		 val basicComponentOfMethod = this.basicComponentFinding.findBasicComponentForMethod(method,
                 this.correspondenceModel);
-        if (null == basicComponentOfMethod) {
+        if (null === basicComponentOfMethod) {
             return true;
         }
         if (basicComponentOfMethod.getId().equals(this.basicComponent.getId())) {

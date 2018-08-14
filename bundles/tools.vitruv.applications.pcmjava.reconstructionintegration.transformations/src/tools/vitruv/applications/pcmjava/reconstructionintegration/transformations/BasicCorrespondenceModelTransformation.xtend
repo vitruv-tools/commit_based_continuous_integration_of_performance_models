@@ -39,7 +39,7 @@ abstract class BasicCorrespondenceModelTransformation implements ICreateCorrespo
 	 * and adds it to the {@link CorrespondenceModel}
 	 */
 	protected def Correspondence addCorrespondence(EObject objectA, EObject objectB, Correspondence parent) {
-		if (objectA == null || objectB == null)
+		if (objectA === null || objectB === null)
 			throw new IllegalArgumentException("Corresponding elements must not be null!")
 
 		// deresolve Objects

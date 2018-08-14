@@ -43,7 +43,7 @@ class EjbBasicComponentFinder implements BasicComponentFinding {
 		val cu = classifier.containingCompilationUnit
         val jaMoPPPackage = createPackage(cu, cu.getNamespaces());
         val BasicComponent correspondingBc = this.findCorrespondingBasicComponentForPackage(jaMoPPPackage, ci);
-        if (null == correspondingBc) {
+        if (null === correspondingBc) {
             logger.info("Could not find basic component for method " + newMethod + " in package " + jaMoPPPackage);
         }
         return correspondingBc;
@@ -82,7 +82,7 @@ class EjbBasicComponentFinder implements BasicComponentFinding {
         }
         val correspondingComponents = CorrespondenceModelUtil
                 .getCorrespondingEObjectsByType(ci, jaMoPPPackage, BasicComponent);
-        if (null == correspondingComponents || correspondingComponents.isEmpty()) {
+        if (null === correspondingComponents || correspondingComponents.isEmpty()) {
 
             jaMoPPPackage.getNamespaces().remove(jaMoPPPackage.getNamespaces().size() - 1);
             return this.findCorrespondingBasicComponentForPackage(jaMoPPPackage, ci);
