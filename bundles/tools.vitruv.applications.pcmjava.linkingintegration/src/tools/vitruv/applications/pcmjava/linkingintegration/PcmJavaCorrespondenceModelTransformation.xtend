@@ -239,7 +239,7 @@ class PcmJavaCorrespondenceModelTransformation {
 
 			// Find matching jaMopp parameter by name
 			var jamoppParam = jamoppParametrizable.parameters.findFirst[jp|jp.name.equals(pcmParam.parameterName)]
-			if (jamoppParam != null) {
+			if (jamoppParam !== null) {
 
 				// 8. PCM Parameter <-> jaMopp Parameter correspondence	
 				addCorrespondence(pcmParam, jamoppParam as OrdinaryParameter, methodCorrespondence)
@@ -263,7 +263,7 @@ class PcmJavaCorrespondenceModelTransformation {
 		// 10. PCM DataType <-> JaMopp Type correspondence
 		var dataTypeCorrespondence = addCorrespondence(pcmDataType, jamoppType, parentCorrespondence)
 
-		if (dataTypeLink.innerDatatypeSourceCodeLink != null) {
+		if (dataTypeLink.innerDatatypeSourceCodeLink !== null) {
 			for (innerDataTypeLink : dataTypeLink.innerDatatypeSourceCodeLink) {
 				var innerDeclaration = innerDataTypeLink.innerDeclaration
 				var jamoppField = resolveJaMoppProxy(innerDataTypeLink.field) as Field
@@ -290,7 +290,7 @@ class PcmJavaCorrespondenceModelTransformation {
 	 * Returns the resolved EObject for the given jaMopp proxy.
 	 * */
 	public def <T extends EObject> T resolveJaMoppProxy(T proxy) {
-		if (proxy == null || !proxy.eIsProxy())
+		if (proxy === null || !proxy.eIsProxy())
 			return proxy
 		return EcoreUtil.resolve(proxy, jaMoppResources.get(0).resourceSet) as T
 	}
@@ -299,7 +299,7 @@ class PcmJavaCorrespondenceModelTransformation {
 	 * Returns top-level package of the loaded jamopp resource set.
 	 */
 	private def Package getRootPackage() {
-		if (rootPackage != null)
+		if (rootPackage !== null)
 			return rootPackage
 
 		// Let's assume it's the one with the shortest namespace
@@ -322,7 +322,7 @@ class PcmJavaCorrespondenceModelTransformation {
 	 * and adds it to the {@link CorrespondenceModel}
 	 */
 	public def Correspondence addCorrespondence(EObject objectA, EObject objectB, Correspondence parent) {
-		if (objectA == null || objectB == null)
+		if (objectA === null || objectB === null)
 			throw new IllegalArgumentException("Corresponding elements must not be null!")
 
 		// deresolve Objects
@@ -352,7 +352,7 @@ class PcmJavaCorrespondenceModelTransformation {
 		val correspondenceTypeDeciders = EclipseBridge.getRegisteredExtensions(CorrespondenceTypeDeciding.ID,
 			VitruviusConstants.getExtensionPropertyName(), CorrespondenceTypeDeciding)
 		val correspondenceTypeDecider = correspondenceTypeDeciders.claimNotMany
-		if(null == correspondenceTypeDecider){
+		if(null === correspondenceTypeDecider){
 			return true
 		}
 		return correspondenceTypeDecider.useIntegratedCorrespondence(objectA, objectB, cInstance, this.jaMoppResources)
@@ -363,7 +363,7 @@ class PcmJavaCorrespondenceModelTransformation {
 	 * or does nothing if it already has one.
 	 */
 	public def <T extends EObject> T deresolveIfNesessary(T object) {
-		if (null == object.eResource) {
+		if (null === object.eResource) {
 			return object
 		}
 		var URI uri = object.eResource.URI
