@@ -13,17 +13,13 @@ import org.emftext.language.java.classifiers.Interface
 import org.emftext.language.java.containers.CompilationUnit
 
 import org.palladiosimulator.pcm.core.entity.NamedElement
-import tools.vitruv.framework.change.echange.EChange
 import tools.vitruv.framework.change.echange.root.InsertRootEObject
 import tools.vitruv.framework.change.echange.feature.reference.InsertEReference
 import tools.vitruv.framework.change.echange.root.RemoveRootEObject
 import tools.vitruv.framework.change.echange.feature.FeatureEChange
 import tools.vitruv.framework.correspondence.CorrespondenceModel
 import tools.vitruv.extensions.integration.correspondence.integration.IntegrationCorrespondence
-import mir.reactions.packageMappingIntegration.ReactionsExecutor
 import tools.vitruv.framework.util.command.ResourceAccess
-import tools.vitruv.framework.change.processing.ChangePropagationSpecification
-import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Pcm2JavaIntegrationChangePropagationSpecification
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Java2PcmIntegrationChangePropagationSpecification
 import tools.vitruv.framework.change.description.TransactionalChange
 import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.Java2PcmChangePropagationSpecification

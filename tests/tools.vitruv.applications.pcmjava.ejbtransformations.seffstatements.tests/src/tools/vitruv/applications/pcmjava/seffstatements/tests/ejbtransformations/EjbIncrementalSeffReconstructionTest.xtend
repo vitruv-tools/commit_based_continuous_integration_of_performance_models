@@ -19,7 +19,6 @@ class EjbIncrementalSeffReconstructionTest extends IncrementalSeffReconstruction
 		return #[new Java2PcmEjbWithSeffstatmentsChangePropagationSpecification()];
 	}
 
-	@Override
 	override public void beforeTest() {
 		super.beforeTest()
 		super.setWebGUIPackageName = Pcm2JavaTestUtils.REPOSITORY_NAME
@@ -35,7 +34,6 @@ class EjbIncrementalSeffReconstructionTest extends IncrementalSeffReconstruction
     public override void testComponentInternalCallWithExternalCallInSameComponent() throws Throwable {
     }
 
-	@Override
 	override protected createMediaStoreViaCode() {
 		// create main package
 		val Repository repo = super.addRepoContractsAndDatatypesPackage();
