@@ -23,7 +23,6 @@ import org.somox.gast2seff.visitors.VisitorUtils;
 
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
-import tools.vitruv.framework.tuid.Tuid;
 import tools.vitruv.framework.userinteraction.UserInteractor;
 import tools.vitruv.framework.util.bridges.CollectionBridge;
 
@@ -182,8 +181,7 @@ public class ClassMethodBodyChangedTransformation {
 			return;
 		}
 		for (final AbstractAction correspondingAbstractAction : correspondingAbstractActions) {
-			final Tuid tuidToRemove = ci.calculateTuidFromEObject(correspondingAbstractAction);
-			ci.removeCorrespondencesThatInvolveAtLeastAndDependendForTuids(CollectionBridge.toSet(tuidToRemove));
+			ci.removeCorrespondencesThatInvolveAtLeastAndDependend(CollectionBridge.toSet(correspondingAbstractAction));
 			EcoreUtil.remove(correspondingAbstractAction);
 		}
 
