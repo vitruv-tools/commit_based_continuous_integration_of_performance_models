@@ -6,6 +6,6 @@ import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.Java2PcmCh
 class Java2PcmWithSeffstatmantsChangePropagationSpecification extends Java2PcmChangePropagationSpecification {
 	protected override setup() {
 		super.setup();
-		addChangePreprocessor(new Java2PcmPackageMappingMethodBodyChangePreprocessor(userInteracting)); 
+		addChangePreprocessor(new Java2PcmPackageMappingMethodBodyChangePreprocessor(userInteractor)); 
 	}
 }

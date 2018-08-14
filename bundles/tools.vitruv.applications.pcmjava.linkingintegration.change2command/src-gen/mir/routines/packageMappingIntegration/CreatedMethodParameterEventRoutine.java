@@ -11,7 +11,7 @@ import tools.vitruv.applications.pcmjava.util.java2pcm.TypeReferenceCorresponden
 import tools.vitruv.extensions.dslsruntime.reactions.AbstractRepairRoutineRealization;
 import tools.vitruv.extensions.dslsruntime.reactions.ReactionExecutionState;
 import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHaving;
-import tools.vitruv.framework.userinteraction.UserInteractionType;
+import tools.vitruv.framework.userinteraction.UserInteractionOptions;
 
 @SuppressWarnings("all")
 public class CreatedMethodParameterEventRoutine extends AbstractRepairRoutineRealization {
@@ -27,10 +27,10 @@ public class CreatedMethodParameterEventRoutine extends AbstractRepairRoutineRea
     }
     
     public void update0Element(final Method method, final Parameter parameter, final OperationSignature opSignature) {
-      this.userInteracting.showMessage(UserInteractionType.MODAL, ("Created new parameter for OperationSiganture" + opSignature));
+      this.userInteractor.getNotificationDialogBuilder().message(("Created new parameter for OperationSiganture" + opSignature)).windowModality(UserInteractionOptions.WindowModality.MODAL).startInteraction();
       final org.palladiosimulator.pcm.repository.Parameter pcmParameter = RepositoryFactory.eINSTANCE.createParameter();
       pcmParameter.setDataType__Parameter(TypeReferenceCorrespondenceHelper.getCorrespondingPCMDataTypeForTypeReference(parameter.getTypeReference(), this.correspondenceModel, 
-        this.userInteracting, opSignature.getInterface__OperationSignature().getRepository__Interface(), parameter.getArrayDimension()));
+        this.userInteractor, opSignature.getInterface__OperationSignature().getRepository__Interface(), parameter.getArrayDimension()));
       pcmParameter.setParameterName(parameter.getName());
     }
     

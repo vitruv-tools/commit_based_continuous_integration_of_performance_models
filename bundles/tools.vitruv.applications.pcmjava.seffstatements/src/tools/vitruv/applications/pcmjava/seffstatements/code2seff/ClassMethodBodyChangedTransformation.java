@@ -24,7 +24,7 @@ import org.somox.gast2seff.visitors.VisitorUtils;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
 import tools.vitruv.framework.tuid.Tuid;
-import tools.vitruv.framework.userinteraction.UserInteracting;
+import tools.vitruv.framework.userinteraction.UserInteractor;
 import tools.vitruv.framework.util.bridges.CollectionBridge;
 
 /**
@@ -75,7 +75,7 @@ public class ClassMethodBodyChangedTransformation {
 	 *
 	 */
 	public void execute(final CorrespondenceModel correspondenceModel,
-			final UserInteracting userInteracting) {
+			final UserInteractor userInteracting) {
 		if (!this.isArchitectureRelevantChange(correspondenceModel)) {
 			logger.debug("Change with oldMethod " + this.oldMethod + " and newMethod: " + this.newMethod
 					+ " is not an architecture relevant change");

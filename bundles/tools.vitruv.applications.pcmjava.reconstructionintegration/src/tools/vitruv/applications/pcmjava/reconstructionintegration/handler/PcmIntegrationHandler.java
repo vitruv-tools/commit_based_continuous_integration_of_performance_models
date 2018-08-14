@@ -62,7 +62,7 @@ public class PcmIntegrationHandler extends IntegrationHandler<IFile> {
         // update the PCM parameter definitions
         resource = this.updateParameterDef(resource, uri);
 
-        if (this.keepOldModel == 1) {
+        if (this.keepOldModel) {
             this.saveOldModel(resource);
         }
 
@@ -80,7 +80,7 @@ public class PcmIntegrationHandler extends IntegrationHandler<IFile> {
             e.printStackTrace();
         }
 
-        if (this.keepOldModel == 1) {
+        if (this.keepOldModel) {
             this.compareWithNewModel(resource, uri);
         }
 
@@ -96,7 +96,7 @@ public class PcmIntegrationHandler extends IntegrationHandler<IFile> {
 
         Logger.getRootLogger().setLevel(Level.ALL);
 
-        if (this.keepOldModel == 1) {
+        if (this.keepOldModel) {
             this.saveOldModel(resource);
         }
 

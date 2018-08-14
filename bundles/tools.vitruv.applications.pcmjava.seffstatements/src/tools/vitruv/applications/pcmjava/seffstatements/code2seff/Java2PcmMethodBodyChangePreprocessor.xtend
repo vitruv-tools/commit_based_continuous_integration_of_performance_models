@@ -18,8 +18,8 @@ import tools.vitruv.framework.change.echange.feature.reference.RemoveEReference
 import tools.vitruv.framework.change.echange.feature.reference.UpdateReferenceEChange
 import tools.vitruv.framework.change.processing.impl.AbstractChangePropagationSpecification
 import tools.vitruv.framework.correspondence.CorrespondenceModel
-import tools.vitruv.framework.userinteraction.UserInteracting
 import tools.vitruv.framework.util.command.ResourceAccess
+import tools.vitruv.framework.userinteraction.UserInteractor
 
 class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpecification {
 	private val Code2SeffFactory code2SeffFactory;
@@ -33,7 +33,7 @@ class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpec
 		if (doesHandleChange(change, correspondenceModel)) {
 			val compositeChange = change as CompositeTransactionalChange;
 			// TODO HK We should exchange the change with an empty one here
-			executeClassMethodBodyChangeRefiner(correspondenceModel, userInteracting, compositeChange);
+			executeClassMethodBodyChangeRefiner(correspondenceModel, userInteractor, compositeChange);
 		}
 	}
 
@@ -99,7 +99,7 @@ class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpec
 	}
 
 	private def void executeClassMethodBodyChangeRefiner(CorrespondenceModel correspondenceModel,
-		UserInteracting userInteracting, CompositeTransactionalChange compositeChange) {
+		UserInteractor userInteracting, CompositeTransactionalChange compositeChange) {
 		val ConcreteChange emfChange = compositeChange.getChanges().get(0) as ConcreteChange;
 		val JavaFeatureEChange<?, ?> eFeatureChange = emfChange.getEChanges().get(0) as JavaFeatureEChange<?, ?>;
 		val oldMethod = eFeatureChange.getOldAffectedEObject() as Method;

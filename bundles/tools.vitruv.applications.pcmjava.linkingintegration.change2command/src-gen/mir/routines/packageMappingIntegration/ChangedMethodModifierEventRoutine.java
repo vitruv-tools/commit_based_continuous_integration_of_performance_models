@@ -18,7 +18,8 @@ import org.palladiosimulator.pcm.repository.OperationSignature;
 import tools.vitruv.extensions.dslsruntime.reactions.AbstractRepairRoutineRealization;
 import tools.vitruv.extensions.dslsruntime.reactions.ReactionExecutionState;
 import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHaving;
-import tools.vitruv.framework.userinteraction.UserInteractionType;
+import tools.vitruv.framework.userinteraction.UserInteractionOptions;
+import tools.vitruv.framework.userinteraction.builder.NotificationInteractionBuilder;
 
 @SuppressWarnings("all")
 public class ChangedMethodModifierEventRoutine extends AbstractRepairRoutineRealization {
@@ -44,10 +45,11 @@ public class ChangedMethodModifierEventRoutine extends AbstractRepairRoutineReal
         return;
       } else {
         if ((operationSignature.isPresent() && ((annotationOrModifier instanceof Protected) || (annotationOrModifier instanceof Private)))) {
+          NotificationInteractionBuilder _notificationDialogBuilder = this.userInteractor.getNotificationDialogBuilder();
           String _entityName = operationSignature.get().getEntityName();
-          String _plus = ("Public method with correspondence has been made private. \n\t\t\t\t\tThe corresponding operaitonSignature " + _entityName);
+          String _plus = ("Public method with correspondence has been made private. \r\n\t\t\t\t\tThe corresponding operaitonSignature " + _entityName);
           String _plus_1 = (_plus + " will be deleted as well.");
-          this.userInteracting.showMessage(UserInteractionType.MODAL, _plus_1);
+          _notificationDialogBuilder.message(_plus_1).windowModality(UserInteractionOptions.WindowModality.MODAL).startInteraction();
           this.correspondenceModel.removeCorrespondencesThatInvolveAtLeastAndDependend(Sets.<EObject>newHashSet(operationSignature.get()));
           EcoreUtil.remove(operationSignature.get());
           return;

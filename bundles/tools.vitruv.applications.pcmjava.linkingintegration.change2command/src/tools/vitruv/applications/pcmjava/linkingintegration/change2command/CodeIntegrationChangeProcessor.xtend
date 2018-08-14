@@ -16,7 +16,7 @@ class CodeIntegrationChangeProcessor extends AbstractChangePropagationSpecificat
 	
 	new() {
 		super(new JavaDomainProvider().domain, new PcmDomainProvider().domain);
-		this.integrationTransformer = new IntegrationChange2CommandTransformer(getUserInteracting());
+		this.integrationTransformer = new IntegrationChange2CommandTransformer(userInteractor);
 	}
 	
 	override doesHandleChange(TransactionalChange change, CorrespondenceModel correspondenceModel) {

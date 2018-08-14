@@ -15,7 +15,7 @@ import tools.vitruv.framework.change.description.VitruviusChange;
 import tools.vitruv.framework.change.description.VitruviusChangeFactory;
 import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.testutils.util.TestUtil;
-import tools.vitruv.framework.userinteraction.impl.UserInteractor;
+import tools.vitruv.framework.userinteraction.UserInteractionFactory;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
 
 /**
@@ -55,7 +55,7 @@ public class TraversalTestcase {
 
         // create syncManager
         final Iterable<VitruvDomain> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
-        InternalVirtualModel vsum = TestUtil.createVirtualModel("testVsum", true, metamodels, Collections.emptyList(), new UserInteractor());
+        InternalVirtualModel vsum = TestUtil.createVirtualModel("testVsum", true, metamodels, Collections.emptyList(), UserInteractionFactory.instance.createDialogUserInteractor());
 
         final VitruviusChange compositeChange = VitruviusChangeFactory.getInstance().createCompositeChange(changes);
         // propagate changes

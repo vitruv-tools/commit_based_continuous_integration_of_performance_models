@@ -7,7 +7,7 @@ import org.emftext.language.java.parameters.Parameter;
 import tools.vitruv.extensions.dslsruntime.reactions.AbstractRepairRoutineRealization;
 import tools.vitruv.extensions.dslsruntime.reactions.ReactionExecutionState;
 import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHaving;
-import tools.vitruv.framework.userinteraction.UserInteractionType;
+import tools.vitruv.framework.userinteraction.UserInteractionOptions;
 
 @SuppressWarnings("all")
 public class MethodParameterNameChangedEventRoutine extends AbstractRepairRoutineRealization {
@@ -23,7 +23,7 @@ public class MethodParameterNameChangedEventRoutine extends AbstractRepairRoutin
     }
     
     public void update0Element(final Parameter parameter, final String oldParameterName, final String newParameterName, final org.palladiosimulator.pcm.repository.Parameter pcmParam) {
-      this.userInteracting.showMessage(UserInteractionType.MODAL, ((("Renamed method parameter " + oldParameterName) + " to ") + newParameterName));
+      this.userInteractor.getNotificationDialogBuilder().message(((("Renamed method parameter " + oldParameterName) + " to ") + newParameterName)).windowModality(UserInteractionOptions.WindowModality.MODAL).startInteraction();
       pcmParam.setParameterName(newParameterName);
     }
     
