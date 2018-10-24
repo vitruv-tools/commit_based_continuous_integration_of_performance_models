@@ -172,8 +172,8 @@ class PcmJavaCorrespondenceModelTransformation {
 				val deresolvedPcmRepo = deresolveIfNesessary(pcmRepo)
 				val deresolvedRootPackage = deresolveIfNesessary(getRootPackage)
 	
-				var parentRepoPackageCorr = cInstance.getCorrespondencesBetweenEObjects(deresolvedPcmRepo.toSet,
-					deresolvedRootPackage.toSet).claimOne
+				var parentRepoPackageCorr = getCorrespondencesBetween(cInstance, deresolvedPcmRepo.toList,
+					deresolvedRootPackage.toList).claimOne
 	
 				// 2. Component <-> Package correspondence
 				addCorrespondence(pcmComponent, package, parentRepoPackageCorr)
@@ -194,14 +194,21 @@ class PcmJavaCorrespondenceModelTransformation {
 		// Get parent Repository <-> Package correspondence from correspondence instance	
 		val deresolvedPcmRepo = deresolveIfNesessary(pcmRepo)
 		val deresolvedRootPackage = deresolveIfNesessary(getRootPackage)
-		var parentCorrespondence = cInstance.getCorrespondencesBetweenEObjects(deresolvedPcmRepo.toSet,
-			deresolvedRootPackage.toSet).claimOne
+		var parentCorrespondence = getCorrespondencesBetween(cInstance, deresolvedPcmRepo.toList,
+			deresolvedRootPackage.toList).claimOne
 
 		// 5. PCM Interface <-> CompUnit correspondence
 		addCorrespondence(pcmInterface, jamoppType.containingCompilationUnit, parentCorrespondence)
 
 		// 6. PCM Interface <-> Type correspondence
 		addCorrespondence(pcmInterface, jamoppType, parentCorrespondence)
+	}
+	
+	private def getCorrespondencesBetween(CorrespondenceModel correspondenceModel, List<EObject> objects1, List<EObject> objects2) {
+		val correspondences1 = correspondenceModel.getCorrespondences(objects1);
+		val correspondences2 = correspondenceModel.getCorrespondences(objects1);
+		correspondences1.retainAll(correspondences2);
+		return correspondences1;
 	}
 
 	private def createMethodCorrespondence(MethodLevelSourceCodeLink methodLink) {
@@ -226,8 +233,8 @@ class PcmJavaCorrespondenceModelTransformation {
 		// Get parent Interface <-> Type correspondence from correspondence instance
 		val deresolvedPcmInterface = deresolveIfNesessary(pcmInterface)
 		val deresolvedJamoppInterface = deresolveIfNesessary(jamoppInterface)
-		var interfaceCorrespondence = cInstance.getCorrespondencesBetweenEObjects(deresolvedPcmInterface.toSet,
-			deresolvedJamoppInterface.toSet)
+		var interfaceCorrespondence = getCorrespondencesBetween(cInstance, deresolvedPcmInterface.toList,
+			deresolvedJamoppInterface.toList)
 		if (interfaceCorrespondence.nullOrEmpty) {
 			return
 		}
@@ -254,8 +261,8 @@ class PcmJavaCorrespondenceModelTransformation {
 		// Get parent Repository <-> Package correspondence from correspondence instance
 		val deresolvedPcmRepo = deresolveIfNesessary(pcmRepo)
 		val deresolvedRootPackage = deresolveIfNesessary(getRootPackage)
-		var parentCorrespondence = cInstance.getCorrespondencesBetweenEObjects(deresolvedPcmRepo.toSet,
-			deresolvedRootPackage.toSet).claimOne
+		var parentCorrespondence = getCorrespondencesBetween(cInstance, deresolvedPcmRepo.toList,
+			deresolvedRootPackage.toList).claimOne
 
 		// 9. PCM DataType <-> JaMopp CompUnit correspondence
 		addCorrespondence(pcmDataType, jamoppType.containingCompilationUnit, parentCorrespondence)
@@ -337,7 +344,7 @@ class PcmJavaCorrespondenceModelTransformation {
 			val useIntegrationCorrespondence = this.decideIntegrationCorrespondenceUsage(objectA, objectB)
 			if(useIntegrationCorrespondence){
 				val integrationCorrespondenceView = IntegrationCorrespondenceHelper.getEditableView(cInstance) 
-				correspondence = integrationCorrespondenceView.createAndAddCorrespondence(deresolvedA.toList, deresolvedB.toList)
+				correspondence = integrationCorrespondenceView.createAndAddCorrespondence(deresolvedA.toList, deresolvedB.toList, null)
 			}else{ // create a standard reactions correspondence
 				correspondence = cInstance.createAndAddCorrespondence(deresolvedA, deresolvedB)
 			}

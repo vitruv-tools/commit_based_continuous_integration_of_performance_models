@@ -1,5 +1,6 @@
 package mir.routines.packageMappingIntegration;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.util.Optional;
@@ -50,7 +51,7 @@ public class ChangedMethodModifierEventRoutine extends AbstractRepairRoutineReal
           String _plus = ("Public method with correspondence has been made private. \r\n\t\t\t\t\tThe corresponding operaitonSignature " + _entityName);
           String _plus_1 = (_plus + " will be deleted as well.");
           _notificationDialogBuilder.message(_plus_1).windowModality(UserInteractionOptions.WindowModality.MODAL).startInteraction();
-          this.correspondenceModel.removeCorrespondencesThatInvolveAtLeastAndDependend(Sets.<EObject>newHashSet(operationSignature.get()));
+          this.correspondenceModel.removeCorrespondencesFor(Lists.<EObject>newArrayList(operationSignature.get()), null);
           EcoreUtil.remove(operationSignature.get());
           return;
         }

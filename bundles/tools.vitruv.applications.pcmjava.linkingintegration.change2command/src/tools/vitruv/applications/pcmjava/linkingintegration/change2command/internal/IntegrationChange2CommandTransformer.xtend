@@ -2,10 +2,7 @@ package tools.vitruv.applications.pcmjava.linkingintegration.change2command.inte
 
 import tools.vitruv.framework.tuid.Tuid
 import tools.vitruv.framework.correspondence.Correspondence
-import tools.vitruv.framework.util.bridges.CollectionBridge
 import java.util.ArrayList
-import java.util.HashSet
-import java.util.Set
 import java.util.concurrent.Callable
 import org.eclipse.emf.ecore.EObject
 import org.emftext.language.java.classifiers.Class
@@ -25,6 +22,7 @@ import tools.vitruv.framework.change.description.TransactionalChange
 import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.Java2PcmChangePropagationSpecification
 import tools.vitruv.framework.userinteraction.UserInteractor
 import tools.vitruv.framework.userinteraction.UserInteractionOptions.WindowModality
+import tools.vitruv.extensions.integration.correspondence.util.IntegrationCorrespondenceModelViewFactory
 
 class IntegrationChange2CommandTransformer {
 	
@@ -205,24 +203,9 @@ class IntegrationChange2CommandTransformer {
             eObj = eChange.getOldValue() as EObject
         }
 
-        val  integrationView = ci.getView(typeof(IntegrationCorrespondence))
+        val integrationView = ci.getView(IntegrationCorrespondenceModelViewFactory.instance)
         if (eObj !== null) {
-            val set = CollectionBridge.toSet(eObj)
-            val Set<IntegrationCorrespondence> correspondences = integrationView
-                    .getCorrespondencesThatInvolveAtLeast(set)
-            val correspondingObjects = new HashSet<EObject>()
-            for (integratedCorrespondence : correspondences) {
-                if (integratedCorrespondence.isCreatedByIntegration()) {
-                	val aList = integratedCorrespondence.getAs()
-                	val bList = integratedCorrespondence.getAs()
-                	if (aList.contains(eObj)) {
-                		correspondingObjects.addAll(bList)
-                	} else {
-                		correspondingObjects.addAll(aList)
-                	}
-                	return correspondingObjects
-                }
-            }
+            return integrationView.getCorrespondingIntegratedEObjects(#[eObj], null).flatten
         }
         return null
     }

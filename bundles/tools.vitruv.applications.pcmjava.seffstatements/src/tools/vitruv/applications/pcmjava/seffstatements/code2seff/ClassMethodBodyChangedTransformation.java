@@ -181,7 +181,7 @@ public class ClassMethodBodyChangedTransformation {
 			return;
 		}
 		for (final AbstractAction correspondingAbstractAction : correspondingAbstractActions) {
-			ci.removeCorrespondencesThatInvolveAtLeastAndDependend(CollectionBridge.toSet(correspondingAbstractAction));
+			ci.removeCorrespondencesFor(CollectionBridge.toList(correspondingAbstractAction), null);
 			EcoreUtil.remove(correspondingAbstractAction);
 		}
 

@@ -77,10 +77,9 @@ class PcmJavaCorrespondenceModelForSeffTransformation implements PcmJavaIntegrat
 		PcmJavaCorrespondenceModelTransformation currentCorrespondences, Class<T> type) {
 
 		val correspondences = currentCorrespondences.CInstance.getCorrespondences(CollectionBridge.toList(jaMoPPClass))
-		val correspondencesContainingBc = correspondences.filter [
-			null !== it.^as.findFirst[type.isInstance(it)] || null !== it.bs.findFirst [
-				type.isInstance(it)
-			]
+		val correspondencesContainingBc = correspondences.filter [ 
+			!currentCorrespondences.CInstance.getCorrespondingEObjectsInCorrespondence(it, CollectionBridge.toList(jaMoPPClass)).
+			filter[type.isInstance(it)].nullOrEmpty
 		]
 		var Correspondence parentCorrespondence = null;
 		if (!correspondencesContainingBc.nullOrEmpty) {

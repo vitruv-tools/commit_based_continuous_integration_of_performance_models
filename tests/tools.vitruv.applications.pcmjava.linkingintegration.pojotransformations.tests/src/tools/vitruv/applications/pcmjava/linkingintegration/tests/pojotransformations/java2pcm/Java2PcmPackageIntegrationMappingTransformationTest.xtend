@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue
 import org.palladiosimulator.pcm.repository.RepositoryComponent
 import java.util.Set
 import org.palladiosimulator.pcm.repository.Repository
-import tools.vitruv.framework.correspondence.CorrespondenceModelUtil
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.util.CodeIntegrationUtils
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTestCBSNamespace
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Java2PcmIntegrationChangePropagationSpecification
@@ -65,11 +64,9 @@ class Java2PcmPackageIntegrationMappingTransformationTest extends Java2PcmPackag
 	}
 
 	def protected void assertNoComponentWithName(String nameOfComponent) throws Throwable {
-		val Set<RepositoryComponent> repoComponents = CorrespondenceModelUtil.
-			getAllEObjectsOfTypeInCorrespondences(getCorrespondenceModel(), RepositoryComponent);
+		val Set<RepositoryComponent> repoComponents = getCorrespondenceModel().getAllEObjectsOfTypeInCorrespondences(RepositoryComponent);
 		assertNoBasicComponentWithName(nameOfComponent, repoComponents);
-		val Set<Repository> repos = CorrespondenceModelUtil.
-			getAllEObjectsOfTypeInCorrespondences(getCorrespondenceModel(), Repository);
+		val Set<Repository> repos = getCorrespondenceModel().getAllEObjectsOfTypeInCorrespondences(Repository);
 		repos.forEach[assertNoBasicComponentWithName(nameOfComponent, it.getComponents__Repository())];
 	}
 

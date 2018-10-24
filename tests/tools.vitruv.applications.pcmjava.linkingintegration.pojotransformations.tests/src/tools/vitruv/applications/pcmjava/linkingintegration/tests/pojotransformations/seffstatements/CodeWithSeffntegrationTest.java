@@ -107,7 +107,7 @@ public class CodeWithSeffntegrationTest extends CodeIntegrationTest implements S
     }
 
     private Repository getRepository(final CorrespondenceModel ci) {
-        return CorrespondenceModelUtil.getAllEObjectsOfTypeInCorrespondences(ci, Repository.class).iterator().next();
+        return ci.getAllEObjectsOfTypeInCorrespondences(Repository.class).iterator().next();
     }
 
     private void assertCorrespondenceToMethod(final AbstractAction abstractAction,

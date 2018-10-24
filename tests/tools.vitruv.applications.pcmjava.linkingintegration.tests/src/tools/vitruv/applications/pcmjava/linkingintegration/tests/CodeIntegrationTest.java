@@ -7,8 +7,8 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IProject;
@@ -138,14 +138,14 @@ public class CodeIntegrationTest {
     protected void assertStandardCodeIntegrationTest() throws Throwable {
         final CorrespondenceModel ci = this.getCorrespondenceModel();
         // TODO check if correspondences are correct
-        final Set<Correspondence> correspondences = ci.getAllCorrespondencesWithoutDependencies();
+        final List<Correspondence> correspondences = ci.getAllCorrespondences();
         Assert.assertNotNull(correspondences);
         Assert.assertFalse(correspondences.isEmpty());
 
         final Tuid frameCodeTuid = Tuid.getInstance(
                 "http://www.emftext.org/java#platform:/resource/eu.fpetersen.cbs.pc/src/eu/fpetersen/cbs/pc/data/Frame.java#classifier-_-Frame");
-        final List<Tuid> frameCodeTuids = Collections.singletonList(frameCodeTuid);
-        final Set<Correspondence> frameCodeCorrs = ci.getCorrespondencesForTuids(frameCodeTuids);
+        final List<Correspondence> frameCodeCorrs = correspondences.stream().
+        		filter(correspondence -> correspondence.getATuids().contains(frameCodeTuid) || correspondence.getBTuids().contains(frameCodeTuid)).collect(Collectors.toList());
 
         Assert.assertNotNull(frameCodeCorrs);
         Assert.assertFalse(frameCodeCorrs.isEmpty());

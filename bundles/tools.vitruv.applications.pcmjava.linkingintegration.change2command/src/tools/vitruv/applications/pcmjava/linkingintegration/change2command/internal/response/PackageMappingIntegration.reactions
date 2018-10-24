@@ -302,7 +302,7 @@ routine changedMethodModifierEvent(java::Method method, java::AnnotationInstance
 				// public method with corresponding signature has been deleted
 				userInteractor.notificationDialogBuilder.message("Public method with correspondence has been made private. 
 					The corresponding operaitonSignature " + operationSignature.get.entityName + " will be deleted as well.").windowModality(WindowModality.MODAL).startInteraction;
-				correspondenceModel.removeCorrespondencesThatInvolveAtLeastAndDependend(Sets.newHashSet(operationSignature.get))
+				correspondenceModel.removeCorrespondencesFor(Lists.newArrayList(operationSignature.get), null)
 				EcoreUtil.remove(operationSignature.get)
 				return
 			}
