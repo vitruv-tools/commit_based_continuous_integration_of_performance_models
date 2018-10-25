@@ -12,10 +12,13 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jst.ws.internal.common.ResourceUtils;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
@@ -26,29 +29,28 @@ import tools.vitruv.framework.vsum.InternalVirtualModel;
 import tools.vitruv.framework.vsum.VirtualModelConfiguration;
 import tools.vitruv.framework.vsum.VirtualModelImpl;
 
-@SuppressWarnings("restriction")
 public class IntegrateProjectHandler extends AbstractHandler {
-	
+
 	private Logger logger = Logger.getLogger(IntegrateProjectHandler.class.getName());
-	
+
 	public IntegrateProjectHandler() {
 		super();
 	}
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-        logger.setLevel(Level.ALL);
+		logger.setLevel(Level.ALL);
 
-        final ISelection selection = HandlerUtil.getActiveMenuSelection(event);
-        final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
+		final ISelection selection = HandlerUtil.getActiveMenuSelection(event);
+		final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
 
-        final Object firstElement = structuredSelection.getFirstElement();
-        final IJavaProject javaProject = (IJavaProject) firstElement;
-        final IProject project = javaProject.getProject();
+		final Object firstElement = structuredSelection.getFirstElement();
+		final IJavaProject javaProject = (IJavaProject) firstElement;
+		final IProject project = javaProject.getProject();
 
-        integrateProject(project);
-        
-        return null;
+		integrateProject(project);
+
+		return null;
 	}
 
 	public void integrateProject(final IProject project) {
@@ -59,7 +61,18 @@ public class IntegrateProjectHandler extends AbstractHandler {
         final IPath scdmPath = models.addFileExtension("sourcecodedecorator");
         final IPath pcmPath = models.addFileExtension("repository");
         
-        IPath[] srcPaths = ResourceUtils.getAllJavaSourceLocations(project);
+        List<IPath> srcPaths = new ArrayList<IPath>();
+        IJavaProject javaProject = JavaCore.create(project);
+        try {
+        	IPackageFragmentRoot[] packageFragmentRoot = javaProject.getAllPackageFragmentRoots();
+        	for (int i = 0; i < packageFragmentRoot.length; i++){
+            	if (packageFragmentRoot[i].getElementType() == IJavaElement.PACKAGE_FRAGMENT_ROOT && !packageFragmentRoot[i].isArchive()) {
+            		srcPaths.add(packageFragmentRoot[i].getPath());
+            	}
+        	}
+        } catch (JavaModelException e) {
+        	e.printStackTrace();
+        }
         List<IPath> jamoppPaths = new ArrayList<>();
         for (IPath path : srcPaths) {
         	IPath projectRelative = path.removeFirstSegments(1);
