@@ -2,7 +2,6 @@ package tools.vitruv.applications.pcmjava.reconstructionintegration.transformati
 
 import tools.vitruv.framework.correspondence.Correspondence
 import tools.vitruv.framework.util.bridges.EMFBridge
-import java.util.HashSet
 import org.apache.log4j.Logger
 import org.eclipse.core.resources.ResourcesPlugin
 import org.eclipse.core.runtime.IPath
@@ -12,6 +11,7 @@ import org.eclipse.emf.ecore.EObject
 import static extension tools.vitruv.framework.correspondence.CorrespondenceModelUtil.*
 import static extension tools.vitruv.framework.util.bridges.CollectionBridge.*
 import tools.vitruv.framework.correspondence.CorrespondenceModel
+import org.eclipse.emf.ecore.util.EcoreUtil
 
 /**
  * Class that provides general methods for creating correspondences between two metamodels. 
@@ -22,7 +22,7 @@ import tools.vitruv.framework.correspondence.CorrespondenceModel
 abstract class BasicCorrespondenceModelTransformation implements ICreateCorrespondenceModel { 
 
 	// Used to avoid duplicated entries
-	private HashSet<String> existingEntries = new HashSet; 
+	//private HashSet<String> existingEntries = new HashSet; 
 	protected Logger logger = Logger.getRootLogger
 	
 	/**
@@ -47,11 +47,11 @@ abstract class BasicCorrespondenceModelTransformation implements ICreateCorrespo
 		var deresolvedB = deresolveIfNesessary(objectB)
 
 		// check if the correspondence was already created, because the SCDM may contain duplicate entries
-		var identifier = getCorrespondenceModel.calculateTuidFromEObject(deresolvedA).toString +
-			getCorrespondenceModel.calculateTuidFromEObject(deresolvedB).toString
-		if (!existingEntries.contains(identifier)) {
+		//var identifier = getCorrespondenceModel.calculateTuidFromEObject(deresolvedA).toString +
+		//	getCorrespondenceModel.calculateTuidFromEObject(deresolvedB).toString
+		if (!correspondenceModel.getCorrespondingEObjects(#[objectA]).flatten.exists[EcoreUtil.equals(it, objectB)]) { //existingEntries.contains(identifier)) {
 			var correspondence = getCorrespondenceModel.createAndAddCorrespondence(deresolvedA, deresolvedB);
-			existingEntries.add(identifier);
+			//existingEntries.add(identifier);
 			logger.info("Created Correspondence for element: " + objectA + " and Element: " + objectB);
 			return correspondence;
 		}

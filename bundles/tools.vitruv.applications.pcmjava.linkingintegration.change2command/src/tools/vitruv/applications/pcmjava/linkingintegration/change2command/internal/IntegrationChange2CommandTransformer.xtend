@@ -90,8 +90,9 @@ class IntegrationChange2CommandTransformer {
         		//statically typed to Correspondence right now and needs to support views like 
         		//CorrespondenceModel
                 val ci = correspondenceModel
-                val newCompilationUnitTuid = ci.calculateTuidFromEObject(cu)
-                val packagePartOfNewTuid = getPackagePart(newCompilationUnitTuid)
+                //val newCompilationUnitTuid = ci.calculateTuidFromEObject(cu)
+                val packagePart = cu.namespacesAsString
+                //val packagePartOfNewTuid = getPackagePart(newCompilationUnitTuid)
     			for (Correspondence corr : ci.getAllCorrespondences()) {
     				if (corr instanceof IntegrationCorrespondence) {
     					val integrationCorr = corr as IntegrationCorrespondence
@@ -100,8 +101,8 @@ class IntegrationChange2CommandTransformer {
 	    					allTuids.addAll(corr.getATuids())
 	    					allTuids.addAll(corr.getBTuids())
 	    					for (Tuid tuid : allTuids) {
-	    						val packagePart = getPackagePart(tuid)
-	    						if (packagePartOfNewTuid.startsWith(packagePart)) {
+	    						//val packagePart = getPackagePart(tuid)
+	    						if (tuid.toString.contains(packagePart)) {//packagePartOfNewTuid.startsWith(packagePart)) {
 	    							val command = new Callable<Void>() {
 										override call() throws Exception {
 											showNewTypeInIntegratedAreaDialog()
@@ -119,11 +120,11 @@ class IntegrationChange2CommandTransformer {
         return null
 	}
 	
-	private def String getPackagePart(Tuid newCompilationUnitTuid) {
-		val originalTuidAsString = newCompilationUnitTuid.toString()
-		val lastSlashIndex = originalTuidAsString.lastIndexOf("/")
-		return originalTuidAsString.substring(0, lastSlashIndex)
-	}
+//	private def String getPackagePart(Tuid newCompilationUnitTuid) {
+//		val originalTuidAsString = newCompilationUnitTuid.toString()
+//		val lastSlashIndex = originalTuidAsString.lastIndexOf("/")
+//		return originalTuidAsString.substring(0, lastSlashIndex)
+//	}
 	
 	private def showNewTypeInIntegratedAreaDialog() {
 		val buffer = new StringBuffer()

@@ -47,7 +47,7 @@ import static extension edu.kit.ipd.sdq.commons.util.java.lang.IterableUtil.*
  */
 class PcmJavaCorrespondenceModelTransformation {
 
-	private HashSet<String> existingEntries = new HashSet
+	//private HashSet<String> existingEntries = new HashSet
 	protected Logger logger = Logger.getRootLogger
 
 	// Absolute paths needed
@@ -337,10 +337,11 @@ class PcmJavaCorrespondenceModelTransformation {
 		var deresolvedB = deresolveIfNesessary(objectB)
 
 		// check if the correspondence was already created, because the SCDM may contain duplicate entries
-		var identifier = cInstance.calculateTuidFromEObject(deresolvedA).toString +
-			cInstance.calculateTuidFromEObject(deresolvedB).toString
+		//var identifier = cInstance.calculateTuidFromEObject(deresolvedA).toString +
+		//	cInstance.calculateTuidFromEObject(deresolvedB).toString
 		var Correspondence correspondence = null
-		if (!existingEntries.contains(identifier)) {
+		//if (!existingEntries.contains(identifier)) {
+		if (!cInstance.getCorrespondingEObjects(#[objectA]).flatten.exists[EcoreUtil.equals(it, objectB)]) { 
 			val useIntegrationCorrespondence = this.decideIntegrationCorrespondenceUsage(objectA, objectB)
 			if(useIntegrationCorrespondence){
 				val integrationCorrespondenceView = IntegrationCorrespondenceHelper.getEditableView(cInstance) 
@@ -348,7 +349,7 @@ class PcmJavaCorrespondenceModelTransformation {
 			}else{ // create a standard reactions correspondence
 				correspondence = cInstance.createAndAddCorrespondence(deresolvedA, deresolvedB)
 			}
-			existingEntries.add(identifier)
+			//existingEntries.add(identifier)
 			logger.info("Created Correspondence for element: " + objectA + " and Element: " + objectB)
 
 			return correspondence 
