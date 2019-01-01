@@ -1,0 +1,2 @@
+# change-based-adaptive-instrumentation
+This repository aims to provide the needed measurements to calibrate the updated parts of the code automatically. For this reason, the updated parts are instrumented and the probes are saved in an instrumentation model. This repository consists of (1) the VSUMM including the instrumentation metamodel and the measurements metamodel and the (2) the consistency rules that allow the change-based adaptive instrumentation of the source code.
