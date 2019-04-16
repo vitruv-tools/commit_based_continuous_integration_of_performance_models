@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Im
+Bundle-SymbolicName: tools.vitruv.domains.im;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.xtend.lib,
+ tools.vitruv.framework.tuid;bundle-version="0.3.0",
+ org.junit;bundle-version="4.12.0",
+ org.apache.log4j;bundle-version="1.2.15",
+ tools.vitruv.models.im;bundle-version="0.1.0",
+ tools.vitruv.framework.metamodel;visibility:=reexport,
+ tools.vitruv.framework.vsum,
+ tools.vitruv.extensions.emf;bundle-version="0.3.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: javax.annotation;version="1.2.0"
+Automatic-Module-Name: tools.vitruv.domains.im
+Export-Package: tools.vitruv.domains.im
