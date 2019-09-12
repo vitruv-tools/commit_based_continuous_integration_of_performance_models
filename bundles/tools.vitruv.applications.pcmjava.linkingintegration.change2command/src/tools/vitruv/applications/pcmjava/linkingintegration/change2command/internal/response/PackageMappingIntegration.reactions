@@ -9,9 +9,10 @@ import org.emftext.language.java.modifiers.Public
 import org.emftext.language.java.modifiers.Private
 import org.emftext.language.java.modifiers.Protected
 import com.google.common.collect.Sets
-import tools.vitruv.framework.correspondence.CorrespondenceModelUtil
+import tools.vitruv.framework.^correspondence.CorrespondenceModelUtil
 import tools.vitruv.applications.pcmjava.util.java2pcm.TypeReferenceCorrespondenceHelper
 import tools.vitruv.framework.userinteraction.UserInteractionOptions.WindowModality
+import com.google.common.collect.Lists
 
 import "http://www.emftext.org/java" as java
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
@@ -69,7 +70,7 @@ routine removedMethodEvent(java::Method method) {
 	action {
 		remove correspondence between opSig and method
 		update opSig {
-			EcoreUtil.remove(opSig)
+			EcoreUtil.^remove(opSig)
 		}
 	}
 }
@@ -184,7 +185,7 @@ routine removedFieldEvent(java::Field field) {
 			userInteractor.notificationDialogBuilder.message("Removed " + namedElement + " because the corresponding field " + field + " has been removed").
 				windowModality(WindowModality.MODAL).startInteraction;
 			// TODO This is wrong, isnt't it? Should be "namedElement"!?
-			EcoreUtil.remove(field)
+			EcoreUtil.^remove(field)
 		}
 	}
 }
@@ -303,7 +304,7 @@ routine changedMethodModifierEvent(java::Method method, java::AnnotationInstance
 				userInteractor.notificationDialogBuilder.message("Public method with correspondence has been made private. 
 					The corresponding operaitonSignature " + operationSignature.get.entityName + " will be deleted as well.").windowModality(WindowModality.MODAL).startInteraction;
 				correspondenceModel.removeCorrespondencesFor(Lists.newArrayList(operationSignature.get), null)
-				EcoreUtil.remove(operationSignature.get)
+				EcoreUtil.^remove(operationSignature.get)
 				return
 			}
 		}
