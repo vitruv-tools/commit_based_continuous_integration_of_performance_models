@@ -1,6 +1,8 @@
 package tools.vitruv.applications.pcmjava.reconstructionintegration.tests.traversal.test;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -15,11 +17,12 @@ import org.palladiosimulator.pcm.repository.Repository;
 import tools.vitruv.framework.change.description.VitruviusChangeFactory;
 import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.applications.pcmjava.reconstructionintegration.repository.RepositoryTraversalStrategy;
-import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
 import tools.vitruv.framework.change.description.VitruviusChange;
 import tools.vitruv.framework.userinteraction.UserInteractionFactory;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
 import tools.vitruv.testutils.util.TestUtil;
+import tools.vitruv.domains.java.JavaDomainProvider;
+import tools.vitruv.domains.pcm.PcmDomainProvider;
 import tools.vitruv.domains.pcm.util.RepositoryModelLoader;
 import tools.vitruv.extensions.constructionsimulation.traversal.ITraversalStrategy;
 
@@ -48,7 +51,9 @@ public class TraversalHandlerTest {
      */
     @Before
     public void setUpTest() throws Exception {
-        final Iterable<VitruvDomain> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
+        List<VitruvDomain> metamodels = new ArrayList<VitruvDomain>();
+        metamodels.add(new PcmDomainProvider().getDomain());
+        metamodels.add(new JavaDomainProvider().getDomain());
         this.vsum = TestUtil.createVirtualModel("testvsum", true, metamodels, Collections.emptyList(), UserInteractionFactory.instance.createDialogUserInteractor());
         this.resourceSet = new ResourceSetImpl();
     }

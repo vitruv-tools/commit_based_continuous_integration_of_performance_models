@@ -1,6 +1,8 @@
 package tools.vitruv.applications.pcmjava.reconstructionintegration.transformations;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -8,7 +10,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaProject;
 
-import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
+import tools.vitruv.domains.java.JavaDomainProvider;
+import tools.vitruv.domains.pcm.PcmDomainProvider;
 import tools.vitruv.extensions.constructionsimulation.handler.IntegrationHandler;
 import tools.vitruv.extensions.constructionsimulation.util.IntegrationUtil;
 import tools.vitruv.framework.domains.VitruvDomain;
@@ -54,7 +57,10 @@ public class JavaIntegrationHandler extends IntegrationHandler<IJavaProject> {
             throw new IllegalArgumentException("Run SoMoX first!");
         }
 
-        final Iterable<VitruvDomain> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
+        List<VitruvDomain> metamodels = new ArrayList<VitruvDomain>();
+        metamodels.add(new PcmDomainProvider().getDomain());
+        metamodels.add(new JavaDomainProvider().getDomain());
+        
         final InternalVirtualModel vsum = IntegrationUtil.createVsum(metamodels);
 //        vsum.getOrCreateAllCorrespondenceModelsForMM(
 //                metaRepository.getMetamodel(VURI.getInstance(PcmNamespace.PCM_METAMODEL_NAMESPACE)));

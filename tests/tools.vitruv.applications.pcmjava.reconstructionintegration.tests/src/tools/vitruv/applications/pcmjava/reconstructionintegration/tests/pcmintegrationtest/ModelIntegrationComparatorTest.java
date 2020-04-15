@@ -3,6 +3,7 @@ package tools.vitruv.applications.pcmjava.reconstructionintegration.tests.pcmint
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -26,10 +27,12 @@ import edu.kit.ipd.sdq.commons.util.org.eclipse.emf.common.util.URIUtil;
 import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantcheckers.PcmRepositoryExtractor;
 import tools.vitruv.applications.pcmjava.reconstructionintegration.strategies.PcmRepositoryIntegrationStrategy;
 import tools.vitruv.applications.pcmjava.reconstructionintegration.util.PcmMetaModelConverter;
-import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
+import tools.vitruv.domains.java.JavaDomainProvider;
+import tools.vitruv.domains.pcm.PcmDomainProvider;
 import tools.vitruv.extensions.constructionsimulation.traversal.util.UnorderedReferencesRespectingEqualityHelper;
 import tools.vitruv.extensions.constructionsimulation.util.IntegrationUtil;
 import tools.vitruv.framework.change.description.VitruviusChange;
+import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.framework.vsum.VirtualModel;
 
 /**
@@ -106,8 +109,12 @@ public class ModelIntegrationComparatorTest {
         resource = this.updateParameterDef(resource, uri);
         final PcmRepositoryIntegrationStrategy integrator = new PcmRepositoryIntegrationStrategy();
         // TODO This vsum has no change transformers, we have to add the correct ones!
-        VirtualModel vsum = IntegrationUtil.createVsum(PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels());
-
+        
+        List<VitruvDomain> metamodels = new ArrayList<VitruvDomain>();
+        metamodels.add(new PcmDomainProvider().getDomain());
+        metamodels.add(new JavaDomainProvider().getDomain());
+        VirtualModel vsum = IntegrationUtil.createVsum(metamodels);
+        
         List<VitruviusChange> changes = null;
 
         try {

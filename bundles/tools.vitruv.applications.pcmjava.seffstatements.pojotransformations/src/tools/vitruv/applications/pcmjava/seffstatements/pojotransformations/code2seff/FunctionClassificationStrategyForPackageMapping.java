@@ -11,7 +11,7 @@ import org.somox.gast2seff.visitors.AbstractFunctionClassificationStrategy;
 import org.somox.gast2seff.visitors.MethodCallFinder;
 
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
-import tools.vitruv.applications.pcmjava.util.java2pcm.Java2PcmUtils;
+import tools.vitruv.applications.util.temporary.other.UriUtil;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
 
@@ -44,7 +44,7 @@ public class FunctionClassificationStrategyForPackageMapping extends AbstractFun
      */
     @Override
     protected boolean isExternalCall(final Method method) {
-        if (!Java2PcmUtils.normalizeURI(method)) {
+        if (!UriUtil.normalizeURI(method)) {
             logger.info("Could not normalize URI for method " + method
                     + ". Method call is not considered as as external call");
             return false;
