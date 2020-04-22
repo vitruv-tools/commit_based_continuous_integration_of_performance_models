@@ -1,4 +1,4 @@
-package tools.vitruv.applications.javapcm.integrationFromGit;
+package tools.vitruv.applications.pcmjava.integrationFromGit;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -83,6 +83,15 @@ public class GitRepository {
 		this.rootDirectory = rootDirectory;
 		this.git = Git.cloneRepository()
 		  .setURI(uriToRemoteRepository)
+		  .setDirectory(rootDirectory)
+		  .call();
+	}
+	
+	
+	public GitRepository(File rootDirectory, File localRepository) throws IllegalStateException, GitAPIException {
+		this.rootDirectory = rootDirectory;
+		this.git = Git.cloneRepository()
+		  .setGitDir(localRepository)
 		  .setDirectory(rootDirectory)
 		  .call();
 	}

@@ -4,8 +4,7 @@ Bundle-Name: IntegrationFromGit
 Bundle-SymbolicName: tools.vitruv.applications.pcmjava.integrationFromGit
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: tools.vitruv.applications.javapcm.integrationFromGit
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8,
- JavaSE-12
+Bundle-RequiredExecutionEnvironment: JavaSE-12
 Require-Bundle: org.apache.log4j,
  org.eclipse.core.resources,
  org.eclipse.equinox.registry,
@@ -16,3 +15,4 @@ Require-Bundle: org.apache.log4j,
  tools.vitruv.applications.pcmjava.tests.util,
  tools.vitruv.framework.util,
  tools.vitruv.framework.vsum
+Export-Package: tools.vitruv.applications.pcmjava.integrationFromGit

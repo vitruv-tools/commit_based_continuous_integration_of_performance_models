@@ -1,4 +1,4 @@
-package tools.vitruv.applications.javapcm.integrationFromGit;
+package tools.vitruv.applications.pcmjava.integrationFromGit;
 
 
 import java.util.ArrayList;
