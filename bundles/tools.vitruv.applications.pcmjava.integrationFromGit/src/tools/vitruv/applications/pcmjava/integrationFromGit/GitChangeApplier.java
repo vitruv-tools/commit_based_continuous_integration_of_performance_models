@@ -72,13 +72,15 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 				fileContent = gitRepository.replaceAllLineDelimitersWithSystemLineDelimiters(fileContent);
 				//addNewElementToProject(currentProject, pathToAddedFile, fileContent);
 				createICompilationUnitFromPath(pathToAddedFile, fileContent, currentProject);
+				//waitForSynchronization(1);
 				break;
 			case COPY:
 				break;
 			case DELETE:
 				String nameOfDeletedFile = getNameOfFileFromPath(diff.getOldPath());
 				iCu = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName(nameOfDeletedFile, currentProject);
-				iCu.delete(true, null);
+				iCu.delete(true, null);			
+				//waitForSynchronization(1);		
 				break;
 			case MODIFY:
 				String nameOfChangedFile = getNameOfFileFromPath(diff.getOldPath());
@@ -90,6 +92,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 				String newContent = gitRepository.getNewContentOfFileFromDiffEntry(diff);
 				List<TextEdit> textEdits = gitRepository.transformEditListIntoTextEdits(editList, oldContent, newContent);
 				CompilationUnitManipulatorHelper.editCompilationUnit(iCu, this, textEdits.toArray(new TextEdit[textEdits.size()]));
+				//waitForSynchronization(1);
 				break;
 			case RENAME:
 				break;
