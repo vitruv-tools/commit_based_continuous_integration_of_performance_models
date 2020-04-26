@@ -1,12 +1,18 @@
 package tools.vitruv.applications.pcmjava.integrationFromGit;
 
 
+
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.File;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -47,11 +53,11 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 	 * @param oldCommit
 	 * @param newCommit
 	 * @param currentProject
-	 * @throws JavaModelException
+	 * @throws CoreException 
 	 */
-	public void applyChangesFromCommit(RevCommit oldCommit, RevCommit newCommit, IProject currentProject) throws JavaModelException {
+	public void applyChangesFromCommit(RevCommit oldCommit, RevCommit newCommit, IProject currentProject) throws CoreException {
 		
-		List<DiffEntry> diffs = gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, false, true);
+		List<DiffEntry> diffs = gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, true/*false*/, true);
 		
 		for (DiffEntry diff : diffs) {
 			
@@ -64,6 +70,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 				//JGit returns the content of files and uses within the content "\n" as line separator.
 				//Therefore, replace all occurrences of "\n" with the system line separator.
 				fileContent = gitRepository.replaceAllLineDelimitersWithSystemLineDelimiters(fileContent);
+				//addNewElementToProject(currentProject, pathToAddedFile, fileContent);
 				createICompilationUnitFromPath(pathToAddedFile, fileContent, currentProject);
 				break;
 			case COPY:
@@ -101,7 +108,35 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 	}
 	
 	
-	private ICompilationUnit createICompilationUnitFromPath(String pathToCompilationUnit, String content, IProject currentProject) throws JavaModelException {
+	/**
+	 * Create new element in the project. A new element can be either folder or file.
+	 * The pathToElement contains the path to the new element, but the other elements on the path
+	 * may not exist yet. Therefore they also will be created.
+	 * 
+	 * @param project
+	 * @param pathToElement
+	 * @param elementContent might be null
+	 * @throws CoreException 
+	 */
+	private void addNewElementToProject(IProject project, String pathToElement, String elementContent) throws CoreException {
+		Path tempPath = new Path(pathToElement);
+		String tempPathString = pathToElement.substring(pathToElement.indexOf("/") + 1);
+		(new File(tempPathString)).mkdirs();
+		//IFile file = project.getFile(tempPath);
+		IFile file = project.getFile(tempPathString);
+		file.create(new ByteArrayInputStream(elementContent.getBytes()), true, null);
+	
+	
+		final IJavaProject javaProject = JavaCore.create(project);
+		//Get rid of the project name
+		//
+		
+		
+		
+	}
+	
+	
+	private ICompilationUnit createICompilationUnitFromPath(String pathToCompilationUnit, String content, IProject currentProject) throws CoreException {
 		String iCompilationUnitName = getNameOfFileFromPath(pathToCompilationUnit) + ".java";
 		//Remove Compilation Unit name from path
 		String pathToIPackageFragment = pathToCompilationUnit.substring(0, pathToCompilationUnit.lastIndexOf("/"));
@@ -111,7 +146,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 	}
 	
 	
-	private IPackageFragment findIPackageFragmentFromPath(final String pathToIPackageFragment, IProject currentProject) throws JavaModelException {
+	private IPackageFragment findIPackageFragmentFromPath(final String pathToIPackageFragment, IProject currentProject) throws CoreException {
 		//For Testing
 		//******
 		List<String> packageFragmentsNames = new ArrayList<>();
@@ -133,8 +168,18 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 				}
 			}
 		}
-
-		throw new RuntimeException("Could not find a IPackageFragment with path " + pathToIPackageFragment);
+		//If the package fragment does not exist, create a new one
+		String tempPath = pathToIPackageFragment.substring(pathToIPackageFragment.indexOf("/") + 1);
+		tempPath = tempPath.substring(tempPath.indexOf("/") + 1);
+		//IFolder newPackage = currentProject.getFolder(tempPath);
+		IFolder srcFolder = currentProject.getFolder("src");
+		//newPackage.create(true, true, null);
+		IPackageFragmentRoot fragmentRoot = javaProject.getPackageFragmentRoot(srcFolder);//findPackageFragmentRoot(new Path(tempPath));/*getPackageFragmentRoot(newPackage)*/;
+		String pathDotted = tempPath.replace("/", ".");//StringUtils.join(tempPath, ".");
+		return fragmentRoot.createPackageFragment(pathDotted, true, null);
+		//fragmentRoot.createPackageFragment(, true, null);
+	
+		//throw new RuntimeException("Could not find a IPackageFragment with path " + pathToIPackageFragment);
 	}
 	
 	

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ASCII"?>
+<system:System xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:composition="http://palladiosimulator.org/PalladioComponentModel/Core/Composition/5.2" xmlns:repository="http://palladiosimulator.org/PalladioComponentModel/Repository/5.2" xmlns:system="http://palladiosimulator.org/PalladioComponentModel/System/5.2" id="_AzpksIYiEeqmXZUSUMKRFw" entityName="SoMoX Reverse Engineered System">
+  <assemblyContexts__ComposedStructure id="_A0uiwIYiEeqmXZUSUMKRFw" entityName=" &lt;PC No. 0 human.humanBeing.human.Human.java.Human>">
+    <encapsulatedComponent__AssemblyContext xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_Az-74IYiEeqmXZUSUMKRFw"/>
+  </assemblyContexts__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_A0xmEIYiEeqmXZUSUMKRFw" entityName="IHuman.java.Human" outerProvidedRole_ProvidedDelegationConnector="_A0vJ0YYiEeqmXZUSUMKRFw" assemblyContext_ProvidedDelegationConnector="_A0uiwIYiEeqmXZUSUMKRFw">
+    <innerProvidedRole_ProvidedDelegationConnector href="internal_architecture_model.repository#_A0OMcIYiEeqmXZUSUMKRFw"/>
+  </connectors__ComposedStructure>
+  <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_A0vJ0YYiEeqmXZUSUMKRFw" entityName="Human 0 (prov)(sys)">
+    <providedInterface__OperationProvidedRole href="internal_architecture_model.repository#_A0JT8IYiEeqmXZUSUMKRFw"/>
+  </providedRoles_InterfaceProvidingEntity>
+</system:System>

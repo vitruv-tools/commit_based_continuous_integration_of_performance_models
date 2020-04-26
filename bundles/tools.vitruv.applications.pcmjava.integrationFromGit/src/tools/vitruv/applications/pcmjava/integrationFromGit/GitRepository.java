@@ -132,6 +132,14 @@ public class GitRepository {
 	}
 
 
+	public List<RevCommit> getAllCommits() throws NoHeadException, GitAPIException, IOException {
+		Iterable<RevCommit> commits = git.log().all().call();
+		List<RevCommit> listOfCommits = new ArrayList<>();
+		commits.forEach(listOfCommits :: add);
+		return listOfCommits;
+	}
+	
+	
 	public void printDiffs(List<DiffEntry> diffs) {
 		if (diffs.isEmpty()) {
 			System.out.println("No diffs");

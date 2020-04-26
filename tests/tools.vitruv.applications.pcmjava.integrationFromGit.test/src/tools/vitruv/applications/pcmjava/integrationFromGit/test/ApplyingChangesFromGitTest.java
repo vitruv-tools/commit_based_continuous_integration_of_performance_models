@@ -8,34 +8,46 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+
 
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.eclipse.jgit.api.errors.*;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.wizards.JavaCapabilityConfigurationPage;
 import org.eclipse.ui.dialogs.IOverwriteQuery;
 import org.eclipse.ui.wizards.datatransfer.FileSystemStructureProvider;
 import org.eclipse.ui.wizards.datatransfer.ImportOperation;
-import org.eclipse.jgit.api.errors.GitAPIException;
 
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTest;
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.util.CodeIntegrationUtils;
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.util.DoneFlagProgressMonitor;
+import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.Java2PcmChangePropagationSpecification;
+import tools.vitruv.applications.pcmjava.tests.util.Java2PcmTransformationTest;
+import tools.vitruv.applications.pcmjava.integrationFromGit.GitChangeApplier;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitRepository;
 import tools.vitruv.domains.java.JavaDomainProvider;
 import tools.vitruv.domains.java.builder.VitruviusJavaBuilder;
@@ -50,12 +62,13 @@ import tools.vitruv.framework.userinteraction.UserInteractionFactory;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
 import tools.vitruv.framework.vsum.VirtualModelConfiguration;
 import tools.vitruv.framework.vsum.VirtualModelImpl;
+import tools.vitruv.testutils.util.TestUtil;
 
 /**
  * @author Ilia
  *
  */
-public class ApplyingChangesFromGitTest {
+public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicationTest*/{
 
 	
 	@SuppressWarnings("unused")
@@ -64,15 +77,21 @@ public class ApplyingChangesFromGitTest {
     private static final String META_PROJECT_NAME = "vitruvius.meta";
     
     private IProject testProject;
-    private String testProjectName;
-    private String testProjectPath = "testProjects/petersen/projectToApplyCommitsOn/eu.fpetersen.cbs.pc";
+    private String testProjectName = "testAddParameter_Fri_Apr_24_18_45_38_CEST_2020";   
+    								//"humanBeing"; 
+    								//"eu.fpetersen.cbs.pc";
+    private String testProjectPath = "testProjects/vitruvius/projectToApplyCommitsOn/testAddParameter_Fri_Apr_24_18_45_38_CEST_2020";
+    								//"testProjects/chupakhin/projectToApplyCommitsOn/humanBeing";
+    								//"testProjects/petersen/projectToApplyCommitsOn/eu.fpetersen.cbs.pc";
     
     private GitRepository gitRepository;
-    private String gitRepositoryPath = "testProjects/petersen/projectWithCommits";
+    private String gitRepositoryPath = "testProjects/vitruvius/projectWithCommits";
+    									//"testProjects/chupakhin/projectWithCommits";
+    									//"testProjects/petersen/projectWithCommits";
     private String clonedGitRepositoryPath = "temporaryGitRepository";
     
     private IWorkspace workspace;
-    private String workspacePath;
+    //private String workspacePath;
     private InternalVirtualModel virtualModel;
     
  
@@ -83,39 +102,95 @@ public class ApplyingChangesFromGitTest {
     @Before
     public void beforeTest() throws InvocationTargetException, InterruptedException, IOException, URISyntaxException, GitAPIException, CoreException {
         this.workspace = ResourcesPlugin.getWorkspace();
-        this.workspacePath = workspace.getRoot().getFullPath().makeAbsolute().toString();
-        this.testProjectName = "eu.fpetersen.cbs.pc";
-        //this.testBundleName = "tools.vitruv.applications.pcmjava.integrationFromGit.test";
-        //this.testSourceAndModelFolder = "C:/Users/Ilia/git/Petersen/eu.fpetersen.cbs.pc";
-        
+        //imporort test project into workspace
         importAndCopyProjectIntoWorkspace(workspace, testProjectName, testProjectPath);
+        //Import vsum into workspace
+        importAndCopyProjectIntoWorkspace(workspace, "testAddParameter_vsum__Fri_Apr_24_18_45_38_CEST_2020", "C:/Users/Ilia/Desktop/testAddParameter_vsum__Fri_Apr_24_18_45_38_CEST_2020");
+        
         IProject[] iProjects = this.workspace.getRoot().getProjects();
         IProject project = this.workspace.getRoot().getProject(this.testProjectName);
         
         assert project != null;
         this.testProject = project;
         
-        File clonedGitRepository = File.createTempFile("git_" + testProjectName, "", new File("testProjects/clonedGitRepositories"));
-        Files.delete(clonedGitRepository.toPath());
-        clonedGitRepository.deleteOnExit();
+        File clonedGitRepository = (new File(workspace.getRoot().getLocation().toFile(), "clonedGitRepositories"));
+        clonedGitRepository.mkdir();
+        clonedGitRepository.createNewFile();
         
-        //Compute the absolute path to the origin git repository to clone
-        String pathToOriginGitRepository = (new Path(clonedGitRepository.getAbsolutePath())).removeLastSegments(3).toString() + "/" + gitRepositoryPath;
-       
+        File originGitRepository = new File(gitRepositoryPath);
         
         
-        gitRepository = new GitRepository(clonedGitRepository, pathToOriginGitRepository/*"C:/Users/Ilia/eclipse-workspace-2020-03_createdAt_20-04-2020/tools.vitruv.applications.pcmjava.integrationFromGit.test/testProjects/petersen/projectWithCommits"*/);
-        
-        //gitRepository = new GitRepository(new File(workspacePath + "myTemporaryGitRepository"), "C:/Users/Ilia/eclipse-workspace-2020-03_createdAt_20-04-2020/tools.vitruv.applications.pcmjava.integrationFromGit.test/testProjects/petersen/projectWithCommits");
-        
-        //gitRepository = new GitRepository(new File("C:/Users/Ilia/myTemporaryGitRepository"), new File("C:/Users/Ilia/eclipse-workspace-2020-03_createdAt_20-04-2020/tools.vitruv.applications.pcmjava.integrationFromGit.test/testProjects/petersen/projectWithCommits/.git"/*gitRepositoryPath + "/.git"*/));
-        System.out.println("");
-       //TODO: integrate test project in Vitruv
-      //CodeIntegrationUtils.integratProject(project);
+        gitRepository = new GitRepository(clonedGitRepository, originGitRepository.getAbsolutePath());
+  
+        //TODO: activate the following line
+        //Integrate test project in Vitruv
+        //CodeIntegrationUtils.integratProject(project);
         
     }
     
     
+	@Ignore @Test
+	public void testApplyFirstCommit() throws NoHeadException, GitAPIException, IOException, CoreException {
+		GitChangeApplier changeApplier = new GitChangeApplier(gitRepository);
+		List<RevCommit> commits = gitRepository.getAllCommits();
+		changeApplier.applyChangesFromCommit(commits.get(1), commits.get(0), testProject);
+		System.out.println("dummy line");
+	}
+    
+	
+	//Copied from linkingintegration.tests 	
+	@Test
+    public void testStandardCodeIntegration() throws Throwable {
+
+        final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+        //TODO: change back the line
+        final File metaProject = new File("C:/Users/Ilia/Desktop/testAddParameter_vsum__Fri_Apr_24_18_45_38_CEST_2020");
+        						//new File(workspace.getRoot().getLocation().toFile(), META_PROJECT_NAME);
+        DoneFlagProgressMonitor progress = new DoneFlagProgressMonitor();
+        Assert.assertNotNull(metaProject);
+
+        final File corrFolder = new File(metaProject, "correspondence");
+        Assert.assertNotNull(corrFolder);
+        final File correspondenceFile = new File(corrFolder, "Correspondences.correspondence");
+        Assert.assertNotNull(correspondenceFile);
+        
+        final File vsumFolder = new File(metaProject, "vsum");
+        Assert.assertNotNull(vsumFolder);
+
+        VirtualModelConfiguration config = new VirtualModelConfiguration();
+        List<VitruvDomain> metamodels = new ArrayList<VitruvDomain>();
+        metamodels.add(new PcmDomainProvider().getDomain());
+        metamodels.add(new JavaDomainProvider().getDomain());
+        
+        for (VitruvDomain metamodel : metamodels) {
+        	config.addMetamodel(metamodel);
+        }
+        File vsumFile = new File(workspace.getRoot().getLocation().toFile(), META_PROJECT_NAME);
+		
+        //alternative method to connect Vitruv with the project
+        //TestUtil.createVirtualModel(vsumFile, false, metamodels, Collections.singletonList(new Java2PcmChangePropagationSpecification()), UserInteractionFactory.instance.createDialogUserInteractor());
+        
+        virtualModel = new VirtualModelImpl(/*vsumFile*/metaProject, UserInteractionFactory.instance.createDialogUserInteractor(), config);
+        
+        
+        // add PCM Java Builder to Project under test
+        final VitruviusJavaBuilderApplicator pcmJavaBuilder = new VitruviusJavaBuilderApplicator();
+        pcmJavaBuilder.addToProject(this.testProject, vsumFile, Collections.singletonList(PcmNamespace.REPOSITORY_FILE_EXTENSION));
+        // build the project
+        progress = new DoneFlagProgressMonitor();
+        this.testProject.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, VitruviusJavaBuilder.BUILDER_ID,
+                new HashMap<String, String>(), progress);
+        /*
+        while (!progress.isDone()) {
+            Thread.sleep(100);
+        }
+         */
+        testApplyFirstCommit();
+        //this.assertStandardCodeIntegrationTest();
+
+    }
+	
+	
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -145,10 +220,7 @@ public class ApplyingChangesFromGitTest {
 	public void tearDown() throws Exception {
 	}
 
-	@Test
-	public void test() {
-		fail("Not yet implemented");
-	}
+
 	
 	
 	 public static void importAndCopyProjectIntoWorkspace(IWorkspace workspace, String projectName, String projectPath

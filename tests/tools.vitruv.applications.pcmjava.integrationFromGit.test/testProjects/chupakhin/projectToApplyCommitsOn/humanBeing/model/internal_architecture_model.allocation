@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ASCII"?>
+<allocation:Allocation xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:allocation="http://palladiosimulator.org/PalladioComponentModel/Allocation/5.2" id="_AzudMIYiEeqmXZUSUMKRFw" entityName="SoMoX Reverse Engineered Allocation Model">
+  <targetResourceEnvironment_Allocation href="internal_architecture_model.resourceenvironment#/"/>
+  <system_Allocation href="internal_architecture_model.system#_AzpksIYiEeqmXZUSUMKRFw"/>
+  <allocationContexts_Allocation id="_A0vJ0IYiEeqmXZUSUMKRFw" entityName=" &lt;PC No. 0 human.humanBeing.human.Human.java.Human>">
+    <resourceContainer_AllocationContext href="internal_architecture_model.resourceenvironment#_A0c18IYiEeqmXZUSUMKRFw"/>
+    <assemblyContext_AllocationContext href="internal_architecture_model.system#_A0uiwIYiEeqmXZUSUMKRFw"/>
+  </allocationContexts_Allocation>
+</allocation:Allocation>
