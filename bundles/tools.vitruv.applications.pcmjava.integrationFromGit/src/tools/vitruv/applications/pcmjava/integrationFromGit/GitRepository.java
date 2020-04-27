@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -304,6 +305,42 @@ public class GitRepository {
 		try {
 			loader = git.getRepository().open(newObjectId);
 			newContent = new String(loader.getBytes());
+		} catch (MissingObjectException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return newContent;
+	}
+	
+	
+	public OutputStream getOldContentOfFileFromDiffEntryInOutputStream(DiffEntry diff) {
+		ObjectId oldObjectId = diff.getOldId().toObjectId();
+        ObjectLoader loader;
+        OutputStream oldContent = new ByteArrayOutputStream();
+		try {
+			loader = git.getRepository().open(oldObjectId);
+			loader.copyTo(oldContent);
+		} catch (MissingObjectException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return oldContent;
+	}
+	
+	
+	public OutputStream getNewContentOfFileFromDiffEntryInOutputStream(DiffEntry diff) {
+		ObjectId newObjectId = diff.getNewId().toObjectId();
+        ObjectLoader loader;
+        OutputStream newContent =  new ByteArrayOutputStream();
+		try {
+			loader = git.getRepository().open(newObjectId);
+			loader.copyTo(newContent);
 		} catch (MissingObjectException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

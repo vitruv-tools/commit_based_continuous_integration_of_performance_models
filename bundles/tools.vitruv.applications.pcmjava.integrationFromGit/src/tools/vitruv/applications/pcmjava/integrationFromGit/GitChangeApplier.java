@@ -3,9 +3,11 @@ package tools.vitruv.applications.pcmjava.integrationFromGit;
 
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.File;
+import java.io.OutputStream;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -57,7 +59,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 	 */
 	public void applyChangesFromCommit(RevCommit oldCommit, RevCommit newCommit, IProject currentProject) throws CoreException {
 		
-		List<DiffEntry> diffs = gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, true/*false*/, true);
+		List<DiffEntry> diffs = gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, /*true*/false, true);
 		
 		for (DiffEntry diff : diffs) {
 			
@@ -67,11 +69,13 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 			case ADD:
 				String pathToAddedFile = diff.getNewPath();
 				String fileContent = gitRepository.getNewContentOfFileFromDiffEntry(diff);
+				
 				//JGit returns the content of files and uses within the content "\n" as line separator.
 				//Therefore, replace all occurrences of "\n" with the system line separator.
 				fileContent = gitRepository.replaceAllLineDelimitersWithSystemLineDelimiters(fileContent);
-				//addNewElementToProject(currentProject, pathToAddedFile, fileContent);
-				createICompilationUnitFromPath(pathToAddedFile, fileContent, currentProject);
+				
+				addElementToProject(currentProject, pathToAddedFile, fileContent);
+				//createICompilationUnitFromPath(pathToAddedFile, fileContent, currentProject);
 				//waitForSynchronization(1);
 				break;
 			case COPY:
@@ -83,15 +87,13 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 				//waitForSynchronization(1);		
 				break;
 			case MODIFY:
-				String nameOfChangedFile = getNameOfFileFromPath(diff.getOldPath());
-				iCu = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName(nameOfChangedFile, currentProject);
-				//EditList from JGit Bib
-				EditList editList = gitRepository.computeEditListFromDiffEntry(diff);
-				//TextEdit from Eclipse text.edits
-				String oldContent = gitRepository.getOldContentOfFileFromDiffEntry(diff);
-				String newContent = gitRepository.getNewContentOfFileFromDiffEntry(diff);
-				List<TextEdit> textEdits = gitRepository.transformEditListIntoTextEdits(editList, oldContent, newContent);
-				CompilationUnitManipulatorHelper.editCompilationUnit(iCu, this, textEdits.toArray(new TextEdit[textEdits.size()]));
+					OutputStream oldElementContent = gitRepository.getOldContentOfFileFromDiffEntryInOutputStream(diff);
+					OutputStream newElementContent = gitRepository.getNewContentOfFileFromDiffEntryInOutputStream(diff);
+					String oldElementPath = diff.getOldPath();
+					String newElementPath = diff.getNewPath();
+					EditList editList = gitRepository.computeEditListFromDiffEntry(diff);
+					modifyElementInProject(currentProject, oldElementContent, newElementContent,
+							oldElementPath, newElementPath, editList);
 				//waitForSynchronization(1);
 				break;
 			case RENAME:
@@ -111,6 +113,45 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 	}
 	
 	
+
+	/**
+	 * @param project
+	 * @param oldElementContent
+	 * @param newElementContent
+	 * @param oldElementPath
+	 * @param newElementPath
+	 * @param editList 
+	 * @throws CoreException 
+	 */
+	private void modifyElementInProject(IProject project,
+			OutputStream oldElementContent, OutputStream newElementContent, 
+			String oldElementPath, String newElementPath,
+			EditList editList) throws CoreException {
+		
+		//Check if the modified file is a java file
+		if ((new Path(oldElementPath).getFileExtension().equals("java")))  {
+			String nameOfChangedFile = getNameOfFileFromPath(oldElementPath);
+			ICompilationUnit iCu = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName(nameOfChangedFile, project);
+			//EditList from JGit Bib
+			//TextEdit from Eclipse text.edits
+			String oldContent = oldElementContent.toString();
+					            //new String(((ByteArrayOutputStream) oldElementContent).toByteArray());
+			String newContent = newElementContent.toString();
+            //new String(((ByteArrayOutputStream) newElementContent).toByteArray());
+			List<TextEdit> textEdits = gitRepository.transformEditListIntoTextEdits(editList, oldContent, newContent);
+			CompilationUnitManipulatorHelper.editCompilationUnit(iCu, this, textEdits.toArray(new TextEdit[textEdits.size()]));
+		}
+		else {
+			IFile file = project.getFile(oldElementPath.substring(oldElementPath.indexOf("/") + 1));
+			ByteArrayInputStream inputStream = new ByteArrayInputStream(((ByteArrayOutputStream) newElementContent).toByteArray());
+			file.setContents(inputStream, IFile.FORCE, null);
+			
+		}
+		
+
+	}
+	
+	
 	/**
 	 * Create new element in the project. A new element can be either folder or file.
 	 * The pathToElement contains the path to the new element, but the other elements on the path
@@ -121,23 +162,106 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 	 * @param elementContent might be null
 	 * @throws CoreException 
 	 */
-	private void addNewElementToProject(IProject project, String pathToElement, String elementContent) throws CoreException {
-		Path tempPath = new Path(pathToElement);
-		String tempPathString = pathToElement.substring(pathToElement.indexOf("/") + 1);
-		(new File(tempPathString)).mkdirs();
-		//IFile file = project.getFile(tempPath);
-		IFile file = project.getFile(tempPathString);
-		file.create(new ByteArrayInputStream(elementContent.getBytes()), true, null);
-	
-	
-		final IJavaProject javaProject = JavaCore.create(project);
-		//Get rid of the project name
-		//
+	private void addElementToProject(IProject project, String pathToElement, String elementContent) throws CoreException {
 		
+		IPath tempPath = new Path(pathToElement);
+		//Get rid of the project name in the path
+		tempPath = tempPath.removeFirstSegments(1);
 		
+		String[] segments = tempPath.segments();
+		
+		if (segments.length == 0) {
+			System.out.println("Path: " + pathToElement + " is not valid");
+			return;
+		}
+		
+		int segmentCounter = 0;
+		String firstSegment = tempPath.segment(0);
+		String lastSegment = tempPath.lastSegment();
+		String fileExtension = tempPath.getFileExtension();
+		
+		IJavaProject javaProject;
+		IPackageFragmentRoot packageFragmentRoot;
+		IPackageFragment packageFragment;
+		//ICompilationUnit compilationUnit;
+		
+		//Check if we need to handle IJavaProject
+		//For more details, what a java project in JDT looks like, see https://www.vogella.com/tutorials/EclipseJDT/article.html
+		if (firstSegment.equals("src") || firstSegment.equals("bin") 
+				|| fileExtension.equals("jar") || fileExtension.equals("zip")) {
+			
+			javaProject = JavaCore.create(project);
+			
+			if (segments.length == 2) {
+				IFile file = project.getFile(tempPath.toString());
+				file.create(new ByteArrayInputStream(elementContent.getBytes()), true, null);
+			}
+			else {
+				//Check if the PackageFragmentRoot exists. If not, create it
+				IFolder packageFragmentRootFolder = project.getFolder(tempPath.segment(0));
+				if (!packageFragmentRootFolder.exists()) {
+					packageFragmentRootFolder.create(true, true, null);
+				}
+				packageFragmentRoot = javaProject.getPackageFragmentRoot(packageFragmentRootFolder);
+				String packageFragmentName = tempPath.removeFirstSegments(1).removeLastSegments(1).toString();
+				
+				
+				packageFragment = packageFragmentRoot.getPackageFragment(packageFragmentName);
+				
+				if (!packageFragment.exists()) {
+					packageFragment = packageFragmentRoot.createPackageFragment(packageFragmentName.replace("/", "."), true, null);
+				}
+				
+				if (fileExtension.equals("java")) {
+					packageFragment.createCompilationUnit(lastSegment, elementContent, true, null);
+				}
+				else {
+					IFile file = project.getFile(tempPath.toString());
+					file.create(new ByteArrayInputStream(elementContent.getBytes()), true, null);
+				}		
+			}
+			
+		}
+		//We have to only handle IProject
+		else {
+			//String tempPathString = pathToElement.substring(pathToElement.indexOf("/") + 1);
+			(new File(tempPath.toString())).mkdirs();
+			//IFile file = project.getFile(tempPath);
+			IFile file = project.getFile(tempPath.toString());
+			file.create(new ByteArrayInputStream(elementContent.getBytes()), true, null);
+		}
 		
 	}
 	
+	
+	private void createJavaFile(String name, String content, IPackageFragment packageFragment) {
+		
+	}
+	
+	
+	private void createNotJavaFile(String name, String content, IPackageFragment packageFragment) {
+		
+	}
+	
+	
+	private IPackageFragmentRoot createPackageFragmentRoot(IProject project, String path) {
+		return null;
+	}
+	
+	
+	private IPackageFragment createPackageFragment(IProject project, String path) {
+		return null;
+	}
+	
+	
+	private void deleteElementFromProject(IProject project, String pathToElement) {
+		//TODO
+	}
+	
+	
+	private void modifyElementInProject(IProject project, String pathToElement, String elementNewContent) {
+		//TODO
+	}
 	
 	private ICompilationUnit createICompilationUnitFromPath(String pathToCompilationUnit, String content, IProject currentProject) throws CoreException {
 		String iCompilationUnitName = getNameOfFileFromPath(pathToCompilationUnit) + ".java";

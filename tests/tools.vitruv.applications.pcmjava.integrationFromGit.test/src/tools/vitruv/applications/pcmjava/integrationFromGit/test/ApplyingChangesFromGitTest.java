@@ -136,7 +136,7 @@ public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicatio
 		List<RevCommit> commits = gitRepository.getAllCommits();
 		
 		for (int i = commits.size() - 1; i > 0; i--) {
-			changeApplier.applyChangesFromCommit(commits.get(/*i*/1), commits.get(/*i - 1*/0), testProject);
+			changeApplier.applyChangesFromCommit(commits.get(i), commits.get(i - 1), testProject);
 		}
 		
 		System.out.println("dummy line");
@@ -172,37 +172,6 @@ public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicatio
         testApplyCommits();
     }
 	
-	
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
-	
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@After
-	public void tearDown() throws Exception {
-	}
-
-
 	
 	
 	 public static void importAndCopyProjectIntoWorkspace(IWorkspace workspace, String projectName, String projectPath
@@ -244,6 +213,37 @@ public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicatio
 	 }
 
 	 
+		
+		/**
+		 * @throws java.lang.Exception
+		 */
+		@BeforeClass
+		public static void setUpBeforeClass() throws Exception {
+		}
+
+		/**
+		 * @throws java.lang.Exception
+		 */
+		@AfterClass
+		public static void tearDownAfterClass() throws Exception {
+		}
+
+		/**
+		 * @throws java.lang.Exception
+		 */
+		@Before
+		public void setUp() throws Exception {
+		
+		}
+
+		/**
+		 * @throws java.lang.Exception
+		 */
+		@After
+		public void tearDown() throws Exception {
+		}
+
+
 	 
 
 }
