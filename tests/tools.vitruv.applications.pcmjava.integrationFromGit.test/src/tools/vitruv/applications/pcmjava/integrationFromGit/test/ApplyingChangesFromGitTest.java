@@ -42,6 +42,7 @@ import org.eclipse.jdt.ui.wizards.JavaCapabilityConfigurationPage;
 import org.eclipse.ui.dialogs.IOverwriteQuery;
 import org.eclipse.ui.wizards.datatransfer.FileSystemStructureProvider;
 import org.eclipse.ui.wizards.datatransfer.ImportOperation;
+import org.emftext.language.java.JavaClasspath;
 
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTest;
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.util.CodeIntegrationUtils;
@@ -59,6 +60,7 @@ import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.framework.correspondence.Correspondence;
 import tools.vitruv.framework.tuid.Tuid;
+import tools.vitruv.framework.ui.monitorededitor.ProjectBuildUtils;
 import tools.vitruv.framework.userinteraction.UserInteractionFactory;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
 import tools.vitruv.framework.vsum.VirtualModelConfiguration;
@@ -80,17 +82,24 @@ public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicatio
     
     private IProject testProject;
     private String testProjectName = //"testAddParameter_Fri_Apr_24_18_45_38_CEST_2020";   
-    								"humanBeing"; 
-    								//"eu.fpetersen.cbs.pc";
+    								//"humanBeing"; 
+    								"eu.fpetersen.cbs.pc";
+    								//"project";
+    								//"mediaStore";
     
     private String testProjectPath =//"testProjects/vitruvius/projectToApplyCommitsOn/testAddParameter_Fri_Apr_24_18_45_38_CEST_2020";
-    								"testProjects/chupakhin/projectToApplyCommitsOn/humanBeing";
-    								//"testProjects/petersen/projectToApplyCommitsOn/eu.fpetersen.cbs.pc";
-    
+    								//"testProjects/chupakhin/projectToApplyCommitsOn/humanBeing";
+    								"testProjects/petersen/projectToApplyCommitsOn/eu.fpetersen.cbs.pc";
+    								//"testProjects/mediastore/projectToApplyCommitsOn/project";
+									//"testProjects/myMediastore/projectToApplyCommitsOn/mediaStore";    
     private GitRepository gitRepository;
+    public GitChangeApplier changeApplier;
+    
     private String gitRepositoryPath = //"testProjects/vitruvius/projectWithCommits";
-    									"testProjects/chupakhin/projectWithCommits";
-    									//"testProjects/petersen/projectWithCommits";
+    								   //"testProjects/chupakhin/projectWithCommits";
+    									"testProjects/petersen/projectWithCommits";
+    									//"testProjects/mediastore/projectWithCommits";
+    									//"testProjects/myMediastore/projectWithCommits";
     private String clonedGitRepositoryPath = "temporaryGitRepository";
     
     private IWorkspace workspace;
@@ -105,6 +114,8 @@ public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicatio
         //imporort test project into workspace
         importAndCopyProjectIntoWorkspace(workspace, testProjectName, testProjectPath);
         //Import vsum into workspace
+        //TODO: disable
+        //importAndCopyProjectIntoWorkspace(workspace, "vitruvius.meta", "C:/Users/Ilia/git/Vitruv-Applications-PCMJavaAdditionals/tests/tools.vitruv.applications.pcmjava.integrationFromGit.test/testProjects/mediastore/vitruvius.meta");
         //importAndCopyProjectIntoWorkspace(workspace, "testAddParameter_vsum__Fri_Apr_24_18_45_38_CEST_2020", "C:/Users/Ilia/Desktop/testAddParameter_vsum__Fri_Apr_24_18_45_38_CEST_2020");
         
         IProject[] iProjects = this.workspace.getRoot().getProjects();
@@ -121,41 +132,43 @@ public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicatio
         
         
         gitRepository = new GitRepository(clonedGitRepository, originGitRepository.getAbsolutePath());
-
+        changeApplier = new GitChangeApplier(gitRepository);
         //Integrate test project in Vitruv
+        //TODO: Enable
         CodeIntegrationUtils.integratProject(project);
         
-    }
-    
-    
-	@Ignore @Test
-	public void testApplyCommits() throws NoHeadException, GitAPIException, IOException, CoreException {
-		CorrespondenceModel correspModel = virtualModel.getCorrespondenceModel();
-		List<Correspondence> correspondences = correspModel.getAllCorrespondences();
-		GitChangeApplier changeApplier = new GitChangeApplier(gitRepository);
-		List<RevCommit> commits = gitRepository.getAllCommits();
-		
-		for (int i = commits.size() - 1; i > 0; i--) {
-			changeApplier.applyChangesFromCommit(commits.get(i), commits.get(i - 1), testProject);
-		}
-		
-		System.out.println("dummy line");
-	}
-    
-	
-	
-	@Test
-    public void testStandardCodeIntegration() throws Throwable {
-
+        
         File vsumFolder = new File(workspace.getRoot().getLocation().toFile(), "vitruvius.meta"/*"testAddParameter_vsum__Fri_Apr_24_18_45_38_CEST_2020"*/);
-		    
+	    
         //two methods to connect Vitruv with the project
         //TestUtil.createVirtualModel(vsumFile, false, metamodels, Collections.singletonList(new Java2PcmChangePropagationSpecification()), UserInteractionFactory.instance.createDialogUserInteractor());
         //or:
+        //TODO: Disable
+        //start***************
+        /*
+        VirtualModelConfiguration config = new VirtualModelConfiguration();
+        List<VitruvDomain> metamodels = new ArrayList<VitruvDomain>();
+        metamodels.add(new PcmDomainProvider().getDomain());
+        metamodels.add(new JavaDomainProvider().getDomain());
+        
+        for (VitruvDomain metamodel : metamodels) {
+        	config.addMetamodel(metamodel);
+        }
+        
+        */
+        
         //virtualModel = new VirtualModelImpl(vsumFolder/*vsumFile*//*metaProject*/, UserInteractionFactory.instance.createDialogUserInteractor(), config);
+        
+        //end*******************
         
         VirtualModelManager virtualModelManager = VirtualModelManager.getInstance();
         virtualModel = virtualModelManager.getVirtualModel(vsumFolder);
+        virtualModel.addChangePropagationListener(changeApplier);
+    	
+        // This is necessary because otherwise Maven tests will fail as
+		// resources from previous
+		// tests are still in the classpath and accidentally resolved
+        JavaClasspath.reset();
         
         //DoneFlagProgressMonitor progress = new DoneFlagProgressMonitor();
         // add PCM Java Builder to Project under test
@@ -164,16 +177,46 @@ public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicatio
         // build the project
         this.testProject.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, VitruviusJavaBuilder.BUILDER_ID,
                 new HashMap<String, String>(), new NullProgressMonitor()/*progress*/);
+        //alternative method to build the project
+    	//ProjectBuildUtils.issueIncrementalBuild(testProject, VitruviusJavaBuilder.BUILDER_ID);
+        
+
+		// Pipe JaMoPP error output to null
+		java.lang.System.setErr(null);
+		
         /*
         while (!progress.isDone()) {
             Thread.sleep(100);
         }
          */
-        testApplyCommits();
     }
-	
-	
-	
+    
+    
+	@Test
+	public void testApplyCommits() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
+		CorrespondenceModel correspModel = virtualModel.getCorrespondenceModel();
+		List<Correspondence> correspondences = correspModel.getAllCorrespondences();
+		
+		List<RevCommit> commits = gitRepository.getAllCommits();
+		
+		//for (int i = commits.size() - 1; i > 0; i--) {
+			changeApplier.applyChangesFromCommit(commits.get(/*i*/1), commits.get(/*i - 1*/0), testProject);
+			//Thread.sleep(10000);
+		//}
+		
+		System.out.println("dummy line");
+		Thread.sleep(10000);
+		CorrespondenceModel corModel = virtualModel.getCorrespondenceModel();
+		
+	}
+    
+/*
+	public void afterTest() {
+		// Remove PCM Java Builder
+		final VitruviusJavaBuilderApplicator pcmJavaRemoveBuilder = new VitruviusJavaBuilderApplicator();
+		pcmJavaRemoveBuilder.removeBuilderFromProject(testProject);
+	}
+*/	
 	 public static void importAndCopyProjectIntoWorkspace(IWorkspace workspace, String projectName, String projectPath
 		 	/*String testBundleName, String testSourceAndModelFolder*/)
 	            throws IOException, URISyntaxException, InvocationTargetException, InterruptedException {

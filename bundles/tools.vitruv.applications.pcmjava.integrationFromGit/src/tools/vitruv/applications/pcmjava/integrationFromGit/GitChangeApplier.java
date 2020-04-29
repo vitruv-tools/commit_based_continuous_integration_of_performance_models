@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -35,8 +36,10 @@ import tools.vitruv.applications.pcmjava.tests.util.Java2PcmTransformationTest;
 import tools.vitruv.applications.pcmjava.tests.util.SynchronizationAwaitCallback;
 import tools.vitruv.framework.util.datatypes.VURI;
 import tools.vitruv.framework.vsum.VirtualModel;
+import tools.vitruv.framework.vsum.modelsynchronization.ChangePropagationAbortCause;
+import tools.vitruv.framework.vsum.modelsynchronization.ChangePropagationListener;
 
-public class GitChangeApplier implements SynchronizationAwaitCallback {
+public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePropagationListener {
 
 	private GitRepository gitRepository;
 	
@@ -56,8 +59,9 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 	 * @param newCommit
 	 * @param currentProject
 	 * @throws CoreException 
+	 * @throws InterruptedException 
 	 */
-	public void applyChangesFromCommit(RevCommit oldCommit, RevCommit newCommit, IProject currentProject) throws CoreException {
+	public void applyChangesFromCommit(RevCommit oldCommit, RevCommit newCommit, IProject currentProject) throws CoreException, InterruptedException {
 		
 		List<DiffEntry> diffs = gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, /*true*/false, true);
 		
@@ -77,6 +81,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 				addElementToProject(currentProject, pathToAddedFile, fileContent);
 				//createICompilationUnitFromPath(pathToAddedFile, fileContent, currentProject);
 				//waitForSynchronization(1);
+				//Thread.sleep(20000);
 				break;
 			case COPY:
 				break;
@@ -84,17 +89,19 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 				String nameOfDeletedFile = getNameOfFileFromPath(diff.getOldPath());
 				iCu = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName(nameOfDeletedFile, currentProject);
 				iCu.delete(true, null);			
-				//waitForSynchronization(1);		
+				//waitForSynchronization(1);
+				//Thread.sleep(20000);
 				break;
 			case MODIFY:
-					OutputStream oldElementContent = gitRepository.getOldContentOfFileFromDiffEntryInOutputStream(diff);
-					OutputStream newElementContent = gitRepository.getNewContentOfFileFromDiffEntryInOutputStream(diff);
-					String oldElementPath = diff.getOldPath();
-					String newElementPath = diff.getNewPath();
-					EditList editList = gitRepository.computeEditListFromDiffEntry(diff);
-					modifyElementInProject(currentProject, oldElementContent, newElementContent,
-							oldElementPath, newElementPath, editList);
-				//waitForSynchronization(1);
+				OutputStream oldElementContent = gitRepository.getOldContentOfFileFromDiffEntryInOutputStream(diff);
+				OutputStream newElementContent = gitRepository.getNewContentOfFileFromDiffEntryInOutputStream(diff);
+				String oldElementPath = diff.getOldPath();
+				String newElementPath = diff.getNewPath();
+				EditList editList = gitRepository.computeEditListFromDiffEntry(diff);
+				modifyElementInProject(currentProject, oldElementContent, newElementContent,
+						oldElementPath, newElementPath, editList);
+			//waitForSynchronization(1);
+				//Thread.sleep(20000);
 				break;
 			case RENAME:
 				break;
@@ -140,6 +147,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
             //new String(((ByteArrayOutputStream) newElementContent).toByteArray());
 			List<TextEdit> textEdits = gitRepository.transformEditListIntoTextEdits(editList, oldContent, newContent);
 			CompilationUnitManipulatorHelper.editCompilationUnit(iCu, this, textEdits.toArray(new TextEdit[textEdits.size()]));
+			//waitForSynchronization(1);
 		}
 		else {
 			IFile file = project.getFile(oldElementPath.substring(oldElementPath.indexOf("/") + 1));
@@ -194,13 +202,18 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 			
 			if (segments.length == 2) {
 				IFile file = project.getFile(tempPath.toString());
-				file.create(new ByteArrayInputStream(elementContent.getBytes()), true, null);
+				file.create(new ByteArrayInputStream(elementContent.getBytes()), true, new NullProgressMonitor());
 			}
 			else {
 				//Check if the PackageFragmentRoot exists. If not, create it
 				IFolder packageFragmentRootFolder = project.getFolder(tempPath.segment(0));
 				if (!packageFragmentRootFolder.exists()) {
-					packageFragmentRootFolder.create(true, true, null);
+					packageFragmentRootFolder.create(false/*true*/, true, new NullProgressMonitor());
+					
+					
+					//waitForSynchronization(1);
+					
+					
 				}
 				packageFragmentRoot = javaProject.getPackageFragmentRoot(packageFragmentRootFolder);
 				String packageFragmentName = tempPath.removeFirstSegments(1).removeLastSegments(1).toString();
@@ -209,15 +222,26 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 				packageFragment = packageFragmentRoot.getPackageFragment(packageFragmentName);
 				
 				if (!packageFragment.exists()) {
-					packageFragment = packageFragmentRoot.createPackageFragment(packageFragmentName.replace("/", "."), true, null);
+					packageFragment = packageFragmentRoot.createPackageFragment(packageFragmentName.replace("/", "."), false /*true*/, new NullProgressMonitor());
+					
+					//packageFragment.makeConsistent(new NullProgressMonitor());
+					
+					//waitForSynchronization(1);
+					
+				
 				}
 				
 				if (fileExtension.equals("java")) {
-					packageFragment.createCompilationUnit(lastSegment, elementContent, true, null);
+					packageFragment.createCompilationUnit(lastSegment, elementContent, true, new NullProgressMonitor());
+					
+					
+					//waitForSynchronization(1);
+					
+					
 				}
 				else {
 					IFile file = project.getFile(tempPath.toString());
-					file.create(new ByteArrayInputStream(elementContent.getBytes()), true, null);
+					file.create(new ByteArrayInputStream(elementContent.getBytes()), true, new NullProgressMonitor());
 				}		
 			}
 			
@@ -228,9 +252,10 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 			(new File(tempPath.toString())).mkdirs();
 			//IFile file = project.getFile(tempPath);
 			IFile file = project.getFile(tempPath.toString());
-			file.create(new ByteArrayInputStream(elementContent.getBytes()), true, null);
+			file.create(new ByteArrayInputStream(elementContent.getBytes()), true, new NullProgressMonitor());
 		}
 		
+
 	}
 	
 	
@@ -333,5 +358,29 @@ public class GitChangeApplier implements SynchronizationAwaitCallback {
 			logger.debug("Finished waiting for synchronization");
 		}
 	}
+	
+	
+	@Override
+	public synchronized void startedChangePropagation() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
+	@Override
+	public synchronized void finishedChangePropagation() {
+		expectedNumberOfSyncs--;
+		logger.debug("Reducing number of expected syncs to: " + expectedNumberOfSyncs);
+		this.notifyAll();
+	}
+
+	
+	@Override
+	public synchronized void abortedChangePropagation(ChangePropagationAbortCause cause) {
+		expectedNumberOfSyncs--;
+		logger.debug("Reducing number of expected syncs to: " + expectedNumberOfSyncs);
+		this.notifyAll();
+	}
+
 	
 }

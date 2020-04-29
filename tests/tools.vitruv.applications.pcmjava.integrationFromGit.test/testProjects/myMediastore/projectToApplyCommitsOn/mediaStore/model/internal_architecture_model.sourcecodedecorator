@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ASCII"?>
+<sourcecodedecorator:SourceCodeDecoratorRepository xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:classifiers="http://www.emftext.org/java/classifiers" xmlns:repository="http://palladiosimulator.org/PalladioComponentModel/Repository/5.2" xmlns:sourcecodedecorator="http://somox.org/SourceCodeDecorator/2.0">
+  <fileLevelSourceCodeLink>
+    <repositoryComponent xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_pf_bMIn2EeqxMoqbH8nCNw"/>
+    <file href="../src/mediaStore/WebGUI/WebGUIImpl.java#/"/>
+  </fileLevelSourceCodeLink>
+  <fileLevelSourceCodeLink>
+    <repositoryComponent xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_pgNdoIn2EeqxMoqbH8nCNw"/>
+    <file href="../src/mediaStore/MediaStore/MediaStoreImpl.java#/"/>
+  </fileLevelSourceCodeLink>
+  <interfaceSourceCodeLink>
+    <interface xsi:type="repository:OperationInterface" href="internal_architecture_model.repository#_pgE6wIn2EeqxMoqbH8nCNw"/>
+    <gastClass xsi:type="classifiers:Interface" href="../src/mediaStore/contracts/IMediaStore.java#//@classifiers.0"/>
+  </interfaceSourceCodeLink>
+  <interfaceSourceCodeLink>
+    <interface xsi:type="repository:OperationInterface" href="internal_architecture_model.repository#_pgGv8In2EeqxMoqbH8nCNw"/>
+    <gastClass xsi:type="classifiers:Interface" href="../src/mediaStore/contracts/IWebGUI.java#//@classifiers.0"/>
+  </interfaceSourceCodeLink>
+  <interfaceSourceCodeLink>
+    <interface xsi:type="repository:OperationInterface" href="internal_architecture_model.repository#_pgE6wIn2EeqxMoqbH8nCNw"/>
+    <gastClass xsi:type="classifiers:Interface" href="../src/mediaStore/contracts/IMediaStore.java#//@classifiers.0"/>
+  </interfaceSourceCodeLink>
+  <interfaceSourceCodeLink>
+    <interface xsi:type="repository:OperationInterface" href="internal_architecture_model.repository#_pgGv8In2EeqxMoqbH8nCNw"/>
+    <gastClass xsi:type="classifiers:Interface" href="../src/mediaStore/contracts/IWebGUI.java#//@classifiers.0"/>
+  </interfaceSourceCodeLink>
+  <interfaceSourceCodeLink>
+    <interface xsi:type="repository:OperationInterface" href="internal_architecture_model.repository#_pgE6wIn2EeqxMoqbH8nCNw"/>
+    <gastClass xsi:type="classifiers:Interface" href="../src/mediaStore/contracts/IMediaStore.java#//@classifiers.0"/>
+  </interfaceSourceCodeLink>
+  <componentImplementingClassesLink providedInterfaces="//@interfaceSourceCodeLink.1" requiredInterfaces="//@interfaceSourceCodeLink.0">
+    <component xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_pf_bMIn2EeqxMoqbH8nCNw"/>
+    <implementingClasses xsi:type="classifiers:Class" href="../src/mediaStore/WebGUI/WebGUIImpl.java#//@classifiers.0"/>
+  </componentImplementingClassesLink>
+  <componentImplementingClassesLink providedInterfaces="//@interfaceSourceCodeLink.2">
+    <component xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_pgNdoIn2EeqxMoqbH8nCNw"/>
+    <implementingClasses xsi:type="classifiers:Class" href="../src/mediaStore/MediaStore/MediaStoreImpl.java#//@classifiers.0"/>
+  </componentImplementingClassesLink>
+  <componentImplementingClassesLink subComponents="//@componentImplementingClassesLink.0 //@componentImplementingClassesLink.1" providedInterfaces="//@interfaceSourceCodeLink.3 //@interfaceSourceCodeLink.4">
+    <component xsi:type="repository:CompositeComponent" href="internal_architecture_model.repository#_pg6oQIn2EeqxMoqbH8nCNw"/>
+  </componentImplementingClassesLink>
+</sourcecodedecorator:SourceCodeDecoratorRepository>
