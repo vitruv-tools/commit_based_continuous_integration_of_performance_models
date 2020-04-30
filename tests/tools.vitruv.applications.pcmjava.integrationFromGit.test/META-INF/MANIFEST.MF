@@ -22,4 +22,6 @@ Require-Bundle: org.junit,
  org.eclipse.jdt.core;bundle-version="3.21.0",
  tools.vitruv.testutils,
  tools.vitruv.applications.pcmjava.tests.util,
- tools.vitruv.applications.pcmjava.pojotransformations.java2pcm
+ tools.vitruv.applications.pcmjava.pojotransformations.java2pcm,
+ tools.vitruv.applications.pcmjava.linkingintegration,
+ tools.vitruv.applications.pcmjava.linkingintegration.change2command
