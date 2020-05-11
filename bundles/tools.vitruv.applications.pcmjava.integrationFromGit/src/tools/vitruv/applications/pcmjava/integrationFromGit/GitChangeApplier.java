@@ -5,8 +5,11 @@ package tools.vitruv.applications.pcmjava.integrationFromGit;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.commons.lang.StringUtils;
@@ -14,10 +17,14 @@ import org.apache.log4j.Logger;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -28,12 +35,22 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.EditList;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.TextEdit;
+import org.emftext.language.java.classifiers.Classifier;
+import org.emftext.language.java.classifiers.ConcreteClassifier;
+import org.emftext.language.java.containers.CompilationUnit;
+import org.emftext.language.java.containers.ContainersFactory;
+import org.emftext.language.java.containers.JavaRoot;
 import org.emftext.language.java.containers.Package;
 
+import edu.kit.ipd.sdq.commons.util.org.eclipse.emf.common.util.URIUtil;
+import tools.vitruv.applications.pcmjava.linkingintegration.tests.util.DoneFlagProgressMonitor;
 import tools.vitruv.applications.pcmjava.tests.util.CompilationUnitManipulatorHelper;
 import tools.vitruv.applications.pcmjava.tests.util.Java2PcmTransformationTest;
 import tools.vitruv.applications.pcmjava.tests.util.SynchronizationAwaitCallback;
+import tools.vitruv.framework.util.bridges.EMFBridge;
+import tools.vitruv.framework.util.bridges.EcoreResourceBridge;
 import tools.vitruv.framework.util.datatypes.VURI;
 import tools.vitruv.framework.vsum.VirtualModel;
 import tools.vitruv.framework.vsum.modelsynchronization.ChangePropagationAbortCause;
@@ -60,11 +77,13 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param currentProject
 	 * @throws CoreException 
 	 * @throws InterruptedException 
+	 * @throws IOException 
 	 */
-	public void applyChangesFromCommit(RevCommit oldCommit, RevCommit newCommit, IProject currentProject) throws CoreException, InterruptedException {
+	public void applyChangesFromCommit(RevCommit oldCommit, RevCommit newCommit, IProject currentProject) throws CoreException, InterruptedException, IOException {
 		
-		List<DiffEntry> diffs = gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, /*true*/false, true);
-		
+		ArrayList<DiffEntry> diffs = new ArrayList<>(gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, /*true*/false, true));
+		Collections.reverse(diffs); 
+
 		for (DiffEntry diff : diffs) {
 			
 			ICompilationUnit iCu;
@@ -73,15 +92,10 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			case ADD:
 				String pathToAddedFile = diff.getNewPath();
 				String fileContent = gitRepository.getNewContentOfFileFromDiffEntry(diff);
-				
 				//JGit returns the content of files and uses within the content "\n" as line separator.
 				//Therefore, replace all occurrences of "\n" with the system line separator.
 				fileContent = gitRepository.replaceAllLineDelimitersWithSystemLineDelimiters(fileContent);
-				
 				addElementToProject(currentProject, pathToAddedFile, fileContent);
-				//createICompilationUnitFromPath(pathToAddedFile, fileContent, currentProject);
-				//waitForSynchronization(1);
-				//Thread.sleep(20000);
 				break;
 			case COPY:
 				break;
@@ -100,8 +114,6 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				EditList editList = gitRepository.computeEditListFromDiffEntry(diff);
 				modifyElementInProject(currentProject, oldElementContent, newElementContent,
 						oldElementPath, newElementPath, editList);
-			//waitForSynchronization(1);
-				//Thread.sleep(20000);
 				break;
 			case RENAME:
 				break;
@@ -136,27 +148,26 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			EditList editList) throws CoreException {
 		
 		//Check if the modified file is a java file
-		if ((new Path(oldElementPath).getFileExtension().equals("java")))  {
+		//if ((new Path(oldElementPath).getFileExtension().equals("java")))
+		if (oldElementPath.endsWith(".java")) {
 			String nameOfChangedFile = getNameOfFileFromPath(oldElementPath);
-			ICompilationUnit iCu = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName(nameOfChangedFile, project);
+			ICompilationUnit compilationUnit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName(nameOfChangedFile, project);
 			//EditList from JGit Bib
 			//TextEdit from Eclipse text.edits
 			String oldContent = oldElementContent.toString();
-					            //new String(((ByteArrayOutputStream) oldElementContent).toByteArray());
+			//new String(((ByteArrayOutputStream) oldElementContent).toByteArray());
 			String newContent = newElementContent.toString();
             //new String(((ByteArrayOutputStream) newElementContent).toByteArray());
 			List<TextEdit> textEdits = gitRepository.transformEditListIntoTextEdits(editList, oldContent, newContent);
-			CompilationUnitManipulatorHelper.editCompilationUnit(iCu, this, textEdits.toArray(new TextEdit[textEdits.size()]));
-			//waitForSynchronization(1);
+			CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, textEdits.toArray(new TextEdit[textEdits.size()]));
 		}
 		else {
 			IFile file = project.getFile(oldElementPath.substring(oldElementPath.indexOf("/") + 1));
-			ByteArrayInputStream inputStream = new ByteArrayInputStream(((ByteArrayOutputStream) newElementContent).toByteArray());
-			file.setContents(inputStream, IFile.FORCE, null);
-			
+			if (file.exists()) {
+				ByteArrayInputStream inputStream = new ByteArrayInputStream(((ByteArrayOutputStream) newElementContent).toByteArray());
+				file.setContents(inputStream, IFile.FORCE, null);
+			}	
 		}
-		
-
 	}
 	
 	
@@ -169,8 +180,12 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param pathToElement
 	 * @param elementContent might be null
 	 * @throws CoreException 
+	 * @throws InterruptedException 
+	 * @throws IOException 
 	 */
-	private void addElementToProject(IProject project, String pathToElement, String elementContent) throws CoreException {
+	private void addElementToProject(IProject project, String pathToElement, String elementContent) throws CoreException, InterruptedException, IOException {
+		
+		project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 		
 		IPath tempPath = new Path(pathToElement);
 		//Get rid of the project name in the path
@@ -183,7 +198,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			return;
 		}
 		
-		int segmentCounter = 0;
+		//int segmentCounter = 0;
 		String firstSegment = tempPath.segment(0);
 		String lastSegment = tempPath.lastSegment();
 		String fileExtension = tempPath.getFileExtension();
@@ -191,7 +206,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		IJavaProject javaProject;
 		IPackageFragmentRoot packageFragmentRoot;
 		IPackageFragment packageFragment;
-		//ICompilationUnit compilationUnit;
+		
 		
 		//Check if we need to handle IJavaProject
 		//For more details, what a java project in JDT looks like, see https://www.vogella.com/tutorials/EclipseJDT/article.html
@@ -202,46 +217,73 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			
 			if (segments.length == 2) {
 				IFile file = project.getFile(tempPath.toString());
-				file.create(new ByteArrayInputStream(elementContent.getBytes()), true, new NullProgressMonitor());
+				file.create(new ByteArrayInputStream(elementContent.getBytes()), false /*true*/, new NullProgressMonitor());
+				System.out.println("Begin to wait for syncronization at the place 0");
+				//waitForSynchronization(1);
+				project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 			}
 			else {
 				//Check if the PackageFragmentRoot exists. If not, create it
 				IFolder packageFragmentRootFolder = project.getFolder(tempPath.segment(0));
+				
 				if (!packageFragmentRootFolder.exists()) {
-					packageFragmentRootFolder.create(false/*true*/, true, new NullProgressMonitor());
-					
-					
+					packageFragmentRootFolder.create(false/*true*/, false/*true*/, new NullProgressMonitor());
+					System.out.println("Begin to wait for syncronization at the place 1");
 					//waitForSynchronization(1);
-					
-					
+					project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());				
 				}
+				
 				packageFragmentRoot = javaProject.getPackageFragmentRoot(packageFragmentRootFolder);
 				String packageFragmentName = tempPath.removeFirstSegments(1).removeLastSegments(1).toString();
-				
-				
+				packageFragmentName = packageFragmentName.replace("/", ".");
 				packageFragment = packageFragmentRoot.getPackageFragment(packageFragmentName);
 				
 				if (!packageFragment.exists()) {
-					packageFragment = packageFragmentRoot.createPackageFragment(packageFragmentName.replace("/", "."), false /*true*/, new NullProgressMonitor());
 					
-					//packageFragment.makeConsistent(new NullProgressMonitor());
-					
-					//waitForSynchronization(1);
-					
+					//Create package per EMF and JaMoPP
+					createPackageWithPackageInfo(project, tempPath.removeLastSegments(1).segments());
 				
+					//Create packaga per JDT
+					//packageFragment = packageFragmentRoot.createPackageFragment(packageFragmentName, false /*true*/, new NullProgressMonitor());
+					////packageFragment.makeConsistent(new NullProgressMonitor());
+					//System.out.println("Begin to wait for syncronization at the place 2");
+					////waitForSynchronization(1);
+					//project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+					
 				}
 				
+				packageFragment.makeConsistent(new NullProgressMonitor());
+				
 				if (fileExtension.equals("java")) {
-					packageFragment.createCompilationUnit(lastSegment, elementContent, true, new NullProgressMonitor());
+					//For testing:
+					ICompilationUnit[] compilationUnits = packageFragment.getCompilationUnits();
 					
 					
-					//waitForSynchronization(1);
-					
-					
+					ICompilationUnit compilationUnit = packageFragment.getCompilationUnit(lastSegment);
+					if (!compilationUnit.exists()) {
+						//Create java file per JDT
+						packageFragment.createCompilationUnit(lastSegment, "", false/*true*/, new NullProgressMonitor());
+						
+						//compilationUnit = packageFragment.createCompilationUnit(lastSegment, "", false/*true*/, new NullProgressMonitor());
+						Thread.sleep(10000);
+						InsertEdit edit = new InsertEdit(0, elementContent);
+						CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, edit);
+						//VURI vuri = getVURIForElementInPackage(packageFragment, compilationUnit.getElementName());
+						//getJaMoPPClassifierForVURI(vuri);
+						
+						System.out.println("Begin to wait for syncronization at the place 3");
+						//waitForSynchronization(1);
+						project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+					}
 				}
 				else {
 					IFile file = project.getFile(tempPath.toString());
-					file.create(new ByteArrayInputStream(elementContent.getBytes()), true, new NullProgressMonitor());
+					if (!file.exists()) {
+						file.create(new ByteArrayInputStream(elementContent.getBytes()), false /*true*/, new NullProgressMonitor());
+						System.out.println("Begin to wait for syncronization at the place 4");
+						//waitForSynchronization(1);
+						project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+					}
 				}		
 			}
 			
@@ -252,87 +294,57 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			(new File(tempPath.toString())).mkdirs();
 			//IFile file = project.getFile(tempPath);
 			IFile file = project.getFile(tempPath.toString());
-			file.create(new ByteArrayInputStream(elementContent.getBytes()), true, new NullProgressMonitor());
-		}
-		
-
-	}
-	
-	
-	private void createJavaFile(String name, String content, IPackageFragment packageFragment) {
-		
-	}
-	
-	
-	private void createNotJavaFile(String name, String content, IPackageFragment packageFragment) {
-		
-	}
-	
-	
-	private IPackageFragmentRoot createPackageFragmentRoot(IProject project, String path) {
-		return null;
-	}
-	
-	
-	private IPackageFragment createPackageFragment(IProject project, String path) {
-		return null;
-	}
-	
-	
-	private void deleteElementFromProject(IProject project, String pathToElement) {
-		//TODO
-	}
-	
-	
-	private void modifyElementInProject(IProject project, String pathToElement, String elementNewContent) {
-		//TODO
-	}
-	
-	private ICompilationUnit createICompilationUnitFromPath(String pathToCompilationUnit, String content, IProject currentProject) throws CoreException {
-		String iCompilationUnitName = getNameOfFileFromPath(pathToCompilationUnit) + ".java";
-		//Remove Compilation Unit name from path
-		String pathToIPackageFragment = pathToCompilationUnit.substring(0, pathToCompilationUnit.lastIndexOf("/"));
-		IPackageFragment iPf = findIPackageFragmentFromPath(pathToIPackageFragment, currentProject);
-		//TODO: parameter "force": true or false?
-		return iPf.createCompilationUnit(iCompilationUnitName, content, true/*false*/, null);
-	}
-	
-	
-	private IPackageFragment findIPackageFragmentFromPath(final String pathToIPackageFragment, IProject currentProject) throws CoreException {
-		//For Testing
-		//******
-		List<String> packageFragmentsNames = new ArrayList<>();
-		//******
-		final IJavaProject javaProject = JavaCore.create(currentProject);
-		for (final IPackageFragmentRoot packageFragmentRoot : javaProject.getPackageFragmentRoots()) {
-			final IJavaElement[] children = packageFragmentRoot.getChildren();
-			for (final IJavaElement iJavaElement : children) {
-				if (iJavaElement instanceof IPackageFragment) {
-					final IPackageFragment fragment = (IPackageFragment) iJavaElement;
-					String pathToCurrentIPackageFragment = fragment.getPath().makeRelativeTo(javaProject.getPath()).toString()/*toOSString()*/;
-					//For Testing
-					//******
-					packageFragmentsNames.add(pathToCurrentIPackageFragment);
-					//******
-					if (pathToCurrentIPackageFragment.equals(pathToIPackageFragment)) {
-						return fragment;
-					}
-				}
+			if (!file.exists()) {
+				file.create(new ByteArrayInputStream(elementContent.getBytes()), false /*true*/, new NullProgressMonitor());	
+				System.out.println("Begin to wait for syncronization at the place 5");
+				//waitForSynchronization(1);
+				project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 			}
 		}
-		//If the package fragment does not exist, create a new one
-		String tempPath = pathToIPackageFragment.substring(pathToIPackageFragment.indexOf("/") + 1);
-		tempPath = tempPath.substring(tempPath.indexOf("/") + 1);
-		//IFolder newPackage = currentProject.getFolder(tempPath);
-		IFolder srcFolder = currentProject.getFolder("src");
-		//newPackage.create(true, true, null);
-		IPackageFragmentRoot fragmentRoot = javaProject.getPackageFragmentRoot(srcFolder);//findPackageFragmentRoot(new Path(tempPath));/*getPackageFragmentRoot(newPackage)*/;
-		String pathDotted = tempPath.replace("/", ".");//StringUtils.join(tempPath, ".");
-		return fragmentRoot.createPackageFragment(pathDotted, true, null);
-		//fragmentRoot.createPackageFragment(, true, null);
-	
-		//throw new RuntimeException("Could not find a IPackageFragment with path " + pathToIPackageFragment);
 	}
+	
+	
+	protected Package createPackageWithPackageInfo(final IProject project, final String... namespace) throws IOException {
+		String packageFile = StringUtils.join(namespace, "/");
+		packageFile = packageFile + "/package-info.java";
+		final Package jaMoPPPackage = ContainersFactory.eINSTANCE.createPackage();
+		final List<String> namespaceList = Arrays.asList(namespace);
+		jaMoPPPackage.setName(namespaceList.get(namespaceList.size() - 1));
+		jaMoPPPackage.getNamespaces().addAll(namespaceList.subList(0, namespaceList.size() - 1));
+		
+		ResourceSet resourceSet = new ResourceSetImpl();
+		VURI vuri = VURI.getInstance(project.getName() + "/" + packageFile);
+		final Resource resource = resourceSet.createResource(vuri.getEMFUri());
+		
+		EcoreResourceBridge.saveEObjectAsOnlyContent(jaMoPPPackage, resource);
+		waitForSynchronization(1);
+		return jaMoPPPackage;
+	}
+	
+	
+	private VURI getVURIForElementInPackage(final IPackageFragment packageFragment, final String elementName) {
+		String vuriKey = packageFragment.getResource().getFullPath().toString() + "/" + elementName;
+		if (vuriKey.startsWith("/")) {
+			vuriKey = vuriKey.substring(1, vuriKey.length());
+		}
+		final VURI vuri = VURI.getInstance(vuriKey);
+		return vuri;
+	}
+	
+	protected ConcreteClassifier getJaMoPPClassifierForVURI(final VURI vuri) {
+		final CompilationUnit cu = this.getJaMoPPRootForVURI(vuri);
+		final Classifier jaMoPPClassifier = cu.getClassifiers().get(0);
+		return (ConcreteClassifier) jaMoPPClassifier;
+	}
+
+	private <T extends JavaRoot> T getJaMoPPRootForVURI(final VURI vuri) {
+		final Resource resource = URIUtil.loadResourceAtURI(vuri.getEMFUri(), new ResourceSetImpl());
+		// unchecked is OK for the test.
+		@SuppressWarnings("unchecked")
+		final T javaRoot = (T) resource.getContents().get(0);
+		return javaRoot;
+	}
+	
 	
 	
 	@Override
@@ -363,7 +375,6 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	@Override
 	public synchronized void startedChangePropagation() {
 		// TODO Auto-generated method stub
-		
 	}
 	
 	
@@ -381,6 +392,57 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		logger.debug("Reducing number of expected syncs to: " + expectedNumberOfSyncs);
 		this.notifyAll();
 	}
+	
+	
+	
+	/*
+	private ICompilationUnit createICompilationUnitFromPath(String pathToCompilationUnit, String content, IProject currentProject) throws CoreException {
+		String iCompilationUnitName = getNameOfFileFromPath(pathToCompilationUnit) + ".java";
+		//Remove Compilation Unit name from path
+		String pathToIPackageFragment = pathToCompilationUnit.substring(0, pathToCompilationUnit.lastIndexOf("/"));
+		IPackageFragment iPf = findIPackageFragmentFromPath(pathToIPackageFragment, currentProject);
+		//TODO: parameter "force": true or false?
+		return iPf.createCompilationUnit(iCompilationUnitName, content, true, null);
+	}
+	
+	
+	private IPackageFragment findIPackageFragmentFromPath(final String pathToIPackageFragment, IProject currentProject) throws CoreException {
+		//For Testing
+		//------
+		List<String> packageFragmentsNames = new ArrayList<>();
+		//------
+		final IJavaProject javaProject = JavaCore.create(currentProject);
+		for (final IPackageFragmentRoot packageFragmentRoot : javaProject.getPackageFragmentRoots()) {
+			final IJavaElement[] children = packageFragmentRoot.getChildren();
+			for (final IJavaElement iJavaElement : children) {
+				if (iJavaElement instanceof IPackageFragment) {
+					final IPackageFragment fragment = (IPackageFragment) iJavaElement;
+					String pathToCurrentIPackageFragment = fragment.getPath().makeRelativeTo(javaProject.getPath()).toString();//toOSString();
+					//For Testing
+					//------
+					packageFragmentsNames.add(pathToCurrentIPackageFragment);
+					//------
+					if (pathToCurrentIPackageFragment.equals(pathToIPackageFragment)) {
+						return fragment;
+					}
+				}
+			}
+		}
+		//If the package fragment does not exist, create a new one
+		String tempPath = pathToIPackageFragment.substring(pathToIPackageFragment.indexOf("/") + 1);
+		tempPath = tempPath.substring(tempPath.indexOf("/") + 1);
+		//IFolder newPackage = currentProject.getFolder(tempPath);
+		IFolder srcFolder = currentProject.getFolder("src");
+		//newPackage.create(true, true, null);
+		IPackageFragmentRoot fragmentRoot = javaProject.getPackageFragmentRoot(srcFolder);//findPackageFragmentRoot(new Path(tempPath));//getPackageFragmentRoot(newPackage)
+		String pathDotted = tempPath.replace("/", ".");//StringUtils.join(tempPath, ".");
+		return fragmentRoot.createPackageFragment(pathDotted, true, null);
+		//fragmentRoot.createPackageFragment(, true, null);
+	
+		//throw new RuntimeException("Could not find a IPackageFragment with path " + pathToIPackageFragment);
+	}
+	*/
+	
 
 	
 }

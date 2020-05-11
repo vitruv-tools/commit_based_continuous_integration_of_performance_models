@@ -20,14 +20,19 @@ import java.util.stream.Stream;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jgit.api.BlameCommand;
+import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.AbortedByHookException;
+import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRefNameException;
 import org.eclipse.jgit.api.errors.NoFilepatternException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.api.errors.NoMessageException;
+import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
+import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.UnmergedPathsException;
 import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 import org.eclipse.jgit.blame.BlameResult;
@@ -108,6 +113,12 @@ public class GitRepository {
 	}
 
 	
+	public void checkoutAndTrackBranch(String branchName) throws RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
+		 git.checkout().setCreateBranch(true).setName("testBranch")
+         .setUpstreamMode(SetupUpstreamMode./*TRACK*/SET_UPSTREAM)
+		 .setStartPoint("origin/" + branchName).call();
+	}
+	
 	public void printStatusAdded() throws NoWorkTreeException, GitAPIException {
 		Status status = getStatus();
 		Set<String> added = status.getAdded();
@@ -139,6 +150,14 @@ public class GitRepository {
 		commits.forEach(listOfCommits :: add);
 		return listOfCommits;
 	}
+	
+	public List<RevCommit> getAllCommitsFromBranch(String branchName) throws NoHeadException, GitAPIException, IOException {
+		Iterable<RevCommit> commits = git.log().add(git.getRepository().resolve(branchName)).call();
+		List<RevCommit> listOfCommits = new ArrayList<>();
+		commits.forEach(listOfCommits :: add);
+		return listOfCommits;
+	}
+	
 	
 	
 	public void printDiffs(List<DiffEntry> diffs) {

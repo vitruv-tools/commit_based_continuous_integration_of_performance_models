@@ -22,6 +22,9 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
+
+import mir.reactions.packageMappingIntegration.PackageMappingIntegrationChangePropagationSpecification;
+
 import org.eclipse.jgit.api.errors.*;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.apache.log4j.Logger;
@@ -49,11 +52,13 @@ import org.eclipse.ui.wizards.datatransfer.ImportOperation;
 import org.emftext.language.java.JavaClasspath;
 
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Java2PcmIntegrationChangePropagationSpecification;
+import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Pcm2JavaIntegrationChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.linkingintegration.PcmJavaCorrespondenceModelTransformation;
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTest;
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.util.CodeIntegrationUtils;
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.util.DoneFlagProgressMonitor;
 import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.Java2PcmChangePropagationSpecification;
+import tools.vitruv.applications.pcmjava.pojotransformations.pcm2java.Pcm2JavaChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.Java2PcmUserSelection;
 import tools.vitruv.applications.pcmjava.tests.util.Java2PcmTransformationTest;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitChangeApplier;
@@ -63,12 +68,15 @@ import tools.vitruv.domains.java.builder.VitruviusJavaBuilder;
 import tools.vitruv.domains.java.builder.VitruviusJavaBuilderApplicator;
 import tools.vitruv.domains.pcm.PcmDomainProvider;
 import tools.vitruv.domains.pcm.PcmNamespace;
+import tools.vitruv.extensions.integration.correspondence.integration.IntegrationCorrespondence;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
+import tools.vitruv.framework.correspondence.CorrespondenceModelViewFactory;
 import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.framework.change.processing.ChangePropagationSpecification;
 import tools.vitruv.framework.correspondence.Correspondence;
 import tools.vitruv.framework.tuid.Tuid;
 import tools.vitruv.framework.ui.monitorededitor.ProjectBuildUtils;
+import tools.vitruv.framework.userinteraction.InteractionResultProvider;
 import tools.vitruv.framework.userinteraction.InternalUserInteractor;
 import tools.vitruv.framework.userinteraction.PredefinedInteractionResultProvider;
 import tools.vitruv.framework.userinteraction.UserInteractionFactory;
@@ -91,7 +99,7 @@ public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicatio
 	private static final Logger logger = Logger.getLogger(CodeIntegrationTest.class.getSimpleName());
     private static final String META_PROJECT_NAME = "vitruvius.meta";
     
-    private IProject testProject;
+    protected IProject testProject;
     private String testProjectName = //"testAddParameter_Fri_Apr_24_18_45_38_CEST_2020";   
     								//"humanBeing"; 
     								"eu.fpetersen.cbs.pc";
@@ -103,19 +111,27 @@ public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicatio
     								"testProjects/petersen/projectToApplyCommitsOn/eu.fpetersen.cbs.pc";
     								//"testProjects/mediastore/projectToApplyCommitsOn/project";
 									//"testProjects/myMediastore/projectToApplyCommitsOn/mediaStore";    
-    private GitRepository gitRepository;
-    public GitChangeApplier changeApplier;
+    protected GitRepository gitRepository;
+    protected GitChangeApplier changeApplier;
     
     private String gitRepositoryPath = //"testProjects/vitruvius/projectWithCommits";
     								   //"testProjects/chupakhin/projectWithCommits";
     									"testProjects/petersen/projectWithCommits";
     									//"testProjects/mediastore/projectWithCommits";
     									//"testProjects/myMediastore/projectWithCommits";
+    
     private String clonedGitRepositoryPath = "temporaryGitRepository";
     
     private IWorkspace workspace;
-    private InternalVirtualModel virtualModel;
+    protected InternalVirtualModel virtualModel;
 	private TestUserInteraction testUserInteractor;
+	
+	protected ChangePropagationSpecification[] changePropagationSpecifications = {
+		//new PackageMappingIntegrationChangePropagationSpecification());
+		new Java2PcmIntegrationChangePropagationSpecification()
+		//, new Pcm2JavaIntegrationChangePropagationSpecification()
+		//new Java2PcmChangePropagationSpecification()
+		};
     
  
     
@@ -143,13 +159,12 @@ public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicatio
         File originGitRepository = new File(gitRepositoryPath);
         
         
-        gitRepository = new GitRepository(clonedGitRepository, originGitRepository.getAbsolutePath());
+        gitRepository = new GitRepository(clonedGitRepository, originGitRepository.getAbsolutePath());  
         changeApplier = new GitChangeApplier(gitRepository);
         //Integrate test project in Vitruv
         
         //CodeIntegrationUtils.integratProject(project);
-        integrateProjectWithChangePropagationSpecification(project, new Java2PcmIntegrationChangePropagationSpecification());
-        															//new Java2PcmChangePropagationSpecification());
+        integrateProjectWithChangePropagationSpecification(project, changePropagationSpecifications);
         
         
         File vsumFolder = new File(workspace.getRoot().getLocation().toFile(), "vitruvius.meta"/*"testAddParameter_vsum__Fri_Apr_24_18_45_38_CEST_2020"*/);
@@ -212,8 +227,10 @@ public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicatio
 		CorrespondenceModel correspModel = virtualModel.getCorrespondenceModel();
 		List<Correspondence> correspondences = correspModel.getAllCorrespondences();
 		
+		
 		List<RevCommit> commits = gitRepository.getAllCommits();
 		
+		/*
 		testUserInteractor.addNextMultiSelection(new int [] {
 				Java2PcmUserSelection.SELECT_BASIC_COMPONENT.getSelection(),
 				Java2PcmUserSelection.SELECT_BASIC_COMPONENT.getSelection(),
@@ -225,16 +242,24 @@ public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicatio
 				Java2PcmUserSelection.SELECT_BASIC_COMPONENT.getSelection(),
 				Java2PcmUserSelection.SELECT_BASIC_COMPONENT.getSelection(),
 				Java2PcmUserSelection.SELECT_BASIC_COMPONENT.getSelection()});
-						  //addNextSingleSelection(Java2PcmUserSelection.SELECT_BASIC_COMPONENT.getSelection());
+		*/				
 		for (int i = commits.size() - 1; i > 0; i--) {
 			changeApplier.applyChangesFromCommit(commits.get(i/*1*/), commits.get(i - 1/*0*/), testProject);
-			//Thread.sleep(10000);
+			Thread.sleep(10000);
 		}
 		
 		System.out.println("dummy line");
-		Thread.sleep(10000);
+		
 		CorrespondenceModel corModel = virtualModel.getCorrespondenceModel();
 		
+		
+		while(true) {
+			Thread.sleep(10000);
+			System.out.println("All tests are done. Stop the programm manually");
+		}
+		
+		//CorrespondenceModelViewFactory
+		//corModel.getView(IntegrationCorrespondence.class);
 	}
     
 /*
@@ -245,7 +270,7 @@ public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicatio
 	}
 */	
 	
-	public void integrateProjectWithChangePropagationSpecification(final IProject project, final ChangePropagationSpecification changePropagationSpecification) {
+	public void integrateProjectWithChangePropagationSpecification(final IProject project, final ChangePropagationSpecification[] changePropagationSpecifications) {
 		// IPath projectPath = project.getFullPath(); // workspace relative Path
         final IPath projectPath = project.getLocation(); // absolute path
         final IPath models = projectPath.append("model").addTrailingSeparator().append("internal_architecture_model");
@@ -287,12 +312,20 @@ public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicatio
         	config.addMetamodel(metamodel);
         }
         
-        config.addChangePropagationSpecification(changePropagationSpecification);
+        for (int i = 0; i < changePropagationSpecifications.length; i++) {
+        	config.addChangePropagationSpecification(changePropagationSpecifications[i]);
+        }
         
+       
+        InteractionResultProvider interactionResultProvider = UserInteractionFactory.instance.createDialogInteractionResultProvider();
+		InternalUserInteractor userInteractor = UserInteractionFactory.instance.createDialogUserInteractor();//createUserInteractor(interactionResultProvider);
+       
+        
+		/*
         PredefinedInteractionResultProvider interactionProvider = UserInteractionFactory.instance.createPredefinedInteractionResultProvider(null);
 		this.testUserInteractor = new TestUserInteraction(interactionProvider);
 		InternalUserInteractor userInteractor = UserInteractionFactory.instance.createUserInteractor(interactionProvider);
-        
+        */
         
         File vsumFolder = new File(ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile(), "vitruvius.meta");
         final InternalVirtualModel vsum = new VirtualModelImpl(vsumFolder, userInteractor/*UserInteractionFactory.instance.createDialogUserInteractor()*/, config);
