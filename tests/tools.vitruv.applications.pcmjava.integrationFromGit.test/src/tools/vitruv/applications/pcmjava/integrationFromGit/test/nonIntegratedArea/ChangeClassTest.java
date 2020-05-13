@@ -78,9 +78,19 @@ public class ChangeClassTest extends ApplyingChangesFromGitTest {
 		
 		
 		for (int i = commits.size() - 1; i > 0; i--) {
-			changeApplier.applyChangesFromCommit(commits.get(i/*2*/), commits.get(i - 1/*1*/), testProject);
-			Thread.sleep(10000);
+			changeApplier.applyChangesFromCommit(commits.get(i), commits.get(i - 1), testProject);
+			//Thread.sleep(10000);
 		}
+		
+		/*
+		changeApplier.applyChangesFromCommit(commits.get(7), commits.get(6), testProject);
+		changeApplier.applyChangesFromCommit(commits.get(6), commits.get(5), testProject);
+		changeApplier.applyChangesFromCommit(commits.get(5), commits.get(2), testProject);
+		changeApplier.applyChangesFromCommit(commits.get(2), commits.get(1), testProject);
+		changeApplier.applyChangesFromCommit(commits.get(1), commits.get(4), testProject);
+		changeApplier.applyChangesFromCommit(commits.get(4), commits.get(3), testProject);
+		changeApplier.applyChangesFromCommit(commits.get(3), commits.get(0), testProject);
+		*/
 		
 		System.out.println("dummy line");
 

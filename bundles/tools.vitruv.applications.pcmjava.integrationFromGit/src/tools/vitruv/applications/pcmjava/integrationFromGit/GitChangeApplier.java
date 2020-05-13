@@ -241,7 +241,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				if (!packageFragment.exists()) {
 					
 					//Create package per EMF and JaMoPP
-					createPackageWithPackageInfo(project, tempPath.removeLastSegments(1).segments());
+					createPackageWithPackageInfo(project, tempPath.removeFirstSegments(1).removeLastSegments(1).segments());
 				
 					//Create packaga per JDT
 					//packageFragment = packageFragmentRoot.createPackageFragment(packageFragmentName, false /*true*/, new NullProgressMonitor());
@@ -262,10 +262,8 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 					ICompilationUnit compilationUnit = packageFragment.getCompilationUnit(lastSegment);
 					if (!compilationUnit.exists()) {
 						//Create java file per JDT
-						packageFragment.createCompilationUnit(lastSegment, "", false/*true*/, new NullProgressMonitor());
-						
-						//compilationUnit = packageFragment.createCompilationUnit(lastSegment, "", false/*true*/, new NullProgressMonitor());
-						Thread.sleep(10000);
+						compilationUnit = packageFragment.createCompilationUnit(lastSegment, "", false/*true*/, new NullProgressMonitor());
+						Thread.sleep(5000);
 						InsertEdit edit = new InsertEdit(0, elementContent);
 						CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, edit);
 						//VURI vuri = getVURIForElementInPackage(packageFragment, compilationUnit.getElementName());
@@ -288,7 +286,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			}
 			
 		}
-		//We have to only handle IProject
+		//We only have to handle IProject
 		else {
 			//String tempPathString = pathToElement.substring(pathToElement.indexOf("/") + 1);
 			(new File(tempPath.toString())).mkdirs();
@@ -308,12 +306,12 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		String packageFile = StringUtils.join(namespace, "/");
 		packageFile = packageFile + "/package-info.java";
 		final Package jaMoPPPackage = ContainersFactory.eINSTANCE.createPackage();
-		final List<String> namespaceList = Arrays.asList(namespace);
+		List<String> namespaceList = Arrays.asList(namespace);
 		jaMoPPPackage.setName(namespaceList.get(namespaceList.size() - 1));
 		jaMoPPPackage.getNamespaces().addAll(namespaceList.subList(0, namespaceList.size() - 1));
 		
 		ResourceSet resourceSet = new ResourceSetImpl();
-		VURI vuri = VURI.getInstance(project.getName() + "/" + packageFile);
+		VURI vuri = VURI.getInstance(project.getName() + "/src/" + packageFile);
 		final Resource resource = resourceSet.createResource(vuri.getEMFUri());
 		
 		EcoreResourceBridge.saveEObjectAsOnlyContent(jaMoPPPackage, resource);

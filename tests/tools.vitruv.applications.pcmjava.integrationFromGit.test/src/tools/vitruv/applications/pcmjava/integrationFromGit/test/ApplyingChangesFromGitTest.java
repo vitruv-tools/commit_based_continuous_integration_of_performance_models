@@ -127,7 +127,7 @@ public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicatio
 	private TestUserInteraction testUserInteractor;
 	
 	protected ChangePropagationSpecification[] changePropagationSpecifications = {
-		//new PackageMappingIntegrationChangePropagationSpecification());
+		//new PackageMappingIntegrationChangePropagationSpecification()
 		new Java2PcmIntegrationChangePropagationSpecification()
 		//, new Pcm2JavaIntegrationChangePropagationSpecification()
 		//new Java2PcmChangePropagationSpecification()
