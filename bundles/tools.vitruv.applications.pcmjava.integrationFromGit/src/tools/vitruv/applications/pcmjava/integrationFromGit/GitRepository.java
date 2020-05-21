@@ -113,6 +113,10 @@ public class GitRepository {
 	}
 
 	
+	public void checkoutFromCommitId(String commitId) throws RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
+		git.checkout().setName(commitId).call();
+	}
+	
 	public void checkoutAndTrackBranch(String branchName) throws RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
 		 git.checkout().setCreateBranch(true).setName("testBranch")
          .setUpstreamMode(SetupUpstreamMode./*TRACK*/SET_UPSTREAM)

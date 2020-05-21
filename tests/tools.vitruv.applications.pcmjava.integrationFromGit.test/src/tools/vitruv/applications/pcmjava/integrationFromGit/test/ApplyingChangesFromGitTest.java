@@ -53,12 +53,14 @@ import org.emftext.language.java.JavaClasspath;
 
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Java2PcmIntegrationChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Pcm2JavaIntegrationChangePropagationSpecification;
+import tools.vitruv.applications.pcmjava.linkingintegration.seffstatments.PcmJavaCorrespondenceModelForSeffTransformation;
 import tools.vitruv.applications.pcmjava.linkingintegration.PcmJavaCorrespondenceModelTransformation;
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTest;
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.util.CodeIntegrationUtils;
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.util.DoneFlagProgressMonitor;
 import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.Java2PcmChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.pojotransformations.pcm2java.Pcm2JavaChangePropagationSpecification;
+import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.Java2PcmWithSeffstatmantsChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.Java2PcmUserSelection;
 import tools.vitruv.applications.pcmjava.tests.util.Java2PcmTransformationTest;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitChangeApplier;
@@ -88,137 +90,73 @@ import tools.vitruv.testutils.TestUserInteraction;
 import tools.vitruv.testutils.util.TestUtil;
 
 /**
- * @author Ilia
+ * @author Ilia Chupakhin
  *
  */
-public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicationTest*/{
+public class ApplyingChangesFromGitTest /*extends Java2PcmTransformationTest*/ {
 
-	
-	@SuppressWarnings("unused")
-    
-	private static final Logger logger = Logger.getLogger(CodeIntegrationTest.class.getSimpleName());
-    private static final String META_PROJECT_NAME = "vitruvius.meta";
-    
-    protected IProject testProject;
-    private String testProjectName = //"testAddParameter_Fri_Apr_24_18_45_38_CEST_2020";   
+
+    protected String testProjectName = //"testAddParameter_Fri_Apr_24_18_45_38_CEST_2020";   
     								//"humanBeing"; 
     								"eu.fpetersen.cbs.pc";
     								//"project";
     								//"mediaStore";
     
-    private String testProjectPath =//"testProjects/vitruvius/projectToApplyCommitsOn/testAddParameter_Fri_Apr_24_18_45_38_CEST_2020";
+    protected String testProjectPath =//"testProjects/vitruvius/projectToApplyCommitsOn/testAddParameter_Fri_Apr_24_18_45_38_CEST_2020";
     								//"testProjects/chupakhin/projectToApplyCommitsOn/humanBeing";
     								"testProjects/petersen/projectToApplyCommitsOn/eu.fpetersen.cbs.pc";
     								//"testProjects/mediastore/projectToApplyCommitsOn/project";
 									//"testProjects/myMediastore/projectToApplyCommitsOn/mediaStore";    
-    protected GitRepository gitRepository;
-    protected GitChangeApplier changeApplier;
+ 
     
-    private String gitRepositoryPath = //"testProjects/vitruvius/projectWithCommits";
+    protected String gitRepositoryPath = //"testProjects/vitruvius/projectWithCommits";
     								   //"testProjects/chupakhin/projectWithCommits";
     									"testProjects/petersen/projectWithCommits";
     									//"testProjects/mediastore/projectWithCommits";
     									//"testProjects/myMediastore/projectWithCommits";
     
-    private String clonedGitRepositoryPath = "temporaryGitRepository";
-    
-    private IWorkspace workspace;
-    protected InternalVirtualModel virtualModel;
-	private TestUserInteraction testUserInteractor;
-	
+
 	protected ChangePropagationSpecification[] changePropagationSpecifications = {
 		//new PackageMappingIntegrationChangePropagationSpecification()
-		new Java2PcmIntegrationChangePropagationSpecification()
-		//, new Pcm2JavaIntegrationChangePropagationSpecification()
+		//new Java2PcmIntegrationChangePropagationSpecification(),
+		new Java2PcmWithSeffstatmantsChangePropagationSpecification()	
+		//new Pcm2JavaIntegrationChangePropagationSpecification()
 		//new Java2PcmChangePropagationSpecification()
-		};
+		//new MyJava2PcmChangePropagationSpecification()
+	};
     
+	//@SuppressWarnings("unused")
+	protected static final Logger logger = Logger.getLogger(CodeIntegrationTest.class.getSimpleName());
+    protected IProject testProject;
+    
+    protected String clonedGitRepositoryPath = "temporaryGitRepository";
+    
+    protected IWorkspace workspace;
+    protected InternalVirtualModel virtualModel;
+    protected TestUserInteraction testUserInteractor;
+	
+    protected GitRepository gitRepository;
+    protected GitChangeApplier changeApplier;
  
     
 
     @Before
     public void beforeTest() throws InvocationTargetException, InterruptedException, IOException, URISyntaxException, GitAPIException, CoreException {
-        this.workspace = ResourcesPlugin.getWorkspace();
-        //imporort test project into workspace
-        importAndCopyProjectIntoWorkspace(workspace, testProjectName, testProjectPath);
-        //Import vsum into workspace
-        //TODO: disable
-        //importAndCopyProjectIntoWorkspace(workspace, "vitruvius.meta", "C:/Users/Ilia/git/Vitruv-Applications-PCMJavaAdditionals/tests/tools.vitruv.applications.pcmjava.integrationFromGit.test/testProjects/mediastore/vitruvius.meta");
-        //importAndCopyProjectIntoWorkspace(workspace, "testAddParameter_vsum__Fri_Apr_24_18_45_38_CEST_2020", "C:/Users/Ilia/Desktop/testAddParameter_vsum__Fri_Apr_24_18_45_38_CEST_2020");
-        
-        IProject[] iProjects = this.workspace.getRoot().getProjects();
-        IProject project = this.workspace.getRoot().getProject(this.testProjectName);
-        
-        assert project != null;
-        this.testProject = project;
-        
-        File clonedGitRepository = (new File(workspace.getRoot().getLocation().toFile(), "clonedGitRepositories"));
-        clonedGitRepository.mkdir();
-        clonedGitRepository.createNewFile();
-        
-        File originGitRepository = new File(gitRepositoryPath);
-        
-        
-        gitRepository = new GitRepository(clonedGitRepository, originGitRepository.getAbsolutePath());  
+        workspace = ResourcesPlugin.getWorkspace();
+        //copy test project into workspace
+        testProject = ApplyingChangesTestUtil.importAndCopyProjectIntoWorkspace(workspace, testProjectName, testProjectPath);
+        //copy git repository into workspace
+        gitRepository = ApplyingChangesTestUtil.copyGitRepositoryIntoWorkspace(workspace, gitRepositoryPath);
+        //create change applier for copied repository
         changeApplier = new GitChangeApplier(gitRepository);
-        //Integrate test project in Vitruv
-        
-        //CodeIntegrationUtils.integratProject(project);
-        integrateProjectWithChangePropagationSpecification(project, changePropagationSpecifications);
-        
-        
-        File vsumFolder = new File(workspace.getRoot().getLocation().toFile(), "vitruvius.meta"/*"testAddParameter_vsum__Fri_Apr_24_18_45_38_CEST_2020"*/);
-	    
-        //two methods to connect Vitruv with the project
-        //TestUtil.createVirtualModel(vsumFile, false, metamodels, Collections.singletonList(new Java2PcmChangePropagationSpecification()), UserInteractionFactory.instance.createDialogUserInteractor());
-        //or:
-        //TODO: Disable
-        //start***************
-        /*
-        VirtualModelConfiguration config = new VirtualModelConfiguration();
-        List<VitruvDomain> metamodels = new ArrayList<VitruvDomain>();
-        metamodels.add(new PcmDomainProvider().getDomain());
-        metamodels.add(new JavaDomainProvider().getDomain());
-        
-        for (VitruvDomain metamodel : metamodels) {
-        	config.addMetamodel(metamodel);
-        }
-        
-        */
-        
-        //virtualModel = new VirtualModelImpl(vsumFolder/*vsumFile*//*metaProject*/, UserInteractionFactory.instance.createDialogUserInteractor(), config);
-        
-        //end*******************
-        
-        VirtualModelManager virtualModelManager = VirtualModelManager.getInstance();
-        virtualModel = virtualModelManager.getVirtualModel(vsumFolder);
-        virtualModel.addChangePropagationListener(changeApplier);
-    	
-        
+        //integrate test project in Vitruv
+        virtualModel = ApplyingChangesTestUtil.integrateProjectWithChangePropagationSpecification(testProject, changePropagationSpecifications, changeApplier);
         // This is necessary because otherwise Maven tests will fail as
 		// resources from previous
 		// tests are still in the classpath and accidentally resolved
         JavaClasspath.reset();
-        
-        //DoneFlagProgressMonitor progress = new DoneFlagProgressMonitor();
-        // add PCM Java Builder to Project under test
-        final VitruviusJavaBuilderApplicator pcmJavaBuilder = new VitruviusJavaBuilderApplicator();
-        pcmJavaBuilder.addToProject(this.testProject, vsumFolder, Collections.singletonList(PcmNamespace.REPOSITORY_FILE_EXTENSION));
-        // build the project
-        this.testProject.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, VitruviusJavaBuilder.BUILDER_ID,
-                new HashMap<String, String>(), new NullProgressMonitor()/*progress*/);
-        //alternative method to build the project
-    	//ProjectBuildUtils.issueIncrementalBuild(testProject, VitruviusJavaBuilder.BUILDER_ID);
-        
-
 		// Pipe JaMoPP error output to null
 		java.lang.System.setErr(null);
-		
-        /*
-        while (!progress.isDone()) {
-            Thread.sleep(100);
-        }
-         */
     }
     
     
@@ -269,125 +207,7 @@ public class ApplyingChangesFromGitTest /*extends VitruviusUnmonitoredApplicatio
 		pcmJavaRemoveBuilder.removeBuilderFromProject(testProject);
 	}
 */	
-	
-	public void integrateProjectWithChangePropagationSpecification(final IProject project, final ChangePropagationSpecification[] changePropagationSpecifications) {
-		// IPath projectPath = project.getFullPath(); // workspace relative Path
-        final IPath projectPath = project.getLocation(); // absolute path
-        final IPath models = projectPath.append("model").addTrailingSeparator().append("internal_architecture_model");
 
-        final IPath scdmPath = models.addFileExtension("sourcecodedecorator");
-        final IPath pcmPath = models.addFileExtension("repository");
-        
-        List<IPath> srcPaths = new ArrayList<IPath>();
-        IJavaProject javaProject = JavaCore.create(project);
-        try {
-        	IPackageFragmentRoot[] packageFragmentRoot = javaProject.getAllPackageFragmentRoots();
-        	for (int i = 0; i < packageFragmentRoot.length; i++){
-            	if (packageFragmentRoot[i].getElementType() == IJavaElement.PACKAGE_FRAGMENT_ROOT && !packageFragmentRoot[i].isArchive()) {
-            		srcPaths.add(packageFragmentRoot[i].getPath());
-            	}
-        	}
-        } catch (JavaModelException e) {
-        	e.printStackTrace();
-        }
-        List<IPath> jamoppPaths = new ArrayList<>();
-        for (IPath path : srcPaths) {
-        	IPath projectRelative = path.removeFirstSegments(1);
-        	IPath abs = project.getLocation().append(projectRelative);
-        	jamoppPaths.add(abs);
-        }
-        
-        final IPath projectBase = projectPath.removeLastSegments(1);
-
-        final File f = scdmPath.toFile();
-        if (!f.exists()) {
-            throw new IllegalArgumentException("Run SoMoX first!");
-        }
-
-        List<VitruvDomain> metamodels = new ArrayList<VitruvDomain>();
-        metamodels.add(new PcmDomainProvider().getDomain());
-        metamodels.add(new JavaDomainProvider().getDomain());
-        VirtualModelConfiguration config = new VirtualModelConfiguration();
-        for (VitruvDomain metamodel : metamodels) {
-        	config.addMetamodel(metamodel);
-        }
-        
-        for (int i = 0; i < changePropagationSpecifications.length; i++) {
-        	config.addChangePropagationSpecification(changePropagationSpecifications[i]);
-        }
-        
-       
-        InteractionResultProvider interactionResultProvider = UserInteractionFactory.instance.createDialogInteractionResultProvider();
-		InternalUserInteractor userInteractor = UserInteractionFactory.instance.createDialogUserInteractor();//createUserInteractor(interactionResultProvider);
-       
-        
-		/*
-        PredefinedInteractionResultProvider interactionProvider = UserInteractionFactory.instance.createPredefinedInteractionResultProvider(null);
-		this.testUserInteractor = new TestUserInteraction(interactionProvider);
-		InternalUserInteractor userInteractor = UserInteractionFactory.instance.createUserInteractor(interactionProvider);
-        */
-        
-        File vsumFolder = new File(ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile(), "vitruvius.meta");
-        final InternalVirtualModel vsum = new VirtualModelImpl(vsumFolder, userInteractor/*UserInteractionFactory.instance.createDialogUserInteractor()*/, config);
-
-        final PcmJavaCorrespondenceModelTransformation transformation = new PcmJavaCorrespondenceModelTransformation(
-                scdmPath.toString(), pcmPath.toString(), jamoppPaths, vsum, projectBase);
-
-        transformation.createCorrespondences();
-	}
-	
-	/*
-	private void createVirtualModel(final String testName) {
-		String currentTestProjectVsumName = testName + "_vsum_";
-		Iterable<VitruvDomain> domains = this.getVitruvDomains();
-		PredefinedInteractionResultProvider interactionProvider = UserInteractionFactory.instance.createPredefinedInteractionResultProvider(null);
-		this.testUserInteractor = new TestUserInteraction(interactionProvider);
-		InternalUserInteractor userInteractor = UserInteractionFactory.instance.createUserInteractor(interactionProvider);
-		this.virtualModel = TestUtil.createVirtualModel(new File(workspace, currentTestProjectVsumName), true, domains,
-				createChangePropagationSpecifications(), userInteractor);
-		this.correspondenceModel = virtualModel.getCorrespondenceModel();
-	}
-	*/
-	
-	 public static void importAndCopyProjectIntoWorkspace(IWorkspace workspace, String projectName, String projectPath
-		 	/*String testBundleName, String testSourceAndModelFolder*/)
-	            throws IOException, URISyntaxException, InvocationTargetException, InterruptedException {
-	        IOverwriteQuery overwriteQuery = new IOverwriteQuery() {
-	            public String queryOverwrite(String file) {
-	                return ALL;
-	            };
-	        };
-	        IPath workspacePath = workspace.getRoot().getFullPath().append("/" + projectName);
-
-	        //Bundle bundle = Platform.getBundle(testBundleName);
-	        //URL projectBluePrintBundleURL = bundle.getEntry(testSourceAndModelFolder);
-	        //URL fileURL = FileLocator.resolve(projectBluePrintBundleURL);
-	        //File file = new File(fileURL.toURI());
-	        //String baseDir = file.getAbsolutePath();// location of files to import
-	        ImportOperation importOperation = new ImportOperation(workspacePath, new File(projectPath/*baseDir*/),
-	                FileSystemStructureProvider.INSTANCE, overwriteQuery);
-	        importOperation.setCreateContainerStructure(false);
-	        //DoneFlagProgressMonitor progress = new DoneFlagProgressMonitor();//probably does not work correctly, because progress.isDone() is never true
-	        importOperation.run(new NullProgressMonitor()/*progress*//*null*/);
-
-	        // Wait for the project to be imported 
-	        /*
-	        while (!progress.isDone()) {
-	            Thread.sleep(100);
-	        }
-	        */
-	 }
-	 
-	 public static void importProjectIntoWorkspace(IWorkspace workspace, String pathToProject) throws CoreException {
-
-	     IPath projectDotProjectFile = new Path(pathToProject + "/.project");
-		 IProjectDescription projectDescription = workspace.loadProjectDescription(projectDotProjectFile);
-		 IProject project = workspace.getRoot().getProject(projectDescription.getName());
-		 JavaCapabilityConfigurationPage.createProject(project, projectDescription.getLocationURI(), null);
-	     
-	 }
-
-	 
 		
 		/**
 		 * @throws java.lang.Exception
