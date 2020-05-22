@@ -19,8 +19,12 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRefNameException;
 import org.eclipse.jgit.api.errors.NoHeadException;
+import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
+import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -78,9 +82,6 @@ public class ChangeClassTest /*extends ApplyingChangesFromGitTest*/ {
 
 	private static Logger logger = Logger.getLogger(CodeIntegrationTest.class.getSimpleName());
 	private static IProject testProject;
-
-	//private static String clonedGitRepositoryPath = "temporaryGitRepository";
-
 	private static IWorkspace workspace;
 	private static InternalVirtualModel virtualModel;
 	private static TestUserInteraction testUserInteractor;
@@ -167,6 +168,500 @@ public class ChangeClassTest /*extends ApplyingChangesFromGitTest*/ {
 	}
 	
 	
+	@Test
+	public void testImport() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
+		testAddImport();
+		testChangeImport();
+		testRemoveClassImport();
+	}
+	
+	
+	@Test
+	public void testClassModifier() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
+		testRemovePublicClassModifier();
+		testAddFinalClassModifier();
+		testChangeFinalToAbstractClassModifier();
+		testChangeAbstractToPublicClassModifier();
+	}
+	
+	
+	@Test
+	public void testExtends() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
+		testAddFirstImportForExtends();
+		testAddExtends();
+		testAddSecondImportForExtends();
+		testChangeExtends();
+		//TODO:Vitruv does not react to removing extends statement
+		testRemoveExtends();
+		testRemoveSecondImportForExtends();
+		testRemoveFirstImportForExtends();
+	}
+	
+	
+	@Test
+	public void testImplements() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
+		testAddInterfaceForImplements();
+		testAddMethodInInterfaceForImplements();
+		testAddFirstImportForImplements();
+		testAddImplementsAndMethod();
+	}
+	
+
+	private void testAddInterfaceForImplements()  throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException  {
+		//Add interface in contracts package
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.ADD_FIRST_CLASS_IMPL), commits.get(EuFpetersenCbsPcCommits.ADD_INTERFACE_FOR_IMPLEMENTS), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.ADD_INTERFACE_FOR_IMPLEMENTS);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testAddInterfaceForImplements() after adding interface JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+		
+	}
+
+	
+	private void testAddMethodInInterfaceForImplements()  throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException   {
+		//Add method in interface
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.ADD_INTERFACE_FOR_IMPLEMENTS), commits.get(EuFpetersenCbsPcCommits.ADD_METHOD_IN_INTERFACE_FOR_IMPLEMENTS), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.ADD_METHOD_IN_INTERFACE_FOR_IMPLEMENTS);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testAddMethodInInterfaceForImplements() after adding method in interface JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+		
+		
+	}
+	
+	private void testAddFirstImportForImplements()  throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
+		//Add first import statement in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.ADD_METHOD_IN_INTERFACE_FOR_IMPLEMENTS), commits.get(EuFpetersenCbsPcCommits.ADD_FIRST_IMPORT_FOR_IMPLEMENTS), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.ADD_FIRST_IMPORT_FOR_IMPLEMENTS);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testAddFirstImportForImplements() after adding import statement JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+	}
+	
+	private void testAddImplementsAndMethod()  throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
+		//Add implements statement and implemented method in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.ADD_FIRST_IMPORT_FOR_IMPLEMENTS), commits.get(EuFpetersenCbsPcCommits.ADD_IMPLEMENTS_AND_METHOD), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.ADD_IMPLEMENTS_AND_METHOD);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testAddImplements() after adding implements statement and method JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);		
+	}
+
+
+
+	private void testAddFirstImportForExtends() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
+		//Add first import statement in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.ADD_FIRST_CLASS_IMPL), commits.get(EuFpetersenCbsPcCommits.ADD_FIRST_IMPORT_FOR_EXTENDS), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.ADD_FIRST_IMPORT_FOR_EXTENDS);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testAddFirstImportForExtends() after adding import statement JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+	}
+	
+	private void testAddExtends() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
+		//Add extends statement in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.ADD_FIRST_IMPORT_FOR_EXTENDS), commits.get(EuFpetersenCbsPcCommits.ADD_EXTENDS), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.ADD_EXTENDS);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testAddExtends() after adding extends statement JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+	}
+	
+	private void testAddSecondImportForExtends() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException  {
+		//Add second import statement in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.ADD_EXTENDS), commits.get(EuFpetersenCbsPcCommits.ADD_SECOND_IMPORT_FOR_EXTENDS), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.ADD_SECOND_IMPORT_FOR_EXTENDS);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testAddSecondImportForExtends() after adding import statement JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+
+		
+	}
+	
+	private void testChangeExtends() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException  {
+		//Change extends statement in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.ADD_SECOND_IMPORT_FOR_EXTENDS), commits.get(EuFpetersenCbsPcCommits.CHANGE_EXTENDS), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.CHANGE_EXTENDS);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testChangeExtends() after changing extends statement JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+
+		
+	}
+	
+	private void testRemoveExtends() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException  {
+		//Remove extends statement in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.CHANGE_EXTENDS), commits.get(EuFpetersenCbsPcCommits.REMOVE_EXTENDS), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.REMOVE_EXTENDS);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testRemoveExtends() after removing extends statement JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);	
+	}
+	
+	private void testRemoveSecondImportForExtends() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException  {
+		//Remove second import statement in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.REMOVE_EXTENDS), commits.get(EuFpetersenCbsPcCommits.REMOVE_SECOND_IMPORT_FOR_EXTENDS), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.REMOVE_SECOND_IMPORT_FOR_EXTENDS);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testRemoveSecondImportForExtends() after removing import statement JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+
+		
+	}
+	
+	private void testRemoveFirstImportForExtends() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException  {
+		//Remove first import statement in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.REMOVE_SECOND_IMPORT_FOR_EXTENDS), commits.get(EuFpetersenCbsPcCommits.REMOVE_FIRST_IMPORT_FOR_EXTENDS), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.REMOVE_FIRST_IMPORT_FOR_EXTENDS);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testRemoveFirstImportForExtends() after removing import statement JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+	}
+
+
+	private void testRemovePublicClassModifier()  throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
+		//Remove import statement in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.ADD_FIRST_CLASS_IMPL), commits.get(EuFpetersenCbsPcCommits.REMOVE_PUBLIC), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.REMOVE_PUBLIC);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testRemovePublicClassModifier() after removing 'public' class modifier JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+
+	}	
+	
+	private void testAddFinalClassModifier()  throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
+		//Remove import statement in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.REMOVE_PUBLIC), commits.get(EuFpetersenCbsPcCommits.ADD_FINAL), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.ADD_FINAL);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testAddFinalClassModifier() after adding 'final' class modifier the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+	
+	}
+	
+	
+	private void testChangeFinalToAbstractClassModifier() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
+		//Remove import statement in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.ADD_FINAL), commits.get(EuFpetersenCbsPcCommits.CHANGE_FINAL_TO_ABSTRACT), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.CHANGE_FINAL_TO_ABSTRACT);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testChangeFinalToAbstractClassModifier() after changing 'final' class modifier to 'abstract' the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+
+	}
+	
+	
+	private void testChangeAbstractToPublicClassModifier()  throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
+		//Remove import statement in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.CHANGE_FINAL_TO_ABSTRACT), commits.get(EuFpetersenCbsPcCommits.CHANGE_ABSTRACT_TO_PUBLIC), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.CHANGE_ABSTRACT_TO_PUBLIC);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testChangeAbstractToPublicClassModifier() after changing 'abstract' class modifier to 'public' the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+	
+	}
+
+	
+	private void testAddImport() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
+		//Add import statement in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.ADD_FIRST_CLASS_IMPL), commits.get(EuFpetersenCbsPcCommits.ADD_IMPORT), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.ADD_IMPORT);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testAddImport() after adding import the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+		
+	}
+
+
+	private void testChangeImport() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
+		//Change import statement in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.ADD_IMPORT), commits.get(EuFpetersenCbsPcCommits.CHANGE_IMPORT), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.CHANGE_IMPORT);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testChangeClassAnnotaion() after changing import the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);		
+	}
+
+	
+	private void testRemoveClassImport() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
+		//Remove import statement in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.CHANGE_IMPORT), commits.get(EuFpetersenCbsPcCommits.REMOVE_IMPORT), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.REMOVE_IMPORT);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare the buffers from compilation units
+		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testRemoveClassImport() after removing import the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+			
+	}
 	
 	private void testAddClassAnnotation() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Add class annotation in FirstClassImpl.java
@@ -183,7 +678,7 @@ public class ChangeClassTest /*extends ApplyingChangesFromGitTest*/ {
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
 		//TODO: Compare PCM Repository Models
-		//TODO: not working
+		//TODO: comparePCMBasicComponents(...) does NOT work
 		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
 		//Remove temporary project
 		//projectFromGitRepository.delete(true, new NullProgressMonitor());
@@ -209,7 +704,7 @@ public class ChangeClassTest /*extends ApplyingChangesFromGitTest*/ {
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
 		//TODO: Compare PCM Repository Models
-		//TODO: not working
+		//TODO: comparePCMBasicComponents(...) does NOT work
 		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
 		//Remove temporary project
 		//projectFromGitRepository.delete(true, new NullProgressMonitor());
@@ -221,7 +716,7 @@ public class ChangeClassTest /*extends ApplyingChangesFromGitTest*/ {
 	
 	//TODO:Vitruv does not react to removing class annotation
 	private void testRemoveClassAnnotation() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
-		//Change class annotation in FirstClassImpl.java
+		//Remove class annotation in FirstClassImpl.java
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.CHANGE_CLASS_ANNOTATION), commits.get(EuFpetersenCbsPcCommits.REMOVE_CLASS_ANNOTATION), testProject);	
 		//Checkout the repository on the certain commit
 		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.REMOVE_CLASS_ANNOTATION);
@@ -235,7 +730,7 @@ public class ChangeClassTest /*extends ApplyingChangesFromGitTest*/ {
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
 		//TODO: Compare PCM Repository Models
-		//TODO: not working
+		//TODO: comparePCMBasicComponents(...) does NOT work
 		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
 		//Remove temporary project
 		//projectFromGitRepository.delete(true, new NullProgressMonitor());

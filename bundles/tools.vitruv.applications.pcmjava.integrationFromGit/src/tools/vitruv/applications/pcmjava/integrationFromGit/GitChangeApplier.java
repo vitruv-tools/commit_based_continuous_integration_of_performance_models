@@ -83,7 +83,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		
 		ArrayList<DiffEntry> diffs = new ArrayList<>(gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, /*true*/false, true));
 		Collections.reverse(diffs); 
-
+		//TODO: Sort the diffs list on REMOVE, then ADD, then MODIFY
 		for (DiffEntry diff : diffs) {
 			
 			ICompilationUnit iCu;
