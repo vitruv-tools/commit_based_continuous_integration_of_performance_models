@@ -58,13 +58,42 @@ public abstract class EuFpetersenCbsPcCommits {
 	//removed 'import eu.fpetersen.cbs.pc.data.Frame;' in FirstClassImpl.java
 	public final static String REMOVE_FIRST_IMPORT_FOR_EXTENDS = "bf92263945bf6c10b8c87bc4a66bb7229ed1decb";
 	
+	
 	//added FirstInterface.java in NonIntegratedPackage.contracts
-	public final static String ADD_INTERFACE_FOR_IMPLEMENTS = "be1c282154b1267b6b183da9c35840746fa4f3c1";
+	public final static String ADD_FIRST_INTERFACE_FOR_IMPLEMENTS = "be1c282154b1267b6b183da9c35840746fa4f3c1";
 	//added  'void firstMethodInFirstInterface()' in FirstInterface.java
-	public final static String ADD_METHOD_IN_INTERFACE_FOR_IMPLEMENTS = "93dfc6f1b100f128e22308e39414e849c74f5c26";
+	public final static String ADD_METHOD_IN_FIRST_INTERFACE_FOR_IMPLEMENTS = "93dfc6f1b100f128e22308e39414e849c74f5c26";
 	//added 'import nonIntegratedPackage.contracts.FirstInterface;' in FirstClassImpl.java
 	public final static String ADD_FIRST_IMPORT_FOR_IMPLEMENTS = "0fe67a0a2d25850a1d122b6cd00ccf9af212dcd0";
 	//added 'implements FirstInterface' and 'public void firstMethodInFirstInterface() {}' in FirstClassImpl.java
 	public final static String ADD_IMPLEMENTS_AND_METHOD = "57e7c95ed0c936b353b50c869e2e2309a656f461";
+	// added SecondInterface.java in nonIntegratedPackage.contracts
+	public final static String ADD_SECOND_INTERFACE_FOR_IMPLEMENTS = "929f1050c259bfc9c62768da7ceee6518416ae5b";
+	//added 'void firstMethodInSecondInterface();' in SecondInterface.java
+	public final static String ADD_METHOD_IN_SECOND_INTERFACE_FOR_IMPLEMENTS = "1a752c6eb03e3f3bbd036546b48eb5932ca78f75";
+	//added 'import nonIntegratedPackage.contracts.SecondInterface;' in FirstClassImpl.java
+	public final static String ADD_SECOND_IMPORT_FOR_IMPLEMENTS = "5c6bbc8f2b5eea1c0cba41ea51133157811acac9";
+	//changed 'implements FirstInterface' to 'implements SecondInterface' and added 'public void firstMethodInSecondInterface() {}' in FirstClassImpl.java
+	public final static String CHANGE_IMPLEMENTS_AND_ADD_METHOD = "f70fb44bc141e263a399c17478dc0501971116c8";
+	//removed 'implements SecondInterface' in FirstClassImpl.java
+	public final static String REMOVE_IMPLEMENTS = "324eff3d4f5f3f85163c0030b23bd9578fe537af";
+	//removed methods firstMethodInFirstInterface and firstMethodInSecondInterface in FirstClassImpl.java
+	public final static String REMOVE_BOTH_METHODS_FOR_IMPLEMENTS = "98719d019c9b59d3d95be6d8952ac53d7d9de20e";
+	//removed imports nonIntegratedPackage.contracts.SecondInterface and nonIntegratedPackage.contracts.FirstInterface in FirstClassImpl.java
+	public final static String REMOVE_BOTH_IMPORTS_FOR_IMPLEMENTS = "e3aa1f7240c2dde2833787ad018577f86f298ff6";
+	
+	
+	//added SecondClass.java in package nonIntegratedPackage.FirstClass
+	public final static String ADD_SECOND_CLASS_FOR_FIELD = "4ffbfef983b0c55db76ad19e7dd6caecfeabf790";
+	//added 'import nonIntegratedPackage.FirstClass.SecondClass;' in FirstClassImpl.java
+	public final static String ADD_IMPORT_FOR_FIELD = "5531bd8f4e58952fa279feccde1a4250342e2112";
+	//added field 'SecondClass secondClassField;' in FirstClassImpl.java
+	public final static String ADD_FIELD = "37528be48e802518c9642310cdfc995656735f79";
+	//renamed field 'secondClassField' to 'renamedSecondClassField' in FirstClassImpl.java
+	public final static String RENAME_FIELD = "470895d850a516d4558e53bd83979a62548d02fa";
+	//removed field 'renamedSecondClassField' in FirstClassImpl.java
+	public final static String REMOVE_FIELD = "a70c52110c66f232bcb251660c27d115e8f915db";
+	//removed 'import nonIntegratedPackage.FirstClass.SecondClass;' in FirstClassImpl.java
+	public final static String REMOVE_IMPORT_FOR_FIELD = "f88052c54619efab8c2cfcd145401eb814a844e5";
 
 }

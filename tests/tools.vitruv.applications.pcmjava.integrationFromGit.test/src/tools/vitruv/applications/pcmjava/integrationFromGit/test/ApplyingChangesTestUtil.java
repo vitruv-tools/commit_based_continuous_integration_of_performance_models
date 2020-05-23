@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.resources.IProject;
@@ -61,6 +62,7 @@ import org.emftext.language.java.classifiers.Classifier;
 import org.emftext.language.java.classifiers.ConcreteClassifier;
 import org.emftext.language.java.containers.CompilationUnit;
 import org.emftext.language.java.containers.JavaRoot;
+import org.emftext.language.java.containers.impl.CompilationUnitImpl;
 import org.emftext.language.java.members.Member;
 import org.emftext.language.java.members.Method;
 import org.palladiosimulator.pcm.repository.BasicComponent;
@@ -84,6 +86,7 @@ import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.framework.userinteraction.InteractionResultProvider;
 import tools.vitruv.framework.userinteraction.InternalUserInteractor;
 import tools.vitruv.framework.userinteraction.UserInteractionFactory;
+import tools.vitruv.framework.util.datatypes.ModelInstance;
 import tools.vitruv.framework.util.datatypes.VURI;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
 import tools.vitruv.framework.vsum.VirtualModelConfiguration;
@@ -316,7 +319,142 @@ public class ApplyingChangesTestUtil {
 		
 	}
 	
+	//TODO:clean up mess
+	public static boolean compareJaMoPPClassifier_second_version(ICompilationUnit changedCompilationUnit, ICompilationUnit gitCompilationUnit, InternalVirtualModel virtualModel) {
+		ModelInstance modelInstance = virtualModel.getModelInstance(VURI.getInstance(changedCompilationUnit.getResource()));
+		modelInstance.load(new HashMap(), true);
+		CompilationUnitImpl compilationUnitImplBefore = (CompilationUnitImpl) modelInstance.getResource().getContents().get(0);
+        ConcreteClassifier changedClassifier = compilationUnitImplBefore.getClassifiers().get(0);
+        
+        
+        virtualModel.executeCommand(new Callable<Void>() {
+
+            @Override
+            public Void call() {
+                
+                try {
+                	System.out.println("changedClassifier:\n");
+                	changedClassifier.eResource().save(System.out, new HashMap());
+                } catch (final Throwable e) {
+                    throw new RuntimeException(e);
+                }
+
+                return null;
+            }
+        });
+
+        
+        
+		ConcreteClassifier gitClassifier = getJaMoPPClassifierForICompilationUnit(gitCompilationUnit);
+
+        virtualModel.executeCommand(new Callable<Void>() {
+
+            @Override
+            public Void call() {
+                
+                try {
+                	System.out.println("gitClassifier:\n");
+                	gitClassifier.eResource().save(System.out, new HashMap());
+                } catch (final Throwable e) {
+                    throw new RuntimeException(e);
+                }
+
+                return null;
+            }
+        });
+		
+		
+		Comparison comparison = compareTwoModels(changedClassifier, gitClassifier);
+		
+		org.eclipse.emf.compare.internal.spec.AttributeChangeSpec s;
+		
+		List<Match> matches = comparison.getMatches();
+		List<Diff> differences = comparison.getDifferences();
+		
+		if (differences.size() == 0) {
+			return true;
+		}
+		else {
+			return false;
+		}
+		
+		/*
+        IMerger.Registry mergerRegistry = new IMerger.RegistryImpl().createStandaloneInstance();
+        IBatchMerger merger = new BatchMerger(mergerRegistry);
+        merger.copyAllLeftToRight(differences, new BasicMonitor());
+        firstConcreteClassifier.eResource().save(System.out, new HashMap());
+		*/
+		
+	}
 	
+	//TODO: get JaMoPP Compilation Unit from gitCompilationUnit
+	public static boolean compareJaMoPPCompilationUnits(ICompilationUnit changedCompilationUnit, ICompilationUnit gitCompilationUnit, InternalVirtualModel virtualModel) {
+		ModelInstance modelInstance = virtualModel.getModelInstance(VURI.getInstance(changedCompilationUnit.getResource()));
+		modelInstance.load(new HashMap(), true);
+		CompilationUnitImpl changedCompilationUnit_JaMoPP = (CompilationUnitImpl) modelInstance.getResource().getContents().get(0);
+
+		/*//For testing. Prints contents of the JaMoPP-Model
+        virtualModel.executeCommand(new Callable<Void>() {
+
+            @Override
+            public Void call() {
+                
+                try {
+                	System.out.println("changedCompilationUnit_JaMoPP:\n");
+                	changedCompilationUnit_JaMoPP.eResource().save(System.out, new HashMap());
+                } catch (final Throwable e) {
+                    throw new RuntimeException(e);
+                }
+
+                return null;
+            }
+        });
+		 */
+        
+		ConcreteClassifier gitClassifier = getJaMoPPClassifierForICompilationUnit(gitCompilationUnit);
+
+        virtualModel.executeCommand(new Callable<Void>() {
+
+            @Override
+            public Void call() {
+                
+                try {
+                	System.out.println("gitClassifier:\n");
+                	gitClassifier.eResource().save(System.out, new HashMap());
+                } catch (final Throwable e) {
+                    throw new RuntimeException(e);
+                }
+
+                return null;
+            }
+        });
+		
+		
+		Comparison comparison = compareTwoModels(changedClassifier, gitClassifier);
+		
+		org.eclipse.emf.compare.internal.spec.AttributeChangeSpec s;
+		
+		List<Match> matches = comparison.getMatches();
+		List<Diff> differences = comparison.getDifferences();
+		
+		if (differences.size() == 0) {
+			return true;
+		}
+		else {
+			return false;
+		}
+		
+		/*
+        IMerger.Registry mergerRegistry = new IMerger.RegistryImpl().createStandaloneInstance();
+        IBatchMerger merger = new BatchMerger(mergerRegistry);
+        merger.copyAllLeftToRight(differences, new BasicMonitor());
+        firstConcreteClassifier.eResource().save(System.out, new HashMap());
+		*/
+		
+	}
+	
+	
+	//TODO: Does not work appropriate, because it returns empty BasicComponents. Therefore find an another approach to create PCM Model
 	public static boolean comparePCMBasicComponents(ICompilationUnit firstCompilationUnit, ICompilationUnit secondCompilationUnit) {
 		ConcreteClassifier firstClassifier = getJaMoPPClassifierForICompilationUnit(firstCompilationUnit);
 		ConcreteClassifier secondClassifier = getJaMoPPClassifierForICompilationUnit(secondCompilationUnit);
