@@ -1,14 +1,18 @@
 package tools.vitruv.applications.pcmjava.integrationFromGit.test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.stream.Stream;
 
 import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.resources.IProject;
@@ -20,6 +24,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.emf.common.util.BasicMonitor;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.EMFCompare;
@@ -37,6 +42,9 @@ import org.eclipse.emf.compare.match.IMatchEngine;
 import org.eclipse.emf.compare.match.eobject.IEObjectMatcher;
 import org.eclipse.emf.compare.match.impl.MatchEngineFactoryImpl;
 import org.eclipse.emf.compare.match.impl.MatchEngineFactoryRegistryImpl;
+import org.eclipse.emf.compare.merge.BatchMerger;
+import org.eclipse.emf.compare.merge.IBatchMerger;
+import org.eclipse.emf.compare.merge.IMerger;
 import org.eclipse.emf.compare.scope.DefaultComparisonScope;
 import org.eclipse.emf.compare.scope.IComparisonScope;
 import org.eclipse.emf.compare.utils.UseIdentifiers;
@@ -108,13 +116,11 @@ public class ApplyingChangesTestUtil {
 		ImportOperation importOperation = new ImportOperation(workspacePath, new File(projectPath/* baseDir */),
 				FileSystemStructureProvider.INSTANCE, overwriteQuery);
 		importOperation.setCreateContainerStructure(false);
-		// DoneFlagProgressMonitor progress = new DoneFlagProgressMonitor();//probably
-		// does not work correctly, because progress.isDone() is never true
-		importOperation.run(new NullProgressMonitor()/* progress *//* null */);
-		// Wait for the project to be imported
-		/*
-		 * while (!progress.isDone()) { Thread.sleep(100); }
-		 */
+		//DoneFlagProgressMonitor monitor = new DoneFlagProgressMonitor();//probably
+		// importOperation does not work correctly with DoneFlagProgressMonitor, because progress.isDone() is never true.
+		//Therefore use NullProgressMonitor()
+		importOperation.run(/*new NullProgressMonitor()*/ /*monitor*/ null );
+		//boolean importDone = monitor.isDone();
 		return workspace.getRoot().getProject(projectName);
 	}
 
@@ -226,6 +232,7 @@ public class ApplyingChangesTestUtil {
 
 		// add change propagation listener to the project
 		vsum.addChangePropagationListener(listener);
+		
 
 		// build project
 		VitruviusJavaBuilderApplicator pcmJavaBuilder = new VitruviusJavaBuilderApplicator();
@@ -294,33 +301,9 @@ public class ApplyingChangesTestUtil {
 		
 	}
 	
-	
-	public static boolean compareJaMoPPClassifier(ICompilationUnit firstCompilationUnit, ICompilationUnit secondCompilationUnit) {
-		ConcreteClassifier firstClassifier = getJaMoPPClassifierForICompilationUnit(firstCompilationUnit);
-		ConcreteClassifier secondClassifier = getJaMoPPClassifierForICompilationUnit(secondCompilationUnit);
-		Comparison comparison = compareTwoModels(firstClassifier, secondClassifier);
-		
-		//List<Match> matches = comparison.getMatches();
-		List<Diff> differences = comparison.getDifferences();
-		
-		if (differences.size() == 0) {
-			return true;
-		}
-		else {
-			return false;
-		}
-		
-		/*
-        IMerger.Registry mergerRegistry = new IMerger.RegistryImpl().createStandaloneInstance();
-        IBatchMerger merger = new BatchMerger(mergerRegistry);
-        merger.copyAllLeftToRight(differences, new BasicMonitor());
-        firstConcreteClassifier.eResource().save(System.out, new HashMap());
-		*/
-		
-	}
-	
+/*	
 	//TODO:clean up mess
-	public static boolean compareJaMoPPClassifier_second_version(ICompilationUnit changedCompilationUnit, ICompilationUnit gitCompilationUnit, InternalVirtualModel virtualModel) {
+	public static boolean compareJaMoPPClassifier(ICompilationUnit changedCompilationUnit, ICompilationUnit gitCompilationUnit, InternalVirtualModel virtualModel) {
 		ModelInstance modelInstance = virtualModel.getModelInstance(VURI.getInstance(changedCompilationUnit.getResource()));
 		modelInstance.load(new HashMap(), true);
 		CompilationUnitImpl compilationUnitImplBefore = (CompilationUnitImpl) modelInstance.getResource().getContents().get(0);
@@ -378,22 +361,20 @@ public class ApplyingChangesTestUtil {
 			return false;
 		}
 		
-		/*
-        IMerger.Registry mergerRegistry = new IMerger.RegistryImpl().createStandaloneInstance();
-        IBatchMerger merger = new BatchMerger(mergerRegistry);
-        merger.copyAllLeftToRight(differences, new BasicMonitor());
-        firstConcreteClassifier.eResource().save(System.out, new HashMap());
-		*/
-		
 	}
+*/	
 	
-	//TODO: get JaMoPP Compilation Unit from gitCompilationUnit
 	public static boolean compareJaMoPPCompilationUnits(ICompilationUnit changedCompilationUnit, ICompilationUnit gitCompilationUnit, InternalVirtualModel virtualModel) {
+		
 		ModelInstance modelInstance = virtualModel.getModelInstance(VURI.getInstance(changedCompilationUnit.getResource()));
 		modelInstance.load(new HashMap(), true);
-		CompilationUnitImpl changedCompilationUnit_JaMoPP = (CompilationUnitImpl) modelInstance.getResource().getContents().get(0);
+		//CompilationUnitImpl changedCompilationUnit_JaMoPP = (CompilationUnitImpl) modelInstance.getResource().getContents().get(0);
+		CompilationUnit changedCompilationUnit_JaMoPP = (CompilationUnit) modelInstance.getResource().getContents().get(0);
 
-		/*//For testing. Prints contents of the JaMoPP-Model
+		OutputStream changedCompilationUnitStream = new ByteArrayOutputStream();
+		OutputStream gitCompilationUnitStream = new ByteArrayOutputStream();
+		
+
         virtualModel.executeCommand(new Callable<Void>() {
 
             @Override
@@ -401,7 +382,8 @@ public class ApplyingChangesTestUtil {
                 
                 try {
                 	System.out.println("changedCompilationUnit_JaMoPP:\n");
-                	changedCompilationUnit_JaMoPP.eResource().save(System.out, new HashMap());
+                	changedCompilationUnit_JaMoPP.eResource().save(changedCompilationUnitStream/*System.out*/, new HashMap());
+                	System.out.println(changedCompilationUnitStream);
                 } catch (final Throwable e) {
                     throw new RuntimeException(e);
                 }
@@ -409,18 +391,20 @@ public class ApplyingChangesTestUtil {
                 return null;
             }
         });
-		 */
+		 
         
-		ConcreteClassifier gitClassifier = getJaMoPPClassifierForICompilationUnit(gitCompilationUnit);
+		CompilationUnit gitCompilationUnit_JaMoPP = getJaMoPPRootForVURI(VURI.getInstance(gitCompilationUnit.getResource()));
 
-        virtualModel.executeCommand(new Callable<Void>() {
+
+		virtualModel.executeCommand(new Callable<Void>() {
 
             @Override
             public Void call() {
                 
                 try {
                 	System.out.println("gitClassifier:\n");
-                	gitClassifier.eResource().save(System.out, new HashMap());
+                	gitCompilationUnit_JaMoPP.eResource().save(gitCompilationUnitStream/*System.out*/, new HashMap());
+                	System.out.println(gitCompilationUnitStream);
                 } catch (final Throwable e) {
                     throw new RuntimeException(e);
                 }
@@ -429,10 +413,8 @@ public class ApplyingChangesTestUtil {
             }
         });
 		
-		
-		Comparison comparison = compareTwoModels(changedClassifier, gitClassifier);
-		
-		org.eclipse.emf.compare.internal.spec.AttributeChangeSpec s;
+        	
+		Comparison comparison = compareTwoModels(changedCompilationUnit_JaMoPP, gitCompilationUnit_JaMoPP);
 		
 		List<Match> matches = comparison.getMatches();
 		List<Diff> differences = comparison.getDifferences();
@@ -441,18 +423,32 @@ public class ApplyingChangesTestUtil {
 			return true;
 		}
 		else {
-			return false;
+			System.out.println("JaMoPP-Models are NOT equal. Compare containing code from the models.");
+			//virtualModel.propagateChangedState(gitCompilationUnit_JaMoPP.eResource());
+			return changedCompilationUnitStream.toString().equals(gitCompilationUnitStream.toString());
 		}
-		
-		/*
-        IMerger.Registry mergerRegistry = new IMerger.RegistryImpl().createStandaloneInstance();
-        IBatchMerger merger = new BatchMerger(mergerRegistry);
-        merger.copyAllLeftToRight(differences, new BasicMonitor());
-        firstConcreteClassifier.eResource().save(System.out, new HashMap());
-		*/
-		
+
 	}
 	
+	
+	private void mergeModels(Comparison comparison) {
+	    IMerger.Registry mergerRegistry = new IMerger.RegistryImpl().createStandaloneInstance();
+	    IBatchMerger merger = new BatchMerger(mergerRegistry);
+	    merger.copyAllLeftToRight(comparison.getDifferences(), new BasicMonitor());
+	}
+	
+	
+
+/*
+public static void assertStreamEquals(Stream<?> s1, Stream<?> s2) {
+    Iterator<?> iter1 = s1.iterator(), iter2 = s2.iterator();
+    while(iter1.hasNext() && iter2.hasNext())
+        assertEquals(iter1.next(), iter2.next());
+    assert !iter1.hasNext() && !iter2.hasNext();
+}
+*/
+
+
 	
 	//TODO: Does not work appropriate, because it returns empty BasicComponents. Therefore find an another approach to create PCM Model
 	public static boolean comparePCMBasicComponents(ICompilationUnit firstCompilationUnit, ICompilationUnit secondCompilationUnit) {
@@ -475,7 +471,8 @@ public class ApplyingChangesTestUtil {
             matchEngineRegistry.add(matchEngineFactory);
     	
     	
-    	//The logic to determine whether a feature should be checked for differences has been extracted into its own class, and is quite easy to alter. For example, if you would like to ignore the name feature of your elements or never detect any ordering change: 
+    	//The logic to determine whether a feature should be checked for differences has been extracted into its own class, and is quite easy to alter. 
+        //For example, if you would like to ignore the name feature of your elements or never detect any ordering change: 
     	IDiffProcessor diffProcessor = new DiffBuilder();
     	IDiffEngine diffEngine = new DefaultDiffEngine(diffProcessor) {
     		@Override
@@ -549,6 +546,7 @@ public class ApplyingChangesTestUtil {
 		return expectedSeff;
 	}
 
+	
 	private ResourceDemandingBehaviour createResourceBehaviourWithAbstractActions(
 			final AbstractAction... abstractActions) {
 		final ResourceDemandingBehaviour behaviour = SeffFactory.eINSTANCE.createResourceDemandingBehaviour();

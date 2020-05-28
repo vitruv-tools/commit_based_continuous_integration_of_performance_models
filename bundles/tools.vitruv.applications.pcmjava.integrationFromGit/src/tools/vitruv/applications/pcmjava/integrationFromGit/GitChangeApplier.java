@@ -70,7 +70,13 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	}
 	
 	
-	//TODO: Not only for Java Files, but also for other file types and packages
+	public void applyChangesFromCommits(List<RevCommit> commits, IProject currentProject) throws CoreException, InterruptedException, IOException {
+		Collections.reverse(commits); 
+		for (int i = 0; i < commits.size() - 1; i++) {
+			applyChangesFromCommit(commits.get(i), commits.get(i + 1), currentProject);
+		}
+	}
+
 	/**
 	 * @param oldCommit
 	 * @param newCommit

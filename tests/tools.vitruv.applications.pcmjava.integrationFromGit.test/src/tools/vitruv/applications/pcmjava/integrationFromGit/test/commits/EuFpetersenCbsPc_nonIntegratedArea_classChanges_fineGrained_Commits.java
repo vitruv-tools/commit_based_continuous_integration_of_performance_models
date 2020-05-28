@@ -1,6 +1,10 @@
 package tools.vitruv.applications.pcmjava.integrationFromGit.test.commits;
 
-public abstract class EuFpetersenCbsPcCommits {
+public abstract class EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits {
+	
+	
+	//Branch and commits for testing fine grained changes in a non integrated area on a java class
+	//****************************************************************************************************************
 	
 	public final static String BRANCH_NAME = "nonIntegratedArea_ChangeClassTest";
 	

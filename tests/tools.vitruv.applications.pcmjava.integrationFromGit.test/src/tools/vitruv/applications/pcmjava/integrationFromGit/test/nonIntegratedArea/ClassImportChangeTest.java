@@ -34,7 +34,7 @@ import tools.vitruv.applications.pcmjava.integrationFromGit.GitChangeApplier;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitRepository;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesFromGitTest;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesTestUtil;
-import tools.vitruv.applications.pcmjava.integrationFromGit.test.commits.EuFpetersenCbsPcCommits;
+import tools.vitruv.applications.pcmjava.integrationFromGit.test.commits.EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits;
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTest;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.Java2PcmWithSeffstatmantsChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.tests.util.CompilationUnitManipulatorHelper;
@@ -114,21 +114,21 @@ public class ClassImportChangeTest /*extends ApplyingChangesFromGitTest*/ {
         //integrate test project in Vitruv
         virtualModel = ApplyingChangesTestUtil.integrateProjectWithChangePropagationSpecification(testProject, changePropagationSpecifications, changeApplier);
         //checkout and track branch
-        gitRepository.checkoutAndTrackBranch(EuFpetersenCbsPcCommits.BRANCH_NAME);
+        gitRepository.checkoutAndTrackBranch(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.BRANCH_NAME);
         //get all commits from branch and save them in a Map. Commit hash as Key and commit itself as Value in the Map.
-        List<RevCommit> commitsList = gitRepository.getAllCommitsFromBranch(EuFpetersenCbsPcCommits.BRANCH_NAME);
+        List<RevCommit> commitsList = gitRepository.getAllCommitsFromBranch(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.BRANCH_NAME);
         for (RevCommit commit: commitsList) {
         	commits.put(commit.getName(), commit);
         }
         //prepare a non-integrated area. The following steps are necessary:
     	//create nonIntegratedPackage in src folder
-    	changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.INIT), commits.get(EuFpetersenCbsPcCommits.ADD_NON_INTEGRATED_PACKAGE), testProject);
+    	changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.INIT), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_NON_INTEGRATED_PACKAGE), testProject);
     	//create packages contracts and datatypes in nonIntegratedPackage
-    	changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.ADD_NON_INTEGRATED_PACKAGE), commits.get(EuFpetersenCbsPcCommits.ADD_CONTRACTS_DATATYPES), testProject);
+    	changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_NON_INTEGRATED_PACKAGE), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_CONTRACTS_DATATYPES), testProject);
     	//create package FirstClass in nonIntegratedPackage
-    	changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.ADD_CONTRACTS_DATATYPES), commits.get(EuFpetersenCbsPcCommits.ADD_FIRST_CLASS_PACKAGE), testProject);
+    	changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_CONTRACTS_DATATYPES), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_CLASS_PACKAGE), testProject);
     	//create FirstClassImpl.java in package FirstClass
-    	changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.ADD_FIRST_CLASS_PACKAGE), commits.get(EuFpetersenCbsPcCommits.ADD_FIRST_CLASS_IMPL), testProject);	
+    	changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_CLASS_PACKAGE), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_CLASS_IMPL), testProject);	
 	}
 
 	/**
@@ -169,11 +169,11 @@ public class ClassImportChangeTest /*extends ApplyingChangesFromGitTest*/ {
 		//Add import statement in FirstClassImpl.java
 		
 		
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.ADD_FIRST_CLASS_IMPL), commits.get(EuFpetersenCbsPcCommits.ADD_IMPORT), testProject);	
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_CLASS_IMPL), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_IMPORT), testProject);	
 		
 		
 		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.ADD_IMPORT);
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_IMPORT);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
 		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
@@ -188,7 +188,7 @@ public class ClassImportChangeTest /*extends ApplyingChangesFromGitTest*/ {
 		//Compare JaMoPP-Models 
 		
 		
-		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier_second_version(compUnitChanged, compUnitFromGit, virtualModel);
+		boolean jamoppCompilationUnitsAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 											//ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
 		
 		
@@ -199,16 +199,16 @@ public class ClassImportChangeTest /*extends ApplyingChangesFromGitTest*/ {
 		//projectFromGitRepository.delete(true, new NullProgressMonitor());
 		
 		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
-		assertTrue("In testAddImport() after adding import the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+		assertTrue("In testAddImport() after adding import the JaMoPP-models are NOT equal, but they should be", jamoppCompilationUnitsAreEqual);
 		
 	}
 
 
 	private void testChangeImport() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
 		//Change import statement in FirstClassImpl.java
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.ADD_IMPORT), commits.get(EuFpetersenCbsPcCommits.CHANGE_IMPORT), testProject);	
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_IMPORT), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.CHANGE_IMPORT), testProject);	
 		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.CHANGE_IMPORT);
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.CHANGE_IMPORT);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
 		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
@@ -217,7 +217,7 @@ public class ClassImportChangeTest /*extends ApplyingChangesFromGitTest*/ {
 		//Compare the buffers from compilation units
 		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
 		//Compare JaMoPP-Models 
-		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		boolean jamoppCompilationUnitsAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 		//TODO: Compare PCM Repository Models
 		//TODO: comparePCMBasicComponents(...) does NOT work
 		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
@@ -225,15 +225,15 @@ public class ClassImportChangeTest /*extends ApplyingChangesFromGitTest*/ {
 		//projectFromGitRepository.delete(true, new NullProgressMonitor());
 		
 		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
-		assertTrue("In testChangeClassAnnotaion() after changing import the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);		
+		assertTrue("In testChangeClassAnnotaion() after changing import the JaMoPP-models are NOT equal, but they should be", jamoppCompilationUnitsAreEqual);		
 	}
 
 	
 	private void testRemoveClassImport() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
 		//Remove import statement in FirstClassImpl.java
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPcCommits.CHANGE_IMPORT), commits.get(EuFpetersenCbsPcCommits.REMOVE_IMPORT), testProject);	
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.CHANGE_IMPORT), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.REMOVE_IMPORT), testProject);	
 		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPcCommits.REMOVE_IMPORT);
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.REMOVE_IMPORT);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
 		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
@@ -242,7 +242,7 @@ public class ClassImportChangeTest /*extends ApplyingChangesFromGitTest*/ {
 		//Compare the buffers from compilation units
 		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
 		//Compare JaMoPP-Models 
-		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPClassifier(compUnitChanged, compUnitFromGit);
+		boolean jamoppCompilationUnitsAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 		//TODO: Compare PCM Repository Models
 		//TODO: comparePCMBasicComponents(...) does NOT work
 		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
@@ -250,7 +250,7 @@ public class ClassImportChangeTest /*extends ApplyingChangesFromGitTest*/ {
 		//projectFromGitRepository.delete(true, new NullProgressMonitor());
 		
 		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
-		assertTrue("In testRemoveClassImport() after removing import the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+		assertTrue("In testRemoveClassImport() after removing import the JaMoPP-models are NOT equal, but they should be", jamoppCompilationUnitsAreEqual);
 			
 	}
 	

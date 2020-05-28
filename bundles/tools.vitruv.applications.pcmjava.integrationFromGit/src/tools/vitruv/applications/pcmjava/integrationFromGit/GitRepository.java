@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
@@ -51,6 +52,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.ObjectStream;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.patch.CombinedHunkHeader;
 import org.eclipse.jgit.patch.FileHeader;
@@ -87,10 +89,30 @@ public class GitRepository {
 	
 	public GitRepository(File rootDirectory, String uriToRemoteRepository) throws IllegalStateException, GitAPIException {
 		this.rootDirectory = rootDirectory;
+		/*
+		Collection<Ref> remoteRefs = Git.lsRemoteRepository()
+				  .setHeads( true )
+				  .setRemote(uriToRemoteRepository)
+				  .call();
+		List<String> namesOfBranches = new ArrayList<String>();
+		for (Ref ref : remoteRefs) {
+			namesOfBranches.add(*ref.getName());
+		}
+		
+		
+		this.git = Git.cloneRepository()
+				  .setURI(uriToRemoteRepository)
+				  .setDirectory(rootDirectory)
+				  .setBranchesToClone(namesOfBranches)
+				  .call();
+		*/
+		
 		this.git = Git.cloneRepository()
 		  .setURI(uriToRemoteRepository)
 		  .setDirectory(rootDirectory)
+		  .setCloneAllBranches(true)
 		  .call();
+		
 	}
 	
 	
@@ -99,6 +121,7 @@ public class GitRepository {
 		this.git = Git.cloneRepository()
 		  .setGitDir(localRepository)
 		  .setDirectory(rootDirectory)
+		  .setCloneAllBranches(true)
 		  .call();
 	}
 
@@ -118,9 +141,22 @@ public class GitRepository {
 	}
 	
 	public void checkoutAndTrackBranch(String branchName) throws RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
-		 git.checkout().setCreateBranch(true).setName("testBranch")
-         .setUpstreamMode(SetupUpstreamMode./*TRACK*/SET_UPSTREAM)
-		 .setStartPoint("origin/" + branchName).call();
+		 
+		//git.checkout().setCreateBranch(true).setName(branchName)
+        // .setUpstreamMode(SetupUpstreamMode.TRACK/*SET_UPSTREAM*/)
+		// .setStartPoint("origin/" + branchName).call();
+		 
+		
+		 //git.checkout().setName("origin/" + branchName)
+         //.setUpstreamMode(SetupUpstreamMode.TRACK/*SET_UPSTREAM*/)
+		 //.setStartPoint("origin/" + branchName).call();
+		 
+		 
+		 
+		 git.pull()/*.setCredentialsProvider(user)*/.call();
+		 git.branchCreate().setForce(true).setName(branchName).setStartPoint("origin/" + branchName).call();
+		 git.checkout().setName(branchName).call();
+		 
 	}
 	
 	public void printStatusAdded() throws NoWorkTreeException, GitAPIException {
