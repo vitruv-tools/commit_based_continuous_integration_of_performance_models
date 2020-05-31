@@ -291,12 +291,24 @@ public class ApplyingChangesTestUtil {
 		boolean sameContent = false;
 		
 		try {
-			sameContent = firstCompilationUnit.getBuffer().toString().equals(secondCompilationUnit.getBuffer().toString());
+			String firstCompUnitContent = firstCompilationUnit.getBuffer().toString();
+			String secondCompUnitContent = secondCompilationUnit.getBuffer().toString();
+			sameContent = firstCompUnitContent.equals(secondCompUnitContent);
+			//if not equal, maybe the compilation units have different line separators.
+			//Try to replace line separator in both compilation units and compare them again. 
+			if (!sameContent) {
+				String lineSeparator = System.lineSeparator();
+				firstCompUnitContent = firstCompUnitContent.replaceAll("\r\n|\n|\r", lineSeparator);
+				secondCompUnitContent = secondCompUnitContent.replaceAll("\r\n|\n|\r", lineSeparator);
+				sameContent = firstCompUnitContent.equals(secondCompUnitContent);
+			}
+			
 		} catch (JavaModelException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
+		System.out.println("Equality of the compilation units buffers  = " + sameContent);
 		return sameContent;
 		
 	}

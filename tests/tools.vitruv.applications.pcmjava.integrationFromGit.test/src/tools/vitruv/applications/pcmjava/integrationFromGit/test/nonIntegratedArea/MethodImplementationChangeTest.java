@@ -35,6 +35,7 @@ import tools.vitruv.applications.pcmjava.integrationFromGit.GitRepository;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesFromGitTest;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesTestUtil;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.commits.EuFpetersenCbsPc_nonIntegratedArea_methodChanges_fineGrained_Commits;
+import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Java2PcmIntegrationChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTest;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.Java2PcmWithSeffstatmantsChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.tests.util.CompilationUnitManipulatorHelper;
@@ -70,7 +71,7 @@ public class MethodImplementationChangeTest /*extends ApplyingChangesFromGitTest
 
 	private static ChangePropagationSpecification[] changePropagationSpecifications = {
 			//new PackageMappingIntegrationChangePropagationSpecification()
-			//new Java2PcmIntegrationChangePropagationSpecification(),
+			//new Java2PcmIntegrationChangePropagationSpecification()
 			new Java2PcmWithSeffstatmantsChangePropagationSpecification()
 			//new Pcm2JavaIntegrationChangePropagationSpecification()
 			//new Java2PcmChangePropagationSpecification()

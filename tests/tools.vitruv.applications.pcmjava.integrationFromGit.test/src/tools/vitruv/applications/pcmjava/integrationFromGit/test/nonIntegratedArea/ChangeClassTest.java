@@ -46,7 +46,8 @@ import tools.vitruv.testutils.TestUserInteraction;
 
 /**
  * @author Ilia Chupakhin
- *
+ * 
+ * TODO: Delete this class. All tests from this class were separated into several classes. 
  */
 public class ChangeClassTest /*extends ApplyingChangesFromGitTest*/ {
 
