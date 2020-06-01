@@ -1,6 +1,6 @@
 package tools.vitruv.applications.pcmjava.integrationFromGit.test.commits;
 
-public abstract class EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits {
+public abstract class EuFpetersenCbsPc_integratedArea_fineGrained_commits {
 	
 	//initial commit from master branch	
 	public final static String INIT = "9fdb7d20a919cfa88fb51db47a20657073dfce92";
@@ -72,5 +72,75 @@ public abstract class EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_C
 	public final static String REMOVE_EXTERNAL_CALL = "58bc2e9a3b84d3cd8200348389e5a666495896f1";
 	
 	
+	//Branch and commits for testing fine grained changes in an integrated area on class annotation
+	//****************************************************************************************************************
+	public final static String CLASS_ANNOTATION_BRANCH_NAME = "integratedArea_fineGrained_classAnnotation";
+
+	//added class annotation
+	public final static String ADD_CLASS_ANNOTATION= "f5f9b8486ee6c88353b0d5ce32070e63018d16d8";
+	//changed class annotation
+	public final static String CHANGE_CLASS_ANNOTATION = "973cf0509732d815d4b737fe39f6f081e0a11080";
+	//removed class annotation
+	public final static String REMOVE_CLASS_ANNOTATION = "8732dc9cfdb3a9914d3178f922bbaf5a65e49404";
+	
+	
+	//Branch and commits for testing fine grained changes in an integrated area on implements
+	//****************************************************************************************************************
+	public final static String IMPLEMENTS_BRANCH_NAME = "integratedArea_fineGrained_implements";
+
+	//added import 'eu.fpetersen.cbs.pc.display.IDisplay' in Frame.java
+	public final static String ADD_IMPORT_FOR_IMPLEMENTS= "2d10a7558370e611fd64da067d3e5394f73b2b2f";
+	//added implements IDisplay and method in Frame.java
+	public final static String ADD_IMPLEMENTS_AND_METHOD = "2e2a2d3333afb951cf91dbb2d2e9b7b3f4c2bfc1";
+	//removed implements and method in Frame.java
+	public final static String REMOVE_IMPLEMENTS_AND_METHOD = "bed6ba5734789417ef1b10eebc02c6e3f9f637c2";
+	
+	
+	//Branch and commits for testing fine grained changes in an integrated area on extends
+	//****************************************************************************************************************
+	public final static String EXTENDS_BRANCH_NAME = "integratedArea_fineGrained_extends";
+
+	//add import 'eu.fpetersen.cbs.pc.graphics.GraphicsCard' in Frame.java
+	public final static String ADD_IMPORT_FOR_EXTENDS= "0fca674c6a6ea8f68648df6c9e0bc0fd67f23547";
+	//added 'extends GraphicsCard' in Frame.java
+	public final static String ADD_EXTENDS = "36b55eb90feacd39b26bb210079b51ff3472b18c";
+	//removed 'extends GraphicsCard' in Frame.java
+	public final static String REMOVE_EXTENDS = "9c0b29be22d64713421f61099b47acc8322f9d8b";
+	
+	
+	//Branch and commits for testing fine grained changes in an integrated area on a class header
+	//****************************************************************************************************************
+	public final static String CLASS_HEADER_BRANCH_NAME = "integratedArea_fineGrained_classHeader";
+
+	//renamed class Frame to FrameRenamed
+	public final static String RENAME_CLASS = "f018ed06c1a161e9ce469e314d131b1576b400ab";
+	//added abstract modifier to class FrameRenamed
+	public final static String ADD_ABSTRACT_TO_CLASS = "9ba8eaf819db85d898af4a48da71c9a4ebfc3853";
+	//changed abstract modifier to final in class FrameRenamed
+	public final static String CHANGE_ABSTRACT_TO_FINAL_IN_CLASS = "46133716a15a8ccb5862791adc7a63974561d2dc";
+	
+	
+	//Branch and commits for testing creation and deleting a class in an integrated area
+	//****************************************************************************************************************
+	public final static String CLASS_CREATE_DELETE_BRANCH_NAME = "integratedArea_fineGrained_classCreateDelete";
+
+	//added NewClass.java in package eu.fpetersen.cbs.pc.data
+	public final static String ADD_CLASS = "a72a03ab3c4235951a70e03c1fceee6f92b50aec";
+	//renamed NewClass to NewClassRenamed
+	public final static String RENAME_ADDED_CLASS = "55cf8449cdaea7760ce974b5999adb7463a28d45";
+	//removed class NewClassRenamed.java
+	public final static String REMOVE_CLASS = "18b76f5341c8751c605a1acac72cc83c2302a462";
+	
+	
+	//Branch and commits for testing creation and deleting a package in an integrated area
+	//****************************************************************************************************************
+	public final static String PACKAGE_CREATE_DELETE_BRANCH_NAME = "integratedArea_fineGrained_packageCreateDelete";
+
+	//added package eu.fpetersen.cbs.pc.newPackage
+	public final static String ADD_PACKAGE = "cb405004c513d23c63b98eee00503a0dac77d01d";
+	//renamed package 'eu.fpetersen.cbs.pc.newPackage' to 'eu.fpetersen.cbs.pc.newPackageRenamed'
+	public final static String RENAME_ADDED_PACKAGE = "4fc66a4186eaf66e696b4340144346bf9ab9fcdd";
+	//removed package eu.fpetersen.cbs.pc.newPackageRenamed
+	public final static String REMOVE_PACKAGE = "14fda1ddcd53a5a50c457699b269aca8de69c4e0";
 	
 }

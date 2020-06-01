@@ -34,7 +34,7 @@ import tools.vitruv.applications.pcmjava.integrationFromGit.GitChangeApplier;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitRepository;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesFromGitTest;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesTestUtil;
-import tools.vitruv.applications.pcmjava.integrationFromGit.test.commits.EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits;
+import tools.vitruv.applications.pcmjava.integrationFromGit.test.commits.EuFpetersenCbsPc_integratedArea_fineGrained_commits;
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Java2PcmIntegrationChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTest;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.Java2PcmWithSeffstatmantsChangePropagationSpecification;
@@ -110,9 +110,9 @@ public class IAChangeMethodImplementationTest {
         //integrate test project in Vitruv
         virtualModel = ApplyingChangesTestUtil.integrateProjectWithChangePropagationSpecification(testProject, changePropagationSpecifications, changeApplier);
         //checkout and track branch
-        gitRepository.checkoutAndTrackBranch(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.METHOD_IMPLEMENTATION_BRANCH_NAME);
+        gitRepository.checkoutAndTrackBranch(EuFpetersenCbsPc_integratedArea_fineGrained_commits.METHOD_IMPLEMENTATION_BRANCH_NAME);
         //get all commits from branch and save them in a Map. Commit hash as Key and commit itself as Value in the Map.
-        List<RevCommit> commitsList = gitRepository.getAllCommitsFromBranch(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.METHOD_IMPLEMENTATION_BRANCH_NAME);
+        List<RevCommit> commitsList = gitRepository.getAllCommitsFromBranch(EuFpetersenCbsPc_integratedArea_fineGrained_commits.METHOD_IMPLEMENTATION_BRANCH_NAME);
         for (RevCommit commit: commitsList) {
         	commits.put(commit.getName(), commit);
         }   
@@ -160,9 +160,9 @@ public class IAChangeMethodImplementationTest {
 	
 	private void testAddImport() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.INIT), commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_IMPORT_FOR_METHOD_IMPL), testProject);	
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.INIT), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_IMPORT_FOR_METHOD_IMPL), testProject);	
 		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_IMPORT_FOR_METHOD_IMPL);
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_IMPORT_FOR_METHOD_IMPL);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
 		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
@@ -185,9 +185,9 @@ public class IAChangeMethodImplementationTest {
 	
 	private void testAddMethod() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_IMPORT_FOR_METHOD_IMPL), commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_METHOD_FOR_METHOD_IMPL), testProject);	
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_IMPORT_FOR_METHOD_IMPL), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_METHOD_FOR_METHOD_IMPL), testProject);	
 		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_METHOD_FOR_METHOD_IMPL);
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_METHOD_FOR_METHOD_IMPL);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
 		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
@@ -210,9 +210,9 @@ public class IAChangeMethodImplementationTest {
 	
 	private void testAddExternalCall() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_METHOD_FOR_METHOD_IMPL), commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_EXTERNAL_CALL), testProject);	
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_METHOD_FOR_METHOD_IMPL), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_EXTERNAL_CALL), testProject);	
 		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_EXTERNAL_CALL);
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_EXTERNAL_CALL);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
 		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
@@ -235,9 +235,9 @@ public class IAChangeMethodImplementationTest {
 	
 	private void testAddInternalAction() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_EXTERNAL_CALL), commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_INTERNAL_ACTION), testProject);	
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_EXTERNAL_CALL), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_INTERNAL_ACTION), testProject);	
 		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_INTERNAL_ACTION);
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_INTERNAL_ACTION);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
 		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
@@ -260,9 +260,9 @@ public class IAChangeMethodImplementationTest {
 
 	private void testAddFor() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_INTERNAL_ACTION), commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_FOR), testProject);	
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_INTERNAL_ACTION), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_FOR), testProject);	
 		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_FOR);
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_FOR);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
 		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
@@ -285,9 +285,9 @@ public class IAChangeMethodImplementationTest {
 
 	private void testAddIfElse() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_FOR), commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_IF_ELSE), testProject);	
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_FOR), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_IF_ELSE), testProject);	
 		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_IF_ELSE);
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_IF_ELSE);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
 		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
@@ -310,9 +310,9 @@ public class IAChangeMethodImplementationTest {
 	
 	private void testRemoveIfElse() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.ADD_IF_ELSE), commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.REMOVE_IF_ELSE), testProject);	
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_IF_ELSE), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_IF_ELSE), testProject);	
 		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.REMOVE_IF_ELSE);
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_IF_ELSE);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
 		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
@@ -335,9 +335,9 @@ public class IAChangeMethodImplementationTest {
 	
 	private void testRemoveFor() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.REMOVE_IF_ELSE), commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.REMOVE_FOR), testProject);	
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_IF_ELSE), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_FOR), testProject);	
 		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.REMOVE_FOR);
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_FOR);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
 		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
@@ -360,9 +360,9 @@ public class IAChangeMethodImplementationTest {
 
 	private void testRemoveInternalAction() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.REMOVE_FOR), commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.REMOVE_INTERNAL_ACTION), testProject);	
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_FOR), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_INTERNAL_ACTION), testProject);	
 		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.REMOVE_INTERNAL_ACTION);
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_INTERNAL_ACTION);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
 		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
@@ -385,9 +385,9 @@ public class IAChangeMethodImplementationTest {
 	
 	private void testRemoveExternalCall() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.REMOVE_INTERNAL_ACTION), commits.get(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.REMOVE_EXTERNAL_CALL), testProject);	
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_INTERNAL_ACTION), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_EXTERNAL_CALL), testProject);	
 		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_classChanges_fineGrained_Commits.REMOVE_EXTERNAL_CALL);
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_EXTERNAL_CALL);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
 		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare

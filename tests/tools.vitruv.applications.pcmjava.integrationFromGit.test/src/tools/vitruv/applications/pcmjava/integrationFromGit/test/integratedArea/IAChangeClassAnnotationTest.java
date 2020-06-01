@@ -49,7 +49,7 @@ import tools.vitruv.testutils.TestUserInteraction;
  * @author Ilia Chupakhin
  *
  */
-public class IAChangeMethodHeaderTest {
+public class IAChangeClassAnnotationTest {
 
 	private static String testProjectName = // "testAddParameter_Fri_Apr_24_18_45_38_CEST_2020";
 			// "humanBeing";
@@ -110,9 +110,9 @@ public class IAChangeMethodHeaderTest {
         //integrate test project in Vitruv
         virtualModel = ApplyingChangesTestUtil.integrateProjectWithChangePropagationSpecification(testProject, changePropagationSpecifications, changeApplier);
         //checkout and track branch
-        gitRepository.checkoutAndTrackBranch(EuFpetersenCbsPc_integratedArea_fineGrained_commits.METHOD_HEADER_BRANCH_NAME);
+        gitRepository.checkoutAndTrackBranch(EuFpetersenCbsPc_integratedArea_fineGrained_commits.CLASS_ANNOTATION_BRANCH_NAME);
         //get all commits from branch and save them in a Map. Commit hash as Key and commit itself as Value in the Map.
-        List<RevCommit> commitsList = gitRepository.getAllCommitsFromBranch(EuFpetersenCbsPc_integratedArea_fineGrained_commits.METHOD_HEADER_BRANCH_NAME);
+        List<RevCommit> commitsList = gitRepository.getAllCommitsFromBranch(EuFpetersenCbsPc_integratedArea_fineGrained_commits.CLASS_ANNOTATION_BRANCH_NAME);
         for (RevCommit commit: commitsList) {
         	commits.put(commit.getName(), commit);
         }   
@@ -144,21 +144,18 @@ public class IAChangeMethodHeaderTest {
 	}
 
 	@Test
-	public void testChangeMethodHeader() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
-		testAddMethod();
-		testRenameMethod();
-		testChangeModifier();
-		testAddParameter();
-		testChangeParameter();
-		testRemoveMethod();
+	public void testClassAnnotation() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
+		testAddClassAnnotation();
+		testChangeClassAnnotation();
+		testRemoveClassAnnotation();
 	}
 	
 	
-	private void testAddMethod() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
+	private void testAddClassAnnotation() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.INIT), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_METHOD), testProject);	
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.INIT), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_CLASS_ANNOTATION), testProject);	
 		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_METHOD);
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_CLASS_ANNOTATION);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
 		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
@@ -175,15 +172,15 @@ public class IAChangeMethodHeaderTest {
 		//projectFromGitRepository.delete(true, new NullProgressMonitor());
 		
 		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
-		assertTrue("In testAddMethod() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+		assertTrue("In testAddClassAnnotation() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 	}	
 	
 	
-	private void testRenameMethod() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
+	private void testChangeClassAnnotation() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_METHOD), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.RENAME_METHOD), testProject);	
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_CLASS_ANNOTATION), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.CHANGE_CLASS_ANNOTATION), testProject);	
 		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.RENAME_METHOD);
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.CHANGE_CLASS_ANNOTATION);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
 		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
@@ -200,15 +197,16 @@ public class IAChangeMethodHeaderTest {
 		//projectFromGitRepository.delete(true, new NullProgressMonitor());
 		
 		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
-		assertTrue("In testRenameMethod() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
-	}
+		assertTrue("In testChangeClassAnnotation() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+	}	
 	
 	
-	private void testChangeModifier() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
+	
+	private void testRemoveClassAnnotation() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.RENAME_METHOD), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.CHANGE_MODIFIER_METHOD), testProject);	
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.CHANGE_CLASS_ANNOTATION), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_CLASS_ANNOTATION), testProject);	
 		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.CHANGE_MODIFIER_METHOD);
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_CLASS_ANNOTATION);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
 		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
@@ -225,83 +223,8 @@ public class IAChangeMethodHeaderTest {
 		//projectFromGitRepository.delete(true, new NullProgressMonitor());
 		
 		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
-		assertTrue("In testChangeModifier() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
-	}
-	
-	
-	private void testAddParameter() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
-		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.CHANGE_MODIFIER_METHOD), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_PARAMETER_METHOD), testProject);	
-		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_PARAMETER_METHOD);
-		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
-		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
-		//Get the changed compilation unit and the compilation unit from git repository to compare
-		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("Frame.java", projectFromGitRepository);
-		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("Frame.java", testProject);
-		//Compare the buffers from compilation units
-		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
-		//Compare JaMoPP-Models 
-		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
-		//TODO: Compare PCM Repository Models
-		//TODO: comparePCMBasicComponents(...) does NOT work
-		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
-		//Remove temporary project
-		//projectFromGitRepository.delete(true, new NullProgressMonitor());
-		
-		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
-		assertTrue("In testAddParameter() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
-	}
-	
-	
-	private void testChangeParameter() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
-		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_PARAMETER_METHOD), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.CHANGE_PARAMETER_METHOD), testProject);	
-		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.CHANGE_PARAMETER_METHOD);
-		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
-		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
-		//Get the changed compilation unit and the compilation unit from git repository to compare
-		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("Frame.java", projectFromGitRepository);
-		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("Frame.java", testProject);
-		//Compare the buffers from compilation units
-		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
-		//Compare JaMoPP-Models 
-		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
-		//TODO: Compare PCM Repository Models
-		//TODO: comparePCMBasicComponents(...) does NOT work
-		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
-		//Remove temporary project
-		//projectFromGitRepository.delete(true, new NullProgressMonitor());
-		
-		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
-		assertTrue("In testChangeParameter() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
-	}
-	
-	
-	private void testRemoveMethod() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
-		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.CHANGE_PARAMETER_METHOD), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_METHOD), testProject);	
-		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_METHOD);
-		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
-		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
-		//Get the changed compilation unit and the compilation unit from git repository to compare
-		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("Frame.java", projectFromGitRepository);
-		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("Frame.java", testProject);
-		//Compare the buffers from compilation units
-		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
-		//Compare JaMoPP-Models 
-		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
-		//TODO: Compare PCM Repository Models
-		//TODO: comparePCMBasicComponents(...) does NOT work
-		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
-		//Remove temporary project
-		//projectFromGitRepository.delete(true, new NullProgressMonitor());
-		
-		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
-		assertTrue("In testRemoveMethod() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
-	}
+		assertTrue("In testRemoveClassAnnotation() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+	}	
 	
 	
 	

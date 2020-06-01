@@ -61,6 +61,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
+import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.StringUtils;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
@@ -193,6 +194,16 @@ public class GitRepository {
 	
 	public List<RevCommit> getAllCommitsFromBranch(String branchName) throws NoHeadException, GitAPIException, IOException {
 		Iterable<RevCommit> commits = git.log().add(git.getRepository().resolve(branchName)).call();
+		List<RevCommit> listOfCommits = new ArrayList<>();
+		commits.forEach(listOfCommits :: add);
+		return listOfCommits;
+	}
+	
+	
+	public List<RevCommit> getAllCommitsBetweenTwoCommits(final String startCommitHash, final String endCommitHash) throws IOException, GitAPIException {
+		Ref refFrom = git.getRepository().findRef(startCommitHash);
+		Ref refTo = git.getRepository().findRef(endCommitHash);
+		Iterable<RevCommit> commits = git.log().addRange(refFrom.getObjectId(), refTo.getObjectId()).call();
 		List<RevCommit> listOfCommits = new ArrayList<>();
 		commits.forEach(listOfCommits :: add);
 		return listOfCommits;
