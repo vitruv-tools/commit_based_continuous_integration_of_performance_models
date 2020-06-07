@@ -175,7 +175,11 @@ public class ClassStateBasedDiffsTest /*extends ApplyingChangesFromGitTest*/ {
 	
 	private void testFirstCoarseGrainedChange() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
 		//added import, implements, implemented method with override and implementetion used only internal actions
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.ADD_FIRST_METHOD_IN_SECOND_INTERFACE), commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.FIRST_COARSE_GRAINED_COMMIT), testProject);	
+		
+		
+		//changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.ADD_FIRST_METHOD_IN_SECOND_INTERFACE), commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.FIRST_COARSE_GRAINED_COMMIT), testProject);	
+		changeApplier.applyChangesFromCommit/*WithGumTree*/(commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.ADD_FIRST_METHOD_IN_SECOND_INTERFACE), commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.FIRST_COARSE_GRAINED_COMMIT), testProject);
+		
 		//Checkout the repository on the certain commit
 		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.FIRST_COARSE_GRAINED_COMMIT);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.

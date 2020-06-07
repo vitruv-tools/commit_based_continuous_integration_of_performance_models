@@ -1,4 +1,4 @@
-package tools.vitruv.applications.pcmjava.integrationFromGit.test.integratedArea;
+package tools.vitruv.applications.pcmjava.integrationFromGit.test.openSourceProjects;
 
 import static org.junit.Assert.*;
 
@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -36,6 +37,7 @@ import tools.vitruv.applications.pcmjava.integrationFromGit.GitRepository;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesFromGitTest;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesTestUtil;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.commits.EuFpetersenCbsPc_integratedArea_fineGrained_commits;
+import tools.vitruv.applications.pcmjava.linkingintegration.ResourceLoadingHelper;
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Java2PcmIntegrationChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTest;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.Java2PcmWithSeffstatmantsChangePropagationSpecification;
@@ -112,7 +114,11 @@ public class ApacheAny23Test {
         //copy test project into workspace
         testProject = ApplyingChangesTestUtil.importAndCopyProjectIntoWorkspace(workspace, testProjectName, testProjectPath);
         //copy git repository into workspace
-        gitRepository = ApplyingChangesTestUtil.copyGitRepositoryIntoWorkspace(workspace, gitRepositoryPath);
+       
+        
+        //gitRepository = ApplyingChangesTestUtil.copyGitRepositoryIntoWorkspace(workspace, gitRepositoryPath);
+        
+        
         //Thread.sleep(10000);
         //create change applier for copied repository
         changeApplier = new GitChangeApplier(gitRepository);
@@ -158,7 +164,10 @@ public class ApacheAny23Test {
 		//TODO: get diffs only for core project. Therefore modify PathFilter in computeDiffsBetweenTwoCommits()
 		//changeApplier.applyChangesFromCommits(commitsList, testProject);
 		//integrate test project in Vitruv
-        virtualModel = ApplyingChangesTestUtil.integrateProjectWithChangePropagationSpecification(testProject, changePropagationSpecifications, changeApplier);
+        
+		//List<Resource> jamoppModels = ResourceLoadingHelper.loadJaMoPPResourceSet();
+		
+		virtualModel = ApplyingChangesTestUtil.integrateProjectWithChangePropagationSpecification(testProject, changePropagationSpecifications, changeApplier);
 		System.out.println("Integration done");
 		
 	}

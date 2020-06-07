@@ -16,5 +16,6 @@ Require-Bundle: org.apache.log4j,
  tools.vitruv.framework.util,
  tools.vitruv.framework.vsum,
  org.apache.commons.lang;bundle-version="2.6.0",
- tools.vitruv.applications.pcmjava.linkingintegration.tests
+ tools.vitruv.applications.pcmjava.linkingintegration.tests,
+ tools.vitruv.domains.java.util.gitchangereplay
 Export-Package: tools.vitruv.applications.pcmjava.integrationFromGit

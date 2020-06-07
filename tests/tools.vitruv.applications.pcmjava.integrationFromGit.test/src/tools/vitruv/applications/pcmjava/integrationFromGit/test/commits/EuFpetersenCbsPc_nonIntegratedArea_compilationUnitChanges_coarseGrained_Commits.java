@@ -33,7 +33,7 @@ public abstract class EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_
 	public final static String ADD_FIRST_METHOD_IN_SECOND_INTERFACE = "5f5c824b17478127c07316cb04be80d0cc8676df";
 	
 	
-	//added import, implements, implemented method with override and implementetion used only internal actions
+	//added import, implements, implemented method with override and implementation used only internal actions
 	public final static String FIRST_COARSE_GRAINED_COMMIT = "2915e976745af9464bb669d2b8e36b428dba41a9";
 	
 	

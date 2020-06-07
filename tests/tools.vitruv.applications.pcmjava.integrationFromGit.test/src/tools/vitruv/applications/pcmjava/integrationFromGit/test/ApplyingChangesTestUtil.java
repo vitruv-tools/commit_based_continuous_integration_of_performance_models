@@ -253,6 +253,120 @@ public class ApplyingChangesTestUtil {
 
 		return vsum;
 	}
+	
+	
+	public static InternalVirtualModel integrateProjectWithChangePropagationSpecificationWithExistingVSUM(final IProject project,
+			final ChangePropagationSpecification[] changePropagationSpecifications,
+			final ChangePropagationListener listener, final String pathToExistingVSUM, final IWorkspace workspace) throws InvocationTargetException, IOException, URISyntaxException, InterruptedException {
+		
+		/*
+		// IPath projectPath = project.getFullPath(); // workspace relative Path
+		final IPath projectPath = project.getLocation(); // absolute path
+		final IPath models = projectPath.append("model").addTrailingSeparator().append("internal_architecture_model");
+
+		final IPath scdmPath = models.addFileExtension("sourcecodedecorator");
+		final IPath pcmPath = models.addFileExtension("repository");
+
+		List<IPath> srcPaths = new ArrayList<IPath>();
+		IJavaProject javaProject = JavaCore.create(project);
+		try {
+			IPackageFragmentRoot[] packageFragmentRoot = javaProject.getAllPackageFragmentRoots();
+			for (int i = 0; i < packageFragmentRoot.length; i++) {
+				if (packageFragmentRoot[i].getElementType() == IJavaElement.PACKAGE_FRAGMENT_ROOT
+						&& !packageFragmentRoot[i].isArchive()) {
+					srcPaths.add(packageFragmentRoot[i].getPath());
+				}
+			}
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+		}
+		List<IPath> jamoppPaths = new ArrayList<>();
+		for (IPath path : srcPaths) {
+			IPath projectRelative = path.removeFirstSegments(1);
+			IPath abs = project.getLocation().append(projectRelative);
+			jamoppPaths.add(abs);
+		}
+
+		final IPath projectBase = projectPath.removeLastSegments(1);
+
+		final File f = scdmPath.toFile();
+		if (!f.exists()) {
+			throw new IllegalArgumentException("Run SoMoX first!");
+		}
+		*/
+		
+		//copy VSUM folder into workspace
+		importAndCopyProjectIntoWorkspace(workspace, "vitruvius.meta", pathToExistingVSUM);
+		
+		List<VitruvDomain> metamodels = new ArrayList<VitruvDomain>();
+		metamodels.add(new PcmDomainProvider().getDomain());
+		metamodels.add(new JavaDomainProvider().getDomain());
+		VirtualModelConfiguration config = new VirtualModelConfiguration();
+		for (VitruvDomain metamodel : metamodels) {
+			config.addMetamodel(metamodel);
+		}
+
+		for (int i = 0; i < changePropagationSpecifications.length; i++) {
+			config.addChangePropagationSpecification(changePropagationSpecifications[i]);
+		}
+
+		InteractionResultProvider interactionResultProvider = UserInteractionFactory.instance
+				.createDialogInteractionResultProvider();
+		InternalUserInteractor userInteractor = UserInteractionFactory.instance.createDialogUserInteractor();// createUserInteractor(interactionResultProvider);
+
+		/*
+		 * PredefinedInteractionResultProvider interactionProvider =
+		 * UserInteractionFactory.instance.createPredefinedInteractionResultProvider(
+		 * null); this.testUserInteractor = new
+		 * TestUserInteraction(interactionProvider); InternalUserInteractor
+		 * userInteractor =
+		 * UserInteractionFactory.instance.createUserInteractor(interactionProvider);
+		 */
+
+		File vsumFolder = new File(ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile(), "vitruvius.meta");
+		final InternalVirtualModel vsum = new VirtualModelImpl(vsumFolder,
+				userInteractor/* UserInteractionFactory.instance.createDialogUserInteractor() */, config);
+		// one other method for creating vsum
+		// TestUtil.createVirtualModel(vsumFile, false, metamodels,
+		// Collections.singletonList(new Java2PcmChangePropagationSpecification()),
+		// UserInteractionFactory.instance.createDialogUserInteractor());
+/*
+		final PcmJavaCorrespondenceModelTransformation transformation = new PcmJavaCorrespondenceModelTransformation(
+				scdmPath.toString(), pcmPath.toString(), jamoppPaths, vsum, projectBase);
+
+		transformation.createCorrespondences();
+*/
+		// Create correspondences for SEFF
+		/*
+		 * final PcmJavaCorrespondenceModelForSeffTransformation transformationForSeff =
+		 * new PcmJavaCorrespondenceModelForSeffTransformation();
+		 * transformationForSeff.afterBasicTransformations(transformation);
+		 */
+
+		// add change propagation listener to the project
+		vsum.addChangePropagationListener(listener);
+		
+
+		// build project
+		VitruviusJavaBuilderApplicator pcmJavaBuilder = new VitruviusJavaBuilderApplicator();
+		pcmJavaBuilder.addToProject(project, vsumFolder,
+				Collections.singletonList(PcmNamespace.REPOSITORY_FILE_EXTENSION));
+
+		try {
+			project.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, VitruviusJavaBuilder.BUILDER_ID,
+					new HashMap<String, String>(), new NullProgressMonitor());
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// one other method for building a project
+		// ProjectBuildUtils.issueIncrementalBuild(testProject,
+		// VitruviusJavaBuilder.BUILDER_ID);
+
+		return vsum;
+	}
+	
 
 	public static GitRepository copyGitRepositoryIntoWorkspace(IWorkspace workspace, String originGitRepositoryPath) {
 

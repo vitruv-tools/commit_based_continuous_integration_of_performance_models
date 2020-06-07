@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -36,6 +37,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.EditList;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.text.edits.InsertEdit;
+import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.emftext.language.java.classifiers.Classifier;
 import org.emftext.language.java.classifiers.ConcreteClassifier;
@@ -55,6 +57,8 @@ import tools.vitruv.framework.util.datatypes.VURI;
 import tools.vitruv.framework.vsum.VirtualModel;
 import tools.vitruv.framework.vsum.modelsynchronization.ChangePropagationAbortCause;
 import tools.vitruv.framework.vsum.modelsynchronization.ChangePropagationListener;
+import tools.vitruv.domains.java.util.gitchangereplay.extractors.GumTreeChangeExtractor;
+
 
 public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePropagationListener {
 
@@ -70,6 +74,241 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	}
 	
 	
+	/**
+	 * @param oldCommit
+	 * @param newCommit
+	 * @param currentProject
+	 * @throws CoreException 
+	 * @throws InterruptedException 
+	 * @throws IOException 
+	 */
+	public void applyChangesFromCommitWithGumTree (RevCommit oldCommit, RevCommit newCommit, IProject currentProject) throws CoreException, InterruptedException, IOException {
+		
+		ArrayList<DiffEntry> diffs = new ArrayList<>(gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, /*true*/false, true));
+		diffs = sortDiffs(diffs);
+		//Collections.reverse(diffs); 
+
+		for (DiffEntry diff : diffs) {
+			
+			ICompilationUnit iCu;
+			
+			switch (diff.getChangeType()) {
+			case ADD:
+				String pathToAddedFile = diff.getNewPath();
+				String fileContent = gitRepository.getNewContentOfFileFromDiffEntry(diff);
+				//JGit returns the content of files and uses within the content "\n" as line separator.
+				//Therefore, replace all occurrences of "\n" with the system line separator.
+				fileContent = gitRepository.replaceAllLineDelimitersWithSystemLineDelimiters(fileContent);
+				addElementToProjectWithGumTree(currentProject, pathToAddedFile, fileContent);
+				break;
+			case COPY:
+				//TODO
+				break;
+			case DELETE:
+				String nameOfDeletedFile = getNameOfFileFromPath(diff.getOldPath());
+				iCu = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName(nameOfDeletedFile, currentProject);
+				iCu.delete(true/*false*/, null);			
+				//waitForSynchronization(1);
+				//Thread.sleep(20000);
+				break;
+			case MODIFY:
+				OutputStream oldElementContent = gitRepository.getOldContentOfFileFromDiffEntryInOutputStream(diff);
+				OutputStream newElementContent = gitRepository.getNewContentOfFileFromDiffEntryInOutputStream(diff);
+				String oldElementPath = diff.getOldPath();
+				String newElementPath = diff.getNewPath();
+				EditList editList = gitRepository.computeEditListFromDiffEntry(diff);
+				modifyElementInProjectWithGumTree(currentProject, oldElementContent, newElementContent,
+						oldElementPath, newElementPath, editList);
+				break;
+			case RENAME:
+				//TODO
+				break;
+			default:
+				//error
+				break;
+			}	
+		}
+	}
+	
+	
+	
+	private void modifyElementInProjectWithGumTree(IProject project,
+			OutputStream oldElementContent, OutputStream newElementContent, 
+			String oldElementPath, String newElementPath,
+			EditList editList) throws CoreException {
+		
+		//Check if the modified file is a java file
+		if (oldElementPath.endsWith(".java")) {	
+			String nameOfChangedFile = getNameOfFileFromPath(oldElementPath);
+			ICompilationUnit compilationUnit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName(nameOfChangedFile, project);
+			//EditList from JGit Bib
+			//TextEdit from Eclipse text.edits
+			String oldContent = oldElementContent.toString();
+			//new String(((ByteArrayOutputStream) oldElementContent).toByteArray());
+			String newContent = newElementContent.toString();
+			URI uri = URI.createPlatformResourceURI(compilationUnit.getPath().toString(), true);
+			GumTreeChangeExtractor atomicChangeExtractor = new GumTreeChangeExtractor(oldContent, newContent, uri);
+			List<String> contentStatesAfterApplyingAtomicChanges = atomicChangeExtractor.extract();
+			contentStatesAfterApplyingAtomicChanges.remove(0);
+			int currentContentLength = compilationUnit.getBuffer().getLength(); 
+					//oldContent.length();
+			for (String contentState : contentStatesAfterApplyingAtomicChanges) {
+				TextEdit replaceEdit = new ReplaceEdit(0, currentContentLength, contentState);
+				CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, replaceEdit);
+				currentContentLength = compilationUnit.getBuffer().getLength(); 
+						//contentState.length();
+			}
+		}
+		else {
+			IFile file = project.getFile(oldElementPath.substring(oldElementPath.indexOf("/") + 1));
+			if (file.exists()) {
+				ByteArrayInputStream inputStream = new ByteArrayInputStream(((ByteArrayOutputStream) newElementContent).toByteArray());
+				file.setContents(inputStream, IFile.FORCE, null);
+			}	
+		}
+	}
+
+
+private void addElementToProjectWithGumTree(IProject project, String pathToElement, String elementContent) throws CoreException, InterruptedException, IOException {
+		
+		project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+		
+		IPath tempPath = new Path(pathToElement);
+		//Get rid of the project name in the path
+		tempPath = tempPath.removeFirstSegments(1);
+		
+		String[] segments = tempPath.segments();
+		
+		if (segments.length == 0) {
+			System.out.println("Path: " + pathToElement + " is not valid");
+			return;
+		}
+		
+		//int segmentCounter = 0;
+		String firstSegment = tempPath.segment(0);
+		String lastSegment = tempPath.lastSegment();
+		String fileExtension = tempPath.getFileExtension();
+		
+		IJavaProject javaProject;
+		IPackageFragmentRoot packageFragmentRoot;
+		IPackageFragment packageFragment;
+		
+		
+		//Check if we need to handle IJavaProject
+		//For more details, what a java project in JDT looks like, see https://www.vogella.com/tutorials/EclipseJDT/article.html
+		if (firstSegment.equals("src") || firstSegment.equals("bin") 
+				|| fileExtension.equals("jar") || fileExtension.equals("zip")) {
+			
+			javaProject = JavaCore.create(project);
+			
+			if (segments.length == 2) {
+				IFile file = project.getFile(tempPath.toString());
+				file.create(new ByteArrayInputStream(elementContent.getBytes()), false /*true*/, new NullProgressMonitor());
+				System.out.println("Begin to wait for syncronization at the place 0");
+				//waitForSynchronization(1);
+				project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+			}
+			else {
+				//Check if the PackageFragmentRoot exists. If not, create it
+				IFolder packageFragmentRootFolder = project.getFolder(tempPath.segment(0));
+				
+				if (!packageFragmentRootFolder.exists()) {
+					packageFragmentRootFolder.create(false/*true*/, false/*true*/, new NullProgressMonitor());
+					System.out.println("Begin to wait for syncronization at the place 1");
+					//waitForSynchronization(1);
+					project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());				
+				}
+				
+				packageFragmentRoot = javaProject.getPackageFragmentRoot(packageFragmentRootFolder);
+				String packageFragmentName = tempPath.removeFirstSegments(1).removeLastSegments(1).toString();
+				packageFragmentName = packageFragmentName.replace("/", ".");
+				packageFragment = packageFragmentRoot.getPackageFragment(packageFragmentName);
+				
+				if (!packageFragment.exists()) {
+					
+					//Create package per EMF and JaMoPP
+					createPackageWithPackageInfo(project, tempPath.removeFirstSegments(1).removeLastSegments(1).segments());
+				
+					//Create packaga per JDT
+					//packageFragment = packageFragmentRoot.createPackageFragment(packageFragmentName, false /*true*/, new NullProgressMonitor());
+					////packageFragment.makeConsistent(new NullProgressMonitor());
+					//System.out.println("Begin to wait for syncronization at the place 2");
+					////waitForSynchronization(1);
+					//project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+					
+				}
+				
+				packageFragment.makeConsistent(new NullProgressMonitor());
+				
+				if (fileExtension.equals("java")) {
+					//For testing:
+					ICompilationUnit[] compilationUnits = packageFragment.getCompilationUnits();
+					
+					
+					ICompilationUnit compilationUnit = packageFragment.getCompilationUnit(lastSegment);
+					if (!compilationUnit.exists()) {
+						//Create java file per JDT
+						compilationUnit = packageFragment.createCompilationUnit(lastSegment, "", false/*true*/, new NullProgressMonitor());
+						Thread.sleep(5000);
+						
+						//EditList from JGit Bib
+						//TextEdit from Eclipse text.edits
+						String oldContent = "";
+						//new String(((ByteArrayOutputStream) oldElementContent).toByteArray());
+						String newContent = elementContent;
+						URI uri = URI.createPlatformResourceURI(compilationUnit.getPath().toString(), true);
+						GumTreeChangeExtractor atomicChangeExtractor = new GumTreeChangeExtractor(oldContent, newContent, uri);
+						List<String> contentStatesAfterApplyingAtomicChanges = atomicChangeExtractor.extract();
+						contentStatesAfterApplyingAtomicChanges.remove(0);
+						int currentContentLength = compilationUnit.getBuffer().getLength();
+								//oldContent.length();
+						for (String contentState : contentStatesAfterApplyingAtomicChanges) {
+							TextEdit replaceEdit = new ReplaceEdit(0, currentContentLength, contentState);
+							CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, replaceEdit);
+							currentContentLength = compilationUnit.getBuffer().getLength();
+									//contentState.length();
+						}
+						
+						
+						//InsertEdit edit = new InsertEdit(0, elementContent);
+						//CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, edit);
+						
+						//VURI vuri = getVURIForElementInPackage(packageFragment, compilationUnit.getElementName());
+						//getJaMoPPClassifierForVURI(vuri);
+						
+						//System.out.println("Begin to wait for syncronization at the place 3");
+						//waitForSynchronization(1);
+						project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+					}
+				}
+				else {
+					IFile file = project.getFile(tempPath.toString());
+					if (!file.exists()) {
+						file.create(new ByteArrayInputStream(elementContent.getBytes()), false /*true*/, new NullProgressMonitor());
+						System.out.println("Begin to wait for syncronization at the place 4");
+						//waitForSynchronization(1);
+						project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+					}
+				}		
+			}
+			
+		}
+		//We only have to handle IProject
+		else {
+			//String tempPathString = pathToElement.substring(pathToElement.indexOf("/") + 1);
+			(new File(tempPath.toString())).mkdirs();
+			//IFile file = project.getFile(tempPath);
+			IFile file = project.getFile(tempPath.toString());
+			if (!file.exists()) {
+				file.create(new ByteArrayInputStream(elementContent.getBytes()), false /*true*/, new NullProgressMonitor());	
+				System.out.println("Begin to wait for syncronization at the place 5");
+				//waitForSynchronization(1);
+				project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+			}
+		}
+	}
+
+
 	public void applyChangesFromCommits(List<RevCommit> commits, IProject currentProject) throws CoreException, InterruptedException, IOException {
 		Collections.reverse(commits); 
 		for (int i = 0; i < commits.size() - 1; i++) {
@@ -88,8 +327,9 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	public void applyChangesFromCommit(RevCommit oldCommit, RevCommit newCommit, IProject currentProject) throws CoreException, InterruptedException, IOException {
 		
 		ArrayList<DiffEntry> diffs = new ArrayList<>(gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, /*true*/false, true));
-		Collections.reverse(diffs); 
-		//TODO: Sort the diffs list on REMOVE, then ADD, then MODIFY
+		diffs = sortDiffs(diffs);
+		//Collections.reverse(diffs); 
+
 		for (DiffEntry diff : diffs) {
 			
 			ICompilationUnit iCu;
@@ -104,11 +344,12 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				addElementToProject(currentProject, pathToAddedFile, fileContent);
 				break;
 			case COPY:
+				//TODO
 				break;
 			case DELETE:
 				String nameOfDeletedFile = getNameOfFileFromPath(diff.getOldPath());
 				iCu = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName(nameOfDeletedFile, currentProject);
-				iCu.delete(true, null);			
+				iCu.delete(true/*false*/, null);			
 				//waitForSynchronization(1);
 				//Thread.sleep(20000);
 				break;
@@ -122,18 +363,69 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 						oldElementPath, newElementPath, editList);
 				break;
 			case RENAME:
+				//TODO
 				break;
 			default:
+				//error
 				break;
 			}	
 		}
 	}
 
 	
+	/**
+	 * sorts diffs in particular order:
+	 * [COPY,...,RENAME,...,DELETE,...,ADD,...,MODIFY,...]
+	 * 
+	 * 
+	 * @param diffs
+	 * @return
+	 */
+	private ArrayList<DiffEntry> sortDiffs(ArrayList<DiffEntry> diffs) {
+		
+		//temp lists for all diff types
+		ArrayList<DiffEntry> copies = new ArrayList<DiffEntry>();
+		ArrayList<DiffEntry> renames = new ArrayList<DiffEntry>();
+		ArrayList<DiffEntry> deletes = new ArrayList<DiffEntry>();
+		ArrayList<DiffEntry> adds = new ArrayList<DiffEntry>();
+		ArrayList<DiffEntry> modifies = new ArrayList<DiffEntry>();
+		
+		for(DiffEntry diff : diffs) {
+			switch (diff.getChangeType()) {
+			case COPY:
+				copies.add(diff);
+				break;
+			case RENAME:
+				renames.add(diff);
+				break;
+			case DELETE:
+				deletes.add(diff);
+				break;
+			case ADD:
+				adds.add(diff);
+				break;
+			case MODIFY:
+				modifies.add(diff);
+				break;
+			}
+		}
+		ArrayList<DiffEntry> result = new ArrayList<DiffEntry>();
+		
+		result.addAll(copies);
+		result.addAll(renames);
+		result.addAll(deletes);
+		result.addAll(adds);
+		result.addAll(modifies);
+		
+		
+		return result;
+	}
+
+
 	public String getNameOfFileFromPath(String path) {
 		String fileName = path.substring(path.lastIndexOf("/") + 1);
 		//Get rid of file extention
-		fileName = fileName.substring(0, fileName.lastIndexOf("."));
+		//fileName = fileName.substring(0, fileName.lastIndexOf("."));
 		return fileName;
 	}
 	
@@ -275,7 +567,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 						//VURI vuri = getVURIForElementInPackage(packageFragment, compilationUnit.getElementName());
 						//getJaMoPPClassifierForVURI(vuri);
 						
-						System.out.println("Begin to wait for syncronization at the place 3");
+						//System.out.println("Begin to wait for syncronization at the place 3");
 						//waitForSynchronization(1);
 						project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 					}
