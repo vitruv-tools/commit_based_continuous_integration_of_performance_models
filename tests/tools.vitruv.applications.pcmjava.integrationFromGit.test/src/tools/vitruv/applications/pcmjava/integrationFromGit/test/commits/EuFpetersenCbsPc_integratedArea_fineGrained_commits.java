@@ -87,13 +87,14 @@ public abstract class EuFpetersenCbsPc_integratedArea_fineGrained_commits {
 	//****************************************************************************************************************
 	public final static String CLASS_ANNOTATION_BRANCH_NAME = "integratedArea_fineGrained_classAnnotation";
 
-	//added class annotation
-	public final static String ADD_CLASS_ANNOTATION= "f5f9b8486ee6c88353b0d5ce32070e63018d16d8";
-	//changed class annotation
-	public final static String CHANGE_CLASS_ANNOTATION = "973cf0509732d815d4b737fe39f6f081e0a11080";
-	//removed class annotation
-	public final static String REMOVE_CLASS_ANNOTATION = "8732dc9cfdb3a9914d3178f922bbaf5a65e49404";
+	//added class annotation to Display.java
+	public final static String ADD_CLASS_ANNOTATION= "1c05e30f6140bbadebc01298f9b8a0930a4798d6";
+	//changed class annotation to Display.java
+	public final static String CHANGE_CLASS_ANNOTATION = "9053f8ca6074e6d3adcaf63ab280501eebcbaece";
+	//removed class annotation in Display.java
+	public final static String REMOVE_CLASS_ANNOTATION = "25c5d6031e6479480ccba6392daf43ff5cd7bccb";
 	
+//Changed ^		
 	
 	//Branch and commits for testing fine grained changes in an integrated area on implements
 	//****************************************************************************************************************
@@ -135,12 +136,9 @@ public abstract class EuFpetersenCbsPc_integratedArea_fineGrained_commits {
 	//****************************************************************************************************************
 	public final static String CLASS_CREATE_DELETE_BRANCH_NAME = "integratedArea_fineGrained_classCreateDelete";
 
-	//added NewClass.java in package eu.fpetersen.cbs.pc.data
-	public final static String ADD_CLASS = "a72a03ab3c4235951a70e03c1fceee6f92b50aec";
-	//renamed NewClass to NewClassRenamed
-	public final static String RENAME_ADDED_CLASS = "55cf8449cdaea7760ce974b5999adb7463a28d45";
-	//removed class NewClassRenamed.java
-	public final static String REMOVE_CLASS = "18b76f5341c8751c605a1acac72cc83c2302a462";
+	//added NewClass.java in package eu.fpetersen.cbs.pc.display
+	public final static String ADD_CLASS = "e4a6fa493b44f618414ded418c393847662d0357";
+
 	
 	
 	//Branch and commits for testing creation and deleting a package in an integrated area

@@ -55,6 +55,7 @@ import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil.EqualityHelper;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -553,6 +554,13 @@ public class ApplyingChangesTestUtil {
 			//virtualModel.propagateChangedState(gitCompilationUnit_JaMoPP.eResource());
 			return changedCompilationUnitStream.toString().equals(gitCompilationUnitStream.toString());
 		}
+		
+	   //EObjects can also be compared with EcoreUtil.compare
+	   //EqualityHelper equalityHelper = new EqualityHelper();
+	   //return equalityHelper.equals(eObject1, eObject2);
+	   //or
+	   //return equalityHelper.equals(list1, list2);
+		    		
 
 	}
 	

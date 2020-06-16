@@ -37,6 +37,7 @@ import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChanges
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.commits.EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits;
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Java2PcmIntegrationChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTest;
+import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.Java2PcmChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.Java2PcmWithSeffstatmantsChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.tests.util.CompilationUnitManipulatorHelper;
 import tools.vitruv.framework.change.processing.ChangePropagationSpecification;
@@ -72,9 +73,9 @@ public class ClassAnnotationChangeTest /*extends ApplyingChangesFromGitTest*/ {
 	private static ChangePropagationSpecification[] changePropagationSpecifications = {
 			//new PackageMappingIntegrationChangePropagationSpecification()
 			//new Java2PcmIntegrationChangePropagationSpecification(),
-			new Java2PcmWithSeffstatmantsChangePropagationSpecification()
+			//new Java2PcmWithSeffstatmantsChangePropagationSpecification()
 			//new Pcm2JavaIntegrationChangePropagationSpecification()
-			//new Java2PcmChangePropagationSpecification()
+			new Java2PcmChangePropagationSpecification()
 			//new MyJava2PcmChangePropagationSpecification()
 	};
 
@@ -160,9 +161,9 @@ public class ClassAnnotationChangeTest /*extends ApplyingChangesFromGitTest*/ {
 	@Test
 	public void testClassAnnotation() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		testAddClassAnnotation();
-		testChangeClassAnnotation();
+		//testChangeClassAnnotation();
 		//TODO:Vitruv does not react to removing class annotation
-		testRemoveClassAnnotation();
+		//testRemoveClassAnnotation();
 	}
 	
 	

@@ -348,8 +348,13 @@ private void addElementToProjectWithGumTree(IProject project, String pathToEleme
 				break;
 			case DELETE:
 				String nameOfDeletedFile = getNameOfFileFromPath(diff.getOldPath());
-				iCu = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName(nameOfDeletedFile, currentProject);
-				iCu.delete(true/*false*/, null);			
+				iCu = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName(/*"Frame.java"*/nameOfDeletedFile, currentProject);
+				iCu.getResource().delete(true, null);
+				//iCu.save(null, true);
+				//currentProject.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+				//TODO:Java Model Exception: Java Model Status: ... does not exist
+				iCu.delete(true/*false*/, null);
+				
 				//waitForSynchronization(1);
 				//Thread.sleep(20000);
 				break;

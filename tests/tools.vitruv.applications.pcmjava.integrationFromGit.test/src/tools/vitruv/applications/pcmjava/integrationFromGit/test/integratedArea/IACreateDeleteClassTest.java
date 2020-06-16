@@ -31,6 +31,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import mir.reactions.packageMappingIntegration.PackageMappingIntegrationChangePropagationSpecification;
+import mir.reactions.packageMappingIntegrationExtended.PackageMappingIntegrationExtendedChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitChangeApplier;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitRepository;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesFromGitTest;
@@ -40,6 +41,7 @@ import tools.vitruv.applications.pcmjava.integrationFromGit.test.commits.EuFpete
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Java2PcmIntegrationChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Pcm2JavaIntegrationChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTest;
+import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.Java2PcmChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.Java2PcmWithSeffstatmantsChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.tests.util.CompilationUnitManipulatorHelper;
 import tools.vitruv.framework.change.processing.ChangePropagationSpecification;
@@ -77,11 +79,12 @@ public class IACreateDeleteClassTest {
 
 	private static ChangePropagationSpecification[] changePropagationSpecifications = {
 			//new PackageMappingIntegrationChangePropagationSpecification()
-			new Java2PcmIntegrationChangePropagationSpecification(),
+			//new Java2PcmIntegrationChangePropagationSpecification(),
 			//new Java2PcmWithSeffstatmantsChangePropagationSpecification()
 			//new Pcm2JavaIntegrationChangePropagationSpecification()
 			//new Java2PcmChangePropagationSpecification()
 			//new MyJava2PcmChangePropagationSpecification()
+			new PackageMappingIntegrationExtendedChangePropagationSpecification()
 	};
 
 	private static Logger logger = Logger.getLogger(CodeIntegrationTest.class.getSimpleName());
@@ -149,8 +152,8 @@ public class IACreateDeleteClassTest {
 	@Test
 	public void testCreateDeleteClass() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		testCreateClass();
-		testRenameCreatedClass();
-		testRemoveCreatedClass();
+		//testRenameCreatedClass();
+		//testRemoveCreatedClass();
 	}
 	
 	
@@ -178,33 +181,7 @@ public class IACreateDeleteClassTest {
 		assertTrue("In testCreateClass() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 	}	
 	
-	
-	private void testRenameCreatedClass() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
-		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_CLASS), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.RENAME_ADDED_CLASS), testProject);	
-		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.RENAME_ADDED_CLASS);
-		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
-		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
-		//Get the changed compilation unit and the compilation unit from git repository to compare
-		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("NewClassRenamed.java", projectFromGitRepository);
-		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("NewClassRenamed.java", testProject);
-		//Compare the buffers from compilation units
-		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
-		//Compare JaMoPP-Models 
-		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
-		//TODO: Compare PCM Repository Models
-		//TODO: comparePCMBasicComponents(...) does NOT work
-		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
-		//Remove temporary project
-		//projectFromGitRepository.delete(true, new NullProgressMonitor());
-		
-		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
-		assertTrue("In testRenameCreatedClass() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
-	}	
-	
-	
-	
+	/*	
 	private void testRemoveCreatedClass() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Apply changes
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.RENAME_ADDED_CLASS), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_CLASS), testProject);	
@@ -228,7 +205,7 @@ public class IACreateDeleteClassTest {
 		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
 		assertTrue("In testRemoveCreatedClass() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 	}	
-	
+	*/
 	
 	
 }

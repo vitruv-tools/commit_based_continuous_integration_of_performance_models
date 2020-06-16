@@ -31,6 +31,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import mir.reactions.packageMappingIntegration.PackageMappingIntegrationChangePropagationSpecification;
+import mir.reactions.packageMappingIntegrationExtended.PackageMappingIntegrationExtendedChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitChangeApplier;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitRepository;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesFromGitTest;
@@ -78,11 +79,12 @@ public class IACreateDeleteMethodTest {
 
 	private static ChangePropagationSpecification[] changePropagationSpecifications = {
 			//new PackageMappingIntegrationChangePropagationSpecification()
-			new Java2PcmIntegrationChangePropagationSpecification(),
+			//new Java2PcmIntegrationChangePropagationSpecification(),
 			//new Java2PcmWithSeffstatmantsChangePropagationSpecification()
 			//new Pcm2JavaIntegrationChangePropagationSpecification()
 			//new Java2PcmChangePropagationSpecification()
 			//new MyJava2PcmChangePropagationSpecification()
+			new PackageMappingIntegrationExtendedChangePropagationSpecification()
 	};
 
 	private static Logger logger = Logger.getLogger(CodeIntegrationTest.class.getSimpleName());

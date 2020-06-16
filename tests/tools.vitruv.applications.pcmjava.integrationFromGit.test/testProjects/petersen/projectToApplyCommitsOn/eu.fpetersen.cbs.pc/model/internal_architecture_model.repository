@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ASCII"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <repository:Repository xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:composition="http://palladiosimulator.org/PalladioComponentModel/Core/Composition/5.2" xmlns:repository="http://palladiosimulator.org/PalladioComponentModel/Repository/5.2" xmlns:seff="http://palladiosimulator.org/PalladioComponentModel/SEFF/5.2" id="_auhdcMWvEeWLAeSW2tt_XQ">
   <components__Repository xsi:type="repository:BasicComponent" id="_auu40MWvEeWLAeSW2tt_XQ" entityName=" &lt;PC No. 0 display.eu.fpetersen.cbs.pc.display.Display.java.Display>">
     <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_auxVE8WvEeWLAeSW2tt_XQ" entityName="IDisplay 0 (prov)" providedInterface__OperationProvidedRole="_auxVEMWvEeWLAeSW2tt_XQ"/>
