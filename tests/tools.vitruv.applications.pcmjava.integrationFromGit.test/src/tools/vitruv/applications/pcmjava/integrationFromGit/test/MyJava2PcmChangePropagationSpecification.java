@@ -7,7 +7,7 @@ import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Java2
 import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.Java2PcmChangePropagationSpecification;
 
 
-
+//TODO: Delete this class
 public class MyJava2PcmChangePropagationSpecification extends PackageMappingIntegrationChangePropagationSpecification /*Java2PcmIntegrationChangePropagationSpecification*/ {
 	
 	@Override

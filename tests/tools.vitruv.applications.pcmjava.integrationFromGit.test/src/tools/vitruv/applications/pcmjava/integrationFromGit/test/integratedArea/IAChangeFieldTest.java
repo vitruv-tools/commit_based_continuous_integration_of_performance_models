@@ -31,9 +31,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import mir.reactions.packageMappingIntegration.PackageMappingIntegrationChangePropagationSpecification;
-import mir.reactions.packageMappingIntegrationExtended.PackageMappingIntegrationExtendedChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitChangeApplier;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitRepository;
+import tools.vitruv.applications.pcmjava.integrationFromGit.response.GitIntegrationChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesFromGitTest;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesTestUtil;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.MyJava2PcmChangePropagationSpecification;
@@ -82,7 +82,7 @@ public class IAChangeFieldTest {
 			//new Pcm2JavaIntegrationChangePropagationSpecification()
 			//new Java2PcmChangePropagationSpecification()
 			//new MyJava2PcmChangePropagationSpecification()
-			new PackageMappingIntegrationExtendedChangePropagationSpecification()
+			new GitIntegrationChangePropagationSpecification()
 	};
 
 	private static Logger logger = Logger.getLogger(CodeIntegrationTest.class.getSimpleName());
