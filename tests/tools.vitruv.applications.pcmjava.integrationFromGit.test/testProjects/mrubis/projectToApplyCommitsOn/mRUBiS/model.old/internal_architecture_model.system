@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="ASCII"?>
+<system:System xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:composition="http://palladiosimulator.org/PalladioComponentModel/Core/Composition/5.1" xmlns:repository="http://palladiosimulator.org/PalladioComponentModel/Repository/5.1" xmlns:system="http://palladiosimulator.org/PalladioComponentModel/System/5.1" id="_Ir63EKqSEeaKVc70akcW6A" entityName="SoMoX Reverse Engineered System">
+  <assemblyContexts__ComposedStructure id="_J8r7YKqSEeaKVc70akcW6A" entityName="AuthenticationServiceBean">
+    <encapsulatedComponent__AssemblyContext xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_J6WZEKqSEeaKVc70akcW6A"/>
+  </assemblyContexts__ComposedStructure>
+  <assemblyContexts__ComposedStructure id="_J8uXoaqSEeaKVc70akcW6A" entityName="BasicQueryServiceBean">
+    <encapsulatedComponent__AssemblyContext xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_J7oygaqSEeaKVc70akcW6A"/>
+  </assemblyContexts__ComposedStructure>
+  <assemblyContexts__ComposedStructure id="_J8uXpaqSEeaKVc70akcW6A" entityName="AboutMeServiceBean">
+    <encapsulatedComponent__AssemblyContext xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_J7trAKqSEeaKVc70akcW6A"/>
+  </assemblyContexts__ComposedStructure>
+  <assemblyContexts__ComposedStructure id="_J8uXqaqSEeaKVc70akcW6A" entityName="ReputationServiceBean">
+    <encapsulatedComponent__AssemblyContext xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_J70YsKqSEeaKVc70akcW6A"/>
+  </assemblyContexts__ComposedStructure>
+  <assemblyContexts__ComposedStructure id="_J8uXraqSEeaKVc70akcW6A" entityName="BrowseCategoriesServiceBean">
+    <encapsulatedComponent__AssemblyContext xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_J70YtKqSEeaKVc70akcW6A"/>
+  </assemblyContexts__ComposedStructure>
+  <assemblyContexts__ComposedStructure id="_J8uXsaqSEeaKVc70akcW6A" entityName="UserRegistrationServiceBean">
+    <encapsulatedComponent__AssemblyContext xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_J70_wqqSEeaKVc70akcW6A"/>
+  </assemblyContexts__ComposedStructure>
+  <assemblyContexts__ComposedStructure id="_J8uXtaqSEeaKVc70akcW6A" entityName="ItemRegistrationServiceBean">
+    <encapsulatedComponent__AssemblyContext xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_J70_xqqSEeaKVc70akcW6A"/>
+  </assemblyContexts__ComposedStructure>
+  <assemblyContexts__ComposedStructure id="_J8uXuaqSEeaKVc70akcW6A" entityName="BuyNowServiceBean">
+    <encapsulatedComponent__AssemblyContext xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_J71m0aqSEeaKVc70akcW6A"/>
+  </assemblyContexts__ComposedStructure>
+  <assemblyContexts__ComposedStructure id="_J8u-sqqSEeaKVc70akcW6A" entityName="BidServiceBean">
+    <encapsulatedComponent__AssemblyContext xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_J71m1aqSEeaKVc70akcW6A"/>
+  </assemblyContexts__ComposedStructure>
+  <assemblyContexts__ComposedStructure id="_J8u-tqqSEeaKVc70akcW6A" entityName="BusinessObjectsPersistenceServiceBean">
+    <encapsulatedComponent__AssemblyContext xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_J7208KqSEeaKVc70akcW6A"/>
+  </assemblyContexts__ComposedStructure>
+  <assemblyContexts__ComposedStructure id="_J8u-uqqSEeaKVc70akcW6A" entityName="ViewUserInfoServiceBean">
+    <encapsulatedComponent__AssemblyContext xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_J787kaqSEeaKVc70akcW6A"/>
+  </assemblyContexts__ComposedStructure>
+  <assemblyContexts__ComposedStructure id="_J8u-vqqSEeaKVc70akcW6A" entityName="InventoryServiceBean">
+    <encapsulatedComponent__AssemblyContext xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_J8IhwaqSEeaKVc70akcW6A"/>
+  </assemblyContexts__ComposedStructure>
+  <assemblyContexts__ComposedStructure id="_J8u-wqqSEeaKVc70akcW6A" entityName="BrowseRegionsServiceBean">
+    <encapsulatedComponent__AssemblyContext xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_J8Ihx6qSEeaKVc70akcW6A"/>
+  </assemblyContexts__ComposedStructure>
+  <assemblyContexts__ComposedStructure id="_J8u-xqqSEeaKVc70akcW6A" entityName="QueryServiceBean">
+    <encapsulatedComponent__AssemblyContext xsi:type="repository:BasicComponent" href="internal_architecture_model.repository#_J8Ihy6qSEeaKVc70akcW6A"/>
+  </assemblyContexts__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_J8uXoKqSEeaKVc70akcW6A" entityName="AuthenticationService" outerProvidedRole_ProvidedDelegationConnector="_J8tJgaqSEeaKVc70akcW6A" assemblyContext_ProvidedDelegationConnector="_J8r7YKqSEeaKVc70akcW6A">
+    <innerProvidedRole_ProvidedDelegationConnector href="internal_architecture_model.repository#_J7oygKqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_J8uXpKqSEeaKVc70akcW6A" entityName="BasicQueryService" outerProvidedRole_ProvidedDelegationConnector="_J8uXo6qSEeaKVc70akcW6A" assemblyContext_ProvidedDelegationConnector="_J8uXoaqSEeaKVc70akcW6A">
+    <innerProvidedRole_ProvidedDelegationConnector href="internal_architecture_model.repository#_J7tD8qqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_J8uXqKqSEeaKVc70akcW6A" entityName="AboutMeService" outerProvidedRole_ProvidedDelegationConnector="_J8uXp6qSEeaKVc70akcW6A" assemblyContext_ProvidedDelegationConnector="_J8uXpaqSEeaKVc70akcW6A">
+    <innerProvidedRole_ProvidedDelegationConnector href="internal_architecture_model.repository#_J7zxoqqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_J8uXrKqSEeaKVc70akcW6A" entityName="ReputationService" outerProvidedRole_ProvidedDelegationConnector="_J8uXq6qSEeaKVc70akcW6A" assemblyContext_ProvidedDelegationConnector="_J8uXqaqSEeaKVc70akcW6A">
+    <innerProvidedRole_ProvidedDelegationConnector href="internal_architecture_model.repository#_J70Ys6qSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_J8uXsKqSEeaKVc70akcW6A" entityName="BrowseCategoriesService" outerProvidedRole_ProvidedDelegationConnector="_J8uXr6qSEeaKVc70akcW6A" assemblyContext_ProvidedDelegationConnector="_J8uXraqSEeaKVc70akcW6A">
+    <innerProvidedRole_ProvidedDelegationConnector href="internal_architecture_model.repository#_J70_waqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_J8uXtKqSEeaKVc70akcW6A" entityName="UserRegistrationService" outerProvidedRole_ProvidedDelegationConnector="_J8uXs6qSEeaKVc70akcW6A" assemblyContext_ProvidedDelegationConnector="_J8uXsaqSEeaKVc70akcW6A">
+    <innerProvidedRole_ProvidedDelegationConnector href="internal_architecture_model.repository#_J70_xaqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_J8uXuKqSEeaKVc70akcW6A" entityName="ItemRegistrationService" outerProvidedRole_ProvidedDelegationConnector="_J8uXt6qSEeaKVc70akcW6A" assemblyContext_ProvidedDelegationConnector="_J8uXtaqSEeaKVc70akcW6A">
+    <innerProvidedRole_ProvidedDelegationConnector href="internal_architecture_model.repository#_J71m0KqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_J8u-saqSEeaKVc70akcW6A" entityName="BuyNowService" outerProvidedRole_ProvidedDelegationConnector="_J8u-sKqSEeaKVc70akcW6A" assemblyContext_ProvidedDelegationConnector="_J8uXuaqSEeaKVc70akcW6A">
+    <innerProvidedRole_ProvidedDelegationConnector href="internal_architecture_model.repository#_J71m1KqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_J8u-taqSEeaKVc70akcW6A" entityName="BidService" outerProvidedRole_ProvidedDelegationConnector="_J8u-tKqSEeaKVc70akcW6A" assemblyContext_ProvidedDelegationConnector="_J8u-sqqSEeaKVc70akcW6A">
+    <innerProvidedRole_ProvidedDelegationConnector href="internal_architecture_model.repository#_J72N5KqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_J8u-uaqSEeaKVc70akcW6A" entityName="BusinessObjectsPersistenceService" outerProvidedRole_ProvidedDelegationConnector="_J8u-uKqSEeaKVc70akcW6A" assemblyContext_ProvidedDelegationConnector="_J8u-tqqSEeaKVc70akcW6A">
+    <innerProvidedRole_ProvidedDelegationConnector href="internal_architecture_model.repository#_J787kKqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_J8u-vaqSEeaKVc70akcW6A" entityName="ViewUserInfoService" outerProvidedRole_ProvidedDelegationConnector="_J8u-vKqSEeaKVc70akcW6A" assemblyContext_ProvidedDelegationConnector="_J8u-uqqSEeaKVc70akcW6A">
+    <innerProvidedRole_ProvidedDelegationConnector href="internal_architecture_model.repository#_J8IhwKqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_J8u-waqSEeaKVc70akcW6A" entityName="InventoryService" outerProvidedRole_ProvidedDelegationConnector="_J8u-wKqSEeaKVc70akcW6A" assemblyContext_ProvidedDelegationConnector="_J8u-vqqSEeaKVc70akcW6A">
+    <innerProvidedRole_ProvidedDelegationConnector href="internal_architecture_model.repository#_J8IhxqqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_J8u-xaqSEeaKVc70akcW6A" entityName="BrowseRegionsService" outerProvidedRole_ProvidedDelegationConnector="_J8u-xKqSEeaKVc70akcW6A" assemblyContext_ProvidedDelegationConnector="_J8u-wqqSEeaKVc70akcW6A">
+    <innerProvidedRole_ProvidedDelegationConnector href="internal_architecture_model.repository#_J8IhyqqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_J8u-yaqSEeaKVc70akcW6A" entityName="QueryService" outerProvidedRole_ProvidedDelegationConnector="_J8u-yKqSEeaKVc70akcW6A" assemblyContext_ProvidedDelegationConnector="_J8u-xqqSEeaKVc70akcW6A">
+    <innerProvidedRole_ProvidedDelegationConnector href="internal_architecture_model.repository#_J8Jv5KqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8wM0KqSEeaKVc70akcW6A" entityName="Assembly Connector from AuthenticationServiceBean to BasicQueryServiceBean" requiringAssemblyContext_AssemblyConnector="_J8r7YKqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8uXoaqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J7tD8qqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8NaSaqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8wM0aqSEeaKVc70akcW6A" entityName="Assembly Connector from AboutMeServiceBean to AuthenticationServiceBean" requiringAssemblyContext_AssemblyConnector="_J8uXpaqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8r7YKqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J7oygKqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8MzOqqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8wM0qqSEeaKVc70akcW6A" entityName="Assembly Connector from AboutMeServiceBean to QueryServiceBean" requiringAssemblyContext_AssemblyConnector="_J8uXpaqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8u-xqqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J8Jv5KqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8MzO6qSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8wM06qSEeaKVc70akcW6A" entityName="Assembly Connector from ReputationServiceBean to AuthenticationServiceBean" requiringAssemblyContext_AssemblyConnector="_J8uXqaqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8r7YKqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J7oygKqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8NaQKqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8wM1KqSEeaKVc70akcW6A" entityName="Assembly Connector from ReputationServiceBean to BasicQueryServiceBean" requiringAssemblyContext_AssemblyConnector="_J8uXqaqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8uXoaqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J7tD8qqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8NaQaqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8wM1aqSEeaKVc70akcW6A" entityName="Assembly Connector from ReputationServiceBean to QueryServiceBean" requiringAssemblyContext_AssemblyConnector="_J8uXqaqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8u-xqqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J8Jv5KqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8NaQqqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8wz4KqSEeaKVc70akcW6A" entityName="Assembly Connector from ReputationServiceBean to BusinessObjectsPersistenceServiceBean" requiringAssemblyContext_AssemblyConnector="_J8uXqaqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8u-tqqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J787kKqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8NaQ6qSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8wz4aqSEeaKVc70akcW6A" entityName="Assembly Connector from BrowseCategoriesServiceBean to QueryServiceBean" requiringAssemblyContext_AssemblyConnector="_J8uXraqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8u-xqqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J8Jv5KqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8NaRKqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8wz4qqSEeaKVc70akcW6A" entityName="Assembly Connector from BrowseCategoriesServiceBean to BasicQueryServiceBean" requiringAssemblyContext_AssemblyConnector="_J8uXraqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8uXoaqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J7tD8qqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8NaRaqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8wz46qSEeaKVc70akcW6A" entityName="Assembly Connector from UserRegistrationServiceBean to BusinessObjectsPersistenceServiceBean" requiringAssemblyContext_AssemblyConnector="_J8uXsaqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8u-tqqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J787kKqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8MMIKqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8wz5KqSEeaKVc70akcW6A" entityName="Assembly Connector from UserRegistrationServiceBean to BasicQueryServiceBean" requiringAssemblyContext_AssemblyConnector="_J8uXsaqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8uXoaqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J7tD8qqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8MMIaqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8wz5aqSEeaKVc70akcW6A" entityName="Assembly Connector from ItemRegistrationServiceBean to BusinessObjectsPersistenceServiceBean" requiringAssemblyContext_AssemblyConnector="_J8uXtaqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8u-tqqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J787kKqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8NaRqqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8wz5qqSEeaKVc70akcW6A" entityName="Assembly Connector from ItemRegistrationServiceBean to AuthenticationServiceBean" requiringAssemblyContext_AssemblyConnector="_J8uXtaqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8r7YKqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J7oygKqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8NaR6qSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8wz56qSEeaKVc70akcW6A" entityName="Assembly Connector from ItemRegistrationServiceBean to BasicQueryServiceBean" requiringAssemblyContext_AssemblyConnector="_J8uXtaqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8uXoaqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J7tD8qqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8NaSKqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8wz6KqSEeaKVc70akcW6A" entityName="Assembly Connector from BuyNowServiceBean to AuthenticationServiceBean" requiringAssemblyContext_AssemblyConnector="_J8uXuaqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8r7YKqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J7oygKqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8MzMKqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8wz6aqSEeaKVc70akcW6A" entityName="Assembly Connector from BuyNowServiceBean to BasicQueryServiceBean" requiringAssemblyContext_AssemblyConnector="_J8uXuaqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8uXoaqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J7tD8qqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8MzMaqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8xa8KqSEeaKVc70akcW6A" entityName="Assembly Connector from BuyNowServiceBean to BusinessObjectsPersistenceServiceBean" requiringAssemblyContext_AssemblyConnector="_J8uXuaqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8u-tqqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J787kKqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8MzMqqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8xa8aqSEeaKVc70akcW6A" entityName="Assembly Connector from BuyNowServiceBean to InventoryServiceBean" requiringAssemblyContext_AssemblyConnector="_J8uXuaqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8u-vqqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J8IhxqqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8MzM6qSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8xa8qqSEeaKVc70akcW6A" entityName="Assembly Connector from BidServiceBean to AuthenticationServiceBean" requiringAssemblyContext_AssemblyConnector="_J8u-sqqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8r7YKqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J7oygKqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8MzNKqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8xa86qSEeaKVc70akcW6A" entityName="Assembly Connector from BidServiceBean to BasicQueryServiceBean" requiringAssemblyContext_AssemblyConnector="_J8u-sqqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8uXoaqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J7tD8qqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8MzNaqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8xa9KqSEeaKVc70akcW6A" entityName="Assembly Connector from BidServiceBean to BusinessObjectsPersistenceServiceBean" requiringAssemblyContext_AssemblyConnector="_J8u-sqqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8u-tqqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J787kKqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8MzNqqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8xa9aqSEeaKVc70akcW6A" entityName="Assembly Connector from BidServiceBean to QueryServiceBean" requiringAssemblyContext_AssemblyConnector="_J8u-sqqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8u-xqqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J8Jv5KqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8MzN6qSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8xa9qqSEeaKVc70akcW6A" entityName="Assembly Connector from BidServiceBean to InventoryServiceBean" requiringAssemblyContext_AssemblyConnector="_J8u-sqqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8u-vqqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J8IhxqqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8MzOKqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8xa96qSEeaKVc70akcW6A" entityName="Assembly Connector from ViewUserInfoServiceBean to BasicQueryServiceBean" requiringAssemblyContext_AssemblyConnector="_J8u-uqqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8uXoaqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J7tD8qqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8MMIqqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8xa-KqSEeaKVc70akcW6A" entityName="Assembly Connector from InventoryServiceBean to QueryServiceBean" requiringAssemblyContext_AssemblyConnector="_J8u-vqqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8u-xqqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J8Jv5KqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8MMI6qSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8xa-aqSEeaKVc70akcW6A" entityName="Assembly Connector from InventoryServiceBean to BusinessObjectsPersistenceServiceBean" requiringAssemblyContext_AssemblyConnector="_J8u-vqqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8u-tqqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J787kKqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8MMJKqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_J8xa-qqSEeaKVc70akcW6A" entityName="Assembly Connector from BrowseRegionsServiceBean to BasicQueryServiceBean" requiringAssemblyContext_AssemblyConnector="_J8u-wqqSEeaKVc70akcW6A" providingAssemblyContext_AssemblyConnector="_J8uXoaqSEeaKVc70akcW6A">
+    <providedRole_AssemblyConnector href="internal_architecture_model.repository#_J7tD8qqSEeaKVc70akcW6A"/>
+    <requiredRole_AssemblyConnector href="internal_architecture_model.repository#_J8MzOaqSEeaKVc70akcW6A"/>
+  </connectors__ComposedStructure>
+  <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_J8tJgaqSEeaKVc70akcW6A" entityName="AuthenticationService 0 (prov)(sys)">
+    <providedInterface__OperationProvidedRole href="internal_architecture_model.repository#_J6dt0KqSEeaKVc70akcW6A"/>
+  </providedRoles_InterfaceProvidingEntity>
+  <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_J8uXo6qSEeaKVc70akcW6A" entityName="BasicQueryService 1 (prov)(sys)">
+    <providedInterface__OperationProvidedRole href="internal_architecture_model.repository#_J7oygqqSEeaKVc70akcW6A"/>
+  </providedRoles_InterfaceProvidingEntity>
+  <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_J8uXp6qSEeaKVc70akcW6A" entityName="AboutMeService 2 (prov)(sys)">
+    <providedInterface__OperationProvidedRole href="internal_architecture_model.repository#_J7trAaqSEeaKVc70akcW6A"/>
+  </providedRoles_InterfaceProvidingEntity>
+  <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_J8uXq6qSEeaKVc70akcW6A" entityName="ReputationService 3 (prov)(sys)">
+    <providedInterface__OperationProvidedRole href="internal_architecture_model.repository#_J70YsaqSEeaKVc70akcW6A"/>
+  </providedRoles_InterfaceProvidingEntity>
+  <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_J8uXr6qSEeaKVc70akcW6A" entityName="BrowseCategoriesService 4 (prov)(sys)">
+    <providedInterface__OperationProvidedRole href="internal_architecture_model.repository#_J70YtaqSEeaKVc70akcW6A"/>
+  </providedRoles_InterfaceProvidingEntity>
+  <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_J8uXs6qSEeaKVc70akcW6A" entityName="UserRegistrationService 5 (prov)(sys)">
+    <providedInterface__OperationProvidedRole href="internal_architecture_model.repository#_J70_w6qSEeaKVc70akcW6A"/>
+  </providedRoles_InterfaceProvidingEntity>
+  <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_J8uXt6qSEeaKVc70akcW6A" entityName="ItemRegistrationService 6 (prov)(sys)">
+    <providedInterface__OperationProvidedRole href="internal_architecture_model.repository#_J70_x6qSEeaKVc70akcW6A"/>
+  </providedRoles_InterfaceProvidingEntity>
+  <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_J8u-sKqSEeaKVc70akcW6A" entityName="BuyNowService 7 (prov)(sys)">
+    <providedInterface__OperationProvidedRole href="internal_architecture_model.repository#_J71m0qqSEeaKVc70akcW6A"/>
+  </providedRoles_InterfaceProvidingEntity>
+  <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_J8u-tKqSEeaKVc70akcW6A" entityName="BidService 8 (prov)(sys)">
+    <providedInterface__OperationProvidedRole href="internal_architecture_model.repository#_J72N4KqSEeaKVc70akcW6A"/>
+  </providedRoles_InterfaceProvidingEntity>
+  <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_J8u-uKqSEeaKVc70akcW6A" entityName="BusinessObjectsPersistenceService 9 (prov)(sys)">
+    <providedInterface__OperationProvidedRole href="internal_architecture_model.repository#_J7208aqSEeaKVc70akcW6A"/>
+  </providedRoles_InterfaceProvidingEntity>
+  <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_J8u-vKqSEeaKVc70akcW6A" entityName="ViewUserInfoService 10 (prov)(sys)">
+    <providedInterface__OperationProvidedRole href="internal_architecture_model.repository#_J787kqqSEeaKVc70akcW6A"/>
+  </providedRoles_InterfaceProvidingEntity>
+  <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_J8u-wKqSEeaKVc70akcW6A" entityName="InventoryService 11 (prov)(sys)">
+    <providedInterface__OperationProvidedRole href="internal_architecture_model.repository#_J8IhwqqSEeaKVc70akcW6A"/>
+  </providedRoles_InterfaceProvidingEntity>
+  <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_J8u-xKqSEeaKVc70akcW6A" entityName="BrowseRegionsService 12 (prov)(sys)">
+    <providedInterface__OperationProvidedRole href="internal_architecture_model.repository#_J8IhyKqSEeaKVc70akcW6A"/>
+  </providedRoles_InterfaceProvidingEntity>
+  <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_J8u-yKqSEeaKVc70akcW6A" entityName="QueryService 13 (prov)(sys)">
+    <providedInterface__OperationProvidedRole href="internal_architecture_model.repository#_J8IhzKqSEeaKVc70akcW6A"/>
+  </providedRoles_InterfaceProvidingEntity>
+</system:System>

@@ -1,12 +1,14 @@
 import org.palladiosimulator.pcm.repository.OperationProvidedRole
 import org.emftext.language.java.classifiers.ConcreteClassifier
 import tools.vitruv.applications.pcmjava.util.java2pcm.TypeReferenceCorrespondenceHelper
+import tools.vitruv.framework.userinteraction.UserInteractionOptions.WindowModality
 
 import static tools.vitruv.applications.pcmjava.util.java2pcm.TypeReferenceCorrespondenceHelper.*
 import static tools.vitruv.applications.util.temporary.java.JavaTypeUtil.*
 
 import static extension edu.kit.ipd.sdq.commons.util.org.palladiosimulator.pcm.repository.ParameterUtil.*
 import static extension tools.vitruv.applications.util.temporary.java.JavaMemberAndParameterUtil.hasSameSignature
+import org.eclipse.emf.ecore.util.EcoreUtil
 
 import "http://www.emftext.org/java" as java 
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
@@ -226,6 +228,119 @@ routine changeInnerDeclarationType(java::TypeReference typeReference, java::Fiel
 	}
 }
 
+//Langhammers Level 3 Regel fuer Chage Field Type
+//start
+reaction ChangeFieldTypeEvent {
+	after element replaced at java::Field[typeReference]
+	call changedFieldTypeEvent(affectedEObject, oldValue, newValue)
+}
+
+routine changedFieldTypeEvent(java::Field field, java::TypeReference oldType, java::TypeReference newType) {
+	match {
+		val oldCorrespondingOpInterface = retrieve optional pcm::OperationInterface corresponding to oldType
+		val opInterface = retrieve optional pcm::OperationInterface corresponding to newType
+		val opRequiredRole = retrieve optional pcm::OperationRequiredRole corresponding to field
+		val basicComponent = retrieve pcm::BasicComponent corresponding to field.containingConcreteClassifier
+	}
+	action {
+		call {
+			if(oldCorrespondingOpInterface.present && opInterface.present && opRequiredRole.present){
+				// reset required role 
+				userInteractor.notificationDialogBuilder.message("the operation required role has been changed").windowModality(WindowModality.MODAL).startInteraction;
+				opRequiredRole.get.requiredInterface__OperationRequiredRole = opInterface.get
+				return
+			}
+			if(!oldCorrespondingOpInterface.present && opInterface.present){
+				// new required role needs to be added 
+				userInteractor.notificationDialogBuilder.message("Create OperationRequiredRole between Component " + 
+					basicComponent.entityName + " and Interface " + opInterface.get.entityName).windowModality(WindowModality.MODAL).startInteraction;
+				createRequiredRole(basicComponent, opInterface.get, field)
+				return
+			}
+			if(oldCorrespondingOpInterface.present && !opInterface.present && opRequiredRole.present){
+				// remove required role and correspondence
+				userInteractor.notificationDialogBuilder.message("Remove OperationRequiredRole between Component " + 
+					basicComponent.entityName + " and Interface " + oldCorrespondingOpInterface.get.entityName).windowModality(WindowModality.MODAL).startInteraction;
+				removeRequiredRoleAndCorrespondence(opRequiredRole.get, field)
+			}
+		}
+	}
+}
+	
+
+routine createRequiredRole(pcm::BasicComponent basicComponent, pcm::OperationInterface opInterface, java::Field field) {
+	action {
+		val opRequiredRole = create pcm::OperationRequiredRole
+		add correspondence between opRequiredRole and field
+		update opRequiredRole {
+			opRequiredRole.requiredInterface__OperationRequiredRole = opInterface
+			opRequiredRole.requiringEntity_RequiredRole = basicComponent
+			userInteractor.notificationDialogBuilder.message("Create OperationRequiredRole between Component " + 
+				basicComponent.entityName + " and Interface " + opInterface.entityName).windowModality(WindowModality.MODAL).startInteraction;
+		}
+	}
+}	
+	
+
+
+
+routine removeRequiredRoleAndCorrespondence(pcm::OperationRequiredRole orr, java::Field field) {
+	action {
+		//remove correspondence between orr and field
+		//update orr {
+		//	EcoreUtil.^delete(orr)
+		//}
+		delete orr
+	}
+}
+
+
+reaction RemoveFieldEvent {
+	after element java::Field removed from java::Class[members]
+	call removedFieldEvent(oldValue)
+}
+
+routine removedFieldEvent(java::Field field) {
+	match { 
+		val namedElement = retrieve pcm::NamedElement corresponding to field
+	}	
+	action {
+		delete namedElement
+		//remove correspondence between field and namedElement
+		//update field {
+		//	userInteractor.notificationDialogBuilder.message("Removed " + namedElement + " because the corresponding field " + field + " has been removed").
+		//		windowModality(WindowModality.MODAL).startInteraction;
+		//	// TODO This is wrong, isnt't it? Should be "namedElement"!?
+		//	EcoreUtil.^remove(field)
+		//}
+	}
+}
+
+//end
+/*
+//Langhammers Level 3 Regel fuer remove Field
+reaction RemoveFieldEvent {
+	after element removed from java::ConcreteClassifier[members]
+		with oldValue instanceof java::Field // TODO replace with element filter in trigger
+	call removedFieldEvent(oldValue as Field)
+}
+	
+routine removedFieldEvent(java::Field field) {
+	match { 
+		val namedElement = retrieve pcm::NamedElement corresponding to field
+	}	
+	action {
+		remove correspondence between field and namedElement
+		update field {
+			userInteractor.notificationDialogBuilder.message("Removed " + namedElement + " because the corresponding field " + field + " has been removed").
+				windowModality(WindowModality.MODAL).startInteraction;
+			// TODO This is wrong, isnt't it? Should be "namedElement"!?
+			EcoreUtil.^remove(field)
+		}
+	}
+}
+*/
+
 
 reaction JavaReturnTypeChanged {
 	after element java::TypeReference replaced at java::Method[typeReference]
@@ -242,4 +357,16 @@ routine changeReturnType(java::Method javaMethod, java::TypeReference typeRefere
 			operationSignature.returnType__OperationSignature = getCorrespondingPCMDataTypeForTypeReference(typeReference, correspondenceModel, userInteractor, repository, javaMethod.arrayDimension)
 		 }
 	 }
+}
+
+
+// empty implementation for changeFieldModifier, because the change is not architectural relevant
+reaction ChangeFieldModifierEvent {
+	after element inserted in java::Field[annotationsAndModifiers]
+	call { }
+}
+
+reaction RemoveFieldModifierEvent {
+	after element removed from java::Field[annotationsAndModifiers]
+	call { }
 }

@@ -149,8 +149,8 @@ public class IACreateDeletePackageTest {
 	@Test
 	public void testCreateDeletePackage() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		testCreatePackage();
-		//testRenameCreatedPackage();
-		//testRemoveCreatedPackage();
+		testRenameCreatedPackage();
+		testRemoveCreatedPackage();
 	}
 	
 	

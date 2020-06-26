@@ -16,8 +16,10 @@ import org.emftext.language.java.parameters.Parametrizable;
 import org.emftext.language.java.types.TypeReference;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
 import org.palladiosimulator.pcm.core.entity.InterfaceProvidingRequiringEntity;
+import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.palladiosimulator.pcm.repository.DataType;
 import org.palladiosimulator.pcm.repository.OperationInterface;
+import org.palladiosimulator.pcm.repository.OperationRequiredRole;
 import org.palladiosimulator.pcm.repository.Repository;
 import org.palladiosimulator.pcm.repository.RepositoryComponent;
 import tools.vitruv.extensions.dslsruntime.reactions.AbstractRepairRoutinesFacade;
@@ -156,6 +158,31 @@ public class RoutinesFacade extends AbstractRepairRoutinesFacade {
     return _routinesFacade.createRepository(javaPackage, packageName, newTag);
   }
   
+  public boolean removedPackageRoutine(final org.emftext.language.java.containers.Package javaPackage) {
+    mir.routines.packageAndClassifiers.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("packageAndClassifiers")));
+    return _routinesFacade.removedPackageRoutine(javaPackage);
+  }
+  
+  public boolean deleteCorrespondenceBetweenJavaPackageAndMetaElement(final org.emftext.language.java.containers.Package javaPackage, final org.emftext.language.java.containers.Package metaElement) {
+    mir.routines.packageAndClassifiers.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("packageAndClassifiers")));
+    return _routinesFacade.deleteCorrespondenceBetweenJavaPackageAndMetaElement(javaPackage, metaElement);
+  }
+  
+  public boolean createOperationProvidedRole(final TypeReference typeReference) {
+    mir.routines.packageAndClassifiers.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("packageAndClassifiers")));
+    return _routinesFacade.createOperationProvidedRole(typeReference);
+  }
+  
+  public boolean createOperationProvidedRoleFromTypeReference(final Classifier classifierInterface, final org.emftext.language.java.classifiers.Class javaClass, final TypeReference reference) {
+    mir.routines.packageAndClassifiers.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("packageAndClassifiers")));
+    return _routinesFacade.createOperationProvidedRoleFromTypeReference(classifierInterface, javaClass, reference);
+  }
+  
+  public boolean removeOperationProvidedRole(final TypeReference typeReference) {
+    mir.routines.packageAndClassifiers.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("packageAndClassifiers")));
+    return _routinesFacade.removeOperationProvidedRole(typeReference);
+  }
+  
   public boolean createOrFindSystem(final org.emftext.language.java.containers.Package javaPackage, final String name) {
     mir.routines.packageAndClassifiers.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("packageAndClassifiers")));
     return _routinesFacade.createOrFindSystem(javaPackage, name);
@@ -261,16 +288,6 @@ public class RoutinesFacade extends AbstractRepairRoutinesFacade {
     return _routinesFacade.addDataTypeInRepository(pcmDataType);
   }
   
-  public boolean createOperationProvidedRole(final TypeReference typeReference) {
-    mir.routines.packageAndClassifiers.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("packageAndClassifiers")));
-    return _routinesFacade.createOperationProvidedRole(typeReference);
-  }
-  
-  public boolean createOperationProvidedRoleFromTypeReference(final Classifier classifierInterface, final org.emftext.language.java.classifiers.Class javaClass, final TypeReference reference) {
-    mir.routines.packageAndClassifiers.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("packageAndClassifiers")));
-    return _routinesFacade.createOperationProvidedRoleFromTypeReference(classifierInterface, javaClass, reference);
-  }
-  
   public boolean createJavaSubPackages(final org.emftext.language.java.containers.Package javaPackage) {
     mir.routines.packageAndClassifiers.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("packageAndClassifiers")));
     return _routinesFacade.createJavaSubPackages(javaPackage);
@@ -339,6 +356,26 @@ public class RoutinesFacade extends AbstractRepairRoutinesFacade {
   public boolean changeInnerDeclarationType(final TypeReference typeReference, final Field javaField) {
     mir.routines.classifierBody.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("classifierBody")));
     return _routinesFacade.changeInnerDeclarationType(typeReference, javaField);
+  }
+  
+  public boolean changedFieldTypeEvent(final Field field, final TypeReference oldType, final TypeReference newType) {
+    mir.routines.classifierBody.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("classifierBody")));
+    return _routinesFacade.changedFieldTypeEvent(field, oldType, newType);
+  }
+  
+  public boolean createRequiredRole(final BasicComponent basicComponent, final OperationInterface opInterface, final Field field) {
+    mir.routines.classifierBody.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("classifierBody")));
+    return _routinesFacade.createRequiredRole(basicComponent, opInterface, field);
+  }
+  
+  public boolean removeRequiredRoleAndCorrespondence(final OperationRequiredRole orr, final Field field) {
+    mir.routines.classifierBody.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("classifierBody")));
+    return _routinesFacade.removeRequiredRoleAndCorrespondence(orr, field);
+  }
+  
+  public boolean removedFieldEvent(final Field field) {
+    mir.routines.classifierBody.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("classifierBody")));
+    return _routinesFacade.removedFieldEvent(field);
   }
   
   public boolean changeReturnType(final Method javaMethod, final TypeReference typeReference) {

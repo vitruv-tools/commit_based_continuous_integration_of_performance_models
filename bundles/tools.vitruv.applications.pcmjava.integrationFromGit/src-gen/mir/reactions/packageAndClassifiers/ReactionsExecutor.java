@@ -27,9 +27,11 @@ class ReactionsExecutor extends AbstractReactionsExecutor {
     this.addReaction(new mir.reactions.packageAndClassifiers.RemoveClassEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageAndClassifiers"))));
     this.addReaction(new mir.reactions.packageAndClassifiers.RemoveInterfaceEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageAndClassifiers"))));
     this.addReaction(new mir.reactions.packageAndClassifiers.PackageCreatedReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageAndClassifiers"))));
+    this.addReaction(new mir.reactions.packageAndClassifiers.RemovePackageReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageAndClassifiers"))));
+    this.addReaction(new mir.reactions.packageAndClassifiers.TypeReferenceCreatedReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageAndClassifiers"))));
+    this.addReaction(new mir.reactions.packageAndClassifiers.TypeReferenceRemovedReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageAndClassifiers"))));
     this.addReaction(new mir.reactions.packageAndClassifiers.JavaPackageRenamedReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageAndClassifiers"))));
     this.addReaction(new mir.reactions.packageAndClassifiers.JavaInterfaceRenamedReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageAndClassifiers"))));
     this.addReaction(new mir.reactions.packageAndClassifiers.JavaClassRenamedReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageAndClassifiers"))));
-    this.addReaction(new mir.reactions.packageAndClassifiers.TypeReferenceCreatedReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("packageAndClassifiers"))));
   }
 }

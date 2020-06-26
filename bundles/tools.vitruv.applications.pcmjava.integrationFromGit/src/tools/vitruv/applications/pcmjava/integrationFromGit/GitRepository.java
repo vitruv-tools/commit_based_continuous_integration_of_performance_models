@@ -1,27 +1,27 @@
 package tools.vitruv.applications.pcmjava.integrationFromGit;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+//import java.io.BufferedReader;
+//import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
+//import java.io.FileNotFoundException;
+//import java.io.FileReader;
+//import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
+//import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.regex.Pattern;
+//import java.util.Scanner;
+//import java.util.Set;
+//import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jgit.api.BlameCommand;
-import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode;
+//import org.eclipse.jdt.core.ICompilationUnit;
+//import org.eclipse.jdt.core.JavaModelException;
+//import org.eclipse.jgit.api.BlameCommand;
+//import org.eclipse.jgit.api.CreateBranchCommand.SetupUpstreamMode;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.AbortedByHookException;
@@ -36,14 +36,14 @@ import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.eclipse.jgit.api.errors.UnmergedPathsException;
 import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
-import org.eclipse.jgit.blame.BlameResult;
+//import org.eclipse.jgit.blame.BlameResult;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.Edit;
-import org.eclipse.jgit.diff.Edit.Type;
+//import org.eclipse.jgit.diff.Edit.Type;
 import org.eclipse.jgit.diff.EditList;
-import org.eclipse.jgit.diff.RawText;
-import org.eclipse.jgit.diff.RawTextComparator;
+//import org.eclipse.jgit.diff.RawText;
+//import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.diff.RenameDetector;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -51,30 +51,34 @@ import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.ObjectStream;
+//import org.eclipse.jgit.lib.ObjectStream;
 import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.patch.CombinedHunkHeader;
+//import org.eclipse.jgit.lib.Repository;
+//import org.eclipse.jgit.patch.CombinedHunkHeader;
 import org.eclipse.jgit.patch.FileHeader;
-import org.eclipse.jgit.patch.HunkHeader;
+//import org.eclipse.jgit.patch.HunkHeader;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
-import org.eclipse.jgit.treewalk.filter.PathFilter;
+//import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
-import org.eclipse.jgit.util.StringUtils;
+//import org.eclipse.jgit.util.StringUtils;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 
-//import com.gitblit.models.AnnotatedLine;
 
+/**
+ * Represents a git repository.
+ * 
+ * @author Ilia Chupakhin
+ *
+ */
 public class GitRepository {
 
-	// private String localPath;
 	private final Git git;
 	private RevCommit latestCommit;
 	private final File rootDirectory;
@@ -82,41 +86,45 @@ public class GitRepository {
 	private String lineDelimiter = System.lineSeparator();
 
 	
+	/**
+	 * Creates a new git repository in <code>rootDirectory</code>
+	 * 
+	 * @param rootDirectory directory which a new git repository will be created in
+	 * @throws IllegalStateException
+	 * @throws GitAPIException
+	 */
 	public GitRepository(File rootDirectory) throws IllegalStateException, GitAPIException {
 		this.rootDirectory = rootDirectory;
 		this.git = Git.init().setDirectory(rootDirectory).call();
 	}
 	
 	
+	/**
+	 * Clones an existing remote git repository in <code>rootDirectory</code>
+	 * 
+	 * @param rootDirectory directory which the cloned git repository will be created in
+	 * @param uriToRemoteRepository uri to the remote repository
+	 * @throws IllegalStateException
+	 * @throws GitAPIException
+	 */
 	public GitRepository(File rootDirectory, String uriToRemoteRepository) throws IllegalStateException, GitAPIException {
 		this.rootDirectory = rootDirectory;
-		/*
-		Collection<Ref> remoteRefs = Git.lsRemoteRepository()
-				  .setHeads( true )
-				  .setRemote(uriToRemoteRepository)
-				  .call();
-		List<String> namesOfBranches = new ArrayList<String>();
-		for (Ref ref : remoteRefs) {
-			namesOfBranches.add(*ref.getName());
-		}
-		
-		
-		this.git = Git.cloneRepository()
-				  .setURI(uriToRemoteRepository)
-				  .setDirectory(rootDirectory)
-				  .setBranchesToClone(namesOfBranches)
-				  .call();
-		*/
-		
 		this.git = Git.cloneRepository()
 		  .setURI(uriToRemoteRepository)
 		  .setDirectory(rootDirectory)
 		  .setCloneAllBranches(true)
 		  .call();
-		
 	}
 	
 	
+	/**
+	 * Clones an existing local git repository in <code>rootDirectory</code>
+	 * 
+	 * @param rootDirectory directory which the cloned git repository will be created in
+	 * @param localRepository local git directory
+	 * @throws IllegalStateException
+	 * @throws GitAPIException
+	 */
 	public GitRepository(File rootDirectory, File localRepository) throws IllegalStateException, GitAPIException {
 		this.rootDirectory = rootDirectory;
 		this.git = Git.cloneRepository()
@@ -127,57 +135,76 @@ public class GitRepository {
 	}
 
 
+	/**
+	 * Represents "git add <fileName>" command
+	 * 
+	 * @param fileName
+	 * @throws NoFilepatternException
+	 * @throws GitAPIException
+	 */
 	public void addFilePattern(String fileName) throws NoFilepatternException, GitAPIException {
 		git.add().addFilepattern(fileName).call();
 	}
 
 	
+	/**
+	 * Represents "git status" command 
+	 * 
+	 * @return status
+	 * @throws NoWorkTreeException
+	 * @throws GitAPIException
+	 */
 	public Status getStatus() throws NoWorkTreeException, GitAPIException {
 		return git.status().call();
 	}
 
 	
+	/**
+	 *  Represents "git checkout <commitHash>" command 
+	 * 
+	 * @param commitId commit hash
+	 * @throws RefAlreadyExistsException
+	 * @throws RefNotFoundException
+	 * @throws InvalidRefNameException
+	 * @throws CheckoutConflictException
+	 * @throws GitAPIException
+	 */
 	public void checkoutFromCommitId(String commitId) throws RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
 		git.checkout().setName(commitId).call();
 	}
 	
+	
+	/**
+	 * Switches to the branch with <code>branchName</code> and checks it out
+	 * 
+	 * @param branchName
+	 * @throws RefAlreadyExistsException
+	 * @throws RefNotFoundException
+	 * @throws InvalidRefNameException
+	 * @throws CheckoutConflictException
+	 * @throws GitAPIException
+	 */
 	public void checkoutAndTrackBranch(String branchName) throws RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
-		 
-		//git.checkout().setCreateBranch(true).setName(branchName)
-        // .setUpstreamMode(SetupUpstreamMode.TRACK/*SET_UPSTREAM*/)
-		// .setStartPoint("origin/" + branchName).call();
-		 
-		
-		 //git.checkout().setName("origin/" + branchName)
-         //.setUpstreamMode(SetupUpstreamMode.TRACK/*SET_UPSTREAM*/)
-		 //.setStartPoint("origin/" + branchName).call();
-		 
-		 
-		 
 		 git.pull()/*.setCredentialsProvider(user)*/.call();
 		 git.branchCreate().setForce(true).setName(branchName).setStartPoint("origin/" + branchName).call();
 		 git.checkout().setName(branchName).call();
 		 
 	}
-	
-	public void printStatusAdded() throws NoWorkTreeException, GitAPIException {
-		Status status = getStatus();
-		Set<String> added = status.getAdded();
-		for (String add : added) {
-			System.out.println("Added: " + add);
-		}
-	}
 
 	
-	public void printStatusUntracked() throws NoWorkTreeException, GitAPIException {
-		Status status = getStatus();
-		Set<String> added = status.getUntracked();
-		for (String add : added) {
-			System.out.println("Untracked: " + add);
-		}
-	}
-
-	
+	/**
+	 * Represents "git commit -m '<code>commitMessage</code>'" command
+	 * 
+	 * @param commitMessage
+	 * @return commit
+	 * @throws NoHeadException
+	 * @throws NoMessageException
+	 * @throws UnmergedPathsException
+	 * @throws ConcurrentRefUpdateException
+	 * @throws WrongRepositoryStateException
+	 * @throws AbortedByHookException
+	 * @throws GitAPIException
+	 */
 	public RevCommit commit(String commitMessage) throws NoHeadException, NoMessageException, UnmergedPathsException,
 			ConcurrentRefUpdateException, WrongRepositoryStateException, AbortedByHookException, GitAPIException {
 		latestCommit = git.commit().setMessage(commitMessage).call();
@@ -185,6 +212,14 @@ public class GitRepository {
 	}
 
 
+	/**
+	 * Returns all commits 
+	 * 
+	 * @return all commits
+	 * @throws NoHeadException
+	 * @throws GitAPIException
+	 * @throws IOException
+	 */
 	public List<RevCommit> getAllCommits() throws NoHeadException, GitAPIException, IOException {
 		Iterable<RevCommit> commits = git.log().all().call();
 		List<RevCommit> listOfCommits = new ArrayList<>();
@@ -192,6 +227,14 @@ public class GitRepository {
 		return listOfCommits;
 	}
 	
+	/**
+	 * Returns all commits from current branch
+	 * 
+	 * @return all commits from branch
+	 * @throws NoHeadException
+	 * @throws GitAPIException
+	 * @throws IOException
+	 */
 	public List<RevCommit> getAllCommitsFromBranch(String branchName) throws NoHeadException, GitAPIException, IOException {
 		Iterable<RevCommit> commits = git.log().add(git.getRepository().resolve(branchName)).call();
 		List<RevCommit> listOfCommits = new ArrayList<>();
@@ -200,6 +243,15 @@ public class GitRepository {
 	}
 	
 	
+	/**
+	 * Returns all commits between two particular commits
+	 * 
+	 * @param startCommitHash 
+	 * @param endCommitHash
+	 * @return commits between two particular commits
+	 * @throws IOException
+	 * @throws GitAPIException
+	 */
 	public List<RevCommit> getAllCommitsBetweenTwoCommits(final String startCommitHash, final String endCommitHash) throws IOException, GitAPIException {
 		Ref refFrom = git.getRepository().findRef(startCommitHash);
 		Ref refTo = git.getRepository().findRef(endCommitHash);
@@ -210,7 +262,11 @@ public class GitRepository {
 	}
 	
 	
-	
+	/**
+	 * Prints all {@link DiffEntry} from <code>diffs</code>
+	 * 
+	 * @param diffs list of {@link DiffEntry} to print
+	 */
 	public void printDiffs(List<DiffEntry> diffs) {
 		if (diffs.isEmpty()) {
 			System.out.println("No diffs");
@@ -226,80 +282,77 @@ public class GitRepository {
 				formatter.format(diffs.get(i));
 				formatter.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
 
+	/**
+	 * Computes all {@link DiffEntry} between <code>oldRevCommit</code> and <code>newRevCommit</code>.
+	 * For more explanation of particular parts of the method @see <a href="https://www.codeaffine.com/2015/12/15/getting-started-with-jgit/">https://www.codeaffine.com</a>
+	 * 
+	 * @param oldRevCommit start commit (usually an older commit)
+	 * @param newRevCommit end commit (usually a newer commit)
+	 * @param onlyChangesOnJavaFiles if that flag is true, changes on only java files will be detected. All changes on other file types will be ignored.
+	 * @param detectRenames if that flag is true, renames on files will be detected.
+	 * @return computed {@link List} with {@link DiffEntry}
+	 */
 	public List<DiffEntry> computeDiffsBetweenTwoCommits(RevCommit oldRevCommit, RevCommit newRevCommit, boolean onlyChangesOnJavaFiles, boolean detectRenames) {
 
+		//Parse the older commit
 		RevWalk oldWalk = new RevWalk(git.getRepository());
 		RevCommit oldCommit = null;
 		
 		try {
 			oldCommit = oldWalk.parseCommit(oldRevCommit);
 		} catch (MissingObjectException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		} catch (IncorrectObjectTypeException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		} catch (IOException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
 
-		ObjectId oldTreeId = /* git.getRepository().resolve( "HEAD~1^{tree}" ) */oldCommit.getTree();
+		ObjectId oldTreeId = oldCommit.getTree();
 
-		ObjectReader oldTreeReader = git.getRepository().newObjectReader();
+		ObjectReader treeReader = git.getRepository().newObjectReader();
 		CanonicalTreeParser oldTreeParser = new CanonicalTreeParser();
 		try {
-			oldTreeParser.reset(oldTreeReader, oldTreeId);
-			// oldTreeParser = new CanonicalTreeParser(null, oldTreeReader, oldTreeId);
+			oldTreeParser.reset(treeReader, oldTreeId);
 		} catch (IncorrectObjectTypeException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
+		
+		//Parse the newer commit
 		RevWalk newWalk = new RevWalk(git.getRepository());
 		RevCommit newCommit = null;
 		try {
 			newCommit = newWalk.parseCommit(newRevCommit);
 		} catch (MissingObjectException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		} catch (IncorrectObjectTypeException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		} catch (IOException e2) {
-			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
 
-		ObjectId newTreeId = newTreeId = newCommit.getTree();
-
+		ObjectId newTreeId = newCommit.getTree();
 		CanonicalTreeParser newTreeParser = new CanonicalTreeParser();
+		
 		try {
-			newTreeParser.reset(oldTreeReader, newTreeId);
-			// newTreeParser = new CanonicalTreeParser(null, newTreeReader, newTreeId);
+			newTreeParser.reset(treeReader, newTreeId);
 		} catch (IncorrectObjectTypeException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
 		List<DiffEntry> diffs = null;
 
 		try {
-
-			DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream()); // use NullOutputStream.INSTANCE if you
-																				// don't need the diff output
+			DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream()); // use NullOutputStream.INSTANCE if you don't need the diff output
 			df.setRepository(git.getRepository());
 			
 			//Set filter to detect only changes on java files, if necessary 
@@ -307,7 +360,7 @@ public class GitRepository {
 				TreeFilter treeFilter = PathSuffixFilter.create(".java");
 				df.setPathFilter(treeFilter);
 			}
-			
+			//Compute diffs between the commits
 			diffs = df.scan(oldTreeParser, newTreeParser);
 			
 			//Detect renames on changed files, if necessary
@@ -316,13 +369,7 @@ public class GitRepository {
 				 rd.addAll(diffs);
 				 diffs = rd.compute();
 			}
-			
-			/*
-			 * diffs = git.diff() .setOldTree( oldTreeParser ) .setNewTree( newTreeParser )
-			 * .call();
-			 */
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -331,6 +378,14 @@ public class GitRepository {
 	}
 
 	
+	/**
+	 * Computes changes from the given {@link DiffEntry}.
+	 * An {@link EditList} contain numbers of lines which have to be add, remove or replaced 
+	 * in the older file version in order to obtain the same content as in the newer file version. 
+	 * 
+	 * @param diff contains information about changes on a file 
+	 * @return {@link EditList}
+	 */
 	public EditList computeEditListFromDiffEntry(DiffEntry diff) {
 
 		DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
@@ -338,11 +393,9 @@ public class GitRepository {
 		FileHeader fileHeader;
 		
 		try {
-
 			fileHeader = diffFormatter.toFileHeader(diff);
 			return fileHeader.toEditList();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -350,107 +403,133 @@ public class GitRepository {
 	}
 
 	
+	/**
+	 * Returns the older version of file content in {@link String} format
+	 * 
+	 * @param diff contains information about changes on a file
+	 * @return older version of file content
+	 */
 	public String getOldContentOfFileFromDiffEntry(DiffEntry diff) {
 		ObjectId oldObjectId = diff.getOldId().toObjectId();
         ObjectLoader loader;
         String oldContent = null;
-		try {
+		
+        try {
+        	//Load old content version
 			loader = git.getRepository().open(oldObjectId);
 			oldContent = new String(loader.getBytes());
 		} catch (MissingObjectException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        
         return oldContent;
 	}
 	
-	
+	/**
+	 * Returns the newer version of file content in {@link String} format
+	 * 
+	 * @param diff contains information about changes on a file
+	 * @return newer version of file content
+	 */
 	public String getNewContentOfFileFromDiffEntry(DiffEntry diff) {
 		ObjectId newObjectId = diff.getNewId().toObjectId();
         ObjectLoader loader;
         String newContent = null;
+        
 		try {
+			//Load new content version
 			loader = git.getRepository().open(newObjectId);
 			newContent = new String(loader.getBytes());
 		} catch (MissingObjectException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
         return newContent;
 	}
 	
 	
+	/**
+	 * Returns the older version of file content in {@link OutputStream} format
+	 * 
+	 * @param diff contains information about changes on a file
+	 * @return older version of file content
+	 */
 	public OutputStream getOldContentOfFileFromDiffEntryInOutputStream(DiffEntry diff) {
 		ObjectId oldObjectId = diff.getOldId().toObjectId();
         ObjectLoader loader;
         OutputStream oldContent = new ByteArrayOutputStream();
-		try {
+		
+        try {
+        	//Load old content version
 			loader = git.getRepository().open(oldObjectId);
 			loader.copyTo(oldContent);
 		} catch (MissingObjectException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        
         return oldContent;
 	}
 	
-	
+	/**
+	 * Returns the newer version of file content in {@link OutputStream} format
+	 * 
+	 * @param diff contains information about changes on a file
+	 * @return older version of file content
+	 */
 	public OutputStream getNewContentOfFileFromDiffEntryInOutputStream(DiffEntry diff) {
 		ObjectId newObjectId = diff.getNewId().toObjectId();
         ObjectLoader loader;
         OutputStream newContent =  new ByteArrayOutputStream();
-		try {
+		
+        try {
+			//Load new content version
 			loader = git.getRepository().open(newObjectId);
 			loader.copyTo(newContent);
 		} catch (MissingObjectException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
         return newContent;
 	}
 	
 	
+	/**
+	 * Returns {@link FileHeader} from the given <code>diff</code>
+	 * 
+	 * @param diff
+	 * @return {@link FileHeader}
+	 */
 	public FileHeader getFileHeaderFromDiffEntry(DiffEntry diff) {
 
 		DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
 		diffFormatter.setRepository(git.getRepository());
-		FileHeader fileHeader;
+		FileHeader fileHeader = null;
+		
 		try {
 			fileHeader = diffFormatter.toFileHeader(diff);
-			return fileHeader;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		return null;
+		return fileHeader;
 	}
 
-
-	public List<String> getPathesOfChangedFilesFromDiffs(List<DiffEntry> diffs) {
-		if (diffs != null) {
-			List<String> names = new ArrayList<String>();
-			for (DiffEntry de : diffs) {
-				names.add(de.getOldPath());
-			}
-			return names;
-		}
-		return null;
-	}
 	
 	
+	/**
+	 * Replaces all possible kinds of line separators with one particular kind of line separator in <code>fileContent</code>
+	 * 
+	 * @param fileContent
+	 * @return file content with replaced line separators
+	 */
 	public String replaceAllLineDelimitersWithSystemLineDelimiters(String fileContent) {
 		return fileContent.replaceAll("\r\n|\n|\r", lineDelimiter);
 	}
@@ -458,13 +537,13 @@ public class GitRepository {
 	
 	
 	/**
-	 * Transforms EditList (org.eclipse.jgit.diff.EditList) into List of TextEdits (org.eclipse.text.edits.TextEdit).
+	 * Transforms {@link EditList} into {@link List} of {@link TextEdit}.
 	 * There are two main problems to solve:
 	 *  
-	 * The first one is, an Edit (org.eclipse.jgit.diff.Edit) contains information about content in form of line numbers, 
-	 * whereas an TextEdit deals with offsets of content. Therefore, we have to compute offsets to line numbers.
+	 * The first one is, an {@link Edit} contains information about content in form of line numbers, 
+	 * whereas an {@link TextEdit} deals with offsets of content. Therefore, we have to compute offsets to line numbers.
 	 * 
-	 * The second problem is, EditList contains Edits that describe which lines in the old content have to be removed/replaced with
+	 * The second problem is, {@link EditList} contains Edits that describe which lines in the old content have to be add/removed/replaced with
 	 * lines from the new content or which lines from the new content have to be inserted in the old content. Edits are independent from each other.
 	 * That means, all Edits on the old content have to be applied at the same time. Applying Edits one by one would cause shifting in the old content
 	 * after each applying and would create wrong content, that does not match to the new content. On the other hand, TextEdits have to be applied one by one. 
@@ -536,7 +615,7 @@ public class GitRepository {
 	
 	
 	/**
-	 * Concatenate the content lines between [beginLineNumber, endLineNumber)
+	 * Concatenate <code>contentLines</code> between [<code>beginLineNumber</code>, <code>endLineNumber</code>)
 	 * 
 	 * @param newContentLines - Lines of the content
 	 * @param beginPositionNew - begin line number. Included
@@ -555,7 +634,7 @@ public class GitRepository {
 
 
 	/**
-	 * Splits file content into lines. Each split line except the last line contains a line delimiter at the end.
+	 * Splits <code>fileContent</code> into lines. Each split line except the last line contains a line delimiter at the end.
 	 * The last line may contain a line delimiter at the end.
 	 * @param fileContent
 	 * @return List of content lines with line delimiters at the end
@@ -585,7 +664,7 @@ public class GitRepository {
 	
 	
 	/**
-	 * Computes start offset for each line of file content. The file content is represented as List of content lines with line delimiters.
+	 * Computes start offset for each line of <code>fileContent</code>. The file content is represented as List of content lines with line delimiters.
 	 * The last element in the result list contains the length of the last content line. This implies, that the length
 	 * of the result list equals the number of content lines + 1.
 	 *  
@@ -634,435 +713,4 @@ public class GitRepository {
 		return lineDelimiter;
 	}
 
-	
-	
-	/*	
-	public List<SingleChange> getListOfParsedDiffsForSingleFile() {
-		return listOfParsedDiffsForSingleFile;
-	}
-	 */
-	
-	
-	/*
-	public EditList computeEditListBetweenTwoCommits(RevCommit oldRevCommit, RevCommit newRevCommit, boolean onlyChangesOnJavaFiles, boolean detectRenames) {
-
-		RevWalk oldWalk = new RevWalk(git.getRepository());
-		RevCommit oldCommit = null;
-		try {
-			oldCommit = oldWalk.parseCommit(oldRevCommit);
-		} catch (MissingObjectException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		} catch (IncorrectObjectTypeException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-
-		ObjectId oldTreeId = oldCommit.getTree();
-
-		ObjectReader oldTreeReader = git.getRepository().newObjectReader();
-		CanonicalTreeParser oldTreeParser = new CanonicalTreeParser();
-		try {
-			oldTreeParser.reset(oldTreeReader, oldTreeId);
-		} catch (IncorrectObjectTypeException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		RevWalk newWalk = new RevWalk(git.getRepository());
-		RevCommit newCommit = null;
-		try {
-			newCommit = newWalk.parseCommit(newRevCommit);
-		} catch (MissingObjectException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		} catch (IncorrectObjectTypeException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		} catch (IOException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-
-		ObjectId newTreeId = newTreeId = newCommit.getTree();
-
-		CanonicalTreeParser newTreeParser = new CanonicalTreeParser();
-		try {
-			newTreeParser.reset(oldTreeReader, newTreeId);
-			// newTreeParser = new CanonicalTreeParser(null, newTreeReader, newTreeId);
-		} catch (IncorrectObjectTypeException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
-		diffFormatter.setRepository(git.getRepository());
-		
-		//Set filter if necessary 
-		if (onlyChangesOnJavaFiles) {
-			TreeFilter treeFilter = PathSuffixFilter.create(".java");
-			diffFormatter.setPathFilter(treeFilter);
-		}
-		
-		List<DiffEntry> diffEntries;
-		FileHeader fileHeader;
-		try {
-			diffEntries = diffFormatter.scan(oldTreeParser, newTreeParser);
-			
-			if (detectRenames) {
-				 RenameDetector rd = new RenameDetector(git.getRepository());
-				 rd.addAll(diffEntries);
-				 diffEntries = rd.compute();
-			}
-			
-			fileHeader = diffFormatter.toFileHeader(diffEntries.get(0));
-		
-			return fileHeader.toEditList();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return null;
-	}
-	
-*/
-	
-	
-	
-	
-	/**
-	 * Computes begin offset for each line of file content. The file content is represented as plain text.
-	 *  
-	 * @param fileContent - file content represented as plain text.
-	 * @return list of computed offsets. In the list an index corresponds to the line number of the context.
-	 */
-/*
-	private List<Integer> computeOffsetsToLineNumbers(String fileContent) {
-		//Index of each element in the list corresponds to the line number of the context
-		List<Integer> startOffsets = new ArrayList<>();
-		//Divide the content in lines
-		Stream<String> lines = fileContent.lines();
-		
-		Iterator<String> iterator = lines.iterator();
-		int offsetCounter = 0;
-		int lineDelimiterLength = lineDelimiter.length();
-		
-		//Determine begin offset for each line
-		while (iterator.hasNext()) {
-			startOffsets.add(offsetCounter);
-			String line = iterator.next();
-			int length = line.length();	
-			//offsetCounter = length == 0 ? offsetCounter + 1 : offsetCounter + length + 2; //+2 reflects line separator, for example \n. BUT length of special symbols like \t or \n or \r etc. is 1.
-			offsetCounter += length + lineDelimiterLength; //+2 reflects line separator, for example \n. BUT all standard functions from Class String consider length of special symbols like \t or \n or \r etc. to be 1.
-		}
-		//The last element in the list startOffsets is needed to determine the length of the last line
-		//Because "\n" is not visible in a line after applying fileContent.lines(), we have to find out if the last line contains a line separator.
-		//Depending on the result, adjust the length of the last line
-		if (fileContent.endsWith(lineDelimiter)) {
-			startOffsets.add(offsetCounter);
-		} 
-		else {
-			startOffsets.add(offsetCounter - lineDelimiterLength);
-		}
-		
-		return startOffsets;
-	}
-*/
-	
-	
-	
-	/*
-	public int getOffsetForLineNumber(final int lineNumberOfChangedStatement, final ICompilationUnit icu) throws JavaModelException {
- 		final String sourceCodeOfCompilationUnit = icu.getSource();
-		Stream<String> lines = sourceCodeOfCompilationUnit.lines();
-		Iterator<String> iterator = lines.iterator();
-		int lineNumberCounter = 0;
-		int offsetCounter = 0;
-		//determine offset for lineNumberOfChangedStatement
-		while (iterator.hasNext() && lineNumberCounter != lineNumberOfChangedStatement) {
-			String line = iterator.next();
-			offsetCounter += line.length() + 2; //+2 reflects line separator, for example \n
-			lineNumberCounter++;
-		}
-		
-		return offsetCounter;
- 	}
-*/
-	
-	
-	/*	
-	public void getChanges() {
-		List<DiffEntry> diffs = getDiffsBetweenTwoCommits(latestCommit.getParent(0), latestCommit);
-		printDiffs(diffs, git.getRepository());
-
-	}
-*/
-/*	
-	public void getChanges(RevCommit oldCommit, RevCommit newCommit) {
-		List<DiffEntry> diffs = getDiffsBetweenTwoCommits(oldCommit, newCommit);
-		printDiffs(diffs, git.getRepository());
-
-	}
-*/
-	
-	
-	/*	
-	public static void printFile(File file) {
-		BufferedReader br = null;
-		try {
-			br = new BufferedReader(new FileReader(file));
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		String line;
-		try {
-			while ((line = br.readLine()) != null) {
-				System.out.println(line);
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-*/
-	
-	
-	/*//My parser
-	public List<SingleChange> parseDiff(DiffEntry diff) throws IOException {
-		List<SingleChange> changes = new ArrayList<>();
-		String classPath = diff.getOldPath();
-
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		DiffFormatter formatter = new DiffFormatter(outputStream);
-
-		formatter.setRepository(git.getRepository());
-		formatter.setContext(0);
-		formatter.format(diff);
-
-		Scanner scanner = new Scanner(outputStream.toString("UTF-8"));
-		String currentLine;
-
-		while (scanner.hasNextLine()) {
-			currentLine = scanner.nextLine();
-
-			if (currentLine.startsWith("@@")) {
-				SingleChange singleChange = new SingleChange();
-				singleChange.setClassPath(classPath);
-
-				parseLineNumbers(scanner, singleChange, currentLine);
-				changes.add(singleChange);
-			}
-		}
-
-		outputStream.close();
-		formatter.close();
-		scanner.close();
-
-		return changes;
-	}
-
-	private void parseLineNumbers(Scanner scanner, SingleChange singleChange, String currentLine) {
-		// Parse @@ Line
-		parseSingleLineThatContainsLineNumbers(currentLine, singleChange);
-		Pattern beginOfNewSingleChangePattern = Pattern.compile("@@.*");
-
-		// While scanner has next line and the next line is not the next change (doesn't
-		// match pattern "@@.*")
-		while (scanner.hasNext() && !scanner.hasNext(beginOfNewSingleChangePattern)) {
-			String nextLine = scanner.nextLine();
-
-			if (nextLine.startsWith("+")) {
-				parseAddedLines(scanner, singleChange, nextLine);
-			} else if (nextLine.startsWith("-")) {
-				parseRemovedLines(scanner, singleChange, nextLine);
-			}
-		}
-	}
-
-	private void parseSingleLineThatContainsLineNumbers(String currentLine, SingleChange singleChange) {
-
-		String removeStartLineNumber = "";
-		String removeNumberOfLines = "";
-		String addStartLineNumber = "";
-		String addNumberOfLines = "";
-
-		// \d means any number, 0 - 9
-		// Pattern digit = Pattern.compile("\\d");
-
-		// Examples:
-		// @@ -8,2 +8,3 @@
-		// @@ -8,2 +8 @@
-		// @@ -8 +8,3 @@
-		// @@ -8 +8 @@
-		// @@ -8,2 @@
-		// @@ -8 @@
-		// @@ +8,2 @@
-		// @@ +8 @@
-
-		// remove "@@ "
-		String subString = currentLine.substring(3);
-
-		// Look for removed lines
-		if (subString.startsWith("-")) {
-			// remove "-"
-			subString = subString.substring(1);
-
-			// \d means any number, 0 - 9
-			// read start line number for remove command
-			while (Pattern.matches("\\d", subString.substring(0, 1))) {
-				removeStartLineNumber = removeStartLineNumber + subString.substring(0, 1);
-				subString = subString.substring(1);
-			}
-
-			// if more than one line were removed, there is a comma separator and
-			// after the comma the number of removed lines is written
-			if (subString.substring(0, 1).equals(",")) {
-				// remove ","
-				subString = subString.substring(1);
-				// read number of removed lines
-				while (Pattern.matches("\\d", subString.substring(0, 1))) {
-					removeNumberOfLines = removeNumberOfLines + subString.substring(0, 1);
-					subString = subString.substring(1);
-				}
-			} else {
-				removeNumberOfLines = "1";
-			}
-
-			// remove space character " "
-			subString = subString.substring(1);
-		}
-
-		// Look for added lines
-		if (subString.startsWith("+")) {
-			// remove "+"
-			subString = subString.substring(1);
-
-			// \d means any number, 0 - 9
-			// read start line number for add command
-			while (Pattern.matches("\\d", subString.substring(0, 1))) {
-				addStartLineNumber = addStartLineNumber + subString.substring(0, 1);
-				subString = subString.substring(1);
-			}
-
-			// if more than one line were added, there is a comma separator and
-			// after the comma the number of added lines is written
-			if (subString.substring(0, 1).equals(",")) {
-				// remove ","
-				subString = subString.substring(1);
-				// read number of removed lines
-				while (Pattern.matches("\\d", subString.substring(0, 1))) {
-					addNumberOfLines = addNumberOfLines + subString.substring(0, 1);
-					subString = subString.substring(1);
-				}
-			} else {
-				addNumberOfLines = "1";
-			}
-		}
-
-		// Set determined numbers in singleChange
-		singleChange.setRemoveStartLineNumber(
-				removeStartLineNumber.equals("") ? 0 : Integer.parseInt(removeStartLineNumber));
-		singleChange.setRemoveNumberOfLines(removeNumberOfLines.equals("") ? 0 : Integer.parseInt(removeNumberOfLines));
-		singleChange.setAddStartLineNumber(addStartLineNumber.equals("") ? 0 : Integer.parseInt(addStartLineNumber));
-		singleChange.setAddNumberOfLines(addNumberOfLines.equals("") ? 0 : Integer.parseInt(addNumberOfLines));
-
-	}
-
-	private void parseAddedLines(Scanner scanner, SingleChange singleChange, String currentLine) {
-
-		singleChange.addlinesOfCodeToAdd(currentLine.substring(1));
-
-		Pattern addedLinePattern = Pattern.compile("\\+.*");
-		Pattern removedLinePattern = Pattern.compile("-.*");
-
-		if (scanner.hasNext(addedLinePattern)) {
-			parseAddedLines(scanner, singleChange, scanner.nextLine());
-		} else if (scanner.hasNext(removedLinePattern)) {
-			parseRemovedLines(scanner, singleChange, scanner.nextLine());
-		}
-	}
-
-	private void parseRemovedLines(Scanner scanner, SingleChange singleChange, String currentLine) {
-
-		singleChange.addlinesOfCodeToRemove(currentLine.substring(1));
-
-		Pattern addedLinePattern = Pattern.compile("\\+.*");
-		Pattern removedLinePattern = Pattern.compile("-.*");
-
-		if (scanner.hasNext(addedLinePattern)) {
-			parseAddedLines(scanner, singleChange, scanner.nextLine());
-		} else if (scanner.hasNext(removedLinePattern)) {
-			parseRemovedLines(scanner, singleChange, scanner.nextLine());
-		}
-
-	}
-*/
-	
-	
-	/*
-	 * public String parseDiff(RevCommit oldCommit, RevCommit newCommit) throws
-	 * IOException { ByteArrayOutputStream diffOutputStream = new
-	 * ByteArrayOutputStream(); DiffFormatter diffFormater = new
-	 * DiffFormatter(diffOutputStream);
-	 * diffFormater.setRepository(git.getRepository());
-	 * diffFormater.setDiffComparator(RawTextComparator.DEFAULT);
-	 * diffFormater.setDetectRenames(true); diffFormater.format(oldCommit.getTree(),
-	 * newCommit.getTree());
-	 * 
-	 * diffFormater.close();
-	 * 
-	 * return new String(diffOutputStream.toByteArray()); }
-	 */
-
-	/*
-	public void printHunks() {
-		FileHeader fileHeader = getFileHeaderOfChanges(latestCommit.getParent(0), latestCommit);
-		System.out.println("fileHeader.getScriptText():\n" + fileHeader.getScriptText());
-
-		// List hunks = fileHeader.getHunks().get(0).;
-		System.out.println("Hunks:");
-		for (int i = 0; i < fileHeader.getHunks().size(); i++) {
-			System.out.println(fileHeader.getHunks().get(i).getBuffer());
-		}
-
-	}
-	*/
-	
-	/**
-	 * Returns the list of lines in the specified source file annotated with the
-	 * source commit metadata.
-	 * 
-	 * @param repository
-	 * @param blobPath
-	 * @param objectId
-	 * @return list of annotated lines
-	 * @throws GitAPIException
-	 */
-	/*
-	 * public void blame(String filePath, ObjectId commitId) throws GitAPIException
-	 * {
-	 * 
-	 * BlameCommand blameCommand = new BlameCommand(git.getRepository());
-	 * blameCommand.setFilePath(filePath); blameCommand.setStartCommit(commitId);
-	 * BlameResult blameResult = blameCommand.call(); RawText rawText =
-	 * blameResult.getResultContents(); int length = rawText.size();
-	 * System.out.println("blame:"); for (int i = 0; i < length; i++) {
-	 * System.out.println(rawText.getRawContent()); //RevCommit commit =
-	 * blameResult.getSourceCommit(i); //AnnotatedLine line = new
-	 * AnnotatedLine(commit, i + 1, rawText.getString(i)); //lines.add(line); }
-	 * 
-	 * }
-	 */
-	
 }

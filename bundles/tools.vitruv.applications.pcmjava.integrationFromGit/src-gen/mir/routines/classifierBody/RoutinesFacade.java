@@ -4,14 +4,18 @@ import mir.routines.classifierBody.AddAssemblyContextCorrespondenceRoutine;
 import mir.routines.classifierBody.ChangeInnerDeclarationTypeRoutine;
 import mir.routines.classifierBody.ChangeParameterNameRoutine;
 import mir.routines.classifierBody.ChangeReturnTypeRoutine;
+import mir.routines.classifierBody.ChangedFieldTypeEventRoutine;
 import mir.routines.classifierBody.CreateAssemblyContextRoutine;
 import mir.routines.classifierBody.CreateInnerDeclarationRoutine;
 import mir.routines.classifierBody.CreateOperationRequiredRoleCorrespondingToFieldRoutine;
 import mir.routines.classifierBody.CreateOrFindAssemblyContextRoutine;
 import mir.routines.classifierBody.CreateParameterRoutine;
+import mir.routines.classifierBody.CreateRequiredRoleRoutine;
 import mir.routines.classifierBody.DeleteParameterRoutine;
 import mir.routines.classifierBody.FieldCreatedCorrespondingToOperationInterfaceRoutine;
 import mir.routines.classifierBody.FieldCreatedCorrespondingToRepositoryComponentRoutine;
+import mir.routines.classifierBody.RemoveRequiredRoleAndCorrespondenceRoutine;
+import mir.routines.classifierBody.RemovedFieldEventRoutine;
 import mir.routines.classifierBody.RenameMemberRoutine;
 import org.emftext.language.java.classifiers.Classifier;
 import org.emftext.language.java.classifiers.ConcreteClassifier;
@@ -23,7 +27,9 @@ import org.emftext.language.java.parameters.Parameter;
 import org.emftext.language.java.parameters.Parametrizable;
 import org.emftext.language.java.types.TypeReference;
 import org.palladiosimulator.pcm.core.composition.AssemblyContext;
+import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.palladiosimulator.pcm.repository.OperationInterface;
+import org.palladiosimulator.pcm.repository.OperationRequiredRole;
 import org.palladiosimulator.pcm.repository.RepositoryComponent;
 import tools.vitruv.extensions.dslsruntime.reactions.AbstractRepairRoutinesFacade;
 import tools.vitruv.extensions.dslsruntime.reactions.ReactionExecutionState;
@@ -131,6 +137,38 @@ public class RoutinesFacade extends AbstractRepairRoutinesFacade {
     ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
     CallHierarchyHaving _caller = this._getExecutionState().getCaller();
     ChangeInnerDeclarationTypeRoutine routine = new ChangeInnerDeclarationTypeRoutine(_routinesFacade, _reactionExecutionState, _caller, typeReference, javaField);
+    return routine.applyRoutine();
+  }
+  
+  public boolean changedFieldTypeEvent(final Field field, final TypeReference oldType, final TypeReference newType) {
+    RoutinesFacade _routinesFacade = this;
+    ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
+    CallHierarchyHaving _caller = this._getExecutionState().getCaller();
+    ChangedFieldTypeEventRoutine routine = new ChangedFieldTypeEventRoutine(_routinesFacade, _reactionExecutionState, _caller, field, oldType, newType);
+    return routine.applyRoutine();
+  }
+  
+  public boolean createRequiredRole(final BasicComponent basicComponent, final OperationInterface opInterface, final Field field) {
+    RoutinesFacade _routinesFacade = this;
+    ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
+    CallHierarchyHaving _caller = this._getExecutionState().getCaller();
+    CreateRequiredRoleRoutine routine = new CreateRequiredRoleRoutine(_routinesFacade, _reactionExecutionState, _caller, basicComponent, opInterface, field);
+    return routine.applyRoutine();
+  }
+  
+  public boolean removeRequiredRoleAndCorrespondence(final OperationRequiredRole orr, final Field field) {
+    RoutinesFacade _routinesFacade = this;
+    ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
+    CallHierarchyHaving _caller = this._getExecutionState().getCaller();
+    RemoveRequiredRoleAndCorrespondenceRoutine routine = new RemoveRequiredRoleAndCorrespondenceRoutine(_routinesFacade, _reactionExecutionState, _caller, orr, field);
+    return routine.applyRoutine();
+  }
+  
+  public boolean removedFieldEvent(final Field field) {
+    RoutinesFacade _routinesFacade = this;
+    ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
+    CallHierarchyHaving _caller = this._getExecutionState().getCaller();
+    RemovedFieldEventRoutine routine = new RemovedFieldEventRoutine(_routinesFacade, _reactionExecutionState, _caller, field);
     return routine.applyRoutine();
   }
   

@@ -119,13 +119,59 @@ public abstract class EuFpetersenCbsPc_integratedArea_fineGrained_commits {
 	//****************************************************************************************************************
 	public final static String IMPLEMENTS_BRANCH_NAME = "integratedArea_fineGrained_implements";
 
-	//added import 'eu.fpetersen.cbs.pc.display.IDisplay' in Frame.java
-	public final static String ADD_IMPORT_FOR_IMPLEMENTS= "2d10a7558370e611fd64da067d3e5394f73b2b2f";
-	//added implements IDisplay and method in Frame.java
-	public final static String ADD_IMPLEMENTS_AND_METHOD = "2e2a2d3333afb951cf91dbb2d2e9b7b3f4c2bfc1";
-	//removed implements and method in Frame.java
-	public final static String REMOVE_IMPLEMENTS_AND_METHOD = "bed6ba5734789417ef1b10eebc02c6e3f9f637c2";
+	//added 'import eu.fpetersen.cbs.pc.display.IDisplay;' in GraphicsCard.java
+	public final static String ADD_IMPORT_FOR_IMPLEMENTS= "629dc746b020ab9d05b1668921920105a43452f5";
+	//added 'implements IDisplay' in GraphicsCard.java
+	public final static String ADD_IMPLEMENTS = "5e3d9e0945a537ba3f0da0ffbc1af4a154e2e97a";
+	//removed 'implements IDisplay' in GraphicsCard.java
+	public final static String REMOVE_IMPLEMENTS = "5a583690df0afe76d292813c406e408ffb13bbed";
 	
+
+//Changed ^		
+	
+	//Branch and commits for testing fine grained changes in an integrated area on implements
+	//****************************************************************************************************************
+	public final static String RENAMES_BRANCH_NAME = "integratedArea_fineGrained_renames";
+
+	//TODO
+	
+//Changed ^	
+	
+	//Branch and commits for testing fine grained changes in an integrated area for creation, rename and removing field
+	//****************************************************************************************************************
+	public final static String CREATE_DELETE_FIELD_BRANCH_NAME = "integratedArea_fineGrained_fieldCreateDelete";
+
+	//added 'import eu.fpetersen.cbs.pc.display.IDisplay;' in GraphicsCard.java
+	public final static String ADD_IMPORT_FOR_CREATE_DELETE_FILED = "b0f43b11d987cb8921d17b22a3ecb44c2677ec9c";
+	//added field 'IDisplay field' in GraphicsCard.java	
+	public final static String ADD_FIELD_FOR_CREATE_DELETE_FILED = "c61e21b38e7ac50e741c6b801a682fd9d3b9bc41";
+	//renamed field 'IDisplay field' to 'IDisplay fieldRenamed' in GraphicsCard.java
+	public final static String RENAME_FIELD_FOR_CREATE_DELETE_FILED = "359ae2f1272abcf339e104862ae996f103f3406c";
+	//removed field fieldRenamed in GraphicsCard.java
+	public final static String REMOVE_CREATED_FIELD_FOR_CREATE_DELETE_FILED = "8bab5d46af07279cab7e12cfe6bf86c12f614f05";
+	//removed field 'private IGraphicsCard graphicsCard' in Display.java
+	public final static String REMOVE_INTEGRATED_FIELD_FOR_CREATE_DELETE_FILED = "07879d9e9116b88d27735a1e5262ba32a15dd67d";
+	
+//Changed ^
+	
+	
+	//Branch and commits for testing changes in an integrated area on non-java files
+	//****************************************************************************************************************
+	public final static String NON_JAVA_FILES_BRANCH_NAME = "integratedArea_fineGrained_nonJavaFiles";
+	
+	//created folder 'nonJavaFilesFolder' with 'nonJavaFile.txt'
+	public final static String ADD_FOLDER_AND_FILE = "95e5a989d71bc404d44ded14ec50adc92ae9d73b";
+	//renamed file nonJavaFile.txt to nonJavaFileRenamed.txt
+	public final static String RENAME_FILE = "04843ee3073a53bfd23cc21066e68197f90b0f30";
+	//changed content in nonJavaFileRenamed.txt
+	public final static String CHANGE_FILE_CONTENT = "f71a8c27b942f5d6c39d77ceb8ca7b691861a2ee";
+	//copied file nonJavaFileRenamed.txt and pasted it into src folder
+	public final static String COPY_FILE = "1bae1a57b9956f51aba40bcdc2126a51993df11a";
+	//deleted file nonJavaFileRenamed.txt in src folder
+	public final static String REMOVE_FILE = "de7193b323f53e50202cbfb023c6a480c91b31b4";
+	
+//Changed ^
+
 	
 	//Branch and commits for testing fine grained changes in an integrated area on extends
 	//****************************************************************************************************************

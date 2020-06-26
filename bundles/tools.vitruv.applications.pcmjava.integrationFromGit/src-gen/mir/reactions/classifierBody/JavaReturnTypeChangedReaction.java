@@ -12,6 +12,31 @@ import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHavi
 import tools.vitruv.framework.change.echange.EChange;
 import tools.vitruv.framework.change.echange.feature.reference.ReplaceSingleValuedEReference;
 
+/**
+ * 
+ * //Langhammers Level 3 Regel fuer remove Field
+ * reaction RemoveFieldEvent {
+ * 	after element removed from java::ConcreteClassifier[members]
+ * 		with oldValue instanceof java::Field // TODO replace with element filter in trigger
+ * 	call removedFieldEvent(oldValue as Field)
+ * }
+ * 	
+ * routine removedFieldEvent(java::Field field) {
+ * 	match { 
+ * 		val namedElement = retrieve pcm::NamedElement corresponding to field
+ * 	}	
+ * 	action {
+ * 		remove correspondence between field and namedElement
+ * 		update field {
+ * 			userInteractor.notificationDialogBuilder.message("Removed " + namedElement + " because the corresponding field " + field + " has been removed").
+ * 				windowModality(WindowModality.MODAL).startInteraction;
+ * 			// TODO This is wrong, isnt't it? Should be "namedElement"!?
+ * 			EcoreUtil.^remove(field)
+ * 		}
+ * 	}
+ * }
+ * 
+ */
 @SuppressWarnings("all")
 public class JavaReturnTypeChangedReaction extends AbstractReactionRealization {
   private ReplaceSingleValuedEReference<Method, TypeReference> replaceChange;

@@ -38,11 +38,14 @@ import mir.routines.packageAndClassifiers.CreateSEFFRoutine;
 import mir.routines.packageAndClassifiers.CreateSeffFromImplementingInterfaceRoutine;
 import mir.routines.packageAndClassifiers.CreateSeffFromImplementingInterfacesRoutine;
 import mir.routines.packageAndClassifiers.CreateSystemRoutine;
+import mir.routines.packageAndClassifiers.DeleteCorrespondenceBetweenJavaPackageAndMetaElementRoutine;
 import mir.routines.packageAndClassifiers.EnsureFirstCaseUpperCaseRepositoryNamingRoutine;
+import mir.routines.packageAndClassifiers.RemoveOperationProvidedRoleRoutine;
 import mir.routines.packageAndClassifiers.RemovedClassEventRoutine;
 import mir.routines.packageAndClassifiers.RemovedClassMethodEventRoutine;
 import mir.routines.packageAndClassifiers.RemovedInterfaceEventRoutine;
 import mir.routines.packageAndClassifiers.RemovedInterfaceMethodEventRoutine;
+import mir.routines.packageAndClassifiers.RemovedPackageRoutineRoutine;
 import mir.routines.packageAndClassifiers.RenameComponentFromClassRoutine;
 import mir.routines.packageAndClassifiers.RenameComponentRoutine;
 import mir.routines.packageAndClassifiers.RenameDataTypeFromClassRoutine;
@@ -276,6 +279,46 @@ public class RoutinesFacade extends AbstractRepairRoutinesFacade {
     return routine.applyRoutine();
   }
   
+  public boolean removedPackageRoutine(final org.emftext.language.java.containers.Package javaPackage) {
+    RoutinesFacade _routinesFacade = this;
+    ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
+    CallHierarchyHaving _caller = this._getExecutionState().getCaller();
+    RemovedPackageRoutineRoutine routine = new RemovedPackageRoutineRoutine(_routinesFacade, _reactionExecutionState, _caller, javaPackage);
+    return routine.applyRoutine();
+  }
+  
+  public boolean deleteCorrespondenceBetweenJavaPackageAndMetaElement(final org.emftext.language.java.containers.Package javaPackage, final org.emftext.language.java.containers.Package metaElement) {
+    RoutinesFacade _routinesFacade = this;
+    ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
+    CallHierarchyHaving _caller = this._getExecutionState().getCaller();
+    DeleteCorrespondenceBetweenJavaPackageAndMetaElementRoutine routine = new DeleteCorrespondenceBetweenJavaPackageAndMetaElementRoutine(_routinesFacade, _reactionExecutionState, _caller, javaPackage, metaElement);
+    return routine.applyRoutine();
+  }
+  
+  public boolean createOperationProvidedRole(final TypeReference typeReference) {
+    RoutinesFacade _routinesFacade = this;
+    ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
+    CallHierarchyHaving _caller = this._getExecutionState().getCaller();
+    CreateOperationProvidedRoleRoutine routine = new CreateOperationProvidedRoleRoutine(_routinesFacade, _reactionExecutionState, _caller, typeReference);
+    return routine.applyRoutine();
+  }
+  
+  public boolean createOperationProvidedRoleFromTypeReference(final Classifier classifierInterface, final org.emftext.language.java.classifiers.Class javaClass, final TypeReference reference) {
+    RoutinesFacade _routinesFacade = this;
+    ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
+    CallHierarchyHaving _caller = this._getExecutionState().getCaller();
+    CreateOperationProvidedRoleFromTypeReferenceRoutine routine = new CreateOperationProvidedRoleFromTypeReferenceRoutine(_routinesFacade, _reactionExecutionState, _caller, classifierInterface, javaClass, reference);
+    return routine.applyRoutine();
+  }
+  
+  public boolean removeOperationProvidedRole(final TypeReference typeReference) {
+    RoutinesFacade _routinesFacade = this;
+    ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
+    CallHierarchyHaving _caller = this._getExecutionState().getCaller();
+    RemoveOperationProvidedRoleRoutine routine = new RemoveOperationProvidedRoleRoutine(_routinesFacade, _reactionExecutionState, _caller, typeReference);
+    return routine.applyRoutine();
+  }
+  
   public boolean createOrFindSystem(final org.emftext.language.java.containers.Package javaPackage, final String name) {
     RoutinesFacade _routinesFacade = this;
     ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
@@ -441,22 +484,6 @@ public class RoutinesFacade extends AbstractRepairRoutinesFacade {
     ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
     CallHierarchyHaving _caller = this._getExecutionState().getCaller();
     AddDataTypeInRepositoryRoutine routine = new AddDataTypeInRepositoryRoutine(_routinesFacade, _reactionExecutionState, _caller, pcmDataType);
-    return routine.applyRoutine();
-  }
-  
-  public boolean createOperationProvidedRole(final TypeReference typeReference) {
-    RoutinesFacade _routinesFacade = this;
-    ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
-    CallHierarchyHaving _caller = this._getExecutionState().getCaller();
-    CreateOperationProvidedRoleRoutine routine = new CreateOperationProvidedRoleRoutine(_routinesFacade, _reactionExecutionState, _caller, typeReference);
-    return routine.applyRoutine();
-  }
-  
-  public boolean createOperationProvidedRoleFromTypeReference(final Classifier classifierInterface, final org.emftext.language.java.classifiers.Class javaClass, final TypeReference reference) {
-    RoutinesFacade _routinesFacade = this;
-    ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
-    CallHierarchyHaving _caller = this._getExecutionState().getCaller();
-    CreateOperationProvidedRoleFromTypeReferenceRoutine routine = new CreateOperationProvidedRoleFromTypeReferenceRoutine(_routinesFacade, _reactionExecutionState, _caller, classifierInterface, javaClass, reference);
     return routine.applyRoutine();
   }
   

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- http://download.oracle.com/docs/cd/E19575-01/821-0181/gbwmk/index.html -->
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="1.0">
+	<persistence-unit name="mRUBiS-pu">
+	<!-- <provider>oracle.toplink.essentials.ejb.cmp3.EntityManagerFactoryProvider</provider> -->
+  	<!-- PM <jta-data-source>jdbc/__default</jta-data-source> -->
+  	<jta-data-source>jdbc/mrubis</jta-data-source>
+	<properties>
+  		<!--  PM <property name="toplink.ddl-generation" value="none" />--> 
+  		<property name="toplink.ddl-generation" value="create-tables" />
+  		<!-- value = "drop-and-create-tables" --> <!-- value = "none" -->
+  		<!--
+			<property name="toplink.ddl-generation.output-mode" value="sql-script"/>
+			<property name="toplink.create-ddl-jdbc-file-name" value="create.sql" /> 
+			<property name="toplink.drop-ddl-jdbc-file-name" value="drop.sql" /> 
+			<property name="toplink.application-location" value="/home/thomas/server/dist"/>
+		-->
+		
+  		<!-- PM <property name="toplink.platform.class.name" value="oracle.toplink.essentials.platform.database.DerbyPlatform" /> -->
+  		<!-- <property name="toplink.platform.class.name" value="org.eclipse.persistence.platform.database.MySQLPlatform" />-->
+  		
+  		<!-- different modules access the same database, however, caches are maintained separately for each module,
+  		which leads to diverging caches, as EntityManager.find (find by id) queries do not hit the database if a
+  		result is retrieved from the cache. However, a different module may have written/committed data to the database
+  		and caches from the other modules are not refreshed. Thus, caches are disabled, which, however, is not the best 
+  		solution with respect to performance.  -->
+		<property name="toplink.cache.type.default" value="NONE"/>
+		<property name="toplink.cache.type.ERegion" value="Full"/>
+		<property name="toplink.cache.type.ECategory" value="Full"/>
+		
+		<property name="eclipselink.logging.level" value="@JPA_LOG_LEVEL@"/>
+		<property name="eclipselink.logging.level.sql" value="@JPA_LOG_LEVEL@"/>
+		<property name="eclipselink.logging.parameters" value="@JPA_LOG_PARAMETERS@"/>
+	</properties>
+</persistence-unit>
+</persistence>
