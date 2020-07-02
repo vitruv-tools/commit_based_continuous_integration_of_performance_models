@@ -3,8 +3,7 @@ package mir.reactions.packageAndClassifiers;
 import mir.routines.packageAndClassifiers.RoutinesFacade;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.xtext.xbase.lib.Extension;
-import org.emftext.language.java.containers.JavaRoot;
-import org.emftext.language.java.imports.Import;
+import org.emftext.language.java.modifiers.AnnotationInstanceOrModifier;
 import tools.vitruv.extensions.dslsruntime.reactions.AbstractReactionRealization;
 import tools.vitruv.extensions.dslsruntime.reactions.AbstractRepairRoutineRealization;
 import tools.vitruv.extensions.dslsruntime.reactions.ReactionExecutionState;
@@ -13,12 +12,12 @@ import tools.vitruv.framework.change.echange.EChange;
 import tools.vitruv.framework.change.echange.feature.reference.RemoveEReference;
 
 @SuppressWarnings("all")
-public class RemoveImportReactionReaction extends AbstractReactionRealization {
-  private RemoveEReference<JavaRoot, Import> removeChange;
+public class RemoveClassAnnotationReactionReaction extends AbstractReactionRealization {
+  private RemoveEReference<org.emftext.language.java.classifiers.Class, AnnotationInstanceOrModifier> removeChange;
   
   private int currentlyMatchedChange;
   
-  public RemoveImportReactionReaction(final RoutinesFacade routinesFacade) {
+  public RemoveClassAnnotationReactionReaction(final RoutinesFacade routinesFacade) {
     super(routinesFacade);
   }
   
@@ -26,14 +25,14 @@ public class RemoveImportReactionReaction extends AbstractReactionRealization {
     if (!checkPrecondition(change)) {
     	return;
     }
-    org.emftext.language.java.containers.JavaRoot affectedEObject = removeChange.getAffectedEObject();
+    org.emftext.language.java.classifiers.Class affectedEObject = removeChange.getAffectedEObject();
     EReference affectedFeature = removeChange.getAffectedFeature();
-    org.emftext.language.java.imports.Import oldValue = removeChange.getOldValue();
+    org.emftext.language.java.modifiers.AnnotationInstanceOrModifier oldValue = removeChange.getOldValue();
     int index = removeChange.getIndex();
     				
     getLogger().trace("Passed complete precondition check of Reaction " + this.getClass().getName());
     				
-    mir.reactions.packageAndClassifiers.RemoveImportReactionReaction.ActionUserExecution userExecution = new mir.reactions.packageAndClassifiers.RemoveImportReactionReaction.ActionUserExecution(this.executionState, this);
+    mir.reactions.packageAndClassifiers.RemoveClassAnnotationReactionReaction.ActionUserExecution userExecution = new mir.reactions.packageAndClassifiers.RemoveClassAnnotationReactionReaction.ActionUserExecution(this.executionState, this);
     userExecution.callRoutine1(removeChange, affectedEObject, affectedFeature, oldValue, index, this.getRoutinesFacade());
     
     resetChanges();
@@ -46,17 +45,17 @@ public class RemoveImportReactionReaction extends AbstractReactionRealization {
   
   private boolean matchRemoveChange(final EChange change) {
     if (change instanceof RemoveEReference<?, ?>) {
-    	RemoveEReference<org.emftext.language.java.containers.JavaRoot, org.emftext.language.java.imports.Import> _localTypedChange = (RemoveEReference<org.emftext.language.java.containers.JavaRoot, org.emftext.language.java.imports.Import>) change;
-    	if (!(_localTypedChange.getAffectedEObject() instanceof org.emftext.language.java.containers.JavaRoot)) {
+    	RemoveEReference<org.emftext.language.java.classifiers.Class, org.emftext.language.java.modifiers.AnnotationInstanceOrModifier> _localTypedChange = (RemoveEReference<org.emftext.language.java.classifiers.Class, org.emftext.language.java.modifiers.AnnotationInstanceOrModifier>) change;
+    	if (!(_localTypedChange.getAffectedEObject() instanceof org.emftext.language.java.classifiers.Class)) {
     		return false;
     	}
-    	if (!_localTypedChange.getAffectedFeature().getName().equals("imports")) {
+    	if (!_localTypedChange.getAffectedFeature().getName().equals("annotationsAndModifiers")) {
     		return false;
     	}
-    	if (!(_localTypedChange.getOldValue() instanceof org.emftext.language.java.imports.Import)) {
+    	if (!(_localTypedChange.getOldValue() instanceof org.emftext.language.java.modifiers.AnnotationInstanceOrModifier)) {
     		return false;
     	}
-    	this.removeChange = (RemoveEReference<org.emftext.language.java.containers.JavaRoot, org.emftext.language.java.imports.Import>) change;
+    	this.removeChange = (RemoveEReference<org.emftext.language.java.classifiers.Class, org.emftext.language.java.modifiers.AnnotationInstanceOrModifier>) change;
     	return true;
     }
     
@@ -81,7 +80,7 @@ public class RemoveImportReactionReaction extends AbstractReactionRealization {
       super(reactionExecutionState);
     }
     
-    public void callRoutine1(final RemoveEReference removeChange, final JavaRoot affectedEObject, final EReference affectedFeature, final Import oldValue, final int index, @Extension final RoutinesFacade _routinesFacade) {
+    public void callRoutine1(final RemoveEReference removeChange, final org.emftext.language.java.classifiers.Class affectedEObject, final EReference affectedFeature, final AnnotationInstanceOrModifier oldValue, final int index, @Extension final RoutinesFacade _routinesFacade) {
     }
   }
 }

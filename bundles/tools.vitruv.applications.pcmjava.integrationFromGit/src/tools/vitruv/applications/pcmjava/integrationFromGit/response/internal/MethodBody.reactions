@@ -5,4 +5,4 @@ reactions: methodBody
 in reaction to changes in Java
 execute actions in PCM
 
-//TODO
+//TODO: Define change propagation rules for changes in JaMoPP models on method bodies to propagate these changes to the corresponding PCM models

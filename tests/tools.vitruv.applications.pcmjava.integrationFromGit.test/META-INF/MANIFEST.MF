@@ -30,5 +30,6 @@ Require-Bundle: org.junit,
  tools.vitruv.applications.pcmjava.seffstatements.pojotransformations,
  tools.vitruv.applications.pcmjava.linkingintegration.seffstatments,
  org.eclipse.emf.compare;bundle-version="3.5.3",
- org.eclipse.text
+ org.eclipse.text,
+ org.apache.commons.io;bundle-version="2.6.0"
 Export-Package: tools.vitruv.applications.pcmjava.integrationFromGit.test

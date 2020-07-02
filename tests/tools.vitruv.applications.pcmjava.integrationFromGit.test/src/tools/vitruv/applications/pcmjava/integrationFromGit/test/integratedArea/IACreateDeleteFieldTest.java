@@ -34,9 +34,7 @@ import mir.reactions.packageMappingIntegration.PackageMappingIntegrationChangePr
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitChangeApplier;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitRepository;
 import tools.vitruv.applications.pcmjava.integrationFromGit.response.GitIntegrationChangePropagationSpecification;
-import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesFromGitTest;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesTestUtil;
-import tools.vitruv.applications.pcmjava.integrationFromGit.test.MyJava2PcmChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.commits.EuFpetersenCbsPc_integratedArea_fineGrained_commits;
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Java2PcmIntegrationChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTest;

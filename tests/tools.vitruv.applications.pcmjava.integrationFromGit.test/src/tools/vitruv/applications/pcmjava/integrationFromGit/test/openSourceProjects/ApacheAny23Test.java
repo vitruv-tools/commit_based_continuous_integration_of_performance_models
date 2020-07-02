@@ -34,7 +34,7 @@ import org.junit.Test;
 
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitChangeApplier;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitRepository;
-import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesFromGitTest;
+import tools.vitruv.applications.pcmjava.integrationFromGit.response.GitIntegrationChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesTestUtil;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.commits.EuFpetersenCbsPc_integratedArea_fineGrained_commits;
 import tools.vitruv.applications.pcmjava.linkingintegration.ResourceLoadingHelper;
@@ -77,16 +77,16 @@ public class ApacheAny23Test {
 
 	private static ChangePropagationSpecification[] changePropagationSpecifications = {
 			//new PackageMappingIntegrationChangePropagationSpecification()
-			new Java2PcmIntegrationChangePropagationSpecification(),
+			//new Java2PcmIntegrationChangePropagationSpecification(),
 			//new Java2PcmWithSeffstatmantsChangePropagationSpecification()
 			//new Pcm2JavaIntegrationChangePropagationSpecification()
 			//new Java2PcmChangePropagationSpecification()
 			//new MyJava2PcmChangePropagationSpecification()
+			new GitIntegrationChangePropagationSpecification()
 	};
 
-	//TODO: Enable Logger
-	//TODO: add argument -consoleLog in run configuration
-	//private static Logger logger = Logger.getLogger(CodeIntegrationTest.class.getSimpleName());
+	
+	private static Logger logger = Logger.getLogger(CodeIntegrationTest.class.getSimpleName());
 	
 	private static IProject testProject;
 	private static IWorkspace workspace;
@@ -168,8 +168,7 @@ public class ApacheAny23Test {
 		//List<Resource> jamoppModels = ResourceLoadingHelper.loadJaMoPPResourceSet();
 		
 		virtualModel = ApplyingChangesTestUtil.integrateProjectWithChangePropagationSpecification(testProject, changePropagationSpecifications, changeApplier);
-		System.out.println("Integration done");
-		
+		System.out.println("Integration done");	
 	}
 	
 /*	

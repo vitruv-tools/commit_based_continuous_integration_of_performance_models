@@ -60,6 +60,7 @@ import org.eclipse.jgit.patch.FileHeader;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 //import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
@@ -134,7 +135,12 @@ public class GitRepository {
 		  .call();
 	}
 
-
+	//TODO: javadoc
+	public void closeRepository() {
+		git.getRepository().close();
+	}
+	
+	
 	/**
 	 * Represents "git add <fileName>" command
 	 * 
@@ -373,6 +379,9 @@ public class GitRepository {
 			e.printStackTrace();
 		}
 
+		
+		oldWalk.close();
+		newWalk.close();
 		this.diffs = diffs;
 		return diffs;
 	}
@@ -398,7 +407,9 @@ public class GitRepository {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		finally {
+			diffFormatter.close();
+		}
 		return null;
 	}
 
@@ -517,6 +528,9 @@ public class GitRepository {
 			fileHeader = diffFormatter.toFileHeader(diff);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+		finally {
+			diffFormatter.close();
 		}
 
 		return fileHeader;
@@ -712,5 +726,8 @@ public class GitRepository {
 	public String getLineDelimiter() {
 		return lineDelimiter;
 	}
+
+
+
 
 }

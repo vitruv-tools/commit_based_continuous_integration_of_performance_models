@@ -32,7 +32,7 @@ import org.junit.Test;
 
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitChangeApplier;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitRepository;
-import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesFromGitTest;
+import tools.vitruv.applications.pcmjava.integrationFromGit.response.GitIntegrationChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesTestUtil;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.commits.EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits;
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Java2PcmIntegrationChangePropagationSpecification;
@@ -75,8 +75,11 @@ public class ClassAnnotationChangeTest /*extends ApplyingChangesFromGitTest*/ {
 			//new Java2PcmIntegrationChangePropagationSpecification(),
 			//new Java2PcmWithSeffstatmantsChangePropagationSpecification()
 			//new Pcm2JavaIntegrationChangePropagationSpecification()
+			
 			new Java2PcmChangePropagationSpecification()
+			
 			//new MyJava2PcmChangePropagationSpecification()
+			//new GitIntegrationChangePropagationSpecification()
 	};
 
 	private static Logger logger = Logger.getLogger(CodeIntegrationTest.class.getSimpleName());
@@ -161,7 +164,7 @@ public class ClassAnnotationChangeTest /*extends ApplyingChangesFromGitTest*/ {
 	@Test
 	public void testClassAnnotation() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		testAddClassAnnotation();
-		//testChangeClassAnnotation();
+		testChangeClassAnnotation();
 		//TODO:Vitruv does not react to removing class annotation
 		//testRemoveClassAnnotation();
 	}

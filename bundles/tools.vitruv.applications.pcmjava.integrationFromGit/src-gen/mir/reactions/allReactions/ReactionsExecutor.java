@@ -18,6 +18,8 @@ class ReactionsExecutor extends AbstractReactionsExecutor {
   protected void setup() {
     this.addReaction(new mir.reactions.packageAndClassifiers.AddImportReactionReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("allReactions.packageAndClassifiers"))));
     this.addReaction(new mir.reactions.packageAndClassifiers.RemoveImportReactionReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("allReactions.packageAndClassifiers"))));
+    this.addReaction(new mir.reactions.packageAndClassifiers.AddClassAnnotationReactionReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("allReactions.packageAndClassifiers"))));
+    this.addReaction(new mir.reactions.packageAndClassifiers.RemoveClassAnnotationReactionReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("allReactions.packageAndClassifiers"))));
     this.addReaction(new mir.reactions.packageAndClassifiers.InterfaceMethodCreatedReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("allReactions.packageAndClassifiers"))));
     this.addReaction(new mir.reactions.packageAndClassifiers.ClassMethodCreatedReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("allReactions.packageAndClassifiers"))));
     this.addReaction(new mir.reactions.packageAndClassifiers.RemoveInterfaceMethodEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("allReactions.packageAndClassifiers"))));

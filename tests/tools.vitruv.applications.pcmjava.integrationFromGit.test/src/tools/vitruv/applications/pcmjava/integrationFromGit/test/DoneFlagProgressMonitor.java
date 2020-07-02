@@ -1,11 +1,12 @@
 package tools.vitruv.applications.pcmjava.integrationFromGit.test;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
+//import java.util.concurrent.atomic.AtomicBoolean;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-/**
+	/**
      * Thread-safe simple progress monitor for knowing when a job is done.
+     *
+     * @author Ilia Chupakhin
      *
      */
     public class DoneFlagProgressMonitor extends NullProgressMonitor {
@@ -24,7 +25,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
         		try {
 					this.wait();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
         	}

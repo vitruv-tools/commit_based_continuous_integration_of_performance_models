@@ -51,12 +51,23 @@ execute actions in PCM
 
 //empty implementation for add and remove imports
 reaction AddImportReaction {
-	after element created and inserted in java::JavaRoot[imports]
+	after element java::Import inserted in java::JavaRoot[imports]
 	call {}
 }
 
 reaction RemoveImportReaction {
-	after element deleted and removed from java::JavaRoot[imports]
+	after element java::Import removed from java::JavaRoot[imports]
+	call {}
+}
+
+//empty implementation for add and remove class annotation
+reaction AddClassAnnotationReaction {
+	after element inserted in java::Class[annotationsAndModifiers]
+	call {}
+}
+
+reaction RemoveClassAnnotationReaction {
+	after element removed from java::Class[annotationsAndModifiers]
 	call {}
 }
 

@@ -1,5 +1,12 @@
 package tools.vitruv.applications.pcmjava.integrationFromGit.test.commits;
 
+/**
+ * Contains commits hashes and branch names for tests on the project tools.vitruv.applications.pcmjava.integrationFromGit.test/testProjects/petersen/projectWithCommits/eu.fpetersen.cbs.pc.withGit
+ * for atomic changes in integrated areas. 
+ * 
+ * @author Ilia Chupakhin
+ *
+ */
 public abstract class EuFpetersenCbsPc_integratedArea_fineGrained_commits {
 	
 	//initial commit from master branch	
@@ -18,7 +25,6 @@ public abstract class EuFpetersenCbsPc_integratedArea_fineGrained_commits {
 	//removed newMethodInIDisplay in IDisplay.java
 	public final static String REMOVE_METHOD_IN_INTERFACE = "b67bb3992a573ff7bf5ae22f409f56de45463d40";
 	
-//Changed ^
 	
 	//Branch and commits for testing fine grained changes in an integrated area on a method header
 	//****************************************************************************************************************
@@ -41,7 +47,6 @@ public abstract class EuFpetersenCbsPc_integratedArea_fineGrained_commits {
 	//added parameter to drawFrameRenamed() in Display.java
 	public final static String ADD_METHOD_PARAMETER_IN_CLASS = "88165a0ef246618d5861bca6789c24c4a3b99853";
 
-//Changed ^
 	
 	//Branch and commits for testing fine grained changes in an integrated area on a class field
 	//****************************************************************************************************************
@@ -62,7 +67,6 @@ public abstract class EuFpetersenCbsPc_integratedArea_fineGrained_commits {
 	//removed field fieldRenamed in GraphicsCard.java
 	public final static String REMOVE_FIELD = "a48c5db642a597f9c5c8970a3d1dfa44e814a63f";
 	
-//Changed ^
 	
 	//Branch and commits for testing fine grained changes in an integrated area on a method implementation
 	//****************************************************************************************************************
@@ -81,7 +85,6 @@ public abstract class EuFpetersenCbsPc_integratedArea_fineGrained_commits {
 	//removed internal action in drawFrame() in Display.java
 	public final static String REMOVE_INTERNAL_ACTION = "cb932e8295c1699e3f1eeb2cdf7c6bb7efb83f10";
 	
-//Changed ^	
 	
 	//Branch and commits for testing fine grained changes in an integrated area on class annotation
 	//****************************************************************************************************************
@@ -93,8 +96,6 @@ public abstract class EuFpetersenCbsPc_integratedArea_fineGrained_commits {
 	public final static String CHANGE_CLASS_ANNOTATION = "9053f8ca6074e6d3adcaf63ab280501eebcbaece";
 	//removed class annotation in Display.java
 	public final static String REMOVE_CLASS_ANNOTATION = "25c5d6031e6479480ccba6392daf43ff5cd7bccb";
-	
-//Changed ^		
 	
 
 	//Branch and commits for testing creation and deleting a class in an integrated area
@@ -111,10 +112,6 @@ public abstract class EuFpetersenCbsPc_integratedArea_fineGrained_commits {
 	public final static String REMOVE_INTERFACE = "bda841448ab3d0de8ab4394d797322f9910cb40c";
 	
 	
-
-//Changed ^		
-	
-	
 	//Branch and commits for testing fine grained changes in an integrated area on implements
 	//****************************************************************************************************************
 	public final static String IMPLEMENTS_BRANCH_NAME = "integratedArea_fineGrained_implements";
@@ -125,17 +122,7 @@ public abstract class EuFpetersenCbsPc_integratedArea_fineGrained_commits {
 	public final static String ADD_IMPLEMENTS = "5e3d9e0945a537ba3f0da0ffbc1af4a154e2e97a";
 	//removed 'implements IDisplay' in GraphicsCard.java
 	public final static String REMOVE_IMPLEMENTS = "5a583690df0afe76d292813c406e408ffb13bbed";
-	
 
-//Changed ^		
-	
-	//Branch and commits for testing fine grained changes in an integrated area on implements
-	//****************************************************************************************************************
-	public final static String RENAMES_BRANCH_NAME = "integratedArea_fineGrained_renames";
-
-	//TODO
-	
-//Changed ^	
 	
 	//Branch and commits for testing fine grained changes in an integrated area for creation, rename and removing field
 	//****************************************************************************************************************
@@ -151,8 +138,6 @@ public abstract class EuFpetersenCbsPc_integratedArea_fineGrained_commits {
 	public final static String REMOVE_CREATED_FIELD_FOR_CREATE_DELETE_FILED = "8bab5d46af07279cab7e12cfe6bf86c12f614f05";
 	//removed field 'private IGraphicsCard graphicsCard' in Display.java
 	public final static String REMOVE_INTEGRATED_FIELD_FOR_CREATE_DELETE_FILED = "07879d9e9116b88d27735a1e5262ba32a15dd67d";
-	
-//Changed ^
 	
 	
 	//Branch and commits for testing changes in an integrated area on non-java files
@@ -170,34 +155,19 @@ public abstract class EuFpetersenCbsPc_integratedArea_fineGrained_commits {
 	//deleted file nonJavaFileRenamed.txt in src folder
 	public final static String REMOVE_FILE = "de7193b323f53e50202cbfb023c6a480c91b31b4";
 	
-//Changed ^
 
-	
-	//Branch and commits for testing fine grained changes in an integrated area on extends
-	//****************************************************************************************************************
-	public final static String EXTENDS_BRANCH_NAME = "integratedArea_fineGrained_extends";
-
-	//add import 'eu.fpetersen.cbs.pc.graphics.GraphicsCard' in Frame.java
-	public final static String ADD_IMPORT_FOR_EXTENDS= "0fca674c6a6ea8f68648df6c9e0bc0fd67f23547";
-	//added 'extends GraphicsCard' in Frame.java
-	public final static String ADD_EXTENDS = "36b55eb90feacd39b26bb210079b51ff3472b18c";
-	//removed 'extends GraphicsCard' in Frame.java
-	public final static String REMOVE_EXTENDS = "9c0b29be22d64713421f61099b47acc8322f9d8b";
-	
-	
 	//Branch and commits for testing fine grained changes in an integrated area on a class header
 	//****************************************************************************************************************
 	public final static String CLASS_HEADER_BRANCH_NAME = "integratedArea_fineGrained_classHeader";
-
-	//renamed class Frame to FrameRenamed
-	public final static String RENAME_CLASS = "f018ed06c1a161e9ce469e314d131b1576b400ab";
-	//added abstract modifier to class FrameRenamed
-	public final static String ADD_ABSTRACT_TO_CLASS = "9ba8eaf819db85d898af4a48da71c9a4ebfc3853";
-	//changed abstract modifier to final in class FrameRenamed
-	public final static String CHANGE_ABSTRACT_TO_FINAL_IN_CLASS = "46133716a15a8ccb5862791adc7a63974561d2dc";
-
 	
-	
+	//added 'abstract' to the class 'Display.java'
+	public final static String ADD_ABSTRACT_TO_CLASS = "399fd6ef0f004f65b85b32bf6cc432aa998debae";
+	//changed 'abstract' to 'final' for the class 'Display.java'
+	public final static String CHANGE_ABSTRACT_TO_FINAL_IN_CLASS = "4775adf7314647e77f88afa103fcbc46c2f42b87";
+	//renamed 'GraphicsCard.java' to 'GraphicsCardRenamed.java'
+	public final static String RENAME_CLASS = "77d134e667e2cff5f98a52f2427b8b45ff6b2659";
+
+
 	//Branch and commits for testing creation and deleting a package in an integrated area
 	//****************************************************************************************************************
 	public final static String PACKAGE_CREATE_DELETE_BRANCH_NAME = "integratedArea_fineGrained_packageCreateDelete";
@@ -209,4 +179,21 @@ public abstract class EuFpetersenCbsPc_integratedArea_fineGrained_commits {
 	//removed package eu.fpetersen.cbs.pc.newPackageRenamed
 	public final static String REMOVE_PACKAGE = "14fda1ddcd53a5a50c457699b269aca8de69c4e0";
 	
+	
+	//Branch and commits for testing fine grained changes in an integrated area on extends
+	//****************************************************************************************************************
+	public final static String EXTENDS_BRANCH_NAME = "integratedArea_fineGrained_extends";
+
+	//added 'import eu.fpetersen.cbs.pc.display.Display;' in GraphicsCard.java
+	public final static String ADD_IMPORT_FOR_EXTENDS= "3aa6c2c6081282df67e5fc6c8d8c7dba5d01b775";
+	//added 'extends Display' to GraphicsCard.java
+	public final static String ADD_EXTENDS = "363e923e34b9166e682da1710c689a3d4cd401db";
+	//removed 'extends Display' from GraphicsCard.java
+	public final static String REMOVE_EXTENDS = "60144aac7ae9f0bd0d3ade5f374c0339073d0bfc";
+
+	
+	//Branch and commits for testing fine grained changes in an integrated area on implements
+	//****************************************************************************************************************
+	public final static String RENAMES_BRANCH_NAME = "integratedArea_fineGrained_renames";
+	//TODO
 }

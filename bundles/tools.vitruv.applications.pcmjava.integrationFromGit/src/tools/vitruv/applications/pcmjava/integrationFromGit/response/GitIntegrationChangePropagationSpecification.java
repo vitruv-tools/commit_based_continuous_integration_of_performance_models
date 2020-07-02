@@ -31,7 +31,7 @@ public class GitIntegrationChangePropagationSpecification extends AllReactionsCh
 		super.setup();
 		Java2PcmPackagePreprocessor _java2PcmPackagePreprocessor = new Java2PcmPackagePreprocessor();
 		this.addChangePreprocessor(_java2PcmPackagePreprocessor);
-		//Rules for changes on method bodies for non-integrated projects. Disabled now. 
+		//Rules for changes on method bodies for non-integrated projects. Disabled by now. 
 		//That means, the projects which were created from scratch with Vitruv and therefore have a specific structure required by Vitruv.
 		//These rules must be adapted for integrated projects, that do not have structure required by Vitruv.
 		//Java2PcmPackageMappingMethodBodyChangePreprocessor _java2PcmPackageMappingMethodBodyChangePreprocessor = new Java2PcmPackageMappingMethodBodyChangePreprocessor(getUserInteractor());

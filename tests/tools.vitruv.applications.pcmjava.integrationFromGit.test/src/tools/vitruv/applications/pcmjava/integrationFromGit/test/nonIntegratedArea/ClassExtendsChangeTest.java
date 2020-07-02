@@ -32,7 +32,6 @@ import org.junit.Test;
 
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitChangeApplier;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitRepository;
-import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesFromGitTest;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesTestUtil;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.commits.EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits;
 import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTest;

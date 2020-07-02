@@ -1,11 +1,16 @@
 package tools.vitruv.applications.pcmjava.integrationFromGit.test.commits;
-
+/**
+ * Contains commits hashes and branch names for tests on the project tools.vitruv.applications.pcmjava.integrationFromGit.test/testProjects/petersen/projectWithCommits/eu.fpetersen.cbs.pc.withGit
+ * for coarse-grained changes in non-integrated areas within classes except method headers and method bodies. 
+ * 
+ * @author Ilia Chupakhin
+ *
+ */
 public abstract class EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits {
 	
 	
 	//Branch and commits for testing coarse grained changes in a non integrated area on a compilation unit
 	//****************************************************************************************************************
-	
 	public final static String BRANCH_NAME = "nonIntegratedArea_compilationUnitChanges_coarseGrained";
 	
 	
