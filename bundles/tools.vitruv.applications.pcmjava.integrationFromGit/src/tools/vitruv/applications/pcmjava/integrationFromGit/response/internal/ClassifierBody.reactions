@@ -210,11 +210,12 @@ routine createOperationRequiredRoleCorrespondingToField(java::Field javaField, p
 		add correspondence between operationRequiredRole and javaField
 	}
 }
-
+/*TODO: see reaction ChangeFieldTypeEvent
 reaction FieldTypeChange {
 	after element replaced at java::Field[typeReference]
 	call changeInnerDeclarationType(newValue, affectedEObject)
 }
+*/
 
 routine changeInnerDeclarationType(java::TypeReference typeReference, java::Field javaField) {
 	match {
@@ -227,6 +228,8 @@ routine changeInnerDeclarationType(java::TypeReference typeReference, java::Fiel
 		}
 	}
 }
+
+
 
 //Langhammers Level 3 Regel fuer Chage Field Type
 //start

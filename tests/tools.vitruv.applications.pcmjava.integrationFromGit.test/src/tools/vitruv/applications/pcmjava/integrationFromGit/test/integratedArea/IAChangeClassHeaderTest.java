@@ -81,10 +81,10 @@ public class IAChangeClassHeaderTest {
 			URISyntaxException, GitAPIException, CoreException {
 		//get workspace
 		workspace = ResourcesPlugin.getWorkspace();
-        //copy test project into workspace
-        testProject = ApplyingChangesTestUtil.importAndCopyProjectIntoWorkspace(workspace, testProjectName, testProjectPath);
-        //copy git repository into workspace
+		//copy git repository into workspace
         gitRepository = ApplyingChangesTestUtil.copyGitRepositoryIntoWorkspace(workspace, gitRepositoryPath);
+		//copy test project into workspace
+        testProject = ApplyingChangesTestUtil.importAndCopyProjectIntoWorkspace(workspace, testProjectName, testProjectPath); 
         //Thread.sleep(10000);
         //create change applier for copied repository
         changeApplier = new GitChangeApplier(gitRepository);
@@ -102,24 +102,19 @@ public class IAChangeClassHeaderTest {
 	
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		// This is necessary because otherwise Maven tests will fail as
-		// resources from previous tests are still in the classpath and accidentally resolved
-		JavaClasspath.reset();
 		//Remove Vitruv Java Builder that is responsible for change propagation
 		final VitruviusJavaBuilderApplicator pcmJavaRemoveBuilder = new VitruviusJavaBuilderApplicator();
 		pcmJavaRemoveBuilder.removeBuilderFromProject(testProject);
 		//Remove JDT model of the copied project as well as this project from file system
+		testProject.close(null);
 		testProject.delete(true, null);
 		//Remove the folder containing Vitruv meta data from file system
 		FileUtils.deleteDirectory(virtualModel.getFolder());
 		//Close and remove copied git repository
 		gitRepository.closeRepository();
 		FileUtils.deleteDirectory(new File(workspace.getRoot().getLocation().toFile(), "clonedGitRepositories"));
-
-		//while (true) {
-		//	System.out.println("All tests are done. Stop the programm manually");
-		//	Thread.sleep(10000);
-		//}
+		// This is necessary because resources from previous tests are still in the classpath and accidentally resolved
+		JavaClasspath.reset();	
 	}
 
 	//testRenameClass() is disabled by now: Vitruv throws an exception when a class is removed.Because rename class 
@@ -147,7 +142,7 @@ public class IAChangeClassHeaderTest {
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 		//Ensure that there is a corresponding PCM model to the compUnitChanged.
-		boolean pcmExists = ApplyingChangesTestUtil.assertComponentWithName(compUnitChanged.getElementName(), virtualModel);
+		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentWithName(compUnitChanged.getElementName(), virtualModel);
 		assertTrue("In testAddAbstract() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 		assertTrue("In testAddAbstract() corresponding PCM model does not exist, but it should exist", pcmExists);	
 	}
@@ -166,7 +161,7 @@ public class IAChangeClassHeaderTest {
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 		//Ensure that there is a corresponding PCM model to the compUnitChanged.
-		boolean pcmExists = ApplyingChangesTestUtil.assertComponentWithName(compUnitChanged.getElementName(), virtualModel);
+		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentWithName(compUnitChanged.getElementName(), virtualModel);
 		assertTrue("In testChangeAbstractToFinal() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 		assertTrue("In testChangeAbstractToFinal() corresponding PCM model does not exist, but it should exist", pcmExists);
 	}
@@ -189,9 +184,9 @@ public class IAChangeClassHeaderTest {
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 		//Ensure that there is a corresponding PCM model to the compUnitChanged.
-		boolean pcmExists = ApplyingChangesTestUtil.assertComponentWithName(compUnitChanged.getElementName(), virtualModel);
+		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentWithName(compUnitChanged.getElementName(), virtualModel);
 		//Ensure that there is a corresponding no PCM model to the compilation unit with the old name.
-		boolean noPcmExists = ApplyingChangesTestUtil.assertNoComponentWithName("GraphicsCardRenamed.java", virtualModel);
+		boolean noPcmExists = ApplyingChangesTestUtil.assertNoRepositoryComponentWithName("GraphicsCardRenamed.java", virtualModel);
 		assertTrue("In testRenameClass() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 		assertTrue("In testRenameClass() corresponding PCM model does not exist, but it should exist", pcmExists);
 		assertTrue("In testRenameClass() corresponding PCM model exists, but it should not exist", noPcmExists);

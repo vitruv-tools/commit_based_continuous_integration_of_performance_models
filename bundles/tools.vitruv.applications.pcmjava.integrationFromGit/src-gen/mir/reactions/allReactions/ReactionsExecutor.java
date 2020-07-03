@@ -40,7 +40,6 @@ class ReactionsExecutor extends AbstractReactionsExecutor {
     this.addReaction(new mir.reactions.classifierBody.ParameterDeletedReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("allReactions.classifierBody"))));
     this.addReaction(new mir.reactions.classifierBody.ParameterNameChangedReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("allReactions.classifierBody"))));
     this.addReaction(new mir.reactions.classifierBody.FieldCreatedReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("allReactions.classifierBody"))));
-    this.addReaction(new mir.reactions.classifierBody.FieldTypeChangeReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("allReactions.classifierBody"))));
     this.addReaction(new mir.reactions.classifierBody.ChangeFieldTypeEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("allReactions.classifierBody"))));
     this.addReaction(new mir.reactions.classifierBody.RemoveFieldEventReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("allReactions.classifierBody"))));
     this.addReaction(new mir.reactions.classifierBody.JavaReturnTypeChangedReaction(this.getRoutinesFacadesProvider().getRoutinesFacade(ReactionsImportPath.fromPathString("allReactions.classifierBody"))));

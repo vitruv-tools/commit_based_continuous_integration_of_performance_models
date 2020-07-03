@@ -18,6 +18,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -30,6 +31,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.common.util.BasicMonitor;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.EMFCompare;
@@ -80,13 +82,17 @@ import org.emftext.language.java.classifiers.ConcreteClassifier;
 import org.emftext.language.java.containers.CompilationUnit;
 import org.emftext.language.java.containers.JavaRoot;
 import org.emftext.language.java.containers.impl.CompilationUnitImpl;
+import org.emftext.language.java.members.Field;
 import org.emftext.language.java.members.Member;
 import org.emftext.language.java.members.Method;
 import org.junit.Assert;
 import org.palladiosimulator.pcm.repository.BasicComponent;
+import org.palladiosimulator.pcm.repository.InnerDeclaration;
+import org.palladiosimulator.pcm.repository.OperationRequiredRole;
 import org.palladiosimulator.pcm.repository.Repository;
 import org.palladiosimulator.pcm.repository.RepositoryComponent;
 import org.palladiosimulator.pcm.repository.RepositoryFactory;
+import org.palladiosimulator.pcm.repository.RequiredRole;
 import org.palladiosimulator.pcm.repository.impl.RepositoryFactoryImpl;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
@@ -327,10 +333,15 @@ public class ApplyingChangesTestUtil {
 	 * @param workspace current workspace
 	 * @param originGitRepositoryPath path to the git repository
 	 * @return copied git repository
+	 * @throws IOException 
+	 * @throws InterruptedException 
 	 */
-	public static GitRepository copyGitRepositoryIntoWorkspace(IWorkspace workspace, String originGitRepositoryPath) {
+	public static GitRepository copyGitRepositoryIntoWorkspace(IWorkspace workspace, String originGitRepositoryPath) throws IOException, InterruptedException {
 		//Create a new folder for git repository
 		File clonedGitRepository = (new File(workspace.getRoot().getLocation().toFile(), "clonedGitRepositories"));
+		if (clonedGitRepository.exists()) {
+			FileUtils.deleteDirectory(clonedGitRepository);
+		}
 		clonedGitRepository.mkdir();
 		try {
 			clonedGitRepository.createNewFile();
@@ -687,7 +698,7 @@ public class ApplyingChangesTestUtil {
 	}
 
 	//TODO javadoc
-	 public static boolean assertComponentWithName(String nameOfComponent, InternalVirtualModel virtualModel) throws Throwable {
+	 public static boolean assertRepositoryComponentWithName(String nameOfComponent, InternalVirtualModel virtualModel) throws Throwable {
 		    final Set<RepositoryComponent> repoComponents = virtualModel.getCorrespondenceModel().<RepositoryComponent>getAllEObjectsOfTypeInCorrespondences(RepositoryComponent.class);;
 		    for (final RepositoryComponent repoComponent : repoComponents) {
 		    	if (repoComponent.getEntityName().contains(nameOfComponent)) {
@@ -706,7 +717,7 @@ public class ApplyingChangesTestUtil {
 	 }
 		  
 	//TODO javadoc
-	  public static boolean assertNoComponentWithName(String nameOfComponent, InternalVirtualModel virtualModel) throws Throwable {
+	  public static boolean assertNoRepositoryComponentWithName(String nameOfComponent, InternalVirtualModel virtualModel) throws Throwable {
 		    final Set<RepositoryComponent> repoComponents = virtualModel.getCorrespondenceModel().<RepositoryComponent>getAllEObjectsOfTypeInCorrespondences(RepositoryComponent.class);
 		    for (final RepositoryComponent repoComponent : repoComponents) {
 			      boolean _contains = repoComponent.getEntityName().contains(nameOfComponent);
@@ -729,9 +740,136 @@ public class ApplyingChangesTestUtil {
 	  }
 
 	  
+	public static boolean assertFieldWithName(String fieldName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+		Field field_JaMoPP = getJaMoPPFieldFromClass(compilationUnit, fieldName, virtualModel);
+		if (field_JaMoPP == null) {
+			return false;
+		}
+		//Find the corresponding PCM InnerDeclaraion to the JaMoPP Field.
+		//claimOne throws an exception if no or many correspondences was found
+		OperationRequiredRole field_PCM = claimOne(CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+				virtualModel.getCorrespondenceModel(), field_JaMoPP,  OperationRequiredRole.class));
+		
+		return true;
+	}
 	  
+	private static Field getJaMoPPFieldFromClass(final ICompilationUnit compilationUnit, final String fieldName, final InternalVirtualModel virtualModel) {
+		//Find the JaMoPP model for the changedCompilationUnit
+		ModelInstance modelInstance = virtualModel.getModelInstance(VURI.getInstance(compilationUnit.getResource()));
+		modelInstance.load(new HashMap(), true);
+		CompilationUnit compilationUnit_JaMoPP = (CompilationUnit) modelInstance.getResource().getContents().get(0);
+		String classifierName = compilationUnit.getElementName();
+		//Get rid of the file extension ".java". The length of ".java" is 5.
+		classifierName = classifierName.substring(0, classifierName.length() - 5);
+		EList<Member> field_JaMoPP = compilationUnit_JaMoPP.getContainedClassifier(classifierName).getMembersByName(fieldName);
+		if (field_JaMoPP.isEmpty()) {
+			System.out.println("Field " + fieldName + " was not found in compilation unit " + compilationUnit.getElementName());
+			return null;
+		}
+		
+		return (Field) field_JaMoPP.get(0);
+		
+	}
+	
+	
+	public static boolean assertNoFieldWithName(String fieldName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+		final Set<RepositoryComponent> repoComponents = virtualModel.getCorrespondenceModel().<RepositoryComponent>getAllEObjectsOfTypeInCorrespondences(RepositoryComponent.class);;
+	    //Find a corresponding PCM model to the compilationUnit
+		for (final RepositoryComponent repoComponent : repoComponents) {
+	    	if (repoComponent.getEntityName().contains(compilationUnit.getElementName())) {
+	    		//Make sure there is no corresponding PCM models to the fieldName
+	    		EList<RequiredRole> requiredRoles = repoComponent.getRequiredRoles_InterfaceRequiringEntity();
+	    		for (RequiredRole requiredRole : requiredRoles) {
+	    			if (requiredRole.getEntityName().equals(fieldName)) {
+	    				return false;
+	    			}
+	    		}
+	    		return true;
+	    	}  
+		}
+	    
+	    return false;
+	}
+	
+
+	public static boolean assertFieldTypeWithName(String fieldName, String fieldType, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+		Field field_JaMoPP = getJaMoPPFieldFromClass(compilationUnit, fieldName, virtualModel);
+		if (field_JaMoPP == null) {
+			return false;
+		}
+		//Find the corresponding PCM InnerDeclaraion to the JaMoPP Field.
+		//claimOne throws an exception if no or many correspondences was found
+		OperationRequiredRole field_PCM = claimOne(CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+				virtualModel.getCorrespondenceModel(), field_JaMoPP, OperationRequiredRole.class));
+		if (field_PCM.getRequiredInterface__OperationRequiredRole().getEntityName().equals(fieldType)) {
+			return true;
+		}
+		else {
+			return false;	
+		}
+	}
+	
+	
+	public static boolean assertNoFieldTypeWithName(String fieldName, String fieldType, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+		Field field_JaMoPP = getJaMoPPFieldFromClass(compilationUnit, fieldName, virtualModel);
+		if (field_JaMoPP == null) {
+			return false;
+		}
+		//Find the corresponding PCM InnerDeclaraion to the JaMoPP Field.
+		//claimOne throws an exception if no or many correspondences was found
+		OperationRequiredRole field_PCM = claimOne(CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+				virtualModel.getCorrespondenceModel(), field_JaMoPP, OperationRequiredRole.class));
+		if (field_PCM.getRequiredInterface__OperationRequiredRole().getEntityName().equals(fieldType)) {
+			return false;
+		}
+		else {
+			return true;	
+		}
+	}
+
 	  
-	  
+	/*  //The methods 
+	 * assertFieldModifierWithName 
+	 * assertNoFieldModifierWithName
+	 * make no sense, because pcm Modells does not contain information about field modifiers 
+	 * 
+	 * make no sense
+		public static boolean assertFieldModifierWithName(String fieldName, String fieldModifier, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+			Field field_JaMoPP = getJaMoPPFieldFromClass(compilationUnit, fieldName, virtualModel);
+			if (field_JaMoPP == null) {
+				return false;
+			}
+			//Find the corresponding PCM InnerDeclaraion to the JaMoPP Field.
+			//claimOne throws an exception if no or many correspondences was found
+			OperationRequiredRole field_PCM = claimOne(CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), field_JaMoPP, OperationRequiredRole.class));
+			if (field_PCM.getEntityName().contains(fieldModifier)) {
+				return true;
+			}
+			else {
+				return false;	
+			}
+		}
+		
+		
+		public static boolean assertNoFieldModifierWithName(String fieldName, String fieldModifier, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+			Field field_JaMoPP = getJaMoPPFieldFromClass(compilationUnit, fieldName, virtualModel);
+			if (field_JaMoPP == null) {
+				return false;
+			}
+			//Find the corresponding PCM InnerDeclaraion to the JaMoPP Field.
+			//claimOne throws an exception if no or many correspondences was found
+			InnerDeclaration field_PCM = claimOne(CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), field_JaMoPP, InnerDeclaration.class));
+			if (field_PCM.getEntityName().contains(fieldModifier)) {
+				return false;
+			}
+			else {
+				return true;	
+			}
+		}
+		
+	*/	  
 	  
 	  
 	  /*

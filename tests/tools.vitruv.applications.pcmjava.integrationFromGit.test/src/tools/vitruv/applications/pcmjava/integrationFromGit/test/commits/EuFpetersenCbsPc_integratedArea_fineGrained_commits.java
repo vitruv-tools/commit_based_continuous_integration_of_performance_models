@@ -62,10 +62,10 @@ public abstract class EuFpetersenCbsPc_integratedArea_fineGrained_commits {
 	public final static String ADD_FIELD_MODIFIER = "9953af1c9450d97cfc92122840564125f0b1ce49";
 	//changed modifier of fieldRenamed from public to private in GraphicsCard.java
 	public final static String CHANGE_FIELD_MODIFIER = "b77e5c524325bfd621e1d3085bd1cf8fbf3ffe73";
-	//changed field type of fieldRenamed from IDisplay to Frame in GraphicsCard.java
-	public final static String CHANGE_FIELD_TYPE = "ba0497e7be5ce6f36cf51ea201e06db30b0b97e3";
-	//removed field fieldRenamed in GraphicsCard.java
-	public final static String REMOVE_FIELD = "a48c5db642a597f9c5c8970a3d1dfa44e814a63f";
+	//changed field type from 'IDisplay' to 'String' in GraphicsCard.java
+	public final static String CHANGE_FIELD_TYPE = "1ca7e601515303f811f09b4f5e90657e076d414d";
+	//removed field 'fieldRenamed' in GraphicsCard.java
+	public final static String REMOVE_FIELD = "5912a84f3d5f7fe3402a89404b7507d953808d83";
 	
 	
 	//Branch and commits for testing fine grained changes in an integrated area on a method implementation

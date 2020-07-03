@@ -77,10 +77,10 @@ public class IAChangeClassAnnotationTest {
 			URISyntaxException, GitAPIException, CoreException {
 		//get workspace
 		workspace = ResourcesPlugin.getWorkspace();
-        //copy test project into workspace
-        testProject = ApplyingChangesTestUtil.importAndCopyProjectIntoWorkspace(workspace, testProjectName, testProjectPath);
         //copy git repository into workspace
         gitRepository = ApplyingChangesTestUtil.copyGitRepositoryIntoWorkspace(workspace, gitRepositoryPath);
+		//copy test project into workspace
+        testProject = ApplyingChangesTestUtil.importAndCopyProjectIntoWorkspace(workspace, testProjectName, testProjectPath);
         //Thread.sleep(10000);
         //create change applier for copied repository
         changeApplier = new GitChangeApplier(gitRepository);
@@ -111,10 +111,6 @@ public class IAChangeClassAnnotationTest {
 		// This is necessary because otherwise Maven tests will fail as
 		// resources from previous tests are still in the classpath and accidentally resolved
 		JavaClasspath.reset();
-		//while (true) {
-		//	System.out.println("All tests are done. Stop the programm manually");
-		//	Thread.sleep(10000);
-		//}
 	}
 
 	//Vitruv does not react to add/change/remove class annotation

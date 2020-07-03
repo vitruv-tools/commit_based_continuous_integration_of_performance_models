@@ -11,6 +11,14 @@ import tools.vitruv.extensions.dslsruntime.reactions.AbstractRepairRoutineRealiz
 import tools.vitruv.extensions.dslsruntime.reactions.ReactionExecutionState;
 import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHaving;
 
+/**
+ * TODO: see reaction ChangeFieldTypeEvent
+ * reaction FieldTypeChange {
+ * 	after element replaced at java::Field[typeReference]
+ * 	call changeInnerDeclarationType(newValue, affectedEObject)
+ * }
+ * 
+ */
 @SuppressWarnings("all")
 public class ChangeInnerDeclarationTypeRoutine extends AbstractRepairRoutineRealization {
   private ChangeInnerDeclarationTypeRoutine.ActionUserExecution userExecution;

@@ -137,7 +137,8 @@ public class GitRepository {
 
 	//TODO: javadoc
 	public void closeRepository() {
-		git.getRepository().close();
+		git.close();
+		//git.getRepository().close();
 	}
 	
 	
