@@ -79,22 +79,33 @@ import org.eclipse.ui.wizards.datatransfer.FileSystemStructureProvider;
 import org.eclipse.ui.wizards.datatransfer.ImportOperation;
 import org.emftext.language.java.classifiers.Classifier;
 import org.emftext.language.java.classifiers.ConcreteClassifier;
+import org.emftext.language.java.classifiers.impl.ClassImpl;
 import org.emftext.language.java.containers.CompilationUnit;
 import org.emftext.language.java.containers.JavaRoot;
 import org.emftext.language.java.containers.impl.CompilationUnitImpl;
 import org.emftext.language.java.members.Field;
 import org.emftext.language.java.members.Member;
 import org.emftext.language.java.members.Method;
+import org.emftext.language.java.types.ClassifierReference;
+import org.emftext.language.java.types.TypeReference;
+import org.emftext.language.java.types.impl.NamespaceClassifierReferenceImpl;
 import org.junit.Assert;
 import org.palladiosimulator.pcm.repository.BasicComponent;
+import org.palladiosimulator.pcm.repository.DataType;
 import org.palladiosimulator.pcm.repository.InnerDeclaration;
+import org.palladiosimulator.pcm.repository.OperationProvidedRole;
 import org.palladiosimulator.pcm.repository.OperationRequiredRole;
+import org.palladiosimulator.pcm.repository.OperationSignature;
+import org.palladiosimulator.pcm.repository.Parameter;
+import org.palladiosimulator.pcm.repository.PrimitiveDataType;
 import org.palladiosimulator.pcm.repository.Repository;
 import org.palladiosimulator.pcm.repository.RepositoryComponent;
 import org.palladiosimulator.pcm.repository.RepositoryFactory;
 import org.palladiosimulator.pcm.repository.RequiredRole;
 import org.palladiosimulator.pcm.repository.impl.RepositoryFactoryImpl;
 import org.palladiosimulator.pcm.seff.AbstractAction;
+import org.palladiosimulator.pcm.seff.ExternalCallAction;
+import org.palladiosimulator.pcm.seff.InternalAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import org.palladiosimulator.pcm.seff.SeffFactory;
@@ -740,18 +751,210 @@ public class ApplyingChangesTestUtil {
 	  }
 
 	  
+	  public static boolean assertClassMethodWithName(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
+			if (method_JaMoPP == null) {
+				return false;
+			}
+			//Find the corresponding PCM SEFF. If not found, look for an InternalAction or an ExternalCall corresponding to method_JaMoPP
+			Set<ResourceDemandingSEFF> SEFFs_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  ResourceDemandingSEFF.class);
+			if (!SEFFs_PCM.isEmpty()) {
+				return true;
+			}
+			Set<InternalAction> internalActions_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  InternalAction.class);
+			if (!internalActions_PCM.isEmpty()) {
+				return true;
+			}
+			Set<ExternalCallAction> externalCalls_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  ExternalCallAction.class);
+			if (!externalCalls_PCM.isEmpty()) {
+				return true;
+			}
+			
+			return false;
+	  }
+	  
+	  public static boolean assertInterfaceMethodWithName(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
+			if (method_JaMoPP == null) {
+				return false;
+			}
+			//Find the corresponding PCM OperationRequiredRole
+			//claimOne throws an exception if no or many correspondences was found
+			OperationSignature method_PCM = claimOne(CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  OperationSignature.class));
+			
+			return true;
+	  }
+	  
+	  
+	  public static boolean assertInterfaceMethodPrimitiveReturnTypeWithName(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
+			if (method_JaMoPP == null) {
+				return false;
+			}
+			//Find the corresponding PCM OperationRequiredRole
+			//claimOne throws an exception if no or many correspondences was found
+			OperationSignature method_PCM = claimOne(CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  OperationSignature.class));
+			DataType returnType = method_PCM.getReturnType__OperationSignature();
+			if (returnType instanceof PrimitiveDataType) {
+				return true;
+			}
+			else {
+				return false;
+			}
+	  }
+	  
+	  
+	  public static boolean assertInterfaceMethodParameterWithName(String methodName, String parameterName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
+			if (method_JaMoPP == null) {
+				return false;
+			}
+			//Find the corresponding PCM OperationRequiredRole
+			//claimOne throws an exception if no or many correspondences was found
+			OperationSignature method_PCM = claimOne(CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  OperationSignature.class));
+			EList <Parameter> parameters = method_PCM.getParameters__OperationSignature();
+			for (Parameter parameter : parameters) {
+				if (parameter.getParameterName().equals(parameterName)) {
+					return true;
+				}
+			}
+			
+			return false;
+	  }
+	  
+	  
+	  public static boolean assertNoClassMethodWithName(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
+			if (method_JaMoPP == null) {
+				return true;
+			}
+			//Find the corresponding PCM SEFF. If not found, look for an InternalAction or an ExternalCall corresponding to method_JaMoPP
+			Set<ResourceDemandingSEFF> SEFFs_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  ResourceDemandingSEFF.class);
+			if (!SEFFs_PCM.isEmpty()) {
+				return false;
+			}
+			Set<InternalAction> internalActions_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  InternalAction.class);
+			if (!internalActions_PCM.isEmpty()) {
+				return false;
+			}
+			Set<ExternalCallAction> externalCalls_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  ExternalCallAction.class);
+			if (!externalCalls_PCM.isEmpty()) {
+				return false;
+			}
+			
+			return true;
+	  }
+	  
+	  
+	  public static boolean assertNoInterfaceMethodWithName(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
+			if (method_JaMoPP == null) {
+				return true;
+			}
+			//Find the corresponding PCM OperationRequiredRole
+			//claimOne throws an exception if no or many correspondences was found
+			Set<OperationSignature> methods_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  OperationSignature.class);
+			if (methods_PCM.isEmpty()) {
+				return true;
+			}
+			else {
+				return false;
+			}
+	  }
+	  
+	  
+	  private static Method getJaMoPPMethodFromClass(ICompilationUnit compilationUnit, String methodName, InternalVirtualModel virtualModel) {
+			//Find the JaMoPP model for the changedCompilationUnit
+			ModelInstance modelInstance = virtualModel.getModelInstance(VURI.getInstance(compilationUnit.getResource()));
+			modelInstance.load(new HashMap(), true);
+			CompilationUnit compilationUnit_JaMoPP = (CompilationUnit) modelInstance.getResource().getContents().get(0);
+			String classifierName = compilationUnit.getElementName();
+			//Get rid of the file extension ".java". The length of ".java" is 5.
+			classifierName = classifierName.substring(0, classifierName.length() - 5);
+			EList<Member> method_JaMoPP = compilationUnit_JaMoPP.getContainedClassifier(classifierName).getMembersByName(methodName);
+			if (method_JaMoPP.isEmpty()) {
+				System.out.println("Method " + methodName + " was not found in compilation unit " + compilationUnit.getElementName());
+				return null;
+			}
+			
+			return (Method) method_JaMoPP.get(0);
+			
+	  }
+	  
+	  
 	public static boolean assertFieldWithName(String fieldName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
 		Field field_JaMoPP = getJaMoPPFieldFromClass(compilationUnit, fieldName, virtualModel);
 		if (field_JaMoPP == null) {
 			return false;
 		}
-		//Find the corresponding PCM InnerDeclaraion to the JaMoPP Field.
+		//Find the corresponding PCM OperationRequiredRole
 		//claimOne throws an exception if no or many correspondences was found
 		OperationRequiredRole field_PCM = claimOne(CorrespondenceModelUtil.getCorrespondingEObjectsByType(
 				virtualModel.getCorrespondenceModel(), field_JaMoPP,  OperationRequiredRole.class));
 		
 		return true;
 	}
+	
+	
+	public static boolean assertOperationProvidedRole(String classifierName, String providedInterfaceName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+		ConcreteClassifier concreteClassifier_JaMoPP = getJaMoPPClassifier(compilationUnit, classifierName, virtualModel);
+		if (concreteClassifier_JaMoPP == null) {
+			return false;
+		}
+		for (TypeReference reference : ((ClassImpl) concreteClassifier_JaMoPP).getImplements()) {
+			for (ClassifierReference classifierReference : ((NamespaceClassifierReferenceImpl) reference).getClassifierReferences()) {
+				if (classifierReference.getTarget().getName().equals(providedInterfaceName)) {
+					//Find the corresponding PCM OperationProvidedRole
+					Set<OperationProvidedRole> providedRoles = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+							virtualModel.getCorrespondenceModel(), reference,  OperationProvidedRole.class);
+					for (OperationProvidedRole providedRole : providedRoles) {
+						if (providedRole.getEntityName().contains(providedInterfaceName)) {
+							return true;
+						}
+					}
+					return false;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	
+	public static boolean assertNoOperationProvidedRole(String classifierName, String providedInterfaceName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+		ConcreteClassifier concreteClassifier_JaMoPP = getJaMoPPClassifier(compilationUnit, classifierName, virtualModel);
+		if (concreteClassifier_JaMoPP == null) {
+			return false;
+		}
+		for (TypeReference reference : ((ClassImpl) concreteClassifier_JaMoPP).getImplements()) {
+			for (ClassifierReference classifierReference : ((NamespaceClassifierReferenceImpl) reference).getClassifierReferences()) {
+				if (classifierReference.getTarget().getName().equals(providedInterfaceName)) {
+					//Find the corresponding PCM OperationProvidedRole
+					Set<OperationProvidedRole> providedRoles = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+							virtualModel.getCorrespondenceModel(), reference,  OperationProvidedRole.class);
+					for (OperationProvidedRole providedRole : providedRoles) {
+						if (providedRole.getEntityName().contains(providedInterfaceName)) {
+							return false;
+						}
+					}
+					return true;
+				}
+			}
+		}
+		
+		return true;
+	}
+	
 	  
 	private static Field getJaMoPPFieldFromClass(final ICompilationUnit compilationUnit, final String fieldName, final InternalVirtualModel virtualModel) {
 		//Find the JaMoPP model for the changedCompilationUnit
@@ -769,6 +972,18 @@ public class ApplyingChangesTestUtil {
 		
 		return (Field) field_JaMoPP.get(0);
 		
+	}
+	
+	
+	private static ConcreteClassifier getJaMoPPClassifier(final ICompilationUnit compilationUnit, final String classifierName, final InternalVirtualModel virtualModel) {
+		//Find the JaMoPP model for the changedCompilationUnit
+		ModelInstance modelInstance = virtualModel.getModelInstance(VURI.getInstance(compilationUnit.getResource()));
+		modelInstance.load(new HashMap(), true);
+		CompilationUnit compilationUnit_JaMoPP = (CompilationUnit) modelInstance.getResource().getContents().get(0);
+		//Get rid of the file extension ".java". The length of ".java" is 5.
+		String classifierNameWithoutJavaExtention = classifierName.substring(0, classifierName.length() - 5);
+		
+		return compilationUnit_JaMoPP.getContainedClassifier(classifierNameWithoutJavaExtention);	
 	}
 	
 	
@@ -797,7 +1012,7 @@ public class ApplyingChangesTestUtil {
 		if (field_JaMoPP == null) {
 			return false;
 		}
-		//Find the corresponding PCM InnerDeclaraion to the JaMoPP Field.
+		//Find the corresponding PCM OperationRequiredRole to the JaMoPP Field.
 		//claimOne throws an exception if no or many correspondences was found
 		OperationRequiredRole field_PCM = claimOne(CorrespondenceModelUtil.getCorrespondingEObjectsByType(
 				virtualModel.getCorrespondenceModel(), field_JaMoPP, OperationRequiredRole.class));
@@ -826,6 +1041,10 @@ public class ApplyingChangesTestUtil {
 			return true;	
 		}
 	}
+	
+	
+	
+	
 
 	  
 	/*  //The methods 

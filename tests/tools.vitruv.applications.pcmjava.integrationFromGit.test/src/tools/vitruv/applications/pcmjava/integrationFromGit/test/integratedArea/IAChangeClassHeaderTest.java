@@ -45,7 +45,7 @@ import tools.vitruv.testutils.TestUserInteraction;
  * Test for changing class header in Integrated Area (IA) 
  * 
  * @author Ilia Chupakhin
- *
+ * @author Manar Mazkatli (advisor)
  */
 public class IAChangeClassHeaderTest {
 

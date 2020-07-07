@@ -54,7 +54,7 @@ import tools.vitruv.testutils.TestUserInteraction;
  * Test for changing class extends in Integrated Area (IA) 
  * 
  * @author Ilia Chupakhin
- *
+ * @author Manar Mazkatli (advisor)
  */
 public class IAChangeExtendsTest {
 	//Project name
@@ -87,8 +87,6 @@ public class IAChangeExtendsTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws InvocationTargetException, InterruptedException, IOException,
 			URISyntaxException, GitAPIException, CoreException {
-		//Clean up the workspace
-		//cleanUpWorkspace();
 		//get workspace
 		workspace = ResourcesPlugin.getWorkspace();
         //copy git repository into workspace

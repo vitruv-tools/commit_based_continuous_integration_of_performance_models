@@ -42,7 +42,7 @@ import tools.vitruv.testutils.TestUserInteraction;
  * Test for changing class annotation in Integrated Area (IA) 
  * 
  * @author Ilia Chupakhin
- *
+ * @author Manar Mazkatli (advisor)
  */
 public class IAChangeClassAnnotationTest {
 	//Project name
