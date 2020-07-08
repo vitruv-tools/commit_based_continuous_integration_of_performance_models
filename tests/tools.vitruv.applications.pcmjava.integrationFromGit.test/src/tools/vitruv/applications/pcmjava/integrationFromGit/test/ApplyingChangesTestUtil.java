@@ -83,9 +83,11 @@ import org.emftext.language.java.classifiers.impl.ClassImpl;
 import org.emftext.language.java.containers.CompilationUnit;
 import org.emftext.language.java.containers.JavaRoot;
 import org.emftext.language.java.containers.impl.CompilationUnitImpl;
+import org.emftext.language.java.members.ClassMethod;
 import org.emftext.language.java.members.Field;
 import org.emftext.language.java.members.Member;
 import org.emftext.language.java.members.Method;
+import org.emftext.language.java.statements.StatementListContainer;
 import org.emftext.language.java.types.ClassifierReference;
 import org.emftext.language.java.types.TypeReference;
 import org.emftext.language.java.types.impl.NamespaceClassifierReferenceImpl;
@@ -104,22 +106,34 @@ import org.palladiosimulator.pcm.repository.RepositoryFactory;
 import org.palladiosimulator.pcm.repository.RequiredRole;
 import org.palladiosimulator.pcm.repository.impl.RepositoryFactoryImpl;
 import org.palladiosimulator.pcm.seff.AbstractAction;
+import org.palladiosimulator.pcm.seff.AbstractBranchTransition;
+import org.palladiosimulator.pcm.seff.BranchAction;
 import org.palladiosimulator.pcm.seff.ExternalCallAction;
 import org.palladiosimulator.pcm.seff.InternalAction;
+import org.palladiosimulator.pcm.seff.LoopAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import org.palladiosimulator.pcm.seff.SeffFactory;
+import org.somox.gast2seff.visitors.AbstractFunctionClassificationStrategy;
+import org.somox.gast2seff.visitors.FunctionCallClassificationVisitor;
+import org.somox.gast2seff.visitors.InterfaceOfExternalCallFindingFactory;
+import org.somox.gast2seff.visitors.MethodCallFinder;
+import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding;
+import org.somox.gast2seff.visitors.VisitorUtils;
 
 import edu.kit.ipd.sdq.commons.util.org.eclipse.emf.common.util.URIUtil;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitChangeApplier;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitRepository;
 import tools.vitruv.applications.pcmjava.linkingintegration.PcmJavaCorrespondenceModelTransformation;
+import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
+import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff.PojoJava2PcmCodeToSeffFactory;
 import tools.vitruv.domains.java.JavaDomainProvider;
 import tools.vitruv.domains.java.builder.VitruviusJavaBuilder;
 import tools.vitruv.domains.java.builder.VitruviusJavaBuilderApplicator;
 import tools.vitruv.domains.pcm.PcmDomainProvider;
 import tools.vitruv.domains.pcm.PcmNamespace;
 import tools.vitruv.framework.change.processing.ChangePropagationSpecification;
+import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
 import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.framework.userinteraction.InteractionResultProvider;
@@ -749,7 +763,122 @@ public class ApplyingChangesTestUtil {
 		    
 		    return true;
 	  }
+  
+	  
+	  public static boolean assertOneInternalAction(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
+			if (method_JaMoPP == null) {
+				return false;
+			}
 
+			Set<InternalAction> internalActions_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  InternalAction.class);
+			if (internalActions_PCM.size() == 1) {
+				return true;
+			}
+			
+			return false;
+	  }
+	  
+	  
+	  public static boolean assertNoInternalAction(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
+			if (method_JaMoPP == null) {
+				return false;
+			}
+
+			Set<InternalAction> internalActions_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  InternalAction.class);
+			if (internalActions_PCM.size() == 0) {
+				return true;
+			}
+			
+			return false;
+	  }
+	  
+	  
+	  public static boolean assertOneLoopWithOneExternalCall(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
+			if (method_JaMoPP == null) {
+				return false;
+			}
+
+			Set<LoopAction> loopActions_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  LoopAction.class);
+			if (loopActions_PCM.size() == 1) {
+				Iterator<LoopAction> iterator = loopActions_PCM.iterator();
+				EList<AbstractAction> actionsInLoop = iterator.next().getBodyBehaviour_Loop().getSteps_Behaviour();
+				if (actionsInLoop.size() == 3 && actionsInLoop.get(1) instanceof ExternalCallAction) {
+					return true;	
+				}
+			}
+			
+			return false;
+	  }
+	  
+	  
+	  public static boolean assertNoLoop(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
+			if (method_JaMoPP == null) {
+				return false;
+			}
+
+			Set<LoopAction> loopActions_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  LoopAction.class);
+			if (loopActions_PCM.size() == 0) {
+				return true;
+			}
+			
+			return false;
+	  }
+	  
+	  
+	  public static boolean assertOneBranchWithOneExternalCallAndOneInternalAction(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
+			if (method_JaMoPP == null) {
+				return false;
+			}
+
+			Set<BranchAction> branchActions_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  BranchAction.class);
+			if (branchActions_PCM.size() == 1) {
+				Iterator<BranchAction> iterator = branchActions_PCM.iterator();
+				EList<AbstractBranchTransition> ifElseBranches = iterator.next().getBranches_Branch();
+				if (ifElseBranches.size() == 2) {
+					EList<AbstractAction> stepsBehaviour_if =  ifElseBranches.get(0).getBranchBehaviour_BranchTransition().getSteps_Behaviour();
+					EList<AbstractAction> stepsBehaviour_else =  ifElseBranches.get(1).getBranchBehaviour_BranchTransition().getSteps_Behaviour();
+					if (stepsBehaviour_if.size() == 3 && stepsBehaviour_if.get(1) instanceof InternalAction
+						&& stepsBehaviour_else.size() == 3 && stepsBehaviour_else.get(1) instanceof ExternalCallAction) {
+						return true;
+					}
+					//Maybe wrong order. Swap if and else branches.
+					if (stepsBehaviour_if.size() == 3 && stepsBehaviour_if.get(1) instanceof ExternalCallAction
+							&& stepsBehaviour_else.size() == 3 && stepsBehaviour_else.get(1) instanceof InternalAction) {
+							return true;
+					}
+				}
+			}
+			
+			return false;
+	  }
+	  
+	  
+	  public static boolean assertNoBranch(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
+			if (method_JaMoPP == null) {
+				return false;
+			}
+
+			Set<BranchAction> branchActions_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  BranchAction.class);
+			if (branchActions_PCM.size() == 0) {
+				return true;
+			}
+			
+			return false;
+	  }
+	  
+	  
 	  
 	  public static boolean assertClassMethodWithName(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
 			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
@@ -762,17 +891,7 @@ public class ApplyingChangesTestUtil {
 			if (!SEFFs_PCM.isEmpty()) {
 				return true;
 			}
-			Set<InternalAction> internalActions_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
-					virtualModel.getCorrespondenceModel(), method_JaMoPP,  InternalAction.class);
-			if (!internalActions_PCM.isEmpty()) {
-				return true;
-			}
-			Set<ExternalCallAction> externalCalls_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
-					virtualModel.getCorrespondenceModel(), method_JaMoPP,  ExternalCallAction.class);
-			if (!externalCalls_PCM.isEmpty()) {
-				return true;
-			}
-			
+
 			return false;
 	  }
 	  
@@ -808,6 +927,7 @@ public class ApplyingChangesTestUtil {
 			}
 	  }
 	  
+	
 	  
 	  public static boolean assertInterfaceMethodParameterWithName(String methodName, String parameterName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
 			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
@@ -840,6 +960,7 @@ public class ApplyingChangesTestUtil {
 			if (!SEFFs_PCM.isEmpty()) {
 				return false;
 			}
+			/*TODO Remove
 			Set<InternalAction> internalActions_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
 					virtualModel.getCorrespondenceModel(), method_JaMoPP,  InternalAction.class);
 			if (!internalActions_PCM.isEmpty()) {
@@ -850,7 +971,7 @@ public class ApplyingChangesTestUtil {
 			if (!externalCalls_PCM.isEmpty()) {
 				return false;
 			}
-			
+			*/
 			return true;
 	  }
 	  
@@ -1044,8 +1165,71 @@ public class ApplyingChangesTestUtil {
 	
 	
 	
-	
+	/*
+	  public static boolean assertSEFFsForCompilationUnits(String methodName, ICompilationUnit changedCompilationUnit,  ICompilationUnit referenceCompilationUnit, InternalVirtualModel virtualModel) {
+			Method changed_method_JaMoPP = getJaMoPPMethodFromClass(changedCompilationUnit, methodName, virtualModel);
+			if (changed_method_JaMoPP == null) {
+				return false;
+			}
+			//Find the corresponding PCM SEFF in Virtual Model
+			Set<ResourceDemandingSEFF> SEFFs_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), changed_method_JaMoPP,  ResourceDemandingSEFF.class);
+			if (SEFFs_PCM.isEmpty()) {
+				return false;
+			}
+			
+			//Create a temporary JaMoPP model for the referenceCompilationUnit
+			CompilationUnit referenceCompilationUnit_JaMoPP = getJaMoPPRootForVURI(VURI.getInstance(referenceCompilationUnit.getResource()));
+			String classifierName = referenceCompilationUnit.getElementName();
+			//Get rid of the file extension ".java". The length of ".java" is 5.
+			classifierName = classifierName.substring(0, classifierName.length() - 5);
+			ConcreteClassifier reference_classifier_JaMoPP = referenceCompilationUnit_JaMoPP.getContainedClassifier(classifierName);
+			EList<Member> method_JaMoPP = reference_classifier_JaMoPP.getMembersByName(methodName);
+			if (method_JaMoPP.isEmpty()) {
+				System.out.println("Method " + methodName + " was not found in compilation unit " + referenceCompilationUnit.getElementName());
+				return false;
+			}
+			Method reference_method_JaMoPP = (Method) method_JaMoPP.get(0);
+			final ResourceDemandingBehaviour resourceDemandingBehaviour = SeffFactory.eINSTANCE.createResourceDemandingBehaviour();
+			executeSoMoXForMethod(resourceDemandingBehaviour, changed_method_JaMoPP, reference_method_JaMoPP, virtualModel.getCorrespondenceModel());
+			System.out.println("dummy line");
+			return false;
+	  }
+	  
+	  
+	  private static void executeSoMoXForMethod(final ResourceDemandingBehaviour targetResourceDemandingBehaviour, final Method changedMethod_JaMoPP, final Method referenceMethod_JaMoPP, final CorrespondenceModel correspondenceModel) {
+			final MethodCallFinder methodCallFinder = new MethodCallFinder();
 
+			if (referenceMethod_JaMoPP instanceof ClassMethod) {
+				// check whether the newMethod is a class method is done here. Could
+				// be done eariler,
+				// i.e. the class could only deal with ClassMethods, but this caused
+				// problems when
+				// changing an abstract method to a ClassMethod
+				PojoJava2PcmCodeToSeffFactory code2SeffFactory = new PojoJava2PcmCodeToSeffFactory();
+				BasicComponentFinding basicComponentFinding = code2SeffFactory.createBasicComponentFinding();
+				BasicComponent basicComponent = basicComponentFinding.findBasicComponentForMethod(changedMethod_JaMoPP, correspondenceModel);
+				AbstractFunctionClassificationStrategy classification = code2SeffFactory.createAbstractFunctionClassificationStrategy(basicComponentFinding,
+						correspondenceModel, basicComponent);
+				final FunctionCallClassificationVisitor functionCallClassificationVisitor = new FunctionCallClassificationVisitor(
+						classification, methodCallFinder);
+				ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding = code2SeffFactory.
+						createResourceDemandingBehaviourForClassMethodFinding(correspondenceModel);
+				InterfaceOfExternalCallFindingFactory interfaceOfExternalCallFinderFactory = code2SeffFactory.
+						createInterfaceOfExternalCallFindingFactory(correspondenceModel,
+								basicComponent);
+				VisitorUtils.visitJaMoPPMethod(targetResourceDemandingBehaviour, basicComponent,
+						(StatementListContainer) referenceMethod_JaMoPP, null, functionCallClassificationVisitor,
+						interfaceOfExternalCallFinderFactory, resourceDemandingBehaviourForClassMethodFinding,
+						methodCallFinder);
+			} else {
+				System.out.println("No SEFF recreated for method " + referenceMethod_JaMoPP.getName()
+						+ " because it is not a class method. Method " + referenceMethod_JaMoPP);
+			}
+
+		}
+*/
+	 
 	  
 	/*  //The methods 
 	 * assertFieldModifierWithName 
