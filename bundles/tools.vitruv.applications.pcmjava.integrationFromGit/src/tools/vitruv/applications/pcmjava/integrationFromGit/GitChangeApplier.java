@@ -264,18 +264,21 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param newElementPath
 	 * @param editList 
 	 * @throws CoreException 
+	 * @throws IOException 
 	 */
 	private void modifyElementInProject(IProject project,
 			OutputStream oldElementContent, OutputStream newElementContent, 
 			String oldElementPath, String newElementPath,
-			EditList editList) throws CoreException {
+			EditList editList) throws CoreException, IOException {
 		
 		//Check if the modified file is a java file
 		if (oldElementPath.endsWith(".java")) {
 			//Find the compilation unit
 			ICompilationUnit compilationUnit = findICompilationUnitInProject(oldElementPath, project);
 			String oldContent = oldElementContent.toString();
+			oldElementContent.close();
 			String newContent = newElementContent.toString();
+			newElementContent.close();
 			//Convert EditList into List<TextEdit>. Necessary because EditList is from JGit (see: org.eclipse.jgit.diff.EditList),
 			//but changes must be applied on a JDT Model, what is only possible with TextEdit (see: org.eclipse.jdt.core.ICompilationUnit.applyTextEdit(TextEdit edit, IProgressMonitor monitor))
 			List<TextEdit> textEdits = gitRepository.transformEditListIntoTextEdits(editList, oldContent, newContent);
@@ -284,12 +287,16 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		}
 		//Find the non-java file and replace its entire content with the new one
 		else {
+			oldElementContent.close();
 			IFile file = project.getFile(oldElementPath.substring(oldElementPath.indexOf("/") + 1));
 			if (file.exists()) {
 				ByteArrayInputStream inputStream = new ByteArrayInputStream(((ByteArrayOutputStream) newElementContent).toByteArray());
+				newElementContent.close();
 				file.setContents(inputStream, IFile.FORCE, null);
+				inputStream.close();
 			}	
 		}
+		
 	}
 	
 	
@@ -417,8 +424,9 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param elementContent file content 
 	 * @param project project which the file must be created in
 	 * @throws CoreException
+	 * @throws IOException 
 	 */
-	private void createNonJavaFile(IPath pathToFile, String elementContent, IProject project) throws CoreException {
+	private void createNonJavaFile(IPath pathToFile, String elementContent, IProject project) throws CoreException, IOException {
 		int segmentCounter = pathToFile.segmentCount();
 		if(segmentCounter < 1) {
 			System.out.println("Could not create a new file because of an invalid file path");
@@ -437,7 +445,9 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		//Create the file if it is not exist yet
 		IFile file = project.getFile(pathToFile);
 		if (!file.exists()) {
-			file.create(new ByteArrayInputStream(elementContent.getBytes()), false, new NullProgressMonitor());
+			ByteArrayInputStream elementContentStream = new ByteArrayInputStream(elementContent.getBytes());
+			file.create(elementContentStream, false, new NullProgressMonitor());
+			elementContentStream.close();
 		}
 	}
 	
@@ -496,7 +506,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			IPath pathToElementInProject = new Path(pathToElement).removeFirstSegments(1);
 			IFile fileToRemove = project.getFile(pathToElementInProject);
 			if (fileToRemove.exists()) {
-				fileToRemove.delete(false, new NullProgressMonitor());	
+				fileToRemove.delete(true, new NullProgressMonitor());	
 			}
 		}
 

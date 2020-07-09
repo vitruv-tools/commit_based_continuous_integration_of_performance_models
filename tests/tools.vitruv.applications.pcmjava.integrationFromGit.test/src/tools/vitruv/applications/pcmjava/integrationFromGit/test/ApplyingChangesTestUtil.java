@@ -23,6 +23,7 @@ import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -95,6 +96,7 @@ import org.junit.Assert;
 import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.palladiosimulator.pcm.repository.DataType;
 import org.palladiosimulator.pcm.repository.InnerDeclaration;
+import org.palladiosimulator.pcm.repository.OperationInterface;
 import org.palladiosimulator.pcm.repository.OperationProvidedRole;
 import org.palladiosimulator.pcm.repository.OperationRequiredRole;
 import org.palladiosimulator.pcm.repository.OperationSignature;
@@ -440,13 +442,20 @@ public class ApplyingChangesTestUtil {
 	 * @param gitCompilationUnit reference compilation unit taken from {@link GitRepository} 
 	 * @param virtualModel Vitruv Internal Virtual Model that contains the JaMoPP model for <code>changedCompilationUnit</code>
 	 * @return true if the JaMoPP models of <code>changedCompilationUnit</code> and <code>gitCompilationUnit</code> are equal
+	 * @throws IOException 
+	 * @throws CoreException 
+	 * @throws InterruptedException 
 	 */
-	public static boolean compareJaMoPPCompilationUnits(ICompilationUnit changedCompilationUnit, ICompilationUnit gitCompilationUnit, InternalVirtualModel virtualModel) {
+	public static boolean compareJaMoPPCompilationUnits(ICompilationUnit changedCompilationUnit, ICompilationUnit gitCompilationUnit, InternalVirtualModel virtualModel) throws IOException, CoreException, InterruptedException {
+		//synchronization problems may occur. If so, the EqualityHelper returns the result, that the models are not equal.
+		//Thread.sleep(5000);
+		//changedCompilationUnit.getResource().refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 		//Find the JaMoPP model for the changedCompilationUnit
 		ModelInstance modelInstance = virtualModel.getModelInstance(VURI.getInstance(changedCompilationUnit.getResource()));
 		modelInstance.load(new HashMap(), true);
 		CompilationUnit changedCompilationUnit_JaMoPP = (CompilationUnit) modelInstance.getResource().getContents().get(0);
-		 
+
+		
 		OutputStream changedCompilationUnitStream = new ByteArrayOutputStream();
 		OutputStream gitCompilationUnitStream = new ByteArrayOutputStream();
 
@@ -458,6 +467,8 @@ public class ApplyingChangesTestUtil {
                 try {
                 	//Prints the JaMoPP model
                 	//System.out.println("changedCompilationUnit_JaMoPP:\n");
+            		//changedCompilationUnit_JaMoPP.eResource().unload();
+            		changedCompilationUnit_JaMoPP.eResource().load(new HashMap()); 
                 	changedCompilationUnit_JaMoPP.eResource().save(changedCompilationUnitStream, new HashMap());
                 	//System.out.println(changedCompilationUnitStream);
                 } catch (final Throwable e) {
@@ -486,13 +497,7 @@ public class ApplyingChangesTestUtil {
                 return null;
             }
         });
-		//Close streams
-		try {
-			changedCompilationUnitStream.close();
-			gitCompilationUnitStream.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+
 		//Compare the JaMoPP models using EMFCompare
 		Comparison comparison = compareTwoModels(changedCompilationUnit_JaMoPP, gitCompilationUnit_JaMoPP);
 		//Get found matches from comparison
@@ -502,6 +507,13 @@ public class ApplyingChangesTestUtil {
 		//If no differences were found, the JaMoPP models are equal
 		if (differences.size() == 0) {
 			System.out.println("EMFCompare returned the result, that the JaMoPP-Models are equal.");
+			//Close streams
+			try {
+				changedCompilationUnitStream.close();
+				gitCompilationUnitStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			return true;
 		}
 		else {
@@ -511,6 +523,13 @@ public class ApplyingChangesTestUtil {
 			boolean modelsAreEqual = equalityHelper.equals(changedCompilationUnit_JaMoPP, gitCompilationUnit_JaMoPP);
 			if (modelsAreEqual) {
 				System.out.println("EMF EqualityHelper returned the result, that the JaMoPP-Models are equal.");
+				//Close streams
+				try {
+					changedCompilationUnitStream.close();
+					gitCompilationUnitStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 				return true;
 			}
 			else {
@@ -519,10 +538,24 @@ public class ApplyingChangesTestUtil {
 				boolean containingCodeIsEqual =  changedCompilationUnitStream.toString().equals(gitCompilationUnitStream.toString());
 				if (containingCodeIsEqual) {
 					System.out.println("The containing code of the JaMoPP-Models is equal.");
+					//Close streams
+					try {
+						changedCompilationUnitStream.close();
+						gitCompilationUnitStream.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 					return true;
 				}
 				else {
 					System.out.println("The containing code of the JaMoPP-Models is not equal.");
+					//Close streams
+					try {
+						changedCompilationUnitStream.close();
+						gitCompilationUnitStream.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 					return false;
 				}
 			}
@@ -553,7 +586,8 @@ public class ApplyingChangesTestUtil {
 	 * @return comparison result
 	 */
 	public static Comparison compareTwoModels(EObject firstModel, EObject secondModel) {
-    	// Configure EMF Compare
+    	
+		// Configure EMF Compare
     	IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.NEVER);
     	IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
     	IMatchEngine.Factory matchEngineFactory = new MatchEngineFactoryImpl(matcher, comparisonFactory);
@@ -664,7 +698,7 @@ public class ApplyingChangesTestUtil {
 	}
 
 	//TODO javadoc
-	public static boolean compareAllChangedJaMoPPModels(IProject changedProject, IProject projectFromGitRepository, ArrayList<DiffEntry> changes, InternalVirtualModel virtualModel) throws CoreException {
+	public static boolean compareAllChangedJaMoPPModels(IProject changedProject, IProject projectFromGitRepository, ArrayList<DiffEntry> changes, InternalVirtualModel virtualModel) throws CoreException, IOException, InterruptedException {
 		
 		boolean allModelsAreEqual = true;
 		
@@ -707,7 +741,7 @@ public class ApplyingChangesTestUtil {
 	}
 	
 	//TODO javadoc
-	private static boolean compareTwoFiles(IProject changedProject, IProject projectFromGitRepository, String pathToFile, InternalVirtualModel virtualModel) throws CoreException {
+	private static boolean compareTwoFiles(IProject changedProject, IProject projectFromGitRepository, String pathToFile, InternalVirtualModel virtualModel) throws CoreException, IOException, InterruptedException {
 		
 		if (pathToFile.endsWith(".java")) {
 			ICompilationUnit changedCompilationUnit = GitChangeApplier.findICompilationUnitInProject(pathToFile, changedProject);
@@ -724,7 +758,7 @@ public class ApplyingChangesTestUtil {
 
 	//TODO javadoc
 	 public static boolean assertRepositoryComponentWithName(String nameOfComponent, InternalVirtualModel virtualModel) throws Throwable {
-		    final Set<RepositoryComponent> repoComponents = virtualModel.getCorrespondenceModel().<RepositoryComponent>getAllEObjectsOfTypeInCorrespondences(RepositoryComponent.class);;
+		    final Set<RepositoryComponent> repoComponents = virtualModel.getCorrespondenceModel().<RepositoryComponent>getAllEObjectsOfTypeInCorrespondences(RepositoryComponent.class);
 		    for (final RepositoryComponent repoComponent : repoComponents) {
 		    	if (repoComponent.getEntityName().contains(nameOfComponent)) {
 		    		return true;
@@ -736,7 +770,7 @@ public class ApplyingChangesTestUtil {
 		    	if (repo.getEntityName().contains(nameOfComponent)) {
 		    		return true;
 		    	}  
-			}
+			}	    
 
 		    return false;
 	 }
@@ -762,6 +796,38 @@ public class ApplyingChangesTestUtil {
 			}
 		    
 		    return true;
+	  }
+	  
+	  
+	//TODO javadoc
+	 public static boolean assertOperationInterfaceWithName(String nameOfComponent, InternalVirtualModel virtualModel) throws Throwable {
+		//Get rid of the file extension ".java". The length of ".java" is 5.
+		String nameWithoutFileExtention = nameOfComponent.substring(0, nameOfComponent.length() - 5);
+	    final Set<OperationInterface> repoComponents = virtualModel.getCorrespondenceModel().<OperationInterface>getAllEObjectsOfTypeInCorrespondences(OperationInterface.class);;
+	    for (final OperationInterface repoComponent : repoComponents) {
+	    	if (repoComponent.getEntityName().contains(nameWithoutFileExtention)) {
+	    		return true;
+	    	}  
+		}
+
+	    return false;
+	 }
+		  
+	//TODO javadoc
+	  public static boolean assertNoOperationInterfaceWithName(String nameOfComponent, InternalVirtualModel virtualModel) throws Throwable {   
+		// Get rid of the file extension ".java". The length of ".java" is 5.
+		String nameWithoutFileExtention = nameOfComponent.substring(0, nameOfComponent.length() - 5);
+		final Set<OperationInterface> repoComponents = virtualModel.getCorrespondenceModel()
+				.<OperationInterface>getAllEObjectsOfTypeInCorrespondences(OperationInterface.class);
+		for (final OperationInterface repoComponent : repoComponents) {
+			boolean _contains = repoComponent.getEntityName().contains(nameWithoutFileExtention);
+			if (_contains) {
+				System.out.println("basic component with name " + nameOfComponent + " found: " + repoComponent);
+				return false;
+			}
+		}
+
+		return true;
 	  }
   
 	  
@@ -1109,7 +1175,7 @@ public class ApplyingChangesTestUtil {
 	
 	
 	public static boolean assertNoFieldWithName(String fieldName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
-		final Set<RepositoryComponent> repoComponents = virtualModel.getCorrespondenceModel().<RepositoryComponent>getAllEObjectsOfTypeInCorrespondences(RepositoryComponent.class);;
+		final Set<RepositoryComponent> repoComponents = virtualModel.getCorrespondenceModel().<RepositoryComponent>getAllEObjectsOfTypeInCorrespondences(RepositoryComponent.class);
 	    //Find a corresponding PCM model to the compilationUnit
 		for (final RepositoryComponent repoComponent : repoComponents) {
 	    	if (repoComponent.getEntityName().contains(compilationUnit.getElementName())) {

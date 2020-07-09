@@ -359,7 +359,8 @@ public class GitRepository {
 		List<DiffEntry> diffs = null;
 
 		try {
-			DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream()); // use NullOutputStream.INSTANCE if you don't need the diff output
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			DiffFormatter df = new DiffFormatter(outputStream); // use NullOutputStream.INSTANCE if you don't need the diff output
 			df.setRepository(git.getRepository());
 			
 			//Set filter to detect only changes on java files, if necessary 
@@ -376,11 +377,13 @@ public class GitRepository {
 				 rd.addAll(diffs);
 				 diffs = rd.compute();
 			}
+			df.close();
+			outputStream.close();
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		
 		oldWalk.close();
 		newWalk.close();
 		this.diffs = diffs;
@@ -395,10 +398,11 @@ public class GitRepository {
 	 * 
 	 * @param diff contains information about changes on a file 
 	 * @return {@link EditList}
+	 * @throws IOException 
 	 */
-	public EditList computeEditListFromDiffEntry(DiffEntry diff) {
-
-		DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
+	public EditList computeEditListFromDiffEntry(DiffEntry diff) throws IOException {
+		DisabledOutputStream outputStream = DisabledOutputStream.INSTANCE;
+		DiffFormatter diffFormatter = new DiffFormatter(outputStream);
 		diffFormatter.setRepository(git.getRepository());
 		FileHeader fileHeader;
 		
@@ -410,6 +414,7 @@ public class GitRepository {
 		}
 		finally {
 			diffFormatter.close();
+			outputStream.close();
 		}
 		return null;
 	}
@@ -518,10 +523,12 @@ public class GitRepository {
 	 * 
 	 * @param diff
 	 * @return {@link FileHeader}
+	 * @throws IOException 
 	 */
-	public FileHeader getFileHeaderFromDiffEntry(DiffEntry diff) {
+	public FileHeader getFileHeaderFromDiffEntry(DiffEntry diff) throws IOException {
 
-		DiffFormatter diffFormatter = new DiffFormatter(DisabledOutputStream.INSTANCE);
+		DisabledOutputStream outputStream = DisabledOutputStream.INSTANCE;
+		DiffFormatter diffFormatter = new DiffFormatter(outputStream);
 		diffFormatter.setRepository(git.getRepository());
 		FileHeader fileHeader = null;
 		
@@ -532,6 +539,7 @@ public class GitRepository {
 		}
 		finally {
 			diffFormatter.close();
+			outputStream.close();
 		}
 
 		return fileHeader;
@@ -673,7 +681,8 @@ public class GitRepository {
 			}
 			contentLines.add(line);
 		}
-
+		lines.close();
+		
 		return contentLines;
 	}
 	

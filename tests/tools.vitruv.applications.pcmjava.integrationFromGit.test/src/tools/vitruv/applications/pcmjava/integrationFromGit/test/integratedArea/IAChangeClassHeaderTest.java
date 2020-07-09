@@ -62,6 +62,8 @@ public class IAChangeClassHeaderTest {
 	private static Logger logger = Logger.getLogger(CodeIntegrationTest.class.getSimpleName());
 	//JDT Model of the integrated project
 	private static IProject testProject;
+	//JDT Model of the project from git repository
+	private static IProject projectFromGitRepository;
 	//JDT Model of the current workspace
 	private static IWorkspace workspace;
 	//Vitruv Virtual Model. It contains all created JaMoPP models as well as correspondences between the JaMoPP and PCM models. 
@@ -106,15 +108,17 @@ public class IAChangeClassHeaderTest {
 		final VitruviusJavaBuilderApplicator pcmJavaRemoveBuilder = new VitruviusJavaBuilderApplicator();
 		pcmJavaRemoveBuilder.removeBuilderFromProject(testProject);
 		//Remove JDT model of the copied project as well as this project from file system
-		testProject.close(null);
 		testProject.delete(true, null);
 		//Remove the folder containing Vitruv meta data from file system
 		FileUtils.deleteDirectory(virtualModel.getFolder());
+		//projectFromGitRepository.close(null);
+		projectFromGitRepository.delete(false, null);
 		//Close and remove copied git repository
 		gitRepository.closeRepository();
 		FileUtils.deleteDirectory(new File(workspace.getRoot().getLocation().toFile(), "clonedGitRepositories"));
-		// This is necessary because resources from previous tests are still in the classpath and accidentally resolved
-		JavaClasspath.reset();	
+		// This is necessary because otherwise Maven tests will fail as
+		// resources from previous tests are still in the classpath and accidentally resolved
+		JavaClasspath.reset();
 	}
 
 	//testRenameClass() is disabled by now: Vitruv throws an exception when a class is removed.Because rename class 
@@ -135,7 +139,7 @@ public class IAChangeClassHeaderTest {
 		//Checkout the repository on the certain commit
 		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_ABSTRACT_TO_CLASS);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
-		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
 		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("Display.java", projectFromGitRepository);
 		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("Display.java", testProject);
@@ -144,7 +148,7 @@ public class IAChangeClassHeaderTest {
 		//Ensure that there is a corresponding PCM model to the compUnitChanged.
 		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentWithName(compUnitChanged.getElementName(), virtualModel);
 		assertTrue("In testAddAbstract() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
-		assertTrue("In testAddAbstract() corresponding PCM model does not exist, but it should exist", pcmExists);	
+		assertTrue("In testAddAbstract() corresponding PCM model does not exist, but it should exist", pcmExists);
 	}
 	
 	
@@ -154,7 +158,7 @@ public class IAChangeClassHeaderTest {
 		//Checkout the repository on the certain commit
 		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.CHANGE_ABSTRACT_TO_FINAL_IN_CLASS);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
-		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
 		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("Display.java", projectFromGitRepository);
 		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("Display.java", testProject);
@@ -163,7 +167,7 @@ public class IAChangeClassHeaderTest {
 		//Ensure that there is a corresponding PCM model to the compUnitChanged.
 		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentWithName(compUnitChanged.getElementName(), virtualModel);
 		assertTrue("In testChangeAbstractToFinal() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
-		assertTrue("In testChangeAbstractToFinal() corresponding PCM model does not exist, but it should exist", pcmExists);
+		assertTrue("In testChangeAbstractToFinal() corresponding PCM model does not exist, but it should exist", pcmExists);	
 	}
 	
 	
@@ -177,7 +181,7 @@ public class IAChangeClassHeaderTest {
 		//Checkout the repository on the certain commit
 		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.RENAME_CLASS);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
-		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
 		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("GraphicsCardRenamed.java", projectFromGitRepository);
 		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("GraphicsCardRenamed.java", testProject);
