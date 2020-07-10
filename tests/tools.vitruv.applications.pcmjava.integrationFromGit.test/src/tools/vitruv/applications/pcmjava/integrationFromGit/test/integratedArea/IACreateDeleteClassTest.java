@@ -144,7 +144,7 @@ public class IACreateDeleteClassTest {
 		//testRemoveInterface();
 	}
 	
-	//TODO: Why can pcm model not be found? 
+	//TODO: Why can pcm model not be found? It 
 	private void testCreateClass() throws Throwable {
 		//Apply changes
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.INIT), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_CLASS), testProject);	

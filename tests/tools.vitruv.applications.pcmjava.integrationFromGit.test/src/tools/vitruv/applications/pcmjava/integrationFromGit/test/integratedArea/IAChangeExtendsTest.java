@@ -153,6 +153,7 @@ public class IAChangeExtendsTest {
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 		//Ensure that there is a corresponding PCM model to the compUnitChanged.
 		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentWithName(compUnitChanged.getElementName(), virtualModel);
+		
 		assertTrue("In testAddImport() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 		assertTrue("In testAddImport() corresponding PCM model does not exist, but it should exist", pcmExists);	
 	}	
@@ -172,6 +173,7 @@ public class IAChangeExtendsTest {
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 		//Ensure that there is a corresponding PCM model to the compUnitChanged.
 		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentWithName(compUnitChanged.getElementName(), virtualModel);
+		
 		assertTrue("In testAddExtends() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 		assertTrue("In testAddExtends() corresponding PCM model does not exist, but it should exist", pcmExists);	
 	}	
@@ -192,6 +194,7 @@ public class IAChangeExtendsTest {
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 		//Ensure that there is a corresponding PCM model to the compUnitChanged.
 		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentWithName(compUnitChanged.getElementName(), virtualModel);
+		
 		assertTrue("In testRemoveExtends() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 		assertTrue("In testRemoveExtends() corresponding PCM model does not exist, but it should exist", pcmExists);	
 	}	

@@ -779,7 +779,7 @@ public class ApplyingChangesTestUtil {
 	  public static boolean assertNoRepositoryComponentWithName(String nameOfComponent, InternalVirtualModel virtualModel) throws Throwable {
 		    final Set<RepositoryComponent> repoComponents = virtualModel.getCorrespondenceModel().<RepositoryComponent>getAllEObjectsOfTypeInCorrespondences(RepositoryComponent.class);
 		    for (final RepositoryComponent repoComponent : repoComponents) {
-			      boolean _contains = repoComponent.getEntityName().contains(nameOfComponent);
+			      boolean _contains = repoComponent.getEntityName().equals(nameOfComponent);
 			      if (_contains) {
 			    	  System.out.println("basic component with name " + nameOfComponent + " found: " + repoComponent);
 			    	  return false;

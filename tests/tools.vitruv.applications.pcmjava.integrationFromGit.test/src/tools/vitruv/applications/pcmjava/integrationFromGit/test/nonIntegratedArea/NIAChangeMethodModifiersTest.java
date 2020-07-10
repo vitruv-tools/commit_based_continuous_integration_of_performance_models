@@ -47,7 +47,7 @@ import tools.vitruv.testutils.TestUserInteraction;
  * @author Ilia Chupakhin
  *
  */
-public class MethodModifiersChangeTest /*extends ApplyingChangesFromGitTest*/ {
+public class NIAChangeMethodModifiersTest {
 
 	private static String testProjectName = // "testAddParameter_Fri_Apr_24_18_45_38_CEST_2020";
 			// "humanBeing";

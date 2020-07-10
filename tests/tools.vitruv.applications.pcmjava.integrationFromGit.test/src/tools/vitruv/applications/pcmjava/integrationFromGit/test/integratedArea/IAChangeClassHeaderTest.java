@@ -188,9 +188,9 @@ public class IAChangeClassHeaderTest {
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 		//Ensure that there is a corresponding PCM model to the compUnitChanged.
-		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentWithName(compUnitChanged.getElementName(), virtualModel);
+		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentWithName(" <PC No. 1 graphics.eu.fpetersen.cbs.pc.graphics.GraphicsCard.java.GraphicsCardRenamed>", virtualModel);
 		//Ensure that there is a corresponding no PCM model to the compilation unit with the old name.
-		boolean noPcmExists = ApplyingChangesTestUtil.assertNoRepositoryComponentWithName("GraphicsCardRenamed.java", virtualModel);
+		boolean noPcmExists = ApplyingChangesTestUtil.assertNoRepositoryComponentWithName(" <PC No. 1 graphics.eu.fpetersen.cbs.pc.graphics.GraphicsCard.java.GraphicsCard>", virtualModel);
 		assertTrue("In testRenameClass() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 		assertTrue("In testRenameClass() corresponding PCM model does not exist, but it should exist", pcmExists);
 		assertTrue("In testRenameClass() corresponding PCM model exists, but it should not exist", noPcmExists);

@@ -138,6 +138,7 @@ public class IAChangeClassAnnotationTest {
 		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("Display.java", testProject);
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
+		
 		assertTrue("In testAddClassAnnotation() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 	}	
 	
@@ -154,6 +155,7 @@ public class IAChangeClassAnnotationTest {
 		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("Display.java", testProject);
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
+		
 		assertTrue("In testChangeClassAnnotation() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 	}	
 	
@@ -170,6 +172,7 @@ public class IAChangeClassAnnotationTest {
 		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("Display.java", testProject);
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
+		
 		assertTrue("In testRemoveClassAnnotation() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 	}	
 
