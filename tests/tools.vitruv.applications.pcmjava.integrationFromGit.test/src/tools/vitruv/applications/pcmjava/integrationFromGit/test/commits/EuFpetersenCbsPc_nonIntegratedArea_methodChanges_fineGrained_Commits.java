@@ -60,10 +60,24 @@ public abstract class EuFpetersenCbsPc_nonIntegratedArea_methodChanges_fineGrain
 		public final static String ADD_IF_ELSE_WITH_INTERNAL_ACTION_AND_EXTERNAL_CALL_IN_FIRST_METHOD_IN_FIRST_CLASS_IMPL = "81236fa023c0d6ef4ca93e5d8ac7a52aa8cc90de";		
 								
 				
-				
-				
 		//Branch and commits for testing fine grained changes in a non integrated area on  method modifiers
 		public final static String BRANCH_NAME_METHOD_MODIFIERS = "nonIntegratedArea_methodChanges_fineGrained_methodModifiers";
 		
+		//renamed method firstMethodInFirstInterface to firstMethodInFirstInterfaceRenamed in FirstInterface.java	
+		public final static String RENAME_METHOD_IN_INTERFACE = "52721893df036dada0edd669ca3f64c45af6005b";
+		//renamed method firstMethodInFirstInterface to firstMethodInFirstInterfaceRenamed in FirstClassImpl.java
+		public final static String RENAME_METHOD_IN_CLASS = "eccb4cb1ea76c008ebef5b149c6f186a4c74a9b0";
+		//changed return type from void to int in firstMethodInFirstInterfaceRenamed() in FirstInterface.java	
+		public final static String CHANGE_RETURN_TYPE_IN_INTERFACE_METHOD = "ffacf0296d33e2a61f277d6bea74cda1ca2f8ac9";
+		//changed return type from void to int in firstMethodInFirstInterfaceRenamed() in FirstClassImpl.java
+		public final static String CHANGE_RETURN_TYPE_IN_CLASS_METHOD = "f385ac17d685551d7f8dfdc45be5c14764cb7a39";
+		//added return 0 in firstMethodInFirstInterfaceRenamed() in FirstClassImpl.java
+		public final static String ADD_RETURN_0 = "80d653f79a73a4502032c9a2d62a23d295f5145d";
+		//added final modifier to firstMethodInFirstInterfaceRenamed() in FirstClassImpl.java
+		public final static String ADD_FINAL_TO_CLASS_METHOD = "a9729f97820446227eff4a0ef1347c97a4d104a5";
+		//added parameter 'double parameter'to firstMethodInFirstInterfaceRenamed() in FirstInterface.java	
+		public final static String ADD_METHOD_PARAMETER_IN_INTERFACE = "80f473306d65e2125ed2247d0728480d7c0e88cf";
+		//added parameter 'double parameter' to firstMethodInFirstInterfaceRenamed() in FirstClassImpl.java
+		public final static String ADD_METHOD_PARAMETER_IN_CLASS = "64368a9fc1c1c9db302e605cbc4f2dc3da7de462";
 		
 }

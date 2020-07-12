@@ -159,7 +159,7 @@ public class IAChangeMethodImplementationTest {
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit,  virtualModel);
 		//Ensure that there is a corresponding PCM model to the compUnitChanged.
-		boolean pcmExists = ApplyingChangesTestUtil.assertOneInternalAction("drawFrame", compUnitChanged, virtualModel);
+		boolean pcmExists = ApplyingChangesTestUtil.assertNumberOfInternalActions("drawFrame", compUnitChanged, virtualModel, 1);
 		
 		assertTrue("In testAddInternalAction() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 		assertTrue("In testAddInternalAction() corresponding PCM model does not exist, but it should exist", pcmExists);

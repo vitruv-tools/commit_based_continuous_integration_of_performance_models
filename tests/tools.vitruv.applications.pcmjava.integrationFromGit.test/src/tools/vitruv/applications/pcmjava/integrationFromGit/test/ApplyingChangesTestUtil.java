@@ -129,6 +129,7 @@ import tools.vitruv.applications.pcmjava.integrationFromGit.GitRepository;
 import tools.vitruv.applications.pcmjava.linkingintegration.PcmJavaCorrespondenceModelTransformation;
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff.PojoJava2PcmCodeToSeffFactory;
+import tools.vitruv.applications.pcmjava.tests.util.CompilationUnitManipulatorHelper;
 import tools.vitruv.domains.java.JavaDomainProvider;
 import tools.vitruv.domains.java.builder.VitruviusJavaBuilder;
 import tools.vitruv.domains.java.builder.VitruviusJavaBuilderApplicator;
@@ -758,7 +759,7 @@ public class ApplyingChangesTestUtil {
 
 	//TODO javadoc
 	 public static boolean assertRepositoryComponentWithName(String nameOfComponent, InternalVirtualModel virtualModel) throws Throwable {
-		    final Set<RepositoryComponent> repoComponents = virtualModel.getCorrespondenceModel().<RepositoryComponent>getAllEObjectsOfTypeInCorrespondences(RepositoryComponent.class);
+		 final Set<RepositoryComponent> repoComponents = virtualModel.getCorrespondenceModel().<RepositoryComponent>getAllEObjectsOfTypeInCorrespondences(RepositoryComponent.class);
 		    for (final RepositoryComponent repoComponent : repoComponents) {
 		    	if (repoComponent.getEntityName().contains(nameOfComponent)) {
 		    		return true;
@@ -773,6 +774,23 @@ public class ApplyingChangesTestUtil {
 			}	    
 
 		    return false;
+	 }
+	 
+	 
+	//TODO javadoc
+	 public static boolean assertRepositoryComponentCorrespondingToCompilationUnit(String className, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) throws Throwable {
+		 ConcreteClassifier classifier_JaMoPP = getJaMoPPClassifier(compilationUnit, className, virtualModel);
+		 if (classifier_JaMoPP == null) {
+			 return false;
+		 }
+		 
+		 final Set<RepositoryComponent> correspondingRepositoryComponents = CorrespondenceModelUtil.getCorrespondingEObjectsByType(virtualModel.getCorrespondenceModel(), classifier_JaMoPP, RepositoryComponent.class);
+		 
+		 if (correspondingRepositoryComponents.size() == 1) {
+			 return true;
+		 }
+
+		 return false;
 	 }
 		  
 	//TODO javadoc
@@ -803,7 +821,7 @@ public class ApplyingChangesTestUtil {
 	 public static boolean assertOperationInterfaceWithName(String nameOfComponent, InternalVirtualModel virtualModel) throws Throwable {
 		//Get rid of the file extension ".java". The length of ".java" is 5.
 		String nameWithoutFileExtention = nameOfComponent.substring(0, nameOfComponent.length() - 5);
-	    final Set<OperationInterface> repoComponents = virtualModel.getCorrespondenceModel().<OperationInterface>getAllEObjectsOfTypeInCorrespondences(OperationInterface.class);;
+	    final Set<OperationInterface> repoComponents = virtualModel.getCorrespondenceModel().<OperationInterface>getAllEObjectsOfTypeInCorrespondences(OperationInterface.class);
 	    for (final OperationInterface repoComponent : repoComponents) {
 	    	if (repoComponent.getEntityName().contains(nameWithoutFileExtention)) {
 	    		return true;
@@ -831,20 +849,28 @@ public class ApplyingChangesTestUtil {
 	  }
   
 	  
-	  public static boolean assertOneInternalAction(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
-			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
-			if (method_JaMoPP == null) {
-				return false;
-			}
-
-			Set<InternalAction> internalActions_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
-					virtualModel.getCorrespondenceModel(), method_JaMoPP,  InternalAction.class);
-			if (internalActions_PCM.size() == 1) {
-				return true;
-			}
+	  public static boolean assertNumberOfInternalActions(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel, int expectedNumberOfInternalActions) {
 			
-			return false;
+		  if (expectedNumberOfInternalActions < 0) {
+			  return false; 
+		  }
+		  
+		  Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
+		  if (method_JaMoPP == null) {
+				return false;
+		  }
+
+		  Set<InternalAction> internalActions_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  InternalAction.class);
+		  
+		  if (internalActions_PCM.size() == expectedNumberOfInternalActions) {
+			  return true;
+		  }
+			
+		  return false;
 	  }
+	  
+	  
 	  
 	  
 	  public static boolean assertNoInternalAction(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
@@ -856,6 +882,23 @@ public class ApplyingChangesTestUtil {
 			Set<InternalAction> internalActions_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
 					virtualModel.getCorrespondenceModel(), method_JaMoPP,  InternalAction.class);
 			if (internalActions_PCM.size() == 0) {
+				return true;
+			}
+			
+			return false;
+	  }
+	  
+	  
+	  
+	  public static boolean assertNumberOfExternalCalls(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel, int numberOfExpectedExternalCalls) {
+			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
+			if (method_JaMoPP == null) {
+				return false;
+			}
+
+			Set<ExternalCallAction> externalCalls_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  ExternalCallAction.class);
+			if (externalCalls_PCM.size() == numberOfExpectedExternalCalls) {
 				return true;
 			}
 			

@@ -144,7 +144,7 @@ public class IACreateDeleteClassTest {
 		//testRemoveInterface();
 	}
 	
-	//TODO: Why can pcm model not be found? It 
+
 	private void testCreateClass() throws Throwable {
 		//Apply changes
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.INIT), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_CLASS), testProject);	
@@ -158,7 +158,7 @@ public class IACreateDeleteClassTest {
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 		//Ensure that there is a corresponding PCM model to the compUnitChanged.
-		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentWithName(compUnitChanged.getElementName(), virtualModel);
+		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentCorrespondingToCompilationUnit(compUnitChanged.getElementName(), compUnitChanged, virtualModel);
 		
 		assertTrue("In testCreateClass() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 		assertTrue("In testCreateClass() corresponding PCM model does not exist, but it should exist", pcmExists);

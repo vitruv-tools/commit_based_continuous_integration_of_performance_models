@@ -196,6 +196,7 @@ public class NIAChangeClassImplementsTest {
 		assertTrue("In testAddMethodInFirstInterfaceForImplements() corresponding PCM model does not exist, but it should exist", pcmExists);
 	}
 	
+	//TODO clean up the method
 	private void testAddFirstImportForImplements()  throws Throwable {
 		//Add first import statement in FirstClassImpl.java
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_METHOD_IN_FIRST_INTERFACE_FOR_IMPLEMENTS), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_IMPORT_FOR_IMPLEMENTS), testProject);	
@@ -209,8 +210,7 @@ public class NIAChangeClassImplementsTest {
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 		//Ensure that there is a corresponding PCM model
-		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentWithName(compUnitChanged.getElementName(), virtualModel);
-		
+		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentCorrespondingToCompilationUnit(compUnitChanged.getElementName(), compUnitChanged, virtualModel);
 		assertTrue("In testAddFirstImportForImplements() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 		assertTrue("In testAddFirstImportForImplements() corresponding PCM model does not exist, but it should exist", pcmExists);
 	}
@@ -245,6 +245,8 @@ public class NIAChangeClassImplementsTest {
 		//Get the changed compilation unit and the compilation unit from git repository to compare
 		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("SecondInterface.java", projectFromGitRepository);
 		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("SecondInterface.java", testProject);
+		//Necessary to avoid a run time exception in  ApplyingChangesTestUtil.assertOperationInterfaceWithName
+		Thread.sleep(5000);
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 		//Ensure that there is a corresponding PCM model
@@ -289,7 +291,7 @@ public class NIAChangeClassImplementsTest {
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 		//Ensure that there is a corresponding PCM model
-		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentWithName(compUnitChanged.getElementName(), virtualModel);
+		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentCorrespondingToCompilationUnit(compUnitChanged.getElementName(), compUnitChanged,  virtualModel);
 		
 		assertTrue("In testAddSecondImportForImplements() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 		assertTrue("In testAddSecondImportForImplements() corresponding PCM model does not exist, but it should exist", pcmExists);
@@ -376,7 +378,7 @@ public class NIAChangeClassImplementsTest {
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 		//Ensure that there is a corresponding PCM model
-		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentWithName(compUnitChanged.getElementName(), virtualModel);
+		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentCorrespondingToCompilationUnit(compUnitChanged.getElementName(), compUnitChanged,  virtualModel);
 		
 		assertTrue("In testRemoveBothImportsForImplements() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 		assertTrue("In testRemoveBothImportsForImplements() corresponding PCM model does not exist, but it should exist", pcmExists);
