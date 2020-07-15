@@ -121,7 +121,7 @@ public class IACreateDeletePackageTest {
 		//Close and remove copied git repository
 		gitRepository.closeRepository();
 		//projectFromGitRepository.close(null);
-		projectFromGitRepository.delete(true, null);
+		//projectFromGitRepository.delete(true, null);
 		FileUtils.deleteDirectory(new File(workspace.getRoot().getLocation().toFile(), "clonedGitRepositories"));
 		// This is necessary because otherwise Maven tests will fail as
 		// resources from previous tests are still in the classpath and accidentally resolved
@@ -139,9 +139,20 @@ public class IACreateDeletePackageTest {
 	private void testCreatePackage() throws Throwable {
 		//Apply changes
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.INIT), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_PACKAGE), testProject);	
+		
+		//Checkout the repository on the certain commit
+		//gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_PACKAGE);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		//projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		//ICompilationUnit compUnitFromGit = GitChangeApplier.findICompilationUnitInProject("eu.fpetersen.cbs.pc/src/eu.fpetersen.cbs.pc.newPackage/package-info.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = GitChangeApplier.findICompilationUnitInProject("eu.fpetersen.cbs.pc/src/eu.fpetersen.cbs.pc.newPackage/package-info.java", testProject);
+		//Compare JaMoPP-Models 
+		boolean jamoppExists = ApplyingChangesTestUtil.packageExistsInVSUM(compUnitChanged, virtualModel);
 		//Ensure that there is a corresponding PCM model
 		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentWithName("newPackage", virtualModel);
 		
+		assertTrue("In testCreatePackage() the JaMoPP-model does not exist in VSUM, but it should exist", jamoppExists);
 		assertTrue("In testCreatePackage() corresponding PCM model does not exist, but it should exist", pcmExists);
 	}	
 	
@@ -149,11 +160,16 @@ public class IACreateDeletePackageTest {
 	private void testRenameCreatedPackage() throws Throwable {
 		//Apply changes
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_PACKAGE), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.RENAME_ADDED_PACKAGE), testProject);	
+		Thread.sleep(3000);
+		ICompilationUnit compUnitChanged = GitChangeApplier.findICompilationUnitInProject("eu.fpetersen.cbs.pc/src/eu.fpetersen.cbs.pc.newPackageRenamed/package-info.java", testProject);
+		//Compare JaMoPP-Models 
+		boolean jamoppExists = ApplyingChangesTestUtil.packageExistsInVSUM(compUnitChanged, virtualModel);
 		//Ensure that there is no corresponding PCM model
 		boolean noPcmExists = ApplyingChangesTestUtil.assertNoRepositoryComponentWithName("fpetersen.cbs.pc.newPackage", virtualModel);
 		//Ensure that there is a corresponding PCM model
 		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentWithName("newPackageRenamed", virtualModel);
 		
+		assertTrue("In testCreatePackage() the JaMoPP-model does not exist in VSUM, but it should exist", jamoppExists);
 		assertTrue("In testCreateClass() corresponding PCM model exists, but it should not exist", noPcmExists);
 		assertTrue("In testCreateClass() corresponding PCM model does not exist, but it should exist", pcmExists);
 	}	
@@ -163,6 +179,7 @@ public class IACreateDeletePackageTest {
 	private void testRemoveCreatedPackage() throws Throwable {
 		//Apply changes
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.RENAME_ADDED_PACKAGE), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_PACKAGE), testProject);	
+		Thread.sleep(3000);
 		//Ensure that there is no corresponding PCM model
 		boolean noPcmExists = ApplyingChangesTestUtil.assertNoRepositoryComponentWithName("fpetersen.cbs.pc.newPackageRenamed", virtualModel);
 		

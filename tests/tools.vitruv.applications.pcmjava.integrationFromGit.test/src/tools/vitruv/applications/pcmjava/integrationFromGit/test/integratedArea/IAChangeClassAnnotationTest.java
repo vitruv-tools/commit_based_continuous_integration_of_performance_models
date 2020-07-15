@@ -118,7 +118,7 @@ public class IAChangeClassAnnotationTest {
 	}
 
 	//Vitruv does not react to add/change/remove class annotation
-	@Ignore @Test
+	@Test
 	public void testClassAnnotation() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		testAddClassAnnotation();
 		testChangeClassAnnotation();
@@ -128,7 +128,7 @@ public class IAChangeClassAnnotationTest {
 	
 	private void testAddClassAnnotation() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.INIT), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_CLASS_ANNOTATION), testProject);	
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.INIT), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_CLASS_ANNOTATION), testProject);
 		//Checkout the repository on the certain commit
 		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.ADD_CLASS_ANNOTATION);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.

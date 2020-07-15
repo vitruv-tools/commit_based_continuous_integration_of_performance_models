@@ -58,7 +58,7 @@ import tools.vitruv.testutils.TestUserInteraction;
  * @author Ilia Chupakhin
  * @author Manar Mazkatli (advisor)
  */
-public class IACreateDeleteClassTest {
+public class IACreateDeleteCompilationUnitTest {
 
 	//Project name
 	private static String testProjectName = "eu.fpetersen.cbs.pc";
@@ -137,7 +137,7 @@ public class IACreateDeleteClassTest {
 	//and tools.vitruv.domains.java.monitorededitor.ChangeResponder.visit(DeleteInterfaceEvent) 
 	//visit(...) method tries to get some information from the already removed JDT model.
 	@Test
-	public void testCreateDeleteClass() throws Throwable {
+	public void testCreateDeleteCompilationUnit() throws Throwable {
 		testCreateClass();
 		testCreateInterface();
 		//testRemoveClass();

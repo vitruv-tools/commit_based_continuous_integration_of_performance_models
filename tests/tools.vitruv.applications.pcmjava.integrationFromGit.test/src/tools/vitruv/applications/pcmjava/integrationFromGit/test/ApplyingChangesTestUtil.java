@@ -5,6 +5,7 @@ import static edu.kit.ipd.sdq.commons.util.java.lang.IterableUtil.claimOne;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
@@ -84,6 +85,7 @@ import org.emftext.language.java.classifiers.impl.ClassImpl;
 import org.emftext.language.java.containers.CompilationUnit;
 import org.emftext.language.java.containers.JavaRoot;
 import org.emftext.language.java.containers.impl.CompilationUnitImpl;
+import org.emftext.language.java.containers.impl.PackageImpl;
 import org.emftext.language.java.members.ClassMethod;
 import org.emftext.language.java.members.Field;
 import org.emftext.language.java.members.Member;
@@ -156,7 +158,7 @@ import tools.vitruv.framework.vsum.modelsynchronization.ChangePropagationListene
  * @author Manar Mazkatli (advisor)
  *
  */
-public class ApplyingChangesTestUtil {
+public abstract class ApplyingChangesTestUtil {
 
 	/**
 	 * Copies the given project with <code>projectPath</code> and <code>projectName</code> into <code>workspace</code>
@@ -448,8 +450,8 @@ public class ApplyingChangesTestUtil {
 	 * @throws InterruptedException 
 	 */
 	public static boolean compareJaMoPPCompilationUnits(ICompilationUnit changedCompilationUnit, ICompilationUnit gitCompilationUnit, InternalVirtualModel virtualModel) throws IOException, CoreException, InterruptedException {
-		//synchronization problems may occur. If so, the EqualityHelper returns the result, that the models are not equal.
-		//Thread.sleep(5000);
+		//synchronization problems may occur. If so, the EqualityHelper may return the faulty result, that the models are not equal.
+		Thread.sleep(3000);
 		//changedCompilationUnit.getResource().refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 		//Find the JaMoPP model for the changedCompilationUnit
 		ModelInstance modelInstance = virtualModel.getModelInstance(VURI.getInstance(changedCompilationUnit.getResource()));
@@ -546,7 +548,8 @@ public class ApplyingChangesTestUtil {
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
-					return true;
+					return false;
+					//return true;
 				}
 				else {
 					System.out.println("The containing code of the JaMoPP-Models is not equal.");
@@ -1272,6 +1275,40 @@ public class ApplyingChangesTestUtil {
 		}
 	}
 	
+	
+	/**
+	 * Returns file content of {@code file} as {@link String}
+	 * 
+	 * @param file file whose content should be returned 
+	 * @return file's content as String
+	 * @throws IOException
+	 * @throws CoreException
+	 */
+	public static String getFileContent(IFile file) throws IOException, CoreException {
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		InputStream inputStream = file.getContents();
+		inputStream.transferTo(outputStream);
+		inputStream.close();
+		String content = outputStream.toString();
+		outputStream.close();
+		
+		return content;
+	}
+	
+	
+	public static boolean packageExistsInVSUM(ICompilationUnit packageInfoFile, InternalVirtualModel virtualModel) throws IOException, CoreException, InterruptedException {
+		//helps to avoid synchronization problems
+		Thread.sleep(3000);
+		//changedCompilationUnit.getResource().refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+		//Find the JaMoPP model for the packageInfoFile
+		ModelInstance modelInstance = virtualModel.getModelInstance(VURI.getInstance(packageInfoFile.getResource()));
+		modelInstance.load(new HashMap(), true);
+		if (modelInstance != null && (modelInstance.getResource().getContents().get(0) instanceof PackageImpl)) {
+			return true;
+		}
+		
+		return false;
+	}
 	
 	
 	/*

@@ -135,7 +135,7 @@ public class IACreateDeleteFieldTest {
 	//problem: somehow remove field event is recognized by Vitruv as InsertEReference, but not as RemoveEReference.
 	//Therefore, a wrong correspondence is created
 	@Test
-	public void testChangeField() throws Throwable {
+	public void testCreateDeleteField() throws Throwable {
 		testAddImport();
 		testAddField();
 		testRenameField();

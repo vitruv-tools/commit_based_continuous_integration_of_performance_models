@@ -5,6 +5,7 @@ package tools.vitruv.applications.pcmjava.integrationFromGit.test.commits;
  * for atomic changes in integrated areas. 
  * 
  * @author Ilia Chupakhin
+ * @author Manar Mazkatli (advisor)
  *
  */
 public abstract class EuFpetersenCbsPc_integratedArea_fineGrained_commits {

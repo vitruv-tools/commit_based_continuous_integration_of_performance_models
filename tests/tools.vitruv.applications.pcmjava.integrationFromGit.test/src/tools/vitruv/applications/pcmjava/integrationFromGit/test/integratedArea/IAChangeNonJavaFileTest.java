@@ -132,7 +132,7 @@ public class IAChangeNonJavaFileTest {
 		//Close and remove copied git repository
 		gitRepository.closeRepository();
 		//projectFromGitRepository.close(null);
-		projectFromGitRepository.delete(true, null);
+		//projectFromGitRepository.delete(true, null);
 		//FileUtils.deleteDirectory(new File(workspace.getRoot().getLocation().toFile(), "clonedGitRepositories"));
 		// This is necessary because otherwise Maven tests will fail as
 		// resources from previous tests are still in the classpath and accidentally resolved
@@ -141,7 +141,7 @@ public class IAChangeNonJavaFileTest {
 	
 
 	@Test
-	public void testCreateDeleteClass() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
+	public void testCreateDeleteNonJavaFile() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		testCreateFolderAndFile();
 		testRenameFile();
 		testChangeFileContent();
@@ -182,7 +182,7 @@ public class IAChangeNonJavaFileTest {
 		
 		assertTrue("in testChangeFileContent() file does not exist", changedFile.exists());
 		
-		String fileContnent = getFileContent(changedFile);
+		String fileContnent = ApplyingChangesTestUtil.getFileContent(changedFile);
 		
 		assertTrue("in testChangeFileContent() file content isn't correct", fileContnent.equals("newContent"));
 		
@@ -197,7 +197,7 @@ public class IAChangeNonJavaFileTest {
 		
 		assertTrue("in testCopyFile() file does not exist", copiedFile.exists());
 		
-		String fileContnent = getFileContent(copiedFile);
+		String fileContnent = ApplyingChangesTestUtil.getFileContent(copiedFile);
 		
 		assertTrue("in testCopyFile() file content isn't correct", fileContnent.equals("newContent"));
 		
@@ -211,18 +211,6 @@ public class IAChangeNonJavaFileTest {
 		IFile removedFile = testProject.getFile(new Path("src/nonJavaFileRenamed.txt"));
 		
 		assertFalse("in testCopyFile() file does not exist", removedFile.exists());
-	}
-	
-	
-	private String getFileContent(IFile file) throws IOException, CoreException {
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		InputStream inputStream = file.getContents();
-		inputStream.transferTo(outputStream);
-		inputStream.close();
-		String content = outputStream.toString();
-		outputStream.close();
-		
-		return content;
 	}
 	
 }

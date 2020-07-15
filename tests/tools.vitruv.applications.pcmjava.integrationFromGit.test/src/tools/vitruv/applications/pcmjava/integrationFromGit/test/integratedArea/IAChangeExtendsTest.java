@@ -134,8 +134,8 @@ public class IAChangeExtendsTest {
 	@Test
 	public void testExtends() throws Throwable {
 		testAddImport();
-		//testAddExtends();
-		//testRemoveExtends();
+		testAddExtends();
+		testRemoveExtends();
 	}
 	
 	

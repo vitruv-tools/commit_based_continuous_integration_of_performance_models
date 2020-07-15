@@ -141,7 +141,7 @@ public class IAChangeMethodImplementationTest {
 		testAddForLoop();
 		testAddIfElse();
 		testRemoveIfElse();
-		testRemoveFor();
+		testRemoveForLoop();
 		testRemoveInternalAction();
 	}
 	
@@ -227,7 +227,7 @@ public class IAChangeMethodImplementationTest {
 	}	
 	
 	
-	private void testRemoveFor() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
+	private void testRemoveForLoop() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Apply changes
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_IF_ELSE), commits.get(EuFpetersenCbsPc_integratedArea_fineGrained_commits.REMOVE_FOR), testProject);	
 		//Checkout the repository on the certain commit

@@ -76,6 +76,7 @@ import org.eclipse.text.edits.TextEdit;
  * Represents a git repository.
  * 
  * @author Ilia Chupakhin
+ * @author Manar Mazkatli (advisor)
  *
  */
 public class GitRepository {

@@ -7,6 +7,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
      * Thread-safe simple progress monitor for knowing when a job is done.
      *
      * @author Ilia Chupakhin
+     * @author Manar Mazkatli (advisor)
      *
      */
     public class DoneFlagProgressMonitor extends NullProgressMonitor {

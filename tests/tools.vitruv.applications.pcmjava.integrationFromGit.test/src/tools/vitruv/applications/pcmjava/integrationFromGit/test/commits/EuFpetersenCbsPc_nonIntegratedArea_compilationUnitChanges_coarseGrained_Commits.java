@@ -4,6 +4,7 @@ package tools.vitruv.applications.pcmjava.integrationFromGit.test.commits;
  * for coarse-grained changes in non-integrated areas within classes except method headers and method bodies. 
  * 
  * @author Ilia Chupakhin
+ * @author Manar Mazkatli (advisor)
  *
  */
 public abstract class EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits {

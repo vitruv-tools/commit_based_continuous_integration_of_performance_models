@@ -23,6 +23,7 @@ import tools.vitruv.framework.change.processing.ChangePropagationSpecification;
  * tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.Java2PcmPackageMappingMethodBodyChangePreprocessor.xtend
  * 
  * @author Ilia Chupakhin
+ * @author Manar Mazkatli (advisor)
  *
  */
 @SuppressWarnings("all")

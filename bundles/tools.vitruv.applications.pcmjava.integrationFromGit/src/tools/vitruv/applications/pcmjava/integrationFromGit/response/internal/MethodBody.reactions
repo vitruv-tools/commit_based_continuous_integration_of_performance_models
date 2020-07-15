@@ -4,5 +4,6 @@ import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
 reactions: methodBody
 in reaction to changes in Java
 execute actions in PCM
-
-//TODO: Define change propagation rules for changes in JaMoPP models on method bodies to propagate these changes to the corresponding PCM models
+//The currently used change propagation rules for the changes on method bodies are defined 
+//in Java2PcmPackageMappingMethodBodyChangePreprocessor. See GitIntegrationChangePropagationSpecification.setup().
+//Otherwise you can define change propagation rules for changes on method bodies here.

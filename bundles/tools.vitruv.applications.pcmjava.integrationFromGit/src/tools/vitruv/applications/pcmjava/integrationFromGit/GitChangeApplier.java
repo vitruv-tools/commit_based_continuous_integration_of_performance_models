@@ -69,6 +69,7 @@ import tools.vitruv.domains.java.util.gitchangereplay.extractors.GumTreeChangeEx
  * The changes are applied on the JDT Model of the given {@link IProject}.
  * 
  * @author Ilia Chupakhin
+ * @author Manar Mazkatli (advisor)
  *
  */
 public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePropagationListener {
@@ -685,8 +686,11 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				// timeout
 				// and so the synchronization was not finished as expected
 				if (wakeups > numberOfExpectedSynchronizationCalls) {
-					System.out.println("Waiting for synchronization timed out");
+					System.out.println("Waiting for synchronization timed out. Continue the programm anyway.");
+					expectedNumberOfSyncs -= numberOfExpectedSynchronizationCalls;
+					break;
 				}
+				System.out.println("Waiting for synchronization timed out. Please check if there is an opened user dialog.\nTry to wait one more time");
 			}
 		} catch (InterruptedException e) {
 			System.out.println("An interrupt occurred unexpectedly");
