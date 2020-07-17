@@ -95,7 +95,7 @@ public abstract class EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGraine
 	//removed imports nonIntegratedPackage.contracts.SecondInterface and nonIntegratedPackage.contracts.FirstInterface in FirstClassImpl.java
 	public final static String REMOVE_BOTH_IMPORTS_FOR_IMPLEMENTS = "e3aa1f7240c2dde2833787ad018577f86f298ff6";
 	
-	
+/*	
 	//added SecondClass.java in package nonIntegratedPackage.FirstClass
 	public final static String ADD_SECOND_CLASS_FOR_FIELD = "4ffbfef983b0c55db76ad19e7dd6caecfeabf790";
 	//added 'import nonIntegratedPackage.FirstClass.SecondClass;' in FirstClassImpl.java
@@ -108,5 +108,27 @@ public abstract class EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGraine
 	public final static String REMOVE_FIELD = "a70c52110c66f232bcb251660c27d115e8f915db";
 	//removed 'import nonIntegratedPackage.FirstClass.SecondClass;' in FirstClassImpl.java
 	public final static String REMOVE_IMPORT_FOR_FIELD = "f88052c54619efab8c2cfcd145401eb814a844e5";
+*/	
+	
+	//added import 'nonIntegratedPackage.contracts.FirstInterface;' in FirstClassImpl.java
+	public final static String ADD_FIRST_IMPORT_FOR_FILED = "3a6913975c2a6646dafd2e76154c6feadd20eb97";
+	//added 'implements FirstInterface' to FirstClassImpl.java
+	public final static String ADD_IMPLEMENTS_FOR_FILED = "f30c8195c2c07fe26d557a99a1966783b0b472cd";
+	//added method 'public void firstMethodInFirstInterface() {}' in FirstClassImpl.java
+	public final static String ADD_METHOD_FOR_FILED = "cf37a627c14a4f38dcfd01d1e04e00c8a62df531";
+	//added import 'nonIntegratedPackage.contracts.SecondInterface;' in FirstClassImpl.java
+	public final static String ADD_IMPORT_FOR_FILED = "7b79841d1d83f5e0b32f2c9e09565f533072ab9b";
+	//added field 'SecondInterface field' in FirstClassImpl.java	
+	public final static String ADD_FIELD = "cfde98e45f70b60408f17e8f41c6397ea28ce7f2";
+	//renamed field 'SecondInterface field' to 'SecondInterface fieldRenamed' in FirstClassImpl.java
+	public final static String RENAME_FIELD = "211343caacc7a7220f1dec73d8c9721c784fd04c";
+	//added 'public' modifier to 'SecondInterface fieldRenamed' in FirstClassImpl.java
+	public final static String ADD_FIELD_MODIFIER = "78f1a979e08477e941d577dbe4f3e08ee52df83e";
+	//changed 'public' to 'private' modifier to 'SecondInterface fieldRenamed' in FirstClassImpl.java
+	public final static String CHANGE_FIELD_MODIFIER = "ff792812cace6d386ffb1a1b18aadfba3f3abb80";
+	//changed field type from 'SecondInterface fieldRenamed' to 'String fieldRenamed' in FirstClassImpl.java
+	public final static String CHANGE_FIELD_TYPE = "7bc4c18f75faaeedfcecd718bda2484489751f36";
+	//removed field 'String fieldRenamed' in FirstClassImpl.java
+	public final static String REMOVE_FIELD = "569a33fee580fa84964a9c2d9f4401adfe95b29e";
 
 }

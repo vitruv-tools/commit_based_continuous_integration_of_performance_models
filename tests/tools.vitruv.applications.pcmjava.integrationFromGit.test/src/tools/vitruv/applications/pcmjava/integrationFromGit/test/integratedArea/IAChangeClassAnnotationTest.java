@@ -118,6 +118,8 @@ public class IAChangeClassAnnotationTest {
 	}
 
 	//Vitruv does not react to add/change/remove class annotation
+	//Therefore 'Waiting for synchronization timed out' while running is normal. 
+	//The test will continue automatically after timeout. But make sure there is no user dialog waiting for user reaction.
 	@Test
 	public void testClassAnnotation() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		testAddClassAnnotation();

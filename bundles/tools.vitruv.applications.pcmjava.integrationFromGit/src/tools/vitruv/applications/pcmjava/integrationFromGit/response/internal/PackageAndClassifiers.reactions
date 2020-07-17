@@ -299,7 +299,7 @@ routine createArchitecturalElement(java::Package javaPackage, String name, Strin
 	//}
 	action {
 		call {
-			val String userMsg = "A package, class or interface has been created. Please decide whether and which corresponding architectural element should be created"
+			val String userMsg = "A package or class has been created. Please decide whether and which corresponding architectural element should be created"
 			val String[] selections = #[Java2PcmUserSelection.SELECT_BASIC_COMPONENT.message,
 				Java2PcmUserSelection.SELECT_COMPOSITE_COMPONENT.message,
 				Java2PcmUserSelection.SELECT_SYSTEM.message,

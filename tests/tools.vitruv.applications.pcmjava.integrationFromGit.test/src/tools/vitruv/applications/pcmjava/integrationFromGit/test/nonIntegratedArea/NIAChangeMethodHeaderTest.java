@@ -56,7 +56,7 @@ import tools.vitruv.testutils.TestUserInteraction;
  * @author Ilia Chupakhin
  * @author Manar Mazkatli (advisor)
  */
-public class NIAChangeMethodModifiersTest {
+public class NIAChangeMethodHeaderTest {
 
 	//Project name
 	private static String testProjectName = "eu.fpetersen.cbs.pc";

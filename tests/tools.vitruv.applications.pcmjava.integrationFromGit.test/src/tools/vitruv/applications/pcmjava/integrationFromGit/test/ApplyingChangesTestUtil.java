@@ -502,7 +502,8 @@ public abstract class ApplyingChangesTestUtil {
         });
 
 		//Compare the JaMoPP models using EMFCompare
-		Comparison comparison = compareTwoModels(changedCompilationUnit_JaMoPP, gitCompilationUnit_JaMoPP);
+		//Comparison comparison = compareTwoModels(changedCompilationUnit_JaMoPP, gitCompilationUnit_JaMoPP);
+		Comparison comparison = compareTwoModels(gitCompilationUnit_JaMoPP, changedCompilationUnit_JaMoPP);
 		//Get found matches from comparison
 		//List<Match> matches = comparison.getMatches();
 		//Get found differences from comparison
@@ -545,6 +546,26 @@ public abstract class ApplyingChangesTestUtil {
 					try {
 						changedCompilationUnitStream.close();
 						gitCompilationUnitStream.close();
+						
+				/*		
+					//TODO: Remove merge
+					//java.lang.IllegalStateException: Couldn't move element because its parent hasn't been merged yet: MERGING LEFT MOVE org.eclipse.emf.compare.internal.spec.ReferenceChangeSpec{reference=Commentable.layoutInformations,value=KeywordLayoutInformation@431bcf1f ,parentMatch=org.eclipse.emf.compare.internal.spec.MatchSpec{left=MethodCall@2dafc9d3,right=<null>,origin=<null>,#differences=4,#submatches=3},match of value=org.eclipse.emf.compare.internal.spec.MatchSpec{left=KeywordLayoutInformation@431bcf1f ,right=KeywordLayoutInformation@4ade5073 ,origin=<null>,#differences=0,#submatches=0}}	
+					virtualModel.executeCommand(new Callable<Void>() {
+			            @Override
+			            public Void call() {
+			                
+			                try {
+			                	mergeModels(comparison);
+								compareJaMoPPCompilationUnits(changedCompilationUnit, gitCompilationUnit, virtualModel);
+			                } catch (final Throwable e) {
+			                    throw new RuntimeException(e);
+			                }
+			                return null;
+			            }
+			        });	
+				*/	
+						
+					
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -572,7 +593,7 @@ public abstract class ApplyingChangesTestUtil {
 	 * 
 	 * @param comparison the comparison result, which contains the compared models as well as the differences and matches between them.
 	 */
-	public void mergeModels(Comparison comparison) {
+	public static void mergeModels(Comparison comparison) {
 	    IMerger.Registry mergerRegistry = new IMerger.RegistryImpl().createStandaloneInstance();
 	    IBatchMerger merger = new BatchMerger(mergerRegistry);
 	    merger.copyAllLeftToRight(comparison.getDifferences(), new BasicMonitor());

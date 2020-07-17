@@ -131,6 +131,8 @@ public class IAChangeExtendsTest {
 
 	
 	//Vitruv does not react to add/change/remove super class 
+	//Therefore 'Waiting for synchronization timed out' while running is normal. 
+	//The test will continue automatically after timeout. But make sure there is no user dialog waiting for user reaction.
 	@Test
 	public void testExtends() throws Throwable {
 		testAddImport();

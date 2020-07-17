@@ -150,8 +150,10 @@ public class NIAChangeMethodImplementationTest {
 
 	
 	@Test
-	public void testMethodImplementation() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
+	public void testMethodImplementation() throws Throwable {
 		testAddFirstInternalAction();
+		//JaMoPP-Models are not equals. Why?
+		testAddImport();
 		testAddFirstExternalAction();
 		testAddSecondInternalActionAndLoopWithSecondExternalAction();
 		testAddIfElseWithInternalActionAndExternalCall();
@@ -190,19 +192,45 @@ public class NIAChangeMethodImplementationTest {
 	}
 	
 	
-
-	private void testAddFirstExternalAction() 
-		throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException,
-		InvalidRefNameException, CheckoutConflictException, GitAPIException {
+	private void testAddImport() throws Throwable {
 		//Apply changes
 		changeApplier.applyChangesFromCommit(
 				commits.get(EuFpetersenCbsPc_nonIntegratedArea_methodChanges_fineGrained_Commits.ADD_FIRST_INTERNAL_ACTION_IN_FIRST_METHOD_IN_FIRST_CLASS_IMPL),
 				commits.get(EuFpetersenCbsPc_nonIntegratedArea_methodChanges_fineGrained_Commits.ADD_SECOND_IMPORT_IN_FIRST_CLASS_IMPL),
 				testProject);
+		// Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(
+				EuFpetersenCbsPc_nonIntegratedArea_methodChanges_fineGrained_Commits.ADD_SECOND_IMPORT_IN_FIRST_CLASS_IMPL);
+		// Create temporary model from project from git repository. It does NOT add the
+		// created project to the workspace.
+		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace,
+				workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName
+						+ ".withGit");
+		// Get the changed compilation unit and the compilation unit from git repository
+		// to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper
+				.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper
+				.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit,  virtualModel);
+		//Ensure that there is a corresponding PCM model to the compUnitChanged.
+		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentCorrespondingToCompilationUnit(compUnitChanged.getElementName(), compUnitChanged, virtualModel);
+		
+		assertTrue("In testAddImport() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+		assertTrue("In testAddImport() corresponding PCM model does not exist, but it should exist", pcmExists);
+	}
+	
+	
+	
+	private void testAddFirstExternalAction() 
+			throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException,
+			InvalidRefNameException, CheckoutConflictException, GitAPIException {
+		//Apply changes
 		changeApplier.applyChangesFromCommit(
 				commits.get(EuFpetersenCbsPc_nonIntegratedArea_methodChanges_fineGrained_Commits.ADD_SECOND_IMPORT_IN_FIRST_CLASS_IMPL),
 				commits.get(EuFpetersenCbsPc_nonIntegratedArea_methodChanges_fineGrained_Commits.ADD_FIRST_EXTERNAL_CALL_IN_FIRST_METHOD_IN_FIRST_CLASS_IMPL),
-				testProject);
+				testProject);	
 		// Checkout the repository on the certain commit
 		gitRepository.checkoutFromCommitId(
 				EuFpetersenCbsPc_nonIntegratedArea_methodChanges_fineGrained_Commits.ADD_FIRST_EXTERNAL_CALL_IN_FIRST_METHOD_IN_FIRST_CLASS_IMPL);
@@ -224,9 +252,9 @@ public class NIAChangeMethodImplementationTest {
 		
 		assertTrue("In testAddFirstExternalAction() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 		assertTrue("In testAddFirstExternalAction() corresponding PCM model does not exist, but it should exist", pcmExists);
-	}
-	
+	}	
 
+	
 	private void testAddSecondInternalActionAndLoopWithSecondExternalAction() 
 		throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException,
 		InvalidRefNameException, CheckoutConflictException, GitAPIException {

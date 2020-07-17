@@ -26,7 +26,7 @@ public class CreateArchitecturalElementRoutine extends AbstractRepairRoutineReal
     }
     
     public void callRoutine1(final org.emftext.language.java.containers.Package javaPackage, final String name, final String rootPackageName, @Extension final RoutinesFacade _routinesFacade) {
-      final String userMsg = "A package, class or interface has been created. Please decide whether and which corresponding architectural element should be created";
+      final String userMsg = "A package or class has been created. Please decide whether and which corresponding architectural element should be created";
       String _message = Java2PcmUserSelection.SELECT_BASIC_COMPONENT.getMessage();
       String _message_1 = Java2PcmUserSelection.SELECT_COMPOSITE_COMPONENT.getMessage();
       String _message_2 = Java2PcmUserSelection.SELECT_SYSTEM.getMessage();

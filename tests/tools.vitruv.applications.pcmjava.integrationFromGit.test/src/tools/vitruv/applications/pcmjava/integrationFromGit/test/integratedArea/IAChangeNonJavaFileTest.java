@@ -139,7 +139,9 @@ public class IAChangeNonJavaFileTest {
 		JavaClasspath.reset();
 	}
 	
-
+	//Vitruv does not react to add/change/remove non-java files.
+	//Therefore 'Waiting for synchronization timed out' while running is normal. 
+	//The test will continue automatically after timeout. But make sure there is no user dialog waiting for user reaction.
 	@Test
 	public void testCreateDeleteNonJavaFile() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		testCreateFolderAndFile();

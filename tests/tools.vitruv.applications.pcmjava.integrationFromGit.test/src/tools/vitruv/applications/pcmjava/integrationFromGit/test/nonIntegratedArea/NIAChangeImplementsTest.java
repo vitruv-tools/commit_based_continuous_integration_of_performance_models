@@ -55,7 +55,7 @@ import tools.vitruv.testutils.TestUserInteraction;
  * @author Ilia Chupakhin
  * @author Manar Mazkatli (advisor)
  */
-public class NIAChangeClassImplementsTest {
+public class NIAChangeImplementsTest {
 	//Project name
 	private static String testProjectName = "eu.fpetersen.cbs.pc";
 	//Relative path to the project which will be copied into Workspace and the copied project will be integrated into Vitruv. Commits will be applied on the copy.
@@ -140,24 +140,24 @@ public class NIAChangeClassImplementsTest {
 	
 	@Test
 	public void testImplements() throws Throwable {
-		testAddFirstInterfaceForImplements();
-		testAddMethodInFirstInterfaceForImplements();
-		testAddFirstImportForImplements();
+		testAddFirstInterface();
+		testAddMethodInFirstInterface();
+		testAddFirstImport();
 		testAddImplementsAndMethod();
-		testAddSecondInterfaceForImplements();
-		testAddMethodInSecondInterfaceForImplements();
-		testAddSecondImportForImplements();
+		testAddSecondInterface();
+		testAddMethodInSecondInterface();
+		testAddSecondImport();
 		//TODO: Vitruv does NOT remove the corrspondence OperationProvidedRole for FirstInterface in FirstClassImpl, 
 		//although FirstClassImpl does not implement FirstInterface anymore 
 		testChangeImplementsAndAddMethod();
 		testRemoveImplements();
-		testRemoveBothMethodsForImplements();
-		testRemoveBothImportsForImplements();
+		testRemoveBothMethods();
+		testRemoveBothImports();
 		
 	}
 	
 	
-	private void testAddFirstInterfaceForImplements()  throws Throwable  {
+	private void testAddFirstInterface()  throws Throwable  {
 		//Add interface in contracts package
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_CLASS_IMPL), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_INTERFACE_FOR_IMPLEMENTS), testProject);	
 		//Checkout the repository on the certain commit
@@ -177,7 +177,7 @@ public class NIAChangeClassImplementsTest {
 	}
 
 	
-	private void testAddMethodInFirstInterfaceForImplements()  throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException   {
+	private void testAddMethodInFirstInterface()  throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException   {
 		//Add method in interface
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_INTERFACE_FOR_IMPLEMENTS), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_METHOD_IN_FIRST_INTERFACE_FOR_IMPLEMENTS), testProject);	
 		//Checkout the repository on the certain commit
@@ -197,7 +197,7 @@ public class NIAChangeClassImplementsTest {
 	}
 	
 	//TODO clean up the method
-	private void testAddFirstImportForImplements()  throws Throwable {
+	private void testAddFirstImport()  throws Throwable {
 		//Add first import statement in FirstClassImpl.java
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_METHOD_IN_FIRST_INTERFACE_FOR_IMPLEMENTS), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_IMPORT_FOR_IMPLEMENTS), testProject);	
 		//Checkout the repository on the certain commit
@@ -229,13 +229,16 @@ public class NIAChangeClassImplementsTest {
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 		//Ensure that there is a corresponding PCM model
 		boolean pcmExists = ApplyingChangesTestUtil.assertOperationProvidedRole("FirstClassImpl.java", "FirstInterface", compUnitChanged, virtualModel);
+		//Ensure that there is a corresponding PCM model for method
+		boolean pcmForMethodExists = ApplyingChangesTestUtil.assertClassMethodWithName("firstMethodInFirstInterface", compUnitChanged, virtualModel);
 		
 		assertTrue("In testAddImplementsAndMethod() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
-		assertTrue("In testAddImplementsAndMethod() corresponding PCM model does not exist, but it should exist", pcmExists);		
+		assertTrue("In testAddImplementsAndMethod() corresponding PCM model does not exist, but it should exist", pcmExists);
+		assertTrue("In testAddImplementsAndMethod() corresponding PCM model for the method does not exist, but it should exist", pcmForMethodExists);	
 	}
 
 	
-	private void testAddSecondInterfaceForImplements()  throws Throwable  {
+	private void testAddSecondInterface()  throws Throwable  {
 		//Add interface in contracts package
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_IMPLEMENTS_AND_METHOD), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_SECOND_INTERFACE_FOR_IMPLEMENTS), testProject);	
 		//Checkout the repository on the certain commit
@@ -258,7 +261,7 @@ public class NIAChangeClassImplementsTest {
 	}
 	
 	
-	private void testAddMethodInSecondInterfaceForImplements()  throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException  {
+	private void testAddMethodInSecondInterface()  throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException  {
 		//Add interface in contracts package
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_SECOND_INTERFACE_FOR_IMPLEMENTS), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_METHOD_IN_SECOND_INTERFACE_FOR_IMPLEMENTS), testProject);	
 		//Checkout the repository on the certain commit
@@ -278,7 +281,7 @@ public class NIAChangeClassImplementsTest {
 	}
 	
 	
-	private void testAddSecondImportForImplements()  throws Throwable  {
+	private void testAddSecondImport()  throws Throwable  {
 		//Add interface in contracts package
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_METHOD_IN_SECOND_INTERFACE_FOR_IMPLEMENTS), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_SECOND_IMPORT_FOR_IMPLEMENTS), testProject);	
 		//Checkout the repository on the certain commit
@@ -314,10 +317,13 @@ public class NIAChangeClassImplementsTest {
 		boolean pcmExists = ApplyingChangesTestUtil.assertOperationProvidedRole("FirstClassImpl.java", "SecondInterface", compUnitChanged, virtualModel);
 		//Ensure that there is no corresponding PCM model
 		boolean noPcmExists = ApplyingChangesTestUtil.assertNoOperationProvidedRole("FirstClassImpl.java", "FirstInterface", compUnitChanged, virtualModel);
+		//Ensure that there is a corresponding PCM model for method
+		boolean pcmForMethodExists = ApplyingChangesTestUtil.assertClassMethodWithName("firstMethodInSecondInterface", compUnitChanged, virtualModel);
 		
 		assertTrue("In testChangeImplementsAndAddMethod() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 		assertTrue("In testChangeImplementsAndAddMethod() corresponding PCM model does not exist, but it should exist", pcmExists);
 		assertTrue("In testChangeImplementsAndAddMethod() corresponding PCM model exists, but it should not exist", noPcmExists);
+		assertTrue("In testChangeImplementsAndAddMethod() corresponding PCM model for the method does not exist, but it should exist", pcmForMethodExists);
 	}
 	
 	
@@ -341,7 +347,7 @@ public class NIAChangeClassImplementsTest {
 	}
 	
 	
-	private void testRemoveBothMethodsForImplements()  throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException  {
+	private void testRemoveBothMethods()  throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException  {
 		//Add interface in contracts package
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.REMOVE_IMPLEMENTS), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.REMOVE_BOTH_METHODS_FOR_IMPLEMENTS), testProject);	
 		//Checkout the repository on the certain commit
@@ -365,7 +371,7 @@ public class NIAChangeClassImplementsTest {
 	}
 	
 	
-	private void testRemoveBothImportsForImplements()  throws Throwable  {
+	private void testRemoveBothImports()  throws Throwable  {
 		//Add interface in contracts package
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.REMOVE_BOTH_METHODS_FOR_IMPLEMENTS), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.REMOVE_BOTH_IMPORTS_FOR_IMPLEMENTS), testProject);	
 		//Checkout the repository on the certain commit
