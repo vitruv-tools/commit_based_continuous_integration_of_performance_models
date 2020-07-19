@@ -38,6 +38,7 @@ import tools.vitruv.framework.userinteraction.UserInteractionFactory;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
 import tools.vitruv.framework.vsum.VirtualModelConfiguration;
 import tools.vitruv.framework.vsum.VirtualModelImpl;
+import tools.vitruv.framework.vsum.VirtualModelManager;
 
 public class CodeIntegrationTest {
 	@SuppressWarnings("unused")
@@ -83,9 +84,11 @@ public class CodeIntegrationTest {
         if (testProject.exists()) {
             final DoneFlagProgressMonitor progress = new DoneFlagProgressMonitor();
             testProject.delete(true, true, progress);
+            /*
             while (!progress.isDone()) {
                 Thread.sleep(100);
             }
+            */
         }
 
         // Delete vitruvius.meta project
@@ -93,9 +96,11 @@ public class CodeIntegrationTest {
         if (metaProject.exists()) {
             final DoneFlagProgressMonitor progress = new DoneFlagProgressMonitor();
             metaProject.delete(true, true, progress);
+            /*
             while (!progress.isDone()) {
                 Thread.sleep(100);
             }
+            */
         }
     }
 
@@ -116,6 +121,7 @@ public class CodeIntegrationTest {
         final File vsumFolder = new File(metaProject, "vsum");
         Assert.assertNotNull(vsumFolder);
 
+/*//Disabled by Ilia Chupakhin
         VirtualModelConfiguration config = new VirtualModelConfiguration();
         List<VitruvDomain> metamodels = new ArrayList<VitruvDomain>();
         metamodels.add(new PcmDomainProvider().getDomain());
@@ -124,8 +130,21 @@ public class CodeIntegrationTest {
         for (VitruvDomain metamodel : metamodels) {
         	config.addMetamodel(metamodel);
         }
+*/        
+        
         File vsumFile = new File(workspace.getRoot().getLocation().toFile(), META_PROJECT_NAME);
-		virtualModel = new VirtualModelImpl(vsumFile, UserInteractionFactory.instance.createDialogUserInteractor(), config);
+        
+        //Added by Ilia Chupakhin
+        //start**********
+        VirtualModelManager virtualModelManager = VirtualModelManager.getInstance();
+        virtualModel = virtualModelManager.getVirtualModel(vsumFile);
+        //end************
+        
+		
+        //Disabled by Ilia Chupakhin
+        //virtualModel = new VirtualModelImpl(vsumFile, UserInteractionFactory.instance.createDialogUserInteractor(), config);
+        
+        
         // add PCM Java Builder to Project under test
         final VitruviusJavaBuilderApplicator pcmJavaBuilder = new VitruviusJavaBuilderApplicator();
         pcmJavaBuilder.addToProject(this.testProject, vsumFile, Collections.singletonList(PcmNamespace.REPOSITORY_FILE_EXTENSION));
@@ -133,10 +152,13 @@ public class CodeIntegrationTest {
         progress = new DoneFlagProgressMonitor();
         this.testProject.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, VitruviusJavaBuilder.BUILDER_ID,
                 new HashMap<String, String>(), progress);
+        
+        //Disabled by Ilia Chupakhin
+        /*
         while (!progress.isDone()) {
             Thread.sleep(100);
         }
-
+         */
         this.assertStandardCodeIntegrationTest();
 
     }

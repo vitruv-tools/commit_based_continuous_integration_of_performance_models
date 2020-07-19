@@ -23,6 +23,7 @@ import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.Java2PcmCh
 import tools.vitruv.framework.userinteraction.UserInteractor
 import tools.vitruv.framework.userinteraction.UserInteractionOptions.WindowModality
 import tools.vitruv.extensions.integration.correspondence.util.IntegrationCorrespondenceModelViewFactory
+import mir.reactions.packageMappingIntegration.PackageMappingIntegrationChangePropagationSpecification
 
 class IntegrationChange2CommandTransformer {
 	
@@ -63,19 +64,32 @@ class IntegrationChange2CommandTransformer {
 	}
 	
 	def doesReactionHandleChange(TransactionalChange change, CorrespondenceModel correspondenceModel) {
-		val changePropagationSpecifications = new Java2PcmIntegrationChangePropagationSpecification()
+		
+		//original line
+		//val changePropagationSpecifications = new Java2PcmIntegrationChangePropagationSpecification()
+		
+		//Changed line by Ilia Chupakhin
+		val changePropagationSpecifications = new PackageMappingIntegrationChangePropagationSpecification();
+		
 		changePropagationSpecifications.userInteractor = userInteracting
 		return changePropagationSpecifications.doesHandleChange(change, correspondenceModel);
 	}
 	
 	def executeReactions(TransactionalChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
-		val changePropagationSpecifications= new Java2PcmChangePropagationSpecification();
+		//original line
+		//val changePropagationSpecifications= new Java2PcmChangePropagationSpecification();
+		
+		//Changed line by Ilia Chupakhin
+		val changePropagationSpecifications= new PackageMappingIntegrationChangePropagationSpecification();
 		
 		changePropagationSpecifications.userInteractor = userInteracting
 		changePropagationSpecifications.propagateChange(change, correspondenceModel, resourceAccess)
 	}
 	
+	//original code
+	/*
 	private def createNewClassOrInterfaceInIntegratedAreaCommand(TransactionalChange eChange, CorrespondenceModel correspondenceModel) {
+        
         if (eChange instanceof InsertEReference<?,?> && (eChange as InsertEReference<?,?>).isContainment()) { 
         	//Check if this is a creation of a class or interface on file level.
         	//In this case we need to check if any siblings in the package have been integrated
@@ -103,6 +117,58 @@ class IntegrationChange2CommandTransformer {
 	    					for (Tuid tuid : allTuids) {
 	    						//val packagePart = getPackagePart(tuid)
 	    						if (tuid.toString.contains(packagePart)) {//packagePartOfNewTuid.startsWith(packagePart)) {
+	    							val command = new Callable<Void>() {
+										override call() throws Exception {
+											showNewTypeInIntegratedAreaDialog()
+											return null
+										}
+									}
+	    							return command
+	    						}
+	    					}
+	    				}
+    				}
+    			}
+        	}
+    	} 
+        return null
+    }
+	*/
+	
+	//Code written by Ilia Chupakhin. The original code for the method can be found above
+	private def createNewClassOrInterfaceInIntegratedAreaCommand(TransactionalChange transactionalChange, CorrespondenceModel correspondenceModel) {
+        var eChange = transactionalChange.EChanges.get(0);
+        if (eChange instanceof InsertEReference<?,?> && (eChange as InsertEReference<?,?>).isContainment()) { 
+        	//Check if this is a creation of a class or interface on file level.
+        	//In this case we need to check if any siblings in the package have been integrated
+        	val change = eChange as InsertEReference<?,?>
+        	val classOfAffected = change.getAffectedEObject().eClass().getInstanceClass()
+        	val classOfCreated = change.getNewValue().eClass().getInstanceClass()
+        	if (classOfAffected == typeof(CompilationUnit) && 
+        			(classOfCreated.equals(typeof(Class)) || 
+        			 classOfCreated.equals(typeof(Interface)))) {
+        		val cu = change.getAffectedEObject() as CompilationUnit
+        		//TODO use IntegrationCorrespondence view of InternalCorrespondenceModel which is
+        		//statically typed to Correspondence right now and needs to support views like 
+        		//CorrespondenceModel
+                val ci = correspondenceModel
+                val integrationView = ci.getView(IntegrationCorrespondenceModelViewFactory.instance)
+                
+                //val newCompilationUnitTuid = ci.calculateTuidFromEObject(cu)
+                val packagePart = cu.namespacesAsString.replace(".", "/")
+                //val packagePartOfNewTuid = getPackagePart(newCompilationUnitTuid)
+    			for (Correspondence corr : integrationView.getAllCorrespondences()) {
+    				if (corr instanceof IntegrationCorrespondence) {
+    					val integrationCorr = corr as IntegrationCorrespondence
+	    				if (integrationCorr.isCreatedByIntegration()) {
+	    					val allTuids = new ArrayList<Tuid>()
+	    					allTuids.addAll(corr.getATuids())
+	    					allTuids.addAll(corr.getBTuids())
+	    					for (Tuid tuid : allTuids) {
+	    						//val packagePart = getPackagePart(tuid)
+	    						if (tuid.toString.
+	    							contains(packagePart)
+	    						) {//packagePartOfNewTuid.startsWith(packagePart)) {
 	    							val command = new Callable<Void>() {
 										override call() throws Exception {
 											showNewTypeInIntegratedAreaDialog()
@@ -192,6 +258,7 @@ class IntegrationChange2CommandTransformer {
      * 
      * @return set of corresponding EObjects if integrated, else null
      */
+    /*//original code
     private def getCorrespondingEObjectsIfIntegrated(TransactionalChange eChange,
             CorrespondenceModel correspondenceModel) {
         val ci = correspondenceModel
@@ -210,5 +277,32 @@ class IntegrationChange2CommandTransformer {
         }
         return null
     }
-	
+	*/
+	//Changed code by Ilia Chupakhin
+	   private def getCorrespondingEObjectsIfIntegrated(TransactionalChange transactionalChange,
+            CorrespondenceModel correspondenceModel) {
+        
+        var eChange = transactionalChange.EChanges.get(0);
+        
+        val ci = correspondenceModel
+        var EObject eObj = null
+        if (eChange instanceof FeatureEChange<?,?>) {
+            eObj = eChange.getAffectedEObject() as EObject
+        } else if (eChange instanceof InsertRootEObject<?>) {
+            eObj = eChange.getNewValue() as EObject
+        } else if (eChange instanceof RemoveRootEObject<?>) {
+            eObj = eChange.getOldValue() as EObject
+        }
+
+        val integrationView = ci.getView(IntegrationCorrespondenceModelViewFactory.instance)
+        if (eObj !== null) {
+            return integrationView.getCorrespondingIntegratedEObjects(#[eObj], null).flatten
+        }
+        return null
+    }
+    
+    
+    public def setUserInteractor(UserInteractor userInteractor) {
+    	userInteracting = userInteractor;
+    }
 }
