@@ -196,7 +196,6 @@ public class NIAChangeImplementsTest {
 		assertTrue("In testAddMethodInFirstInterfaceForImplements() corresponding PCM model does not exist, but it should exist", pcmExists);
 	}
 	
-	//TODO clean up the method
 	private void testAddFirstImport()  throws Throwable {
 		//Add first import statement in FirstClassImpl.java
 		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_METHOD_IN_FIRST_INTERFACE_FOR_IMPLEMENTS), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_IMPORT_FOR_IMPLEMENTS), testProject);	
