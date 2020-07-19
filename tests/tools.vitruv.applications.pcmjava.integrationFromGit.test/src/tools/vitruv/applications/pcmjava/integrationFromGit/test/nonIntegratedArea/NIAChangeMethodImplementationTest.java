@@ -39,9 +39,6 @@ import tools.vitruv.applications.pcmjava.integrationFromGit.response.GitIntegrat
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChangesTestUtil;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.commits.EuFpetersenCbsPc_integratedArea_fineGrained_commits;
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.commits.EuFpetersenCbsPc_nonIntegratedArea_methodChanges_fineGrained_Commits;
-import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Java2PcmIntegrationChangePropagationSpecification;
-import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTest;
-import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.Java2PcmWithSeffstatmantsChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.tests.util.CompilationUnitManipulatorHelper;
 import tools.vitruv.domains.java.builder.VitruviusJavaBuilderApplicator;
 import tools.vitruv.framework.change.processing.ChangePropagationSpecification;
@@ -68,7 +65,7 @@ public class NIAChangeMethodImplementationTest {
 	//More than one change propagation specification can be used at the same time, but not all of them are compatible with each other.
 	private static ChangePropagationSpecification[] changePropagationSpecifications = {	new GitIntegrationChangePropagationSpecification()};
 	//Logger used to print some useful information about program while program running on the console
-	private static Logger logger = Logger.getLogger(CodeIntegrationTest.class.getSimpleName());
+	private static Logger logger = Logger.getLogger("simpleLogger");
 	//JDT Model of the integrated project
 	private static IProject testProject;
 	//JDT Model of the project from git repository

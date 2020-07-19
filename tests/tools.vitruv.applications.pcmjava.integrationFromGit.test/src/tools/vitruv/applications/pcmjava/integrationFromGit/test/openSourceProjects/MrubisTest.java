@@ -38,8 +38,6 @@ import tools.vitruv.applications.pcmjava.integrationFromGit.test.ApplyingChanges
 import tools.vitruv.applications.pcmjava.integrationFromGit.test.commits.EuFpetersenCbsPc_integratedArea_fineGrained_commits;
 import tools.vitruv.applications.pcmjava.linkingintegration.ResourceLoadingHelper;
 import tools.vitruv.applications.pcmjava.linkingintegration.change2command.Java2PcmIntegrationChangePropagationSpecification;
-import tools.vitruv.applications.pcmjava.linkingintegration.tests.CodeIntegrationTest;
-import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.Java2PcmWithSeffstatmantsChangePropagationSpecification;
 import tools.vitruv.applications.pcmjava.tests.util.CompilationUnitManipulatorHelper;
 import tools.vitruv.framework.change.processing.ChangePropagationSpecification;
 import tools.vitruv.framework.correspondence.Correspondence;
@@ -85,7 +83,7 @@ public class MrubisTest {
 
 	//TODO: Enable Logger
 	//TODO: add argument -consoleLog in run configuration
-	//private static Logger logger = Logger.getLogger(CodeIntegrationTest.class.getSimpleName());
+	//private static Logger logger = Logger.getLogger("simpleLogger");
 	
 	private static IProject testProject;
 	private static IWorkspace workspace;

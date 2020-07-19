@@ -61,7 +61,7 @@ import tools.vitruv.framework.util.datatypes.VURI;
 //import tools.vitruv.framework.vsum.VirtualModel;
 import tools.vitruv.framework.vsum.modelsynchronization.ChangePropagationAbortCause;
 import tools.vitruv.framework.vsum.modelsynchronization.ChangePropagationListener;
-import tools.vitruv.domains.java.util.gitchangereplay.extractors.GumTreeChangeExtractor;
+//import tools.vitruv.domains.java.util.gitchangereplay.extractors.GumTreeChangeExtractor;
 
 
 /**
@@ -751,9 +751,9 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @throws InterruptedException 
 	 * @throws IOException 
 	 */
-	public void applyChangesFromCommitWithGumTree (RevCommit oldCommit, RevCommit newCommit, IProject currentProject) throws CoreException, InterruptedException, IOException {
+/*	public void applyChangesFromCommitWithGumTree (RevCommit oldCommit, RevCommit newCommit, IProject currentProject) throws CoreException, InterruptedException, IOException {
 		
-		ArrayList<DiffEntry> diffs = new ArrayList<>(gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, /*true*/false, true));
+		ArrayList<DiffEntry> diffs = new ArrayList<>(gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, false, true));
 		diffs = sortDiffs(diffs);
 		//Collections.reverse(diffs); 
 
@@ -778,7 +778,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				iCu = findICompilationUnitInProject(diff.getOldPath(), currentProject);
 				//deleteCompilationUnit(iCu, this);
 				
-				iCu.delete(true/*false*/, null);
+				iCu.delete(true, null);
 				
 				//EcoreUtil.delete(iCu.);
 				//waitForSynchronization(1);
@@ -803,7 +803,8 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		}
 	}
 	
-	
+*/
+/*	
 	//TODO: Delete method modifyElementInProjectWithGumTree(...)
 	private void modifyElementInProjectWithGumTree(IProject project,
 			OutputStream oldElementContent, OutputStream newElementContent, 
@@ -839,7 +840,8 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			}	
 		}
 	}
-
+*/
+/*	
 	//TODO: Delete method addElementToProjectWithGumTree(...)
 	private void addElementToProjectWithGumTree(IProject project, String pathToElement, String elementContent) throws CoreException, InterruptedException, IOException {
 			
@@ -875,7 +877,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				
 				if (segments.length == 2) {
 					IFile file = project.getFile(tempPath.toString());
-					file.create(new ByteArrayInputStream(elementContent.getBytes()), false /*true*/, new NullProgressMonitor());
+					file.create(new ByteArrayInputStream(elementContent.getBytes()), false , new NullProgressMonitor());
 					System.out.println("Begin to wait for syncronization at the place 0");
 					//waitForSynchronization(1);
 					project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
@@ -885,7 +887,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 					IFolder packageFragmentRootFolder = project.getFolder(tempPath.segment(0));
 					
 					if (!packageFragmentRootFolder.exists()) {
-						packageFragmentRootFolder.create(false/*true*/, false/*true*/, new NullProgressMonitor());
+						packageFragmentRootFolder.create(false, false, new NullProgressMonitor());
 						System.out.println("Begin to wait for syncronization at the place 1");
 						//waitForSynchronization(1);
 						project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());				
@@ -902,7 +904,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 						createPackageWithPackageInfo(project, tempPath.removeFirstSegments(1).removeLastSegments(1).segments());
 					
 						//Create packaga per JDT
-						//packageFragment = packageFragmentRoot.createPackageFragment(packageFragmentName, false /*true*/, new NullProgressMonitor());
+						//packageFragment = packageFragmentRoot.createPackageFragment(packageFragmentName, false , new NullProgressMonitor());
 						////packageFragment.makeConsistent(new NullProgressMonitor());
 						//System.out.println("Begin to wait for syncronization at the place 2");
 						////waitForSynchronization(1);
@@ -920,7 +922,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 						ICompilationUnit compilationUnit = packageFragment.getCompilationUnit(lastSegment);
 						if (!compilationUnit.exists()) {
 							//Create java file per JDT
-							compilationUnit = packageFragment.createCompilationUnit(lastSegment, "", false/*true*/, new NullProgressMonitor());
+							compilationUnit = packageFragment.createCompilationUnit(lastSegment, "", false, new NullProgressMonitor());
 							Thread.sleep(5000);
 							
 							//EditList from JGit Bib
@@ -956,7 +958,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 					else {
 						IFile file = project.getFile(tempPath.toString());
 						if (!file.exists()) {
-							file.create(new ByteArrayInputStream(elementContent.getBytes()), false /*true*/, new NullProgressMonitor());
+							file.create(new ByteArrayInputStream(elementContent.getBytes()), false , new NullProgressMonitor());
 							System.out.println("Begin to wait for syncronization at the place 4");
 							//waitForSynchronization(1);
 							project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
@@ -972,13 +974,13 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				//IFile file = project.getFile(tempPath);
 				IFile file = project.getFile(tempPath.toString());
 				if (!file.exists()) {
-					file.create(new ByteArrayInputStream(elementContent.getBytes()), false /*true*/, new NullProgressMonitor());	
+					file.create(new ByteArrayInputStream(elementContent.getBytes()), false , new NullProgressMonitor());	
 					System.out.println("Begin to wait for syncronization at the place 5");
 					//waitForSynchronization(1);
 					project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 				}
 			}
 		}
-
+*/
     	
 }
