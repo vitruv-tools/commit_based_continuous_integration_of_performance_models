@@ -100,7 +100,12 @@ public class NIAChangeFieldTest {
         for (RevCommit commit: commitsList) {
         	commits.put(commit.getName(), commit);
         } 
-        //prepare a non-integrated area. The following steps are necessary:
+        prepareNonIntegratedAra();
+        
+	}
+		
+	private static void prepareNonIntegratedAra() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
+		//prepare a non-integrated area. The following steps are necessary:
     	//create nonIntegratedPackage in src folder
     	changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.INIT), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_NON_INTEGRATED_PACKAGE), testProject);
     	//create packages contracts and datatypes in nonIntegratedPackage
@@ -109,18 +114,17 @@ public class NIAChangeFieldTest {
     	changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_CONTRACTS_DATATYPES), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_CLASS_PACKAGE), testProject);
     	//create FirstClassImpl.java in package FirstClass
     	changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_CLASS_PACKAGE), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_CLASS_IMPL), testProject);
-		//added import 'nonIntegratedPackage.contracts.FirstInterface;' in FirstClassImpl.java
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_CLASS_IMPL), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_IMPORT_FOR_FILED), testProject);
-		//added 'implements FirstInterface' to FirstClassImpl.java
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_IMPORT_FOR_FILED), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_IMPLEMENTS_FOR_FILED), testProject);
-		//added method 'public void firstMethodInFirstInterface() {}' in FirstClassImpl.java
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_IMPLEMENTS_FOR_FILED), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_METHOD_FOR_FILED), testProject);
-		//added import 'nonIntegratedPackage.contracts.SecondInterface;' in FirstClassImpl.java
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_METHOD_FOR_FILED), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_IMPORT_FOR_FILED), testProject);
 	}
-		
+
 	@Test
 	public void testChangeField() throws Throwable {
+		testAddFirstInterface();
+		testAddMethodInFirstInterface();
+		testAddFirstImport();
+		testAddImplementsAndMethod();
+		testAddSecondInterface();
+		testAddMethodInSecondInterface();
+		testAddSecondImport();
 		testAddField();
 		testRenameField();
 		testAddFieldModifier();
@@ -133,10 +137,152 @@ public class NIAChangeFieldTest {
 	}
 	
 
+	private void testAddFirstInterface()  throws Throwable  {
+		//Add interface in contracts package
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_CLASS_IMPL), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_INTERFACE_FOR_IMPLEMENTS), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_INTERFACE_FOR_IMPLEMENTS);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstInterface.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstInterface.java", testProject);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
+		//Ensure that there is a corresponding PCM model
+		boolean pcmExists = ApplyingChangesTestUtil.assertOperationInterfaceWithName(compUnitChanged.getElementName(), virtualModel);
+		
+		assertTrue("In testAddFirstInterface() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+		assertTrue("In testAddFirstInterface() corresponding PCM model does not exist, but it should exist", pcmExists);
+	}
+
+	
+	private void testAddMethodInFirstInterface()  throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException   {
+		//Add method in interface
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_INTERFACE_FOR_IMPLEMENTS), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_METHOD_IN_FIRST_INTERFACE_FOR_IMPLEMENTS), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_METHOD_IN_FIRST_INTERFACE_FOR_IMPLEMENTS);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstInterface.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstInterface.java", testProject);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
+		//Ensure that there is a corresponding PCM model
+		boolean pcmExists = ApplyingChangesTestUtil.assertInterfaceMethodWithName("firstMethodInFirstInterface", compUnitChanged, virtualModel);
+		
+		assertTrue("In testAddMethodInFirstInterface() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+		assertTrue("In testAddMethodInFirstInterface() corresponding PCM model does not exist, but it should exist", pcmExists);
+	}
+	
+	private void testAddFirstImport()  throws Throwable {
+		//Add first import statement in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_METHOD_IN_FIRST_INTERFACE_FOR_IMPLEMENTS), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_IMPORT_FOR_IMPLEMENTS), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_IMPORT_FOR_IMPLEMENTS);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
+		//Ensure that there is a corresponding PCM model
+		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentCorrespondingToCompilationUnit(compUnitChanged.getElementName(), compUnitChanged, virtualModel);
+		assertTrue("In testAddFirstImport() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+		assertTrue("In testAddFirstImport() corresponding PCM model does not exist, but it should exist", pcmExists);
+	}
+	
+	private void testAddImplementsAndMethod()  throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
+		//Add implements statement and implemented method in FirstClassImpl.java
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_IMPORT_FOR_IMPLEMENTS), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_IMPLEMENTS_AND_METHOD), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_IMPLEMENTS_AND_METHOD);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
+		//Ensure that there is a corresponding PCM model
+		boolean pcmExists = ApplyingChangesTestUtil.assertOperationProvidedRole("FirstClassImpl.java", "FirstInterface", compUnitChanged, virtualModel);
+		//Ensure that there is a corresponding PCM model for method
+		boolean pcmForMethodExists = ApplyingChangesTestUtil.assertClassMethodWithName("firstMethodInFirstInterface", compUnitChanged, virtualModel);
+		
+		assertTrue("In testAddImplementsAndMethod() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+		assertTrue("In testAddImplementsAndMethod() corresponding PCM model does not exist, but it should exist", pcmExists);
+		assertTrue("In testAddImplementsAndMethod() corresponding PCM model for the method does not exist, but it should exist", pcmForMethodExists);	
+	}
+
+	
+	private void testAddSecondInterface()  throws Throwable  {
+		//Add interface in contracts package
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_IMPLEMENTS_AND_METHOD), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_SECOND_INTERFACE_FOR_IMPLEMENTS), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_SECOND_INTERFACE_FOR_IMPLEMENTS);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("SecondInterface.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("SecondInterface.java", testProject);
+		//Necessary to avoid a run time exception in  ApplyingChangesTestUtil.assertOperationInterfaceWithName
+		Thread.sleep(5000);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
+		//Ensure that there is a corresponding PCM model
+		boolean pcmExists = ApplyingChangesTestUtil.assertOperationInterfaceWithName(compUnitChanged.getElementName(), virtualModel);
+		
+		assertTrue("In testAddSecondInterface() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+		assertTrue("In testAddSecondInterface() corresponding PCM model does not exist, but it should exist", pcmExists);
+		
+	}
+	
+	
+	private void testAddMethodInSecondInterface()  throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException  {
+		//Add interface in contracts package
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_SECOND_INTERFACE_FOR_IMPLEMENTS), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_METHOD_IN_SECOND_INTERFACE_FOR_IMPLEMENTS), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_METHOD_IN_SECOND_INTERFACE_FOR_IMPLEMENTS);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("SecondInterface.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("SecondInterface.java", testProject);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
+		//Ensure that there is a corresponding PCM model
+		boolean pcmExists = ApplyingChangesTestUtil.assertInterfaceMethodWithName("firstMethodInSecondInterface", compUnitChanged, virtualModel);
+		
+		assertTrue("In testAddMethodInSecondInterface() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+		assertTrue("In testAddMethodInSecondInterface() corresponding PCM model does not exist, but it should exist", pcmExists);
+	}
+	
+	
+	private void testAddSecondImport()  throws Throwable  {
+		//Add interface in contracts package
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_METHOD_IN_SECOND_INTERFACE_FOR_IMPLEMENTS), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_SECOND_IMPORT_FOR_IMPLEMENTS), testProject);	
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_SECOND_IMPORT_FOR_IMPLEMENTS);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
+		//Ensure that there is a corresponding PCM model
+		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentCorrespondingToCompilationUnit(compUnitChanged.getElementName(), compUnitChanged,  virtualModel);
+		
+		assertTrue("In testAddSecondImport() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+		assertTrue("In testAddSecondImport() corresponding PCM model does not exist, but it should exist", pcmExists);
+	}
+	
 	
 	private void testAddField() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		//Apply changes
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_IMPORT_FOR_FILED), 
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_SECOND_IMPORT_FOR_IMPLEMENTS/*ADD_IMPORT_FOR_FILED*/), 
 				commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIELD), testProject);	
 		//Checkout the repository on the certain commit
 		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIELD);
@@ -264,163 +410,6 @@ public class NIAChangeFieldTest {
 		assertTrue("In testRemoveField() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 		assertTrue("In testRemoveField() corresponding PCM model exist, but it should not exist", noPcmExists);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-/*	
-	
-	
-	//TODO java.lang.NullPointerException
-	//at tools.vitruv.domains.java.monitorededitor.methodchange.changeclassifiers.MethodParameterNameChangedClassifier.getOriginalMethodDeclaration(MethodParameterNameChangedClassifier.java:106)
-	@Test
-	public void testField() throws Throwable {
-		testAddSecondClassForField();
-		testAddImportForField();
-		testAddField();
-		testRenameField();
-		testRemoveField();
-		testRemoveImportForField();
-	}
 
-	//TODO java.lang.NullPointerException
-	//at tools.vitruv.domains.java.monitorededitor.methodchange.changeclassifiers.MethodParameterNameChangedClassifier.getOriginalMethodDeclaration(MethodParameterNameChangedClassifier.java:106)
-	private void testAddSecondClassForField()  throws Throwable {
-		//Add class annotation in FirstClassImpl.java
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_CLASS_IMPL), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_SECOND_CLASS_FOR_FIELD), testProject);	
-		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_SECOND_CLASS_FOR_FIELD);
-		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
-		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
-		//Get the changed compilation unit and the compilation unit from git repository to compare
-		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("SecondClass.java", projectFromGitRepository);
-		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("SecondClass.java", testProject);
-		//Compare JaMoPP-Models 
-		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
-		//Ensure that there is a corresponding PCM model to the compUnitChanged.
-		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentCorrespondingToCompilationUnit(compUnitChanged.getElementName(), compUnitChanged, virtualModel);
-		
-		assertTrue("In testAddSecondClassForField() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
-		assertTrue("In testAddSecondClassForField() corresponding PCM model does not exist, but it should exist", pcmExists);
-	}
-
-	private void testAddImportForField()  throws Throwable {
-		//Add class annotation in FirstClassImpl.java
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_SECOND_CLASS_FOR_FIELD), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_IMPORT_FOR_FIELD), testProject);	
-		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_IMPORT_FOR_FIELD);
-		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
-		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
-		//Get the changed compilation unit and the compilation unit from git repository to compare
-		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
-		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
-		//Compare JaMoPP-Models 
-		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
-		//Ensure that there is a corresponding PCM model to the compUnitChanged.
-		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentCorrespondingToCompilationUnit(compUnitChanged.getElementName(), compUnitChanged, virtualModel);
-		
-		assertTrue("In testAddImportForField() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
-		assertTrue("In testAddImportForField() corresponding PCM model does not exist, but it should exist", pcmExists);
-	}
-	
-	private void testAddField()  throws Throwable {
-		//Add class annotation in FirstClassImpl.java
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_IMPORT_FOR_FIELD), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIELD), testProject);	
-		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIELD);
-		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
-		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
-		//Get the changed compilation unit and the compilation unit from git repository to compare
-		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
-		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
-		//Compare JaMoPP-Models 
-		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
-		//Ensure that there is a corresponding PCM model to the secondClassField
-		boolean pcmExists = ApplyingChangesTestUtil.assertFieldWithName("secondClassField", compUnitChanged, virtualModel);
-		
-		assertTrue("In testAddField() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
-		assertTrue("In testAddField() corresponding PCM model does not exist, but it should exist", pcmExists);
-	
-	}
-	
-	private void testRenameField()  throws Throwable {
-		//Add class annotation in FirstClassImpl.java
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIELD), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.RENAME_FIELD), testProject);	
-		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.RENAME_FIELD);
-		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
-		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
-		//Get the changed compilation unit and the compilation unit from git repository to compare
-		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
-		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
-		//Compare JaMoPP-Models 
-		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
-		//Ensure that there is a corresponding PCM model to the field with the new name.
-		boolean pcmExists = ApplyingChangesTestUtil.assertFieldWithName("renamedSecondClassField", compUnitChanged, virtualModel);
-		//Ensure that there is no corresponding PCM model to the field with the old name.
-		boolean noPcmExists = ApplyingChangesTestUtil.assertNoFieldWithName("secondClassField", compUnitChanged, virtualModel);
-		
-		assertTrue("In testRenameField() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
-		assertTrue("In testRenameField() corresponding PCM model does not exist, but it should exist", pcmExists);
-		assertTrue("In testRenameField() corresponding PCM model exists, but it should not exist", noPcmExists);
-	
-	}
-	
-	private void testRemoveField()  throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
-		//Add class annotation in FirstClassImpl.java
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.RENAME_FIELD), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.REMOVE_FIELD), testProject);	
-		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.REMOVE_FIELD);
-		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
-		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
-		//Get the changed compilation unit and the compilation unit from git repository to compare
-		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
-		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
-		//Compare JaMoPP-Models 
-		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
-		//Ensure that there is no corresponding PCM model
-		boolean noPcmExists = ApplyingChangesTestUtil.assertNoFieldWithName("renamedSecondClassField", compUnitChanged, virtualModel);
-				
-		assertTrue("In testRemoveField() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
-		assertTrue("In testRemoveField() corresponding PCM model exist, but it should not exist", noPcmExists);
-	
-	}
-	
-	private void testRemoveImportForField()  throws Throwable {
-		//Add class annotation in FirstClassImpl.java
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.REMOVE_FIELD), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.REMOVE_IMPORT_FOR_FIELD), testProject);	
-		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.REMOVE_IMPORT_FOR_FIELD);
-		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
-		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
-		//Get the changed compilation unit and the compilation unit from git repository to compare
-		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
-		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
-		//Compare JaMoPP-Models 
-		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
-		//Ensure that there is a corresponding PCM model to the compUnitChanged.
-		boolean pcmExists = ApplyingChangesTestUtil.assertRepositoryComponentCorrespondingToCompilationUnit(compUnitChanged.getElementName(), compUnitChanged, virtualModel);
-		
-		assertTrue("In testRemoveImportForField() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
-		assertTrue("In testRemoveImportForField() corresponding PCM model does not exist, but it should exist", pcmExists);
-	
-	}
-*/	
-	
 	
 }	

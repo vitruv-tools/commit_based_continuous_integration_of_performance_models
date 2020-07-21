@@ -1311,22 +1311,28 @@ public abstract class ApplyingChangesTestUtil {
 	
 	
 	public static boolean assertNoFieldWithName(String fieldName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
-		final Set<RepositoryComponent> repoComponents = virtualModel.getCorrespondenceModel().<RepositoryComponent>getAllEObjectsOfTypeInCorrespondences(RepositoryComponent.class);
-	    //Find a corresponding PCM model to the compilationUnit
-		for (final RepositoryComponent repoComponent : repoComponents) {
-	    	if (repoComponent.getEntityName().contains(compilationUnit.getElementName())) {
-	    		//Make sure there is no corresponding PCM models to the fieldName
-	    		EList<RequiredRole> requiredRoles = repoComponent.getRequiredRoles_InterfaceRequiringEntity();
-	    		for (RequiredRole requiredRole : requiredRoles) {
-	    			if (requiredRole.getEntityName().equals(fieldName)) {
-	    				return false;
-	    			}
-	    		}
-	    		return true;
-	    	}  
+		 ConcreteClassifier classifier_JaMoPP = getJaMoPPClassifier(compilationUnit, compilationUnit.getElementName(), virtualModel);
+		 if (classifier_JaMoPP == null) {
+			 return false;
+		 }
+		 
+		 final Set<RepositoryComponent> repoComponents = CorrespondenceModelUtil.getCorrespondingEObjectsByType(virtualModel.getCorrespondenceModel(), classifier_JaMoPP, RepositoryComponent.class);
+		//final Set<RepositoryComponent> repoComponents = virtualModel.getCorrespondenceModel().<RepositoryComponent>getAllEObjectsOfTypeInCorrespondences(RepositoryComponent.class);
+	    if (repoComponents.size() != 1) {
+	    	return false;
+	    }
+		
+
+		//Make sure there is no corresponding PCM models to the fieldName
+		EList<RequiredRole> requiredRoles = repoComponents.iterator().next() .getRequiredRoles_InterfaceRequiringEntity();
+		for (RequiredRole requiredRole : requiredRoles) {
+			if (requiredRole.getEntityName().equals(fieldName)) {
+				return false;
+			}
 		}
-	    
-	    return false;
+		
+		return true;
+
 	}
 	
 

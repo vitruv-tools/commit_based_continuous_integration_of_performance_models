@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -78,7 +79,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	
 	private static final Logger logger = Logger.getLogger(Java2PcmTransformationTest.class.getSimpleName());
 	private static int MAXIMUM_SYNC_WAITING_TIME = 10000;
-	private int expectedNumberOfSyncs = 0;
+	private AtomicInteger expectedNumberOfSyncs = new AtomicInteger(0);
 	
 	
 	public GitChangeApplier(GitRepository git) {
@@ -674,12 +675,12 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 */
 	@Override
 	public synchronized void waitForSynchronization(int numberOfExpectedSynchronizationCalls) {
-		expectedNumberOfSyncs += numberOfExpectedSynchronizationCalls;
+		expectedNumberOfSyncs.addAndGet(numberOfExpectedSynchronizationCalls);
 		logger.debug("Starting to wait for finished synchronization. Expected syncs: "
 				+ numberOfExpectedSynchronizationCalls + ", remaining syncs: " + expectedNumberOfSyncs);
 		try {
 			int wakeups = 0;
-			while (expectedNumberOfSyncs > 0) {
+			while (expectedNumberOfSyncs.get() > 0) {
 				wait(MAXIMUM_SYNC_WAITING_TIME);
 				wakeups++;
 				// If we had more wakeups than expected sync calls, we had a
@@ -687,7 +688,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				// and so the synchronization was not finished as expected
 				if (wakeups > numberOfExpectedSynchronizationCalls) {
 					System.out.println("Waiting for synchronization timed out. Continue the programm anyway.");
-					expectedNumberOfSyncs -= numberOfExpectedSynchronizationCalls;
+					expectedNumberOfSyncs.addAndGet(-numberOfExpectedSynchronizationCalls);
 					break;
 				}
 				System.out.println("Waiting for synchronization timed out. Please check if there is an opened user dialog.\nTry to wait one more time");
@@ -713,7 +714,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 */
 	@Override
 	public synchronized void finishedChangePropagation() {
-		expectedNumberOfSyncs--;
+		expectedNumberOfSyncs.decrementAndGet();
 		logger.debug("Reducing number of expected syncs to: " + expectedNumberOfSyncs);
 		this.notifyAll();
 	}
@@ -725,7 +726,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 */
 	@Override
 	public synchronized void abortedChangePropagation(ChangePropagationAbortCause cause) {
-		expectedNumberOfSyncs--;
+		expectedNumberOfSyncs.decrementAndGet();
 		logger.debug("Reducing number of expected syncs to: " + expectedNumberOfSyncs);
 		this.notifyAll();
 	}
