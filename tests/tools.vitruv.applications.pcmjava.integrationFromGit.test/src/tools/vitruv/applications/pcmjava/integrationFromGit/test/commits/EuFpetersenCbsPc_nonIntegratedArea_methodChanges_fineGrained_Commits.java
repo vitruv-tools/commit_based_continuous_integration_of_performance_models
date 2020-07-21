@@ -49,16 +49,26 @@ public abstract class EuFpetersenCbsPc_nonIntegratedArea_methodChanges_fineGrain
 		//Branch and commits for testing fine grained changes in a non integrated area on  method implementation
 		public final static String BRANCH_NAME_METHOD_IMPLEMENTATION = "nonIntegratedArea_methodChanges_fineGrained_methodImplementation";
 		
-		//added 'int i = 0;' in firstMethodInFirstInterface in FirstClassImpl.java
-		public final static String ADD_FIRST_INTERNAL_ACTION_IN_FIRST_METHOD_IN_FIRST_CLASS_IMPL = "b062c3b27f021e19070a26fbea969923d44f4d97";
-		//add 'import nonIntegratedPackage.SecondClass.SecondClassImpl;' in FirstClassImpl.java
-		public final static String ADD_SECOND_IMPORT_IN_FIRST_CLASS_IMPL = "b2d95baf9f159cf92c3a136109fb5369c1fa3dae";		
-		//added 'SecondClassImpl secondClassImpl = new SecondClassImpl();secondClassImpl.firstMethodInSecondInterface();' in firstMethodInFirstInterface in FirstClassImpl.java
-		public final static String ADD_FIRST_EXTERNAL_CALL_IN_FIRST_METHOD_IN_FIRST_CLASS_IMPL = "c193eb70b1b97dec7a1e992ab853eee99995a22a";		
-		//added 'int k = 10;for (int j = 0; j < k; j++) {secondClassImpl.firstMethodInSecondInterface();}' in firstMethodInFirstInterface in FirstClassImpl.java
-		public final static String ADD_SECOND_INTERNAL_ACTION_AND_LOOP_WITH_SECOND_EXTERNAL_CALL_IN_FIRST_METHOD_IN_FIRST_CLASS_IMPL = "019bd57b0c7ebd695ff63ebddd81c8d5531051e9";		
-		//added 'if (k < 10) {k = 0;}else {secondClassImpl.firstMethodInSecondInterface();}' in firstMethodInFirstInterface in FirstClassImpl.java
-		public final static String ADD_IF_ELSE_WITH_INTERNAL_ACTION_AND_EXTERNAL_CALL_IN_FIRST_METHOD_IN_FIRST_CLASS_IMPL = "81236fa023c0d6ef4ca93e5d8ac7a52aa8cc90de";		
+		//added 'import nonIntegratedPackage.contracts.SecondInterface;' in FirstClassImpl.java
+		public final static String ADD_SECOND_IMPORT_IN_FIRST_CLASS_IMPL = "121884b6e6e596a7b5d0b78a71258e15efae6e28";
+		//added 'SecondInterface externalClass;' in FirstClassImpl.java
+		public final static String ADD_FIELD_IN_FIRST_CLASS_IMPL = "d2f84ecf18ed9cdc8421339c6658759cad974320";
+		//added 'externalClass.firstMethodInSecondInterface();' in method firstMethodInFirstInterface in FirstClassImpl.java
+		public final static String ADD_EXTERNAL_CALL = "21b208d3b65269435f408456a864c841fcca415b";
+		//added 'int i = 10;' in method firstMethodInFirstInterface in FirstClassImpl.java
+		public final static String  ADD_INTERNAL_ACTION= "70db2fb295e4d9a296d8ceab7d254e127edc092b";
+		//added 'for (int k = 0; k < i; k++) {externalClass.firstMethodInSecondInterface();}' in method firstMethodInFirstInterface in FirstClassImpl.java
+		public final static String ADD_FOR = "f25446498dd58a31e6a66f5ddcbb2d158cd5ab2e";
+		//added 'if (i < 2) {i = 20;} else {externalClass.firstMethodInSecondInterface();}' in method firstMethodInFirstInterface in FirstClassImpl.java
+		public final static String ADD_IF_ELSE = "881b13ac8874db4bc5f7bd357b85adb227923428";
+		//removed 'if (i < 2) {i = 20;} else {externalClass.firstMethodInSecondInterface();}' in method firstMethodInFirstInterface in FirstClassImpl.java
+		public final static String REMOVE_IF_ELSE = "3b5976e4c5000c1ffd432af1bd9b600872d6aabe";
+		//removed 'for (int k = 0; k < i; k++) {externalClass.firstMethodInSecondInterface();}' in method firstMethodInFirstInterface in FirstClassImpl.java
+		public final static String REMOVE_FOR = "806351160ed0aff2146ca5eb81cec1f044e7f44a";
+		//removed 'int i = 10;' in method firstMethodInFirstInterface in FirstClassImpl.java
+		public final static String REMOVE_INTERNAL_ACTION = "059ce4d0c7c445b68690af382035559f736b5e68";
+		//removed 'externalClass.firstMethodInSecondInterface();' in method firstMethodInFirstInterface in FirstClassImpl.java
+		public final static String REMOVE_EXTERNAL_CALL = "b700046bc10932b096c1079b98018c634ce64a96";
 								
 				
 		//Branch and commits for testing fine grained changes in a non integrated area on  method modifiers

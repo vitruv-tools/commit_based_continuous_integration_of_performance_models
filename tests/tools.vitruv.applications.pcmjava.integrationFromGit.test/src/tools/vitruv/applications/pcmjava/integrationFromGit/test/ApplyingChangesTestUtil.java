@@ -722,7 +722,19 @@ public abstract class ApplyingChangesTestUtil {
 		behaviour.getSteps_Behaviour().add(SeffFactory.eINSTANCE.createStopAction());
 	}
 
-	//TODO javadoc
+	
+	/**
+	 * Compares all changed JaMoPP-models in <code>changedProject</code> based on <code>changes</code> with reference models contained in <code>projectFromGitRepository</code>
+	 * 
+	 * @param changedProject project that contains changed models
+	 * @param projectFromGitRepository project that contains reference models
+	 * @param changes changes extracted from a commit
+	 * @param virtualModel Vitruv virtual model
+	 * @return true if all changed models and their reference models are equal. Else false 
+	 * @throws CoreException
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	public static boolean compareAllChangedJaMoPPModels(IProject changedProject, IProject projectFromGitRepository, ArrayList<DiffEntry> changes, InternalVirtualModel virtualModel) throws CoreException, IOException, InterruptedException {
 		
 		boolean allModelsAreEqual = true;
@@ -765,7 +777,18 @@ public abstract class ApplyingChangesTestUtil {
 		return true;
 	}
 	
-	//TODO javadoc
+	/**
+	 * Compares a file with <code>pathToFile</code> from <code>changedProject</code> with its reference file from <code>projectFromGitRepository</code>
+	 * 
+	 * @param changedProject project that contains the changed file
+	 * @param projectFromGitRepository project that contains the reference file
+	 * @param pathToFile path to the changed file in <code>changedProject</code>
+	 * @param virtualModel Vitruv virtual model
+	 * @return true if the files are equal, else false
+	 * @throws CoreException
+	 * @throws IOException
+	 * @throws InterruptedException
+	 */
 	private static boolean compareTwoFiles(IProject changedProject, IProject projectFromGitRepository, String pathToFile, InternalVirtualModel virtualModel) throws CoreException, IOException, InterruptedException {
 		
 		if (pathToFile.endsWith(".java")) {
@@ -781,7 +804,14 @@ public abstract class ApplyingChangesTestUtil {
 
 	}
 
-	//TODO javadoc
+	/**
+	  * Asserts existence of a {@link RepositoryComponent} with <code>nameOfComponent</code>
+	  * 
+	 * @param nameOfComponent name of the {@link RepositoryComponent}
+	 * @param virtualModel Vitruv virtual model
+	 * @return true if a  {@link RepositoryComponent} with <code>nameOfComponent</code> exists, else false
+	 * @throws Throwable
+	 */
 	 public static boolean assertRepositoryComponentWithName(String nameOfComponent, InternalVirtualModel virtualModel) throws Throwable {
 		 final Set<RepositoryComponent> repoComponents = virtualModel.getCorrespondenceModel().<RepositoryComponent>getAllEObjectsOfTypeInCorrespondences(RepositoryComponent.class);
 		    for (final RepositoryComponent repoComponent : repoComponents) {
@@ -801,7 +831,15 @@ public abstract class ApplyingChangesTestUtil {
 	 }
 	 
 	 
-	//TODO javadoc
+	 /**
+	  * Asserts existence of a {@link RepositoryComponent} corresponding to the <code>compilationUnit</code> and class with <code>className</code>
+	  * 
+	 * @param className class name
+	 * @param compilationUnit compilation unit which a corresponding {@link RepositoryComponent} must exist to
+	 * @param virtualModel virtual model
+	 * @return true if a  {@link RepositoryComponent} corresponding to <code>compilationUnit</code>  exists, else false
+	 * @throws Throwable
+	 */
 	 public static boolean assertRepositoryComponentCorrespondingToCompilationUnit(String className, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) throws Throwable {
 		 ConcreteClassifier classifier_JaMoPP = getJaMoPPClassifier(compilationUnit, className, virtualModel);
 		 if (classifier_JaMoPP == null) {
@@ -817,7 +855,14 @@ public abstract class ApplyingChangesTestUtil {
 		 return false;
 	 }
 		  
-	//TODO javadoc
+	 /**
+	   * Assert absence of a {@link RepositoryComponent} with <code>nameOfComponent</code>
+	   * 
+	 * @param nameOfComponent name of the {@link RepositoryComponent} 
+	 * @param virtualModel virtual model
+	 * @return true if no {@link RepositoryComponent} with <code>nameOfComponent</code> exists
+	 * @throws Throwable
+	 */
 	  public static boolean assertNoRepositoryComponentWithName(String nameOfComponent, InternalVirtualModel virtualModel) throws Throwable {
 		    final Set<RepositoryComponent> repoComponents = virtualModel.getCorrespondenceModel().<RepositoryComponent>getAllEObjectsOfTypeInCorrespondences(RepositoryComponent.class);
 		    for (final RepositoryComponent repoComponent : repoComponents) {
@@ -841,8 +886,16 @@ public abstract class ApplyingChangesTestUtil {
 	  }
 	  
 	  
-	//TODO javadoc
-	 public static boolean assertOperationInterfaceWithName(String nameOfComponent, InternalVirtualModel virtualModel) throws Throwable {
+	
+	 /**
+	  * Asserts existence of an {@link OperationInterface} with <code>nameOfComponent</code>
+	  * 
+	 * @param nameOfComponent
+	 * @param virtualModel
+	 * @return true if the {@link OperationInterface} exists
+	 * @throws Throwable
+	 */
+	public static boolean assertOperationInterfaceWithName(String nameOfComponent, InternalVirtualModel virtualModel) throws Throwable {
 		//Get rid of the file extension ".java". The length of ".java" is 5.
 		String nameWithoutFileExtention = nameOfComponent.substring(0, nameOfComponent.length() - 5);
 	    final Set<OperationInterface> repoComponents = virtualModel.getCorrespondenceModel().<OperationInterface>getAllEObjectsOfTypeInCorrespondences(OperationInterface.class);
@@ -855,8 +908,15 @@ public abstract class ApplyingChangesTestUtil {
 	    return false;
 	 }
 		  
-	//TODO javadoc
-	  public static boolean assertNoOperationInterfaceWithName(String nameOfComponent, InternalVirtualModel virtualModel) throws Throwable {   
+	/**
+	  * Asserts absence of the {@link OperationInterface} with <code>nameOfComponent</code>
+	  * 
+	 * @param nameOfComponent
+	 * @param virtualModel
+	 * @return true if the {@link OperationInterface} does not exist
+	 * @throws Throwable
+	 */
+	public static boolean assertNoOperationInterfaceWithName(String nameOfComponent, InternalVirtualModel virtualModel) throws Throwable {   
 		// Get rid of the file extension ".java". The length of ".java" is 5.
 		String nameWithoutFileExtention = nameOfComponent.substring(0, nameOfComponent.length() - 5);
 		final Set<OperationInterface> repoComponents = virtualModel.getCorrespondenceModel()
@@ -873,7 +933,16 @@ public abstract class ApplyingChangesTestUtil {
 	  }
   
 	  
-	  public static boolean assertNumberOfInternalActions(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel, int expectedNumberOfInternalActions) {
+	  /**
+	   * Asserts existence of the particular number <code>expectedNumberOfInternalActions</code> of {@link InternalAction} corresponding to the <code>compilationUnit</code> 
+	   * 
+	 * @param methodName
+	 * @param compilationUnit
+	 * @param virtualModel
+	 * @param expectedNumberOfInternalActions
+	 * @return true if the {@link InternalAction}s exist, else false
+	 */
+	public static boolean assertNumberOfInternalActions(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel, int expectedNumberOfInternalActions) {
 			
 		  if (expectedNumberOfInternalActions < 0) {
 			  return false; 
