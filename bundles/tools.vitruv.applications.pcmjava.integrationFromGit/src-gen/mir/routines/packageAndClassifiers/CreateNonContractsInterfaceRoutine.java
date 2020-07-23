@@ -12,11 +12,6 @@ import tools.vitruv.extensions.dslsruntime.reactions.ReactionExecutionState;
 import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHaving;
 import tools.vitruv.framework.userinteraction.UserInteractionOptions;
 
-/**
- * *
- * nUser selects if interface should be created if interface was not created into contract package.
- *  
- */
 @SuppressWarnings("all")
 public class CreateNonContractsInterfaceRoutine extends AbstractRepairRoutineRealization {
   private CreateNonContractsInterfaceRoutine.ActionUserExecution userExecution;
@@ -28,7 +23,7 @@ public class CreateNonContractsInterfaceRoutine extends AbstractRepairRoutineRea
     
     public void callRoutine1(final Interface javaInterface, final CompilationUnit compilationUnit, final org.emftext.language.java.containers.Package javaPackage, @Extension final RoutinesFacade _routinesFacade) {
       String _name = javaInterface.getName();
-      String _plus = ("The created interface is not in the contracts packages. Should an architectural interface be created for the interface " + _name);
+      String _plus = ("Should an architectural interface be created for the interface " + _name);
       final String userMsg = (_plus + " ?");
       String _message = Java2PcmUserSelection.SELECT_CREATE_INTERFACE_NOT_IN_CONTRACTS.getMessage();
       String _message_1 = Java2PcmUserSelection.SELECT_DONT_CREATE_INTERFACE_NOT_IN_CONTRACTS.getMessage();

@@ -41,6 +41,8 @@ public abstract class EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_
 	
 	//added import, implements, implemented method with override and implementation used only internal actions
 	public final static String FIRST_COARSE_GRAINED_COMMIT = "2915e976745af9464bb669d2b8e36b428dba41a9";
+	//added import 'SecondInterface', added field 'SecondInterface externalClass', added if else with one internal action and one external call in method firstMethodInFirstInterface in class FirstClassImpl
+	public final static String SECOND_COARSE_GRAINED_COMMIT = "515690f946d57089a287e6a18a806b24793f1fe1";
 	
 	
 	

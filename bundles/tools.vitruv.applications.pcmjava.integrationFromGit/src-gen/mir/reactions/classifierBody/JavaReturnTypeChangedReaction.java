@@ -14,7 +14,7 @@ import tools.vitruv.framework.change.echange.feature.reference.ReplaceSingleValu
 
 /**
  * 
- * //Langhammers Level 3 Regel fuer remove Field
+ * //Langhammer's Level 3 integration change propagation rule for removing field
  * reaction RemoveFieldEvent {
  * 	after element removed from java::ConcreteClassifier[members]
  * 		with oldValue instanceof java::Field // TODO replace with element filter in trigger

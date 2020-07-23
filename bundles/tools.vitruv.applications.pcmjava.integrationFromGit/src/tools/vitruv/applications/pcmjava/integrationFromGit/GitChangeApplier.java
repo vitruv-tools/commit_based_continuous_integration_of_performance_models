@@ -59,6 +59,7 @@ import tools.vitruv.applications.pcmjava.tests.util.SynchronizationAwaitCallback
 //import tools.vitruv.framework.util.bridges.EMFBridge;
 import tools.vitruv.framework.util.bridges.EcoreResourceBridge;
 import tools.vitruv.framework.util.datatypes.VURI;
+import tools.vitruv.framework.vsum.InternalVirtualModel;
 //import tools.vitruv.framework.vsum.VirtualModel;
 import tools.vitruv.framework.vsum.modelsynchronization.ChangePropagationAbortCause;
 import tools.vitruv.framework.vsum.modelsynchronization.ChangePropagationListener;
@@ -362,7 +363,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 					packageFragment = packageFragmentRoot.getPackageFragment(packageFragmentName);
 					//Check if the PackageFragment exists. If not, create it
 					if (!packageFragment.exists()) {
-						createPackageWithPackageInfo(project, tempPath.removeFirstSegments(1).removeLastSegments(1).segments());				
+						createPackageWithPackageInfo(project, packageFragmentRoot, tempPath.removeFirstSegments(1).removeLastSegments(1).segments());				
 					}
 					//packageFragment.makeConsistent(new NullProgressMonitor());
 					ICompilationUnit compilationUnit = packageFragment.getCompilationUnit(lastSegment);
@@ -523,10 +524,36 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @return JaMoPP Model of the created package
 	 * @throws IOException
 	 */
-	protected Package createPackageWithPackageInfo(final IProject project, final String... namespace) throws IOException {
+	protected Package createPackageWithPackageInfo(final IProject project, final IPackageFragmentRoot packageFragmentRoot, final String... namespace) throws IOException {
+		assert (namespace.length > 0);
+		Package jaMoPPPackage = null;
+		//Check if there are parent subpackages on the path, which don't exist yet. If so, create them before creating the target package.
+		String parentPackage = namespace[0];
+		for (int i = 0; i < namespace.length; i++) {
+			if (!packageFragmentRoot.getPackageFragment(parentPackage).exists()) {
+				String currentPackage = parentPackage.replace(".", "/") + "/package-info.java";
+				jaMoPPPackage = ContainersFactory.eINSTANCE.createPackage();
+				List<String> namespaceList = Arrays.asList(namespace);
+				jaMoPPPackage.setName(namespaceList.get(namespaceList.size() - 1));
+				jaMoPPPackage.getNamespaces().addAll(namespaceList.subList(0, namespaceList.size() - 1));
+				
+				ResourceSet resourceSet = new ResourceSetImpl();
+				VURI vuri = VURI.getInstance(project.getName() + "/src/" + currentPackage);
+				final Resource resource = resourceSet.createResource(vuri.getEMFUri());
+				
+				EcoreResourceBridge.saveEObjectAsOnlyContent(jaMoPPPackage, resource);
+				waitForSynchronization(1);
+			}
+			
+			parentPackage = i + 1 < namespace.length ? parentPackage + "." + namespace[i + 1] : parentPackage  ;
+		}
+		
+		return jaMoPPPackage;
+		
+		/*
 		String packageFile = StringUtils.join(namespace, "/");
 		packageFile = packageFile + "/package-info.java";
-		final Package jaMoPPPackage = ContainersFactory.eINSTANCE.createPackage();
+		Package jaMoPPPackage = ContainersFactory.eINSTANCE.createPackage();
 		List<String> namespaceList = Arrays.asList(namespace);
 		jaMoPPPackage.setName(namespaceList.get(namespaceList.size() - 1));
 		jaMoPPPackage.getNamespaces().addAll(namespaceList.subList(0, namespaceList.size() - 1));
@@ -538,6 +565,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		EcoreResourceBridge.saveEObjectAsOnlyContent(jaMoPPPackage, resource);
 		waitForSynchronization(1);
 		return jaMoPPPackage;
+		*/
 	}
 	
 	
@@ -733,6 +761,19 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 
 	
 	
+	public void applyChangesFromCommitUsingStateBasedChangePropagation(IProject newProjectState, IProject oldProjectState, ICompilationUnit newCompilationUnitState, InternalVirtualModel virtualModel) throws CoreException, InterruptedException, IOException {
+		VURI vuriNew = VURI.getInstance(newProjectState);
+		final Resource resourceNew = URIUtil.loadResourceAtURI(URI.createPlatformResourceURI(newProjectState.getLocationURI().toString())/*vuri.getEMFUri()*//*newProjectState.getLocationURI()*/, new ResourceSetImpl());
+		
+		VURI vuriOld = VURI.getInstance(oldProjectState);
+		final Resource resourceOld = URIUtil.loadResourceAtURI(URI.createPlatformResourceURI(oldProjectState.getLocationURI().toString())/*vuri.getEMFUri()*//*newProjectState.getLocationURI()*/, new ResourceSetImpl());
+		
+		VURI vuriCompilationUnitOld = VURI.getInstance(newCompilationUnitState.getResource());
+		final Resource resourceCompilationUnitOld = URIUtil.loadResourceAtURI(vuriCompilationUnitOld.getEMFUri(), new ResourceSetImpl());
+		
+		virtualModel.propagateChangedState(resourceCompilationUnitOld);
+		
+	}
 	
 	
 //***************************************************************************************************************************

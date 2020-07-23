@@ -8,12 +8,6 @@ import tools.vitruv.extensions.dslsruntime.reactions.AbstractRepairRoutineRealiz
 import tools.vitruv.extensions.dslsruntime.reactions.ReactionExecutionState;
 import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHaving;
 
-/**
- * *
- * nCreates Datatype if class was in datatypes package created or checks if there can be a correspondence and if 
- * nnot create a new pcm element.
- *  
- */
 @SuppressWarnings("all")
 public class ClassMappingRoutine extends AbstractRepairRoutineRealization {
   private ClassMappingRoutine.ActionUserExecution userExecution;

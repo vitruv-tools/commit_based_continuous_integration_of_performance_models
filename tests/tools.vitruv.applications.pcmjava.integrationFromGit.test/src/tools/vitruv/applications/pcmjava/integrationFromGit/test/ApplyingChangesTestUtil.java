@@ -527,6 +527,15 @@ public abstract class ApplyingChangesTestUtil {
 			boolean modelsAreEqual = equalityHelper.equals(changedCompilationUnit_JaMoPP, gitCompilationUnit_JaMoPP);
 			if (modelsAreEqual) {
 				System.out.println("EMF EqualityHelper returned the result, that the JaMoPP-Models are equal.");
+				
+				
+				
+				
+				//TODO: Remove the line
+				//virtualModel.propagateChangedState(gitCompilationUnit_JaMoPP.eResource());
+				
+				
+				
 				//Close streams
 				try {
 					changedCompilationUnitStream.close();
@@ -1342,15 +1351,22 @@ public abstract class ApplyingChangesTestUtil {
 			return false;
 		}
 		//Find the corresponding PCM OperationRequiredRole to the JaMoPP Field.
-		//claimOne throws an exception if no or many correspondences was found
-		OperationRequiredRole field_PCM = claimOne(CorrespondenceModelUtil.getCorrespondingEObjectsByType(
-				virtualModel.getCorrespondenceModel(), field_JaMoPP, OperationRequiredRole.class));
-		if (field_PCM.getRequiredInterface__OperationRequiredRole().getEntityName().equals(fieldType)) {
-			return true;
+
+		Set<OperationRequiredRole> fields_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+				virtualModel.getCorrespondenceModel(), field_JaMoPP, OperationRequiredRole.class);
+		
+		if (fields_PCM.isEmpty()) {
+			return false;
 		}
-		else {
-			return false;	
+		
+		for (OperationRequiredRole field_PCM : fields_PCM) {
+			if (field_PCM.getRequiredInterface__OperationRequiredRole().getEntityName().contains(fieldType)) {
+				return true;
+			}
 		}
+		
+		return false;	
+		
 	}
 	
 	
@@ -1360,15 +1376,18 @@ public abstract class ApplyingChangesTestUtil {
 			return false;
 		}
 		//Find the corresponding PCM InnerDeclaraion to the JaMoPP Field.
-		//claimOne throws an exception if no or many correspondences was found
-		OperationRequiredRole field_PCM = claimOne(CorrespondenceModelUtil.getCorrespondingEObjectsByType(
-				virtualModel.getCorrespondenceModel(), field_JaMoPP, OperationRequiredRole.class));
-		if (field_PCM.getRequiredInterface__OperationRequiredRole().getEntityName().equals(fieldType)) {
-			return false;
+		Set<OperationRequiredRole> fields_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+				virtualModel.getCorrespondenceModel(), field_JaMoPP, OperationRequiredRole.class);
+		if (fields_PCM.isEmpty()) {
+			return true;
 		}
-		else {
-			return true;	
+		for (OperationRequiredRole field_PCM : fields_PCM) {
+			if (field_PCM.getRequiredInterface__OperationRequiredRole().getEntityName().contains(fieldType)) {
+				return false;
+			}
 		}
+
+		return true;	
 	}
 	
 	

@@ -108,7 +108,8 @@ public class IACreateDeleteFieldTest {
         } 
 	}
 
-	
+	//Enable this method if you want to execute more than one test class
+	/*
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		//Remove Vitruv Java Builder that is responsible for change propagation
@@ -127,6 +128,7 @@ public class IACreateDeleteFieldTest {
 		// resources from previous tests are still in the classpath and accidentally resolved
 		JavaClasspath.reset();
 	}
+	*/
 	
 	//remove field doesn't work appropriate.
 	//problem: somehow remove field event is recognized by Vitruv as InsertEReference, but not as RemoveEReference.

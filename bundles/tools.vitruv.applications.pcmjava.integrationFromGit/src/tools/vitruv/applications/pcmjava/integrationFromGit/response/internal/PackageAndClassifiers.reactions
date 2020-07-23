@@ -158,18 +158,7 @@ routine removedInterfaceMethodEvent(java::InterfaceMethod interfaceMethod) {
 		//val opSig = retrieve pcm::OperationSignature corresponding to interfaceMethod
 	}
 	action {
-		//'remove correspondence between' is not needed, because 'delete' automatically removes the object and its correspondences 
-		//remove correspondence between opSig and interfaceMethod
-		
-		//deprecated. Use 'delete' instead.
-		//update opSig {
-			//interfaceMethod.eResource().load(new HashMap())
-			//Does not work appropriate. 
-			//The OperatureSignature will be removed from repository, but not the correspondence, 
-			//because Ecore.equals() returns false.
-			//EcoreUtil.^remove(opSig)
-		//}
-		
+		//'remove correspondence between' is not needed, because 'delete' automatically removes the object and its correspondences 	
 		//Should the correspoding SEFFs still exist?
 		//Should the references to the removed OperationSignature in all rdseff.describedService__SEFF also be removed?
 		delete operationSignature
@@ -189,10 +178,6 @@ routine removedClassMethodEvent(java::ClassMethod classMethod) {
 		val seff = retrieve pcm::ResourceDemandingSEFF corresponding to classMethod
 	}
 	action {
-		//remove correspondence between opSig and classMethod
-		//update opSig {
-		//	EcoreUtil.^remove(opSig)
-		//}
 		delete seff
 	}
 }
@@ -208,26 +193,12 @@ reaction ClassCreated {
 	}
 }
 
-/**
- * Creates Datatype if class was in datatypes package created or checks if there can be a correspondence and if 
- * not create a new pcm element.
- */
+
 routine classMapping(java::Class javaClass, java::CompilationUnit compilationUnit, java::Package javaPackage) {
-	//match {
-	//	val pcmRepository = retrieve pcm::Repository corresponding to ContainersPackage.Literals.PACKAGE
-	//	val datatypesPackage = retrieve java::Package corresponding to pcmRepository tagged with "datatypes" 
-	//}
 	action {
 		call {
-			
-			//Are DataTypes needed for CIPM?
-			//if (javaPackage !== null && javaPackage.name == datatypesPackage.name) {
-			//	createDataType(javaClass, compilationUnit)
-			//} else {
-				checkSystemAndComponent(javaPackage, javaClass)
-				createElement(javaClass, javaPackage, compilationUnit)
-			//}
-			
+			checkSystemAndComponent(javaPackage, javaClass)
+			createElement(javaClass, javaPackage, compilationUnit)
 		}
 	}
 }
@@ -248,16 +219,7 @@ routine checkSystemAndComponent(java::Package javaPackage, java::Class javaClass
 		call {
 			if (!correspondenceToCompilationUnit.isPresent) {
 				addCorrespondenceBetweenPcmComponentOrSystemAndJavaCompilationUnit(componentOrSystem, javaClass.containingCompilationUnit)
-			}
-			//TODO: Make sure, the correspondence between the componentOrSystem and javaClass.containingCompilationUnit does not exist yet
-			//val correspondencesForCompilationUnit = Lists.javaClass.containingCompilationUnit
-			//val correspondingCompilationUnit = correspondenceModel.getCorrespondences((new HashList<>).^add())
-			
-			//pcmRepository.dataTypes__Repository.filter(CompositeDataType)
-			//	.filter[entityName.toFirstUpper == javaClass.name.toFirstUpper || javaClass.name === null && entityName == "aName"].claimNotMany
-			//if (foundCompositeDataType === null)
-			//val correspondingCompilationUnit = correspondenceModel.ge
-			
+			}		
 		}
 	}
 }
@@ -269,22 +231,10 @@ routine checkSystemAndComponent(java::Package javaPackage, java::Class javaClass
 routine createElement(java::Class javaClass, java::Package javaPackage, java::CompilationUnit compilationUnit) {
 	match {
 		require absence of pcm::DataType corresponding to javaClass
-		//require absence of pcm::InterfaceProvidingRequiringEntity corresponding to javaClass 
-		
-		//val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY					
-		//val javaRootPackage = retrieve java::Package corresponding to pcmRepository tagged with "package_root"
-		
-		//val pcmRepository = retrieve pcm::Repository corresponding to ContainersPackage.Literals.PACKAGE//javaPackage
-		//val javaRootPackage = retrieve java::Package corresponding to pcmRepository tagged with "package_root" 
-		
-		
 	}
 	action {
 		call { 
-			//val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository))
-			//val javaRootPackage = correspondenceModel.getCorrespondingEObjects(pcmRepository.toList)
 			createArchitecturalElement(javaPackage, javaClass.name, compilationUnit.namespaces.head)			
-			//checkSystemAndComponent(javaPackage, javaClass)
 		}
 	}
 }
@@ -294,9 +244,6 @@ routine createElement(java::Class javaClass, java::Package javaPackage, java::Co
  * User can select if he wants to create BasicComponent, CompositeComponent, System or do nothing.
  */
 routine createArchitecturalElement(java::Package javaPackage, String name, String rootPackageName) {
-	//match {
-	//	retrieve pcm::Repository corresponding to ContainersPackage.Literals.PACKAGE
-	//}
 	action {
 		call {
 			val String userMsg = "A package or class has been created. Please decide whether and which corresponding architectural element should be created"
@@ -328,46 +275,21 @@ reaction InterfaceCreated {
 }
 
 routine createOrFindPCMInterface(java::Interface javaInterface, java::CompilationUnit compilationUnit) {
-	//match {
-	//	val containingPackage = retrieve java::Package corresponding to ContainersPackage.Literals.PACKAGE
-	//		with containingPackage.compilationUnits.map[namespacesAsString + '.' + name].contains(compilationUnit.namespacesAsString + '.' + compilationUnit.name)
-	//	val pcmRepository = retrieve optional pcm::Repository corresponding to containingPackage tagged with "contracts"
-	//	require absence of pcm::OperationInterface corresponding to javaInterface
-	//}
 	action {
 		call {
 			val containingPackage = getContainingPackageFromCorrespondenceModel(javaInterface, correspondenceModel)
 			val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
-			//if(pcmRepository.isPresent) {
-			//	createOrFindContractsInterface(javaInterface, compilationUnit, containingPackage, pcmRepository.get)
-			//} else {
-				createNonContractsInterface(javaInterface, compilationUnit, containingPackage)
-			//}
-		}
-	}
-}
-
-routine createOrFindContractsInterface(java::Interface javaInterface, java::CompilationUnit compilationUnit, java::Package contractsPackage, pcm::Repository pcmRepository) {
-	action {
-		call {
-			val pcmInterface = pcmRepository.interfaces__Repository.filter(OperationInterface).findFirst[entityName == javaInterface.name]
-			if (pcmInterface === null) {
-				createInterface(javaInterface, compilationUnit, contractsPackage)
-			} else {
-				addInterfaceCorrespondence(pcmInterface, javaInterface, compilationUnit)
-			}
+			createNonContractsInterface(javaInterface, compilationUnit, containingPackage)
 		}
 	}
 }
 
 
-/**
- * User selects if interface should be created if interface was not created into contract package.
- */
+
 routine createNonContractsInterface(java::Interface javaInterface, java::CompilationUnit compilationUnit, java::Package javaPackage) {
 	action {
 		call {
-			val String userMsg = "The created interface is not in the contracts packages. Should an architectural interface be created for the interface " +
+			val String userMsg = "Should an architectural interface be created for the interface " +
 					javaInterface.name + " ?"
 			val String[] selections = #[Java2PcmUserSelection.SELECT_CREATE_INTERFACE_NOT_IN_CONTRACTS.message,
 				Java2PcmUserSelection.SELECT_DONT_CREATE_INTERFACE_NOT_IN_CONTRACTS.message
@@ -417,7 +339,6 @@ routine updateRepositoryInterfaces(pcm::OperationInterface pcmInterface, pcm::Re
 reaction RemoveClassEvent {
 	after element java::Class removed from java::CompilationUnit[classifiers]
 	call {
-		//val javaPackage = getContainingPackageFromCorrespondenceModel(oldValue, correspondenceModel)
 		removedClassEvent(oldValue)
 	}
 
@@ -436,7 +357,6 @@ routine removedClassEvent(java::Class clazz) {
 reaction RemoveInterfaceEvent {
 	after element java::Interface removed from java::CompilationUnit[classifiers]
 	call {
-		//val javaPackage = getContainingPackageFromCorrespondenceModel(oldValue, correspondenceModel)
 		removedInterfaceEvent(oldValue)
 	}
 } 
@@ -451,17 +371,12 @@ routine removedInterfaceEvent(java::Interface interfaze) {
 }
 
 
-///Create Package
+//Create Package
 reaction PackageCreated {
 	after element java::Package inserted as root
-	//This condition prevents another execution after automatically creating contracts and datatypes package.
-	//The reaction is called because every package insert is a root insert. 
-	//with newValue.name === null || (!newValue.name.contains("contracts") && !newValue.name.contains("datatypes"))
-		
 	call {
 		createOrFindArchitecturalElement(newValue, getLastPackageName(newValue.name))
-		//createOrFindRepository(newValue, newValue.name, "package_root")
-		createPackageEClassCorrespondence(newValue) // IMPORTANT: Always call this last here!
+		createPackageEClassCorrespondence(newValue) // Creates meta-element for the package in correspondences
 	}
 }
 
@@ -498,7 +413,6 @@ routine createOrFindArchitecturalElement(java::Package javaPackage, String conta
 
 routine createOrFindArchitecturalElementInPackage(java::Package javaPackage, java::Package containingPackage, String rootPackageName) {
 	match {
-		//val pcmRepository = retrieve pcm::Repository corresponding to containingPackage tagged with "package_root"
 		require absence of pcm::RepositoryComponent corresponding to javaPackage
 	}
 	action {
@@ -520,24 +434,12 @@ routine createOrFindRepository(java::Package javaPackage, String packageName, St
 	match {
 		require absence of pcm::Repository corresponding to javaPackage tagged with newTag
 		require absence of pcm::Repository corresponding to ContainersPackage.Literals.PACKAGE
-		//val foundRepository = retrieve optional pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
-		//	with foundRepository.entityName.toFirstLower == packageName // PCM repositories can be both upper and lower case
 	}
 	action {
 		call {
 			val foundRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
-			//if (foundRepository.isPresent) {
-				
-				
-				ensureFirstCaseUpperCaseRepositoryNaming(foundRepository, javaPackage)
-				
-				
-				addRepositoryCorrespondence(foundRepository, javaPackage, newTag)
-			
-			
-			//} else {
-			//	createRepository(javaPackage, packageName, newTag)
-			//}
+			ensureFirstCaseUpperCaseRepositoryNaming(foundRepository, javaPackage)
+			addRepositoryCorrespondence(foundRepository, javaPackage, newTag)
 		}
 	}
 }
@@ -560,7 +462,7 @@ routine addRepositoryCorrespondence(pcm::Repository pcmRepository, java::Package
 	}
 }
 
-//TODO: don't create 'datatypes' and 'contracts' packages
+
 routine createRepository(java::Package javaPackage, String packageName, String newTag) {
 	action {
 		update javaPackage {
@@ -585,10 +487,10 @@ routine createRepository(java::Package javaPackage, String packageName, String n
 	}
 }
 
-//TODO
+
 //Remove Package
 reaction RemovePackage {
-	after element java::Package removed as root//java::Package removed from ... how can we access the list of the existing packages? from root?
+	after element java::Package removed as root
 
 	call {
 		removedPackageRoutine(oldValue)
@@ -597,21 +499,25 @@ reaction RemovePackage {
 
 routine removedPackageRoutine(java::Package javaPackage) {
 	match {
-		//val metaElement = retrieve optional java::Package corresponding to javaPackage
+		val metaElement = retrieve optional java::Package corresponding to javaPackage
 		val pcmComponent = retrieve pcm::RepositoryComponent corresponding to javaPackage
 		
 	}
 	action {
-		//call {
-		//	if (metaElement.isPresent) {
-		//		deleteCorrespondenceBetweenJavaPackageAndMetaElement(javaPackage, metaElement.get)
-		//	}
-		//}
 		delete pcmComponent
-		remove correspondence between javaPackage and ContainersPackage.Literals.PACKAGE
+
+		call {
+			if (metaElement.isPresent) {
+				//Does not work as expected and the correspondence between meta-element and package is still there.
+				deleteMetaElementForPackage(metaElement.get)
+				//Does not work as expected and the correspondence between meta-element and package is still there.
+				//deleteCorrespondenceBetweenJavaPackageAndMetaElement(javaPackage, metaElement.get)
+			}
+		}
 	}
 	
 }
+
 
 routine deleteCorrespondenceBetweenJavaPackageAndMetaElement(java::Package javaPackage,  java::Package metaElement) {
 	action {
@@ -620,9 +526,14 @@ routine deleteCorrespondenceBetweenJavaPackageAndMetaElement(java::Package javaP
 }
 
 
+routine deleteMetaElementForPackage(java::Package packageCorrespondingToMetaElement) {
+	action {
+		delete packageCorrespondingToMetaElement
+	}
+}
 
 
-//TypeReference
+//Add implements
 reaction TypeReferenceCreated {
 	after element java::TypeReference inserted in java::Class[implements]
 	with newValue instanceof NamespaceClassifierReference || newValue instanceof ClassifierReference
@@ -657,7 +568,7 @@ routine createOperationProvidedRoleFromTypeReference(java::Classifier classifier
 }
 
 
-//TypeReference
+//Remove implements
 reaction TypeReferenceRemoved {
 	after element java::TypeReference removed from java::Class[implements]
 	with oldValue instanceof NamespaceClassifierReference || oldValue instanceof ClassifierReference
@@ -676,41 +587,9 @@ routine removeOperationProvidedRole(java::TypeReference typeReference) {
 	}
 }
 
-/*
-routine removeOperationProvidedRole(java::TypeReference typeReference) {
-	action {
-		call {	
-			val javaClass = typeReference.eContainer as Class
-			var javaInterfaceClassifier = getNormalizedClassifierFromTypeReference(typeReference)
-			removeOperationProvidedRoleFromTypeReference(javaInterfaceClassifier, javaClass, typeReference)
-		}
-	}
-}
-
-routine removeOperationProvidedRoleFromTypeReference(java::Classifier classifierInterface, java::Class javaClass, java::TypeReference reference) {
-	match {
-		val opInterface = retrieve pcm::OperationInterface corresponding to classifierInterface
-		val basicComponent = retrieve pcm::BasicComponent corresponding to javaClass
-	}
-	action {
-		val operationProvidedRole = create pcm::OperationProvidedRole and initialize {
-			operationProvidedRole.providedInterface__OperationProvidedRole = opInterface
-			operationProvidedRole.providingEntity_ProvidedRole = basicComponent
-			operationProvidedRole.entityName = basicComponent.entityName + "_provides_" + opInterface.entityName
-		}
-		remove correspondence between operationProvidedRole and reference
-	}
-}
-*/
-
-
-//---------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
-
-
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//The following methods are not needed yet:
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 routine createOrFindSystem(java::Package javaPackage, String name) {
 	 match {

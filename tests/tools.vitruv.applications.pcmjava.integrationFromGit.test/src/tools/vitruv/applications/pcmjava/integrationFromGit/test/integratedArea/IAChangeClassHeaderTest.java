@@ -100,7 +100,8 @@ public class IAChangeClassHeaderTest {
         } 
 	}
 
-	
+	//Enable this method if you want to execute more than one test class
+	/*
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		//Remove Vitruv Java Builder that is responsible for change propagation
@@ -119,7 +120,8 @@ public class IAChangeClassHeaderTest {
 		// resources from previous tests are still in the classpath and accidentally resolved
 		JavaClasspath.reset();
 	}
-
+	 */
+	
 	//testRenameClass() is disabled by now: Vitruv throws an exception when a class is removed.Because rename class 
 	//is considered as remove class with old name and create class with new name, that test fails.
 	//The problem could be in the method tools.vitruv.domains.java.monitorededitor.ChangeResponder.visit(DeleteClassEvent)

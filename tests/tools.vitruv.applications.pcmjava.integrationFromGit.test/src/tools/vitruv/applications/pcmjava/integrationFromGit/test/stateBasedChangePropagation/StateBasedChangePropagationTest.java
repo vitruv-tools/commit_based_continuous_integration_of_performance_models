@@ -1,4 +1,4 @@
-package tools.vitruv.applications.pcmjava.integrationFromGit.test.nonIntegratedArea;
+package tools.vitruv.applications.pcmjava.integrationFromGit.test.stateBasedChangePropagation;
 
 import static org.junit.Assert.*;
 
@@ -52,7 +52,7 @@ import tools.vitruv.testutils.TestUserInteraction;
  * @author Ilia Chupakhin
  * @author Manar Mazkatli (advisor)
  */
-public class NIACoarseGrainedChangesTest {
+public class StateBasedChangePropagationTest {
 
 	//Project name
 		private static String testProjectName = "eu.fpetersen.cbs.pc";
@@ -106,9 +106,7 @@ public class NIACoarseGrainedChangesTest {
 	        //prepare a non-integrated area
 	        prepareNonIntegratedArea(); 
 		}
-		
-		//Enable this method if you want to execute more than one test class
-		/*
+
 		@AfterClass
 		public static void tearDownAfterClass() throws Exception {
 			//Remove Vitruv Java Builder that is responsible for change propagation
@@ -127,9 +125,10 @@ public class NIACoarseGrainedChangesTest {
 			// resources from previous tests are still in the classpath and accidentally resolved
 			JavaClasspath.reset();
 		}
-		*/
+		
 		
 	private static void prepareNonIntegratedArea() throws CoreException, InterruptedException, IOException {
+		/*
 		//prepare a non-integrated area. The following steps are necessary:
     	//create nonIntegratedPackage in src folder
     	changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.INIT), commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.ADD_NON_INTEGRATED_PACKAGE), testProject);
@@ -151,29 +150,42 @@ public class NIACoarseGrainedChangesTest {
     	changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.ADD_SECOND_INTERFACE), commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.ADD_FIRST_METHOD_IN_FIRST_INTERFACE), testProject);
     	//added 'void firstMethodInSecondInterface();' in SecondInterface.java
     	changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.ADD_FIRST_METHOD_IN_FIRST_INTERFACE), commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.ADD_FIRST_METHOD_IN_SECOND_INTERFACE), testProject);
+    	*/
+		
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.INIT), commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.ADD_SECOND_INTERFACE), testProject);
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.ADD_SECOND_INTERFACE), commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.ADD_FIRST_METHOD_IN_SECOND_INTERFACE), testProject);
+		
+		/*all necessary commits
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.INIT), commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.ADD_FIRST_METHOD_IN_SECOND_INTERFACE), testProject);
+		*/
 	}
 
 		
 	@Test
 	public void testCoarseGrainedChanges() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {
 		testFirstCoarseGrainedChange();
+		testSecondCoarseGrainedChange();
 
 	}
 	
 	//added import, implements, implemented method with override and implementation used only internal actions
 	private void testFirstCoarseGrainedChange() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
-		//changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.ADD_FIRST_METHOD_IN_SECOND_INTERFACE), commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.FIRST_COARSE_GRAINED_COMMIT), testProject);	
-		changeApplier.applyChangesFromCommit/*WithGumTree*/(commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.ADD_FIRST_METHOD_IN_SECOND_INTERFACE), commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.FIRST_COARSE_GRAINED_COMMIT), testProject);
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.ADD_FIRST_METHOD_IN_SECOND_INTERFACE), commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.FIRST_COARSE_GRAINED_COMMIT), testProject);
 		//Checkout the repository on the certain commit
 		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.FIRST_COARSE_GRAINED_COMMIT);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
 		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
 		//Get the changed compilation unit and the compilation unit from git repository to compare
 		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+
+		//Propagate changes
+		//changeApplier.applyChangesFromCommitUsingStateBasedChangePropagation(projectFromGitRepository, testProject, compUnitFromGit, virtualModel);
+		
 		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
-		Thread.sleep(5000);
+
+		//Thread.sleep(5000);
 		//Compare the buffers from compilation units
-		boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 		//TODO: Compare PCM Repository Models
@@ -183,7 +195,37 @@ public class NIACoarseGrainedChangesTest {
 		//projectFromGitRepository.delete(true, new NullProgressMonitor());
 		
 		//assertTrue("In testAddClassAnnotaion() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
-		assertTrue("In testFirstCoarseGrainedChange() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+		//assertTrue("In testFirstCoarseGrainedChange() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+		
+	}
+	
+	private void testSecondCoarseGrainedChange() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
+		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.FIRST_COARSE_GRAINED_COMMIT), commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.SECOND_COARSE_GRAINED_COMMIT), testProject);
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.SECOND_COARSE_GRAINED_COMMIT);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+
+		//Propagate changes
+		//changeApplier.applyChangesFromCommitUsingStateBasedChangePropagation(projectFromGitRepository, testProject, compUnitFromGit, virtualModel);
+		
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+
+		//Thread.sleep(5000);
+		//Compare the buffers from compilation units
+		//boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
+		//TODO: Compare PCM Repository Models
+		//TODO: comparePCMBasicComponents(...) does NOT work
+		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);
+		//Remove temporary project
+		//projectFromGitRepository.delete(true, new NullProgressMonitor());
+		
+		//assertTrue("In testSecondCoarseGrainedChange() after adding class annotation the buffers of the compilation units are NOT equal, but they should be", compUnitsBuffersAreEqual);
+		assertTrue("In testSecondCoarseGrainedChange() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 		
 	}
 

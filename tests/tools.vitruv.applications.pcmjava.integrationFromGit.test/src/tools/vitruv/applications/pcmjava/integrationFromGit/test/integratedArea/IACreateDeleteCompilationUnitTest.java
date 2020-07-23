@@ -107,7 +107,8 @@ public class IACreateDeleteCompilationUnitTest {
         } 
 	}
 	
-		
+	//Enable this method if you want to execute more than one test class
+	/*	
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		//Remove Vitruv Java Builder that is responsible for change propagation
@@ -126,6 +127,7 @@ public class IACreateDeleteCompilationUnitTest {
 		// resources from previous tests are still in the classpath and accidentally resolved
 		JavaClasspath.reset();
 	}
+	*/
 	
 	//testRemoveClass() and testRemoveInterface() doesn't work appropriate.
 	//The problem could be in the method tools.vitruv.domains.java.monitorededitor.ChangeResponder.visit(DeleteClassEvent) 

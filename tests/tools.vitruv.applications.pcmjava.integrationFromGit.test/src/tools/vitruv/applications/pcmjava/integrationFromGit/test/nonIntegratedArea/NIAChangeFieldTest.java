@@ -115,7 +115,29 @@ public class NIAChangeFieldTest {
     	//create FirstClassImpl.java in package FirstClass
     	changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_CLASS_PACKAGE), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_CLASS_IMPL), testProject);
 	}
-
+	
+	//Enable this method if you want to execute more than one test class
+	/*
+	@AfterClass
+	public static void tearDownAfterClass() throws Exception {
+		//Remove Vitruv Java Builder that is responsible for change propagation
+		final VitruviusJavaBuilderApplicator pcmJavaRemoveBuilder = new VitruviusJavaBuilderApplicator();
+		pcmJavaRemoveBuilder.removeBuilderFromProject(testProject);
+		//Remove JDT model of the copied project as well as this project from file system
+		testProject.delete(true, null);
+		//Remove the folder containing Vitruv meta data from file system
+		FileUtils.deleteDirectory(virtualModel.getFolder());
+		//Close and remove copied git repository
+		gitRepository.closeRepository();
+		//projectFromGitRepository.close(null);
+		projectFromGitRepository.delete(true, null);
+		FileUtils.deleteDirectory(new File(workspace.getRoot().getLocation().toFile(), "clonedGitRepositories"));
+		// This is necessary because otherwise Maven tests will fail as
+		// resources from previous tests are still in the classpath and accidentally resolved
+		JavaClasspath.reset();
+	}
+	*/
+	
 	@Test
 	public void testChangeField() throws Throwable {
 		testAddFirstInterface();

@@ -12,34 +12,6 @@ import tools.vitruv.extensions.dslsruntime.reactions.AbstractRepairRoutineRealiz
 import tools.vitruv.extensions.dslsruntime.reactions.ReactionExecutionState;
 import tools.vitruv.extensions.dslsruntime.reactions.structure.CallHierarchyHaving;
 
-/**
- * 
- * routine removeOperationProvidedRole(java::TypeReference typeReference) {
- * 	action {
- * 		call {	
- * 			val javaClass = typeReference.eContainer as Class
- * 			var javaInterfaceClassifier = getNormalizedClassifierFromTypeReference(typeReference)
- * 			removeOperationProvidedRoleFromTypeReference(javaInterfaceClassifier, javaClass, typeReference)
- * 		}
- * 	}
- * }
- * 
- * routine removeOperationProvidedRoleFromTypeReference(java::Classifier classifierInterface, java::Class javaClass, java::TypeReference reference) {
- * 	match {
- * 		val opInterface = retrieve pcm::OperationInterface corresponding to classifierInterface
- * 		val basicComponent = retrieve pcm::BasicComponent corresponding to javaClass
- * 	}
- * 	action {
- * 		val operationProvidedRole = create pcm::OperationProvidedRole and initialize {
- * 			operationProvidedRole.providedInterface__OperationProvidedRole = opInterface
- * 			operationProvidedRole.providingEntity_ProvidedRole = basicComponent
- * 			operationProvidedRole.entityName = basicComponent.entityName + "_provides_" + opInterface.entityName
- * 		}
- * 		remove correspondence between operationProvidedRole and reference
- * 	}
- * }
- * 
- */
 @SuppressWarnings("all")
 public class CreateOrFindSystemRoutine extends AbstractRepairRoutineRealization {
   private CreateOrFindSystemRoutine.ActionUserExecution userExecution;

@@ -115,7 +115,8 @@ public class NIAChangeImplementsTest {
     	changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_CLASS_PACKAGE), commits.get(EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGrained_Commits.ADD_FIRST_CLASS_IMPL), testProject);
 	}
 	
-		
+	//Enable this method if you want to execute more than one test class
+	/*
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		//Remove Vitruv Java Builder that is responsible for change propagation
@@ -134,7 +135,7 @@ public class NIAChangeImplementsTest {
 		// resources from previous tests are still in the classpath and accidentally resolved
 		JavaClasspath.reset();
 	}
-	
+	*/
 	
 	@Test
 	public void testImplements() throws Throwable {

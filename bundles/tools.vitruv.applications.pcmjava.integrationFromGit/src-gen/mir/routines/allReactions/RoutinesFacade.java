@@ -88,11 +88,6 @@ public class RoutinesFacade extends AbstractRepairRoutinesFacade {
     return _routinesFacade.createOrFindPCMInterface(javaInterface, compilationUnit);
   }
   
-  public boolean createOrFindContractsInterface(final Interface javaInterface, final CompilationUnit compilationUnit, final org.emftext.language.java.containers.Package contractsPackage, final Repository pcmRepository) {
-    mir.routines.packageAndClassifiers.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("packageAndClassifiers")));
-    return _routinesFacade.createOrFindContractsInterface(javaInterface, compilationUnit, contractsPackage, pcmRepository);
-  }
-  
   public boolean createNonContractsInterface(final Interface javaInterface, final CompilationUnit compilationUnit, final org.emftext.language.java.containers.Package javaPackage) {
     mir.routines.packageAndClassifiers.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("packageAndClassifiers")));
     return _routinesFacade.createNonContractsInterface(javaInterface, compilationUnit, javaPackage);
@@ -166,6 +161,11 @@ public class RoutinesFacade extends AbstractRepairRoutinesFacade {
   public boolean deleteCorrespondenceBetweenJavaPackageAndMetaElement(final org.emftext.language.java.containers.Package javaPackage, final org.emftext.language.java.containers.Package metaElement) {
     mir.routines.packageAndClassifiers.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("packageAndClassifiers")));
     return _routinesFacade.deleteCorrespondenceBetweenJavaPackageAndMetaElement(javaPackage, metaElement);
+  }
+  
+  public boolean deleteMetaElementForPackage(final org.emftext.language.java.containers.Package packageCorrespondingToMetaElement) {
+    mir.routines.packageAndClassifiers.RoutinesFacade _routinesFacade = this._getRoutinesFacadesProvider().getRoutinesFacade(this._getReactionsImportPath().append(ReactionsImportPath.fromPathString("packageAndClassifiers")));
+    return _routinesFacade.deleteMetaElementForPackage(packageCorrespondingToMetaElement);
   }
   
   public boolean createOperationProvidedRole(final TypeReference typeReference) {

@@ -210,7 +210,7 @@ routine createOperationRequiredRoleCorrespondingToField(java::Field javaField, p
 		add correspondence between operationRequiredRole and javaField
 	}
 }
-/*TODO: see reaction ChangeFieldTypeEvent
+/*see reaction ChangeFieldTypeEvent
 reaction FieldTypeChange {
 	after element replaced at java::Field[typeReference]
 	call changeInnerDeclarationType(newValue, affectedEObject)
@@ -231,7 +231,7 @@ routine changeInnerDeclarationType(java::TypeReference typeReference, java::Fiel
 
 
 
-//Langhammers Level 3 Regel fuer Chage Field Type
+//Langhammer's Level 3 integration change propagation rule for changing field type
 //start
 reaction ChangeFieldTypeEvent {
 	after element replaced at java::Field[typeReference]
@@ -283,16 +283,10 @@ routine createRequiredRole(pcm::BasicComponent basicComponent, pcm::OperationInt
 		}
 	}
 }	
-	
-
 
 
 routine removeRequiredRoleAndCorrespondence(pcm::OperationRequiredRole orr, java::Field field) {
 	action {
-		//remove correspondence between orr and field
-		//update orr {
-		//	EcoreUtil.^delete(orr)
-		//}
 		delete orr
 	}
 }
@@ -309,19 +303,12 @@ routine removedFieldEvent(java::Field field) {
 	}	
 	action {
 		delete namedElement
-		//remove correspondence between field and namedElement
-		//update field {
-		//	userInteractor.notificationDialogBuilder.message("Removed " + namedElement + " because the corresponding field " + field + " has been removed").
-		//		windowModality(WindowModality.MODAL).startInteraction;
-		//	// TODO This is wrong, isnt't it? Should be "namedElement"!?
-		//	EcoreUtil.^remove(field)
-		//}
 	}
 }
 
 //end
 /*
-//Langhammers Level 3 Regel fuer remove Field
+//Langhammer's Level 3 integration change propagation rule for removing field
 reaction RemoveFieldEvent {
 	after element removed from java::ConcreteClassifier[members]
 		with oldValue instanceof java::Field // TODO replace with element filter in trigger

@@ -1,9 +1,10 @@
 package mir.routines.packageAndClassifiers;
 
 import java.io.IOException;
+import java.util.Optional;
 import mir.routines.packageAndClassifiers.RoutinesFacade;
 import org.eclipse.emf.ecore.EObject;
-import org.emftext.language.java.containers.ContainersPackage;
+import org.eclipse.xtext.xbase.lib.Extension;
 import org.palladiosimulator.pcm.repository.RepositoryComponent;
 import tools.vitruv.extensions.dslsruntime.reactions.AbstractRepairRoutineRealization;
 import tools.vitruv.extensions.dslsruntime.reactions.ReactionExecutionState;
@@ -18,20 +19,23 @@ public class RemovedPackageRoutineRoutine extends AbstractRepairRoutineRealizati
       super(reactionExecutionState);
     }
     
-    public EObject getElement1(final org.emftext.language.java.containers.Package javaPackage, final RepositoryComponent pcmComponent) {
+    public EObject getElement1(final org.emftext.language.java.containers.Package javaPackage, final Optional<org.emftext.language.java.containers.Package> metaElement, final RepositoryComponent pcmComponent) {
       return pcmComponent;
     }
     
-    public EObject getCorrepondenceSourcePcmComponent(final org.emftext.language.java.containers.Package javaPackage) {
+    public EObject getCorrepondenceSourcePcmComponent(final org.emftext.language.java.containers.Package javaPackage, final Optional<org.emftext.language.java.containers.Package> metaElement) {
       return javaPackage;
     }
     
-    public EObject getElement2(final org.emftext.language.java.containers.Package javaPackage, final RepositoryComponent pcmComponent) {
+    public EObject getCorrepondenceSourceMetaElement(final org.emftext.language.java.containers.Package javaPackage) {
       return javaPackage;
     }
     
-    public EObject getElement3(final org.emftext.language.java.containers.Package javaPackage, final RepositoryComponent pcmComponent) {
-      return ContainersPackage.Literals.PACKAGE;
+    public void callRoutine1(final org.emftext.language.java.containers.Package javaPackage, final Optional<org.emftext.language.java.containers.Package> metaElement, final RepositoryComponent pcmComponent, @Extension final RoutinesFacade _routinesFacade) {
+      boolean _isPresent = metaElement.isPresent();
+      if (_isPresent) {
+        _routinesFacade.deleteMetaElementForPackage(metaElement.get());
+      }
     }
   }
   
@@ -47,8 +51,17 @@ public class RemovedPackageRoutineRoutine extends AbstractRepairRoutineRealizati
     getLogger().debug("Called routine RemovedPackageRoutineRoutine with input:");
     getLogger().debug("   javaPackage: " + this.javaPackage);
     
+    	Optional<org.emftext.language.java.containers.Package> metaElement = Optional.ofNullable(getCorrespondingElement(
+    		userExecution.getCorrepondenceSourceMetaElement(javaPackage), // correspondence source supplier
+    		org.emftext.language.java.containers.Package.class,
+    		(org.emftext.language.java.containers.Package _element) -> true, // correspondence precondition checker
+    		null, 
+    		false // asserted
+    		)
+    );
+    registerObjectUnderModification(metaElement.isPresent() ? metaElement.get() : null);
     org.palladiosimulator.pcm.repository.RepositoryComponent pcmComponent = getCorrespondingElement(
-    	userExecution.getCorrepondenceSourcePcmComponent(javaPackage), // correspondence source supplier
+    	userExecution.getCorrepondenceSourcePcmComponent(javaPackage, metaElement), // correspondence source supplier
     	org.palladiosimulator.pcm.repository.RepositoryComponent.class,
     	(org.palladiosimulator.pcm.repository.RepositoryComponent _element) -> true, // correspondence precondition checker
     	null, 
@@ -58,9 +71,9 @@ public class RemovedPackageRoutineRoutine extends AbstractRepairRoutineRealizati
     	return false;
     }
     registerObjectUnderModification(pcmComponent);
-    deleteObject(userExecution.getElement1(javaPackage, pcmComponent));
+    deleteObject(userExecution.getElement1(javaPackage, metaElement, pcmComponent));
     
-    removeCorrespondenceBetween(userExecution.getElement2(javaPackage, pcmComponent), userExecution.getElement3(javaPackage, pcmComponent), "");
+    userExecution.callRoutine1(javaPackage, metaElement, pcmComponent, this.getRoutinesFacade());
     
     postprocessElements();
     

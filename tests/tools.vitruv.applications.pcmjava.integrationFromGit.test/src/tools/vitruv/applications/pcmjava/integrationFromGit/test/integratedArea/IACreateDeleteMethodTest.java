@@ -105,7 +105,8 @@ public class IACreateDeleteMethodTest {
         } 
 	}
 	
-		
+	//Enable this method if you want to execute more than one test class
+	/*
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		//Remove Vitruv Java Builder that is responsible for change propagation
@@ -124,7 +125,7 @@ public class IACreateDeleteMethodTest {
 		// resources from previous tests are still in the classpath and accidentally resolved
 		JavaClasspath.reset();
 	}
-
+	*/
 
 	@Test
 	public void testCreateDeleteMethod() throws NoHeadException, GitAPIException, IOException, CoreException, InterruptedException {

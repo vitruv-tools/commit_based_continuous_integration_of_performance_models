@@ -27,7 +27,6 @@ import mir.routines.packageAndClassifiers.CreateOrFindArchitecturalElementInPack
 import mir.routines.packageAndClassifiers.CreateOrFindArchitecturalElementRoutine;
 import mir.routines.packageAndClassifiers.CreateOrFindCollectionDataTypeRoutine;
 import mir.routines.packageAndClassifiers.CreateOrFindCompositeDataTypeRoutine;
-import mir.routines.packageAndClassifiers.CreateOrFindContractsInterfaceRoutine;
 import mir.routines.packageAndClassifiers.CreateOrFindPCMInterfaceRoutine;
 import mir.routines.packageAndClassifiers.CreateOrFindRepositoryRoutine;
 import mir.routines.packageAndClassifiers.CreateOrFindSystemRoutine;
@@ -39,6 +38,7 @@ import mir.routines.packageAndClassifiers.CreateSeffFromImplementingInterfaceRou
 import mir.routines.packageAndClassifiers.CreateSeffFromImplementingInterfacesRoutine;
 import mir.routines.packageAndClassifiers.CreateSystemRoutine;
 import mir.routines.packageAndClassifiers.DeleteCorrespondenceBetweenJavaPackageAndMetaElementRoutine;
+import mir.routines.packageAndClassifiers.DeleteMetaElementForPackageRoutine;
 import mir.routines.packageAndClassifiers.EnsureFirstCaseUpperCaseRepositoryNamingRoutine;
 import mir.routines.packageAndClassifiers.RemoveOperationProvidedRoleRoutine;
 import mir.routines.packageAndClassifiers.RemovedClassEventRoutine;
@@ -167,14 +167,6 @@ public class RoutinesFacade extends AbstractRepairRoutinesFacade {
     return routine.applyRoutine();
   }
   
-  public boolean createOrFindContractsInterface(final Interface javaInterface, final CompilationUnit compilationUnit, final org.emftext.language.java.containers.Package contractsPackage, final Repository pcmRepository) {
-    RoutinesFacade _routinesFacade = this;
-    ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
-    CallHierarchyHaving _caller = this._getExecutionState().getCaller();
-    CreateOrFindContractsInterfaceRoutine routine = new CreateOrFindContractsInterfaceRoutine(_routinesFacade, _reactionExecutionState, _caller, javaInterface, compilationUnit, contractsPackage, pcmRepository);
-    return routine.applyRoutine();
-  }
-  
   public boolean createNonContractsInterface(final Interface javaInterface, final CompilationUnit compilationUnit, final org.emftext.language.java.containers.Package javaPackage) {
     RoutinesFacade _routinesFacade = this;
     ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
@@ -292,6 +284,14 @@ public class RoutinesFacade extends AbstractRepairRoutinesFacade {
     ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
     CallHierarchyHaving _caller = this._getExecutionState().getCaller();
     DeleteCorrespondenceBetweenJavaPackageAndMetaElementRoutine routine = new DeleteCorrespondenceBetweenJavaPackageAndMetaElementRoutine(_routinesFacade, _reactionExecutionState, _caller, javaPackage, metaElement);
+    return routine.applyRoutine();
+  }
+  
+  public boolean deleteMetaElementForPackage(final org.emftext.language.java.containers.Package packageCorrespondingToMetaElement) {
+    RoutinesFacade _routinesFacade = this;
+    ReactionExecutionState _reactionExecutionState = this._getExecutionState().getReactionExecutionState();
+    CallHierarchyHaving _caller = this._getExecutionState().getCaller();
+    DeleteMetaElementForPackageRoutine routine = new DeleteMetaElementForPackageRoutine(_routinesFacade, _reactionExecutionState, _caller, packageCorrespondingToMetaElement);
     return routine.applyRoutine();
   }
   

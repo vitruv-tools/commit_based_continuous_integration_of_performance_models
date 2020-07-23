@@ -96,7 +96,8 @@ public class IAChangeClassAnnotationTest {
         }   
 	}
 
-
+	//Enable this method if you want to execute more than one test class
+	/*
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		//Remove Vitruv Java Builder that is responsible for change propagation
@@ -115,7 +116,8 @@ public class IAChangeClassAnnotationTest {
 		// resources from previous tests are still in the classpath and accidentally resolved
 		JavaClasspath.reset();
 	}
-
+	 */
+	
 	//Vitruv does not react to add/change/remove class annotation
 	//Therefore 'Waiting for synchronization timed out' while running is normal. 
 	//The test will continue automatically after timeout. But make sure there is no user dialog waiting for user reaction.
