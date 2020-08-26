@@ -32,5 +32,7 @@ Require-Bundle: org.junit,
  org.apache.commons.io;bundle-version="2.6.0",
  org.somox.gast2seff,
  tools.vitruv.applications.pcmjava.seffstatements,
- org.somox.sourcecodedecorator;bundle-version="1.0.1"
+ org.somox.sourcecodedecorator;bundle-version="1.0.1",
+ tools.vitruv.domains.java.monitorededitor,
+ tools.vitruv.domains.java.monitorededitor.javamodel2ast
 Export-Package: tools.vitruv.applications.pcmjava.integrationFromGit.test

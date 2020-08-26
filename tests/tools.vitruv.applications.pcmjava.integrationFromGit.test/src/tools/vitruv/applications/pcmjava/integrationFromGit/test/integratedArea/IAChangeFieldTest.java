@@ -134,11 +134,8 @@ public class IAChangeFieldTest {
 		testRenameField();
 		testAddFieldModifier();
 		testChangeFieldModifier();
-		//ChangeFieldTypeEventRoutine does not work appropriate
 		testChangeFieldType();
-		//RemovedFieldEventRoutine can't find the field because of previous test testChangeFieldType().
-		//Second problem: somehow remove field event is recognized as InsertEReference, but not as RemoveEReference.
-		//testRemoveField();
+		testRemoveField();
 	}
 	
 	
@@ -264,13 +261,13 @@ public class IAChangeFieldTest {
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
 		//Ensure that there is a corresponding PCM model
-		boolean pcmExists = ApplyingChangesTestUtil.assertFieldTypeWithName("fieldRenamed", "String", compUnitChanged, virtualModel);
+		boolean pcmExists = ApplyingChangesTestUtil.assertFieldTypeWithName("fieldRenamed", "IGraphicsCard", compUnitChanged, virtualModel);
 		//Ensure that there is no corresponding PCM model
 		boolean noPcmExists = ApplyingChangesTestUtil.assertNoFieldTypeWithName("fieldRenamed", "IDisplay", compUnitChanged, virtualModel);
 				
 		assertTrue("In testChangeFieldType() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
-		//assertTrue("In testChangeFieldType() corresponding PCM model does not exist, but it should exist", pcmExists);
-		//assertTrue("In testChangeFieldModifier() corresponding PCM model exist, but it should not exist", noPcmExists);
+		assertTrue("In testChangeFieldType() corresponding PCM model does not exist, but it should exist", pcmExists);
+		assertTrue("In testChangeFieldModifier() corresponding PCM model exist, but it should not exist", noPcmExists);
 	}
 	
 	

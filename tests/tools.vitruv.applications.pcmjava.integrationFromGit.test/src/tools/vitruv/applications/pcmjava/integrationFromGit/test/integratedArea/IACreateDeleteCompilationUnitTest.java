@@ -137,7 +137,7 @@ public class IACreateDeleteCompilationUnitTest {
 	public void testCreateDeleteCompilationUnit() throws Throwable {
 		testCreateClass();
 		testCreateInterface();
-		//testRemoveClass();
+		testRemoveClass();
 		//testRemoveInterface();
 	}
 	

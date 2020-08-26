@@ -138,9 +138,8 @@ public class IACreateDeleteFieldTest {
 		testAddImport();
 		testAddField();
 		testRenameField();
-		//testRemoveCreatedField();
+		testRemoveCreatedField();
 		//testRemoveIntegratedField();
-
 	}
 	
 	

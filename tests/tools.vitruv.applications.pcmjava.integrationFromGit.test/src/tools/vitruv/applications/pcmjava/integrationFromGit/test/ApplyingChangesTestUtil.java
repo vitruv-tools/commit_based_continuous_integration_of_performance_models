@@ -151,6 +151,9 @@ import tools.vitruv.framework.vsum.VirtualModelConfiguration;
 import tools.vitruv.framework.vsum.VirtualModelImpl;
 import tools.vitruv.framework.vsum.modelsynchronization.ChangePropagationListener;
 
+import tools.vitruv.domains.java.monitorededitor.jamopputil.AST2Jamopp;
+import tools.vitruv.domains.java.monitorededitor.javamodel2ast.JavaModel2AST;
+
 /**
  * Contains many convenient methods used for testing. 
  * 
@@ -456,8 +459,11 @@ public abstract class ApplyingChangesTestUtil {
 		//Find the JaMoPP model for the changedCompilationUnit
 		ModelInstance modelInstance = virtualModel.getModelInstance(VURI.getInstance(changedCompilationUnit.getResource()));
 		modelInstance.load(new HashMap(), true);
-		CompilationUnit changedCompilationUnit_JaMoPP = (CompilationUnit) modelInstance.getResource().getContents().get(0);
-
+		
+		//TODO Enable
+		//CompilationUnit changedCompilationUnit_JaMoPP = (CompilationUnit) modelInstance.getResource().getContents().get(0);
+		//TODO Remove
+		CompilationUnit changedCompilationUnit_JaMoPP = modelInstance.getUniqueRootEObjectIfCorrectlyTyped(CompilationUnit.class);/*(CompilationUnit) modelInstance.getFirstRootEObject();*/
 		
 		OutputStream changedCompilationUnitStream = new ByteArrayOutputStream();
 		OutputStream gitCompilationUnitStream = new ByteArrayOutputStream();
@@ -482,7 +488,14 @@ public abstract class ApplyingChangesTestUtil {
         });
 		 
 		//Create a temporary JaMoPP model for the gitCompilationUnit
+		//TODO Enable
 		CompilationUnit gitCompilationUnit_JaMoPP = getJaMoPPRootForVURI(VURI.getInstance(gitCompilationUnit.getResource()));
+		
+		//TODO Remove 
+		//org.eclipse.jdt.core.dom.CompilationUnit gitCompilationUnit_parsed =  tools.vitruv.domains.java.monitorededitor.javamodel2ast.JavaModel2AST.parseCompilationUnit(gitCompilationUnit);
+		//CompilationUnit gitCompilationUnit_JaMoPP = tools.vitruv.domains.java.monitorededitor.jamopputil.AST2Jamopp.getCompilationUnitForSerializedCompilationUnit(gitCompilationUnit_parsed);
+		
+		
 		//Save the JaMoPP model content for gitCompilationUnit
 		virtualModel.executeCommand(new Callable<Void>() {
 
@@ -502,8 +515,8 @@ public abstract class ApplyingChangesTestUtil {
         });
 
 		//Compare the JaMoPP models using EMFCompare
-		//Comparison comparison = compareTwoModels(changedCompilationUnit_JaMoPP, gitCompilationUnit_JaMoPP);
-		Comparison comparison = compareTwoModels(gitCompilationUnit_JaMoPP, changedCompilationUnit_JaMoPP);
+		Comparison comparison = compareTwoModels(changedCompilationUnit_JaMoPP, gitCompilationUnit_JaMoPP);
+		//Comparison comparison = compareTwoModels(gitCompilationUnit_JaMoPP, changedCompilationUnit_JaMoPP);
 		//Get found matches from comparison
 		//List<Match> matches = comparison.getMatches();
 		//Get found differences from comparison
@@ -521,6 +534,9 @@ public abstract class ApplyingChangesTestUtil {
 			return true;
 		}
 		else {
+			
+			org.eclipse.emf.compare.utils.EMFComparePrettyPrinter.printDifferences(comparison, System.out);
+			
 			//Try to compare the JaMoPP-Models with EqualityHelper
 			System.out.println("EMFCompare returned the result, that the JaMoPP-Models are NOT equal. Now compare the JaMoPP-Models with EMF EqualityHelper:");
 			EqualityHelper equalityHelper = new EqualityHelper();
@@ -551,6 +567,11 @@ public abstract class ApplyingChangesTestUtil {
 				boolean containingCodeIsEqual =  changedCompilationUnitStream.toString().equals(gitCompilationUnitStream.toString());
 				if (containingCodeIsEqual) {
 					System.out.println("The containing code of the JaMoPP-Models is equal.");
+					
+					//TODO Remove the line
+					//comparison = compareTwoModels(gitCompilationUnit_JaMoPP, changedCompilationUnit_JaMoPP);
+					
+					
 					//Close streams
 					try {
 						changedCompilationUnitStream.close();
@@ -621,6 +642,17 @@ public abstract class ApplyingChangesTestUtil {
 	 */
 	public static Comparison compareTwoModels(EObject firstModel, EObject secondModel) {
     	
+		/*
+		IMatchEngine.Factory.Registry registry === MatchEngineFactoryRegistryImpl.createStandaloneInstance();
+		// for OSGi (IDE, RCP) usage
+		// IMatchEngine.Factory.Registry registry === EMFCompareRCPPlugin.getDefault().getMatchEngineFactoryRegistry();
+		final MatchEngineFactoryImpl matchEngineFactory = new MatchEngineFactoryImpl(UseIdentifiers.NEVER);
+		matchEngineFactory.setRanking(20); // default engine ranking is 10, must be higher to override.
+		registry.add(matchEngineFactory);
+
+		Comparison result = EMFCompare.builder().setMatchEngineFactoryRegistry(registry).build().compare(scope);
+		*/
+		
 		// Configure EMF Compare
     	IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.NEVER);
     	IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());

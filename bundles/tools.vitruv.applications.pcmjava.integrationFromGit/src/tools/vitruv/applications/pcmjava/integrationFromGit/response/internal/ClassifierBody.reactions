@@ -18,10 +18,10 @@ in reaction to changes in Java
 execute actions in PCM
 
 
-// General:
+
 reaction MemberRenamed {
 	after attribute replaced at java::Member[name]
-	with !(affectedEObject instanceof ConcreteClassifier) // avoid classes etc.
+	with !(affectedEObject instanceof ConcreteClassifier) // avoid class renames
 	call renameMember(affectedEObject)
 }
 
@@ -240,8 +240,10 @@ reaction ChangeFieldTypeEvent {
 
 routine changedFieldTypeEvent(java::Field field, java::TypeReference oldType, java::TypeReference newType) {
 	match {
-		val oldCorrespondingOpInterface = retrieve optional pcm::OperationInterface corresponding to oldType
-		val opInterface = retrieve optional pcm::OperationInterface corresponding to newType
+		//val oldCorrespondingOpInterface = retrieve optional pcm::OperationInterface corresponding to oldType
+		val oldCorrespondingOpInterface = retrieve optional pcm::OperationInterface corresponding to getNormalizedClassifierFromTypeReference(oldType)
+		//val opInterface = retrieve optional pcm::OperationInterface corresponding to newType
+		val opInterface = retrieve optional pcm::OperationInterface corresponding to getNormalizedClassifierFromTypeReference(newType)
 		val opRequiredRole = retrieve optional pcm::OperationRequiredRole corresponding to field
 		val basicComponent = retrieve pcm::BasicComponent corresponding to field.containingConcreteClassifier
 	}
@@ -249,21 +251,21 @@ routine changedFieldTypeEvent(java::Field field, java::TypeReference oldType, ja
 		call {
 			if(oldCorrespondingOpInterface.present && opInterface.present && opRequiredRole.present){
 				// reset required role 
-				userInteractor.notificationDialogBuilder.message("the operation required role has been changed").windowModality(WindowModality.MODAL).startInteraction;
+				//userInteractor.notificationDialogBuilder.message("the operation required role has been changed").windowModality(WindowModality.MODAL).startInteraction;
 				opRequiredRole.get.requiredInterface__OperationRequiredRole = opInterface.get
 				return
 			}
 			if(!oldCorrespondingOpInterface.present && opInterface.present){
 				// new required role needs to be added 
-				userInteractor.notificationDialogBuilder.message("Create OperationRequiredRole between Component " + 
-					basicComponent.entityName + " and Interface " + opInterface.get.entityName).windowModality(WindowModality.MODAL).startInteraction;
+				//userInteractor.notificationDialogBuilder.message("Create OperationRequiredRole between Component " + 
+				//	basicComponent.entityName + " and Interface " + opInterface.get.entityName).windowModality(WindowModality.MODAL).startInteraction;
 				createRequiredRole(basicComponent, opInterface.get, field)
 				return
 			}
 			if(oldCorrespondingOpInterface.present && !opInterface.present && opRequiredRole.present){
 				// remove required role and correspondence
-				userInteractor.notificationDialogBuilder.message("Remove OperationRequiredRole between Component " + 
-					basicComponent.entityName + " and Interface " + oldCorrespondingOpInterface.get.entityName).windowModality(WindowModality.MODAL).startInteraction;
+				//userInteractor.notificationDialogBuilder.message("Remove OperationRequiredRole between Component " + 
+				//	basicComponent.entityName + " and Interface " + oldCorrespondingOpInterface.get.entityName).windowModality(WindowModality.MODAL).startInteraction;
 				removeRequiredRoleAndCorrespondence(opRequiredRole.get, field)
 			}
 		}

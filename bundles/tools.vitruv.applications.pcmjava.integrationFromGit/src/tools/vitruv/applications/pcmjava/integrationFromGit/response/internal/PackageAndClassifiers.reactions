@@ -376,7 +376,8 @@ reaction PackageCreated {
 	after element java::Package inserted as root
 	call {
 		createOrFindArchitecturalElement(newValue, getLastPackageName(newValue.name))
-		createPackageEClassCorrespondence(newValue) // Creates meta-element for the package in correspondences
+		//Creates meta-element for the package in correspondences
+		createPackageEClassCorrespondence(newValue) 
 	}
 }
 

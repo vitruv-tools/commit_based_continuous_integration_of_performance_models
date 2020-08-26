@@ -126,9 +126,9 @@ public abstract class EuFpetersenCbsPc_nonIntegratedArea_classChanges_fineGraine
 	public final static String ADD_FIELD_MODIFIER = "78f1a979e08477e941d577dbe4f3e08ee52df83e";
 	//changed 'public' to 'private' modifier to 'SecondInterface fieldRenamed' in FirstClassImpl.java
 	public final static String CHANGE_FIELD_MODIFIER = "ff792812cace6d386ffb1a1b18aadfba3f3abb80";
-	//changed field type from 'SecondInterface fieldRenamed' to 'String fieldRenamed' in FirstClassImpl.java
-	public final static String CHANGE_FIELD_TYPE = "7bc4c18f75faaeedfcecd718bda2484489751f36";
-	//removed field 'String fieldRenamed' in FirstClassImpl.java
-	public final static String REMOVE_FIELD = "569a33fee580fa84964a9c2d9f4401adfe95b29e";
+	//changed field type from 'SecondInterface fieldRenamed' to 'FirstInterface fieldRenamed' in FirstClassImpl.java
+	public final static String CHANGE_FIELD_TYPE = "e7793803d1637dd599f1db4172df2196bf650659";
+	//removed field 'FirstInterface fieldRenamed' in FirstClassImpl.java
+	public final static String REMOVE_FIELD = "825a381df2cf8c669aecb293efbd65cc42278618";
 
 }
