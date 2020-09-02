@@ -16,15 +16,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
-import org.eclipse.core.internal.resources.Project;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -62,7 +58,6 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil.EqualityHelper;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -74,30 +69,22 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.wizards.JavaCapabilityConfigurationPage;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.diff.EditList;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.ui.dialogs.IOverwriteQuery;
 import org.eclipse.ui.wizards.datatransfer.FileSystemStructureProvider;
 import org.eclipse.ui.wizards.datatransfer.ImportOperation;
-import org.emftext.language.java.classifiers.Classifier;
 import org.emftext.language.java.classifiers.ConcreteClassifier;
 import org.emftext.language.java.classifiers.impl.ClassImpl;
 import org.emftext.language.java.containers.CompilationUnit;
 import org.emftext.language.java.containers.JavaRoot;
-import org.emftext.language.java.containers.impl.CompilationUnitImpl;
 import org.emftext.language.java.containers.impl.PackageImpl;
-import org.emftext.language.java.members.ClassMethod;
 import org.emftext.language.java.members.Field;
 import org.emftext.language.java.members.Member;
 import org.emftext.language.java.members.Method;
-import org.emftext.language.java.statements.StatementListContainer;
 import org.emftext.language.java.types.ClassifierReference;
 import org.emftext.language.java.types.TypeReference;
 import org.emftext.language.java.types.impl.NamespaceClassifierReferenceImpl;
-import org.junit.Assert;
 import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.palladiosimulator.pcm.repository.DataType;
-import org.palladiosimulator.pcm.repository.InnerDeclaration;
 import org.palladiosimulator.pcm.repository.OperationInterface;
 import org.palladiosimulator.pcm.repository.OperationProvidedRole;
 import org.palladiosimulator.pcm.repository.OperationRequiredRole;
@@ -118,30 +105,28 @@ import org.palladiosimulator.pcm.seff.LoopAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import org.palladiosimulator.pcm.seff.SeffFactory;
-import org.somox.gast2seff.visitors.AbstractFunctionClassificationStrategy;
-import org.somox.gast2seff.visitors.FunctionCallClassificationVisitor;
-import org.somox.gast2seff.visitors.InterfaceOfExternalCallFindingFactory;
-import org.somox.gast2seff.visitors.MethodCallFinder;
-import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding;
-import org.somox.gast2seff.visitors.VisitorUtils;
+//import org.somox.gast2seff.visitors.AbstractFunctionClassificationStrategy;
+//import org.somox.gast2seff.visitors.FunctionCallClassificationVisitor;
+//import org.somox.gast2seff.visitors.InterfaceOfExternalCallFindingFactory;
+//import org.somox.gast2seff.visitors.MethodCallFinder;
+//import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding;
+//import org.somox.gast2seff.visitors.VisitorUtils;
 
 import edu.kit.ipd.sdq.commons.util.org.eclipse.emf.common.util.URIUtil;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitChangeApplier;
 import tools.vitruv.applications.pcmjava.integrationFromGit.GitRepository;
 import tools.vitruv.applications.pcmjava.linkingintegration.PcmJavaCorrespondenceModelTransformation;
-import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
-import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff.PojoJava2PcmCodeToSeffFactory;
-import tools.vitruv.applications.pcmjava.tests.util.CompilationUnitManipulatorHelper;
+//import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
+//import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff.PojoJava2PcmCodeToSeffFactory;
+//import tools.vitruv.applications.pcmjava.tests.util.CompilationUnitManipulatorHelper;
 import tools.vitruv.domains.java.JavaDomainProvider;
 import tools.vitruv.domains.java.builder.VitruviusJavaBuilder;
 import tools.vitruv.domains.java.builder.VitruviusJavaBuilderApplicator;
 import tools.vitruv.domains.pcm.PcmDomainProvider;
 import tools.vitruv.domains.pcm.PcmNamespace;
 import tools.vitruv.framework.change.processing.ChangePropagationSpecification;
-import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
 import tools.vitruv.framework.domains.VitruvDomain;
-import tools.vitruv.framework.userinteraction.InteractionResultProvider;
 import tools.vitruv.framework.userinteraction.InternalUserInteractor;
 import tools.vitruv.framework.userinteraction.UserInteractionFactory;
 import tools.vitruv.framework.util.datatypes.ModelInstance;
@@ -151,8 +136,8 @@ import tools.vitruv.framework.vsum.VirtualModelConfiguration;
 import tools.vitruv.framework.vsum.VirtualModelImpl;
 import tools.vitruv.framework.vsum.modelsynchronization.ChangePropagationListener;
 
-import tools.vitruv.domains.java.monitorededitor.jamopputil.AST2Jamopp;
-import tools.vitruv.domains.java.monitorededitor.javamodel2ast.JavaModel2AST;
+//import tools.vitruv.domains.java.monitorededitor.jamopputil.AST2Jamopp;
+//import tools.vitruv.domains.java.monitorededitor.javamodel2ast.JavaModel2AST;
 
 /**
  * Contains many convenient methods used for testing. 
@@ -458,12 +443,8 @@ public abstract class ApplyingChangesTestUtil {
 		//changedCompilationUnit.getResource().refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 		//Find the JaMoPP model for the changedCompilationUnit
 		ModelInstance modelInstance = virtualModel.getModelInstance(VURI.getInstance(changedCompilationUnit.getResource()));
-		modelInstance.load(new HashMap(), true);
-		
-		//TODO Enable
-		//CompilationUnit changedCompilationUnit_JaMoPP = (CompilationUnit) modelInstance.getResource().getContents().get(0);
-		//TODO Remove
-		CompilationUnit changedCompilationUnit_JaMoPP = modelInstance.getUniqueRootEObjectIfCorrectlyTyped(CompilationUnit.class);/*(CompilationUnit) modelInstance.getFirstRootEObject();*/
+		modelInstance.load(new HashMap(), true);	
+		CompilationUnit changedCompilationUnit_JaMoPP = modelInstance.getUniqueRootEObjectIfCorrectlyTyped(CompilationUnit.class);
 		
 		OutputStream changedCompilationUnitStream = new ByteArrayOutputStream();
 		OutputStream gitCompilationUnitStream = new ByteArrayOutputStream();
@@ -488,10 +469,9 @@ public abstract class ApplyingChangesTestUtil {
         });
 		 
 		//Create a temporary JaMoPP model for the gitCompilationUnit
-		//TODO Enable
 		CompilationUnit gitCompilationUnit_JaMoPP = getJaMoPPRootForVURI(VURI.getInstance(gitCompilationUnit.getResource()));
 		
-		//TODO Remove 
+		//This is an alternative way to create a JaMoPP-CompitlationUnit from a JDT-CompilationUnit
 		//org.eclipse.jdt.core.dom.CompilationUnit gitCompilationUnit_parsed =  tools.vitruv.domains.java.monitorededitor.javamodel2ast.JavaModel2AST.parseCompilationUnit(gitCompilationUnit);
 		//CompilationUnit gitCompilationUnit_JaMoPP = tools.vitruv.domains.java.monitorededitor.jamopputil.AST2Jamopp.getCompilationUnitForSerializedCompilationUnit(gitCompilationUnit_parsed);
 		
@@ -544,14 +524,9 @@ public abstract class ApplyingChangesTestUtil {
 			if (modelsAreEqual) {
 				System.out.println("EMF EqualityHelper returned the result, that the JaMoPP-Models are equal.");
 				
-				
-				
-				
-				//TODO: Remove the line
+				//TODO: Does not work yet. Remove the line
 				//virtualModel.propagateChangedState(gitCompilationUnit_JaMoPP.eResource());
-				
-				
-				
+	
 				//Close streams
 				try {
 					changedCompilationUnitStream.close();
@@ -566,19 +541,14 @@ public abstract class ApplyingChangesTestUtil {
 				System.out.println("EMF EqualityHelper returned the result, that the JaMoPP-Models are NOT equal. Now compare the containing code of the JaMoPP-Models with String.equals:");
 				boolean containingCodeIsEqual =  changedCompilationUnitStream.toString().equals(gitCompilationUnitStream.toString());
 				if (containingCodeIsEqual) {
-					System.out.println("The containing code of the JaMoPP-Models is equal.");
-					
-					//TODO Remove the line
-					//comparison = compareTwoModels(gitCompilationUnit_JaMoPP, changedCompilationUnit_JaMoPP);
-					
-					
+					System.out.println("The containing code of the JaMoPP-Models is equal.");		
 					//Close streams
 					try {
 						changedCompilationUnitStream.close();
 						gitCompilationUnitStream.close();
 						
 				/*		
-					//TODO: Remove merge
+					//TODO: Does not work yet. Remove it
 					//java.lang.IllegalStateException: Couldn't move element because its parent hasn't been merged yet: MERGING LEFT MOVE org.eclipse.emf.compare.internal.spec.ReferenceChangeSpec{reference=Commentable.layoutInformations,value=KeywordLayoutInformation@431bcf1f ,parentMatch=org.eclipse.emf.compare.internal.spec.MatchSpec{left=MethodCall@2dafc9d3,right=<null>,origin=<null>,#differences=4,#submatches=3},match of value=org.eclipse.emf.compare.internal.spec.MatchSpec{left=KeywordLayoutInformation@431bcf1f ,right=KeywordLayoutInformation@4ade5073 ,origin=<null>,#differences=0,#submatches=0}}	
 					virtualModel.executeCommand(new Callable<Void>() {
 			            @Override
@@ -594,8 +564,7 @@ public abstract class ApplyingChangesTestUtil {
 			            }
 			        });	
 				*/	
-						
-					
+
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -629,9 +598,7 @@ public abstract class ApplyingChangesTestUtil {
 	    merger.copyAllLeftToRight(comparison.getDifferences(), new BasicMonitor());
 	}
 	
-	
-	
-	
+
 	/**
 	 * Compares two JaMoPP Models <code>firstModel</code> and <code>secondModel</code> using {@link EMFCompare}
 	 *  @see <a href="https://www.eclipse.org/emf/compare/documentation/latest/developer/developer-guide.html">http://eclipse.org</a>
@@ -640,19 +607,7 @@ public abstract class ApplyingChangesTestUtil {
 	 * @param secondModel second JaMoPP Model
 	 * @return comparison result
 	 */
-	public static Comparison compareTwoModels(EObject firstModel, EObject secondModel) {
-    	
-		/*
-		IMatchEngine.Factory.Registry registry === MatchEngineFactoryRegistryImpl.createStandaloneInstance();
-		// for OSGi (IDE, RCP) usage
-		// IMatchEngine.Factory.Registry registry === EMFCompareRCPPlugin.getDefault().getMatchEngineFactoryRegistry();
-		final MatchEngineFactoryImpl matchEngineFactory = new MatchEngineFactoryImpl(UseIdentifiers.NEVER);
-		matchEngineFactory.setRanking(20); // default engine ranking is 10, must be higher to override.
-		registry.add(matchEngineFactory);
-
-		Comparison result = EMFCompare.builder().setMatchEngineFactoryRegistry(registry).build().compare(scope);
-		*/
-		
+	public static Comparison compareTwoModels(EObject firstModel, EObject secondModel) {	
 		// Configure EMF Compare
     	IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.NEVER);
     	IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
@@ -683,7 +638,6 @@ public abstract class ApplyingChangesTestUtil {
     	
     	EMFCompare comparator = EMFCompare.builder().setMatchEngineFactoryRegistry(matchEngineRegistry).setDiffEngine(diffEngine).build();
     	// Compare the two models
-    	//IComparisonScope scope = EMFCompare.createDefaultScope(model1, model2);
     	IComparisonScope scope = new DefaultComparisonScope(firstModel, secondModel, null);
     	return comparator.compare(scope);
     }
@@ -1002,29 +956,19 @@ public abstract class ApplyingChangesTestUtil {
 		  }
 			
 		  return false;
-	  }
+	  }  
 	  
-	  
-	  
-	  
-	  public static boolean assertNoInternalAction(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
-			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
-			if (method_JaMoPP == null) {
-				return false;
-			}
-
-			Set<InternalAction> internalActions_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
-					virtualModel.getCorrespondenceModel(), method_JaMoPP,  InternalAction.class);
-			if (internalActions_PCM.size() == 0) {
-				return true;
-			}
-			
-			return false;
-	  }
-	  
-	  
-	  
-	  public static boolean assertNumberOfExternalCalls(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel, int numberOfExpectedExternalCalls) {
+	
+	  /**
+	   * Asserts existence of the particular number <code>numberOfExpectedExternalCalls</code> of {@link ExternalCallAction} corresponding to the <code>compilationUnit</code>
+	   * 
+	 * @param methodName
+	 * @param compilationUnit
+	 * @param virtualModel
+	 * @param numberOfExpectedExternalCalls
+	 * @return true if the {@link ExternalCallAction}s exist, else false
+	 */
+	public static boolean assertNumberOfExternalCalls(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel, int numberOfExpectedExternalCalls) {
 			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
 			if (method_JaMoPP == null) {
 				return false;
@@ -1040,7 +984,15 @@ public abstract class ApplyingChangesTestUtil {
 	  }
 	  
 	  
-	  public static boolean assertOneLoopWithOneExternalCall(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+	  /**
+	   * Asserts existence of exactly one {@link LoopAction} that contains exactly one {@link ExternalCallAction}
+	   * 
+	 * @param methodName
+	 * @param compilationUnit
+	 * @param virtualModel
+	 * @return true if exactly one {@link LoopAction} that contains exactly one {@link ExternalCallAction} exists, else false
+	 */
+	public static boolean assertOneLoopWithOneExternalCall(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
 			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
 			if (method_JaMoPP == null) {
 				return false;
@@ -1060,7 +1012,15 @@ public abstract class ApplyingChangesTestUtil {
 	  }
 	  
 	  
-	  public static boolean assertNoLoop(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+	  /**
+	   * Asserts absence of {@link LoopAction}s in <code>compilationUnit</code>
+	   * 
+	 * @param methodName
+	 * @param compilationUnit
+	 * @param virtualModel
+	 * @return true if there is no {@link LoopAction}s, else false
+	 */
+	public static boolean assertNoLoop(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
 			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
 			if (method_JaMoPP == null) {
 				return false;
@@ -1076,7 +1036,15 @@ public abstract class ApplyingChangesTestUtil {
 	  }
 	  
 	  
-	  public static boolean assertOneBranchWithOneExternalCallAndOneInternalAction(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+	  /**
+	   * Asserts existence of exactly one {@link BranchAction} that contains exactly one {@link ExternalCallAction}
+	   * 
+	 * @param methodName
+	 * @param compilationUnit
+	 * @param virtualModel
+	 * @return true if exactly one {@link BranchAction} that contains exactly one {@link ExternalCallAction} exists, else false
+	 */
+	public static boolean assertOneBranchWithOneExternalCallAndOneInternalAction(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
 			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
 			if (method_JaMoPP == null) {
 				return false;
@@ -1094,7 +1062,7 @@ public abstract class ApplyingChangesTestUtil {
 						&& stepsBehaviour_else.size() == 3 && stepsBehaviour_else.get(1) instanceof ExternalCallAction) {
 						return true;
 					}
-					//Maybe wrong order. Swap if and else branches.
+					//Maybe wrong order. Swap 'if' and 'else' branches.
 					if (stepsBehaviour_if.size() == 3 && stepsBehaviour_if.get(1) instanceof ExternalCallAction
 							&& stepsBehaviour_else.size() == 3 && stepsBehaviour_else.get(1) instanceof InternalAction) {
 							return true;
@@ -1106,7 +1074,15 @@ public abstract class ApplyingChangesTestUtil {
 	  }
 	  
 	  
-	  public static boolean assertNoBranch(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+	  /**
+	   * Asserts absence of {@link BranchAction}s in <code>compilationUnit</code>
+	   * 
+	 * @param methodName
+	 * @param compilationUnit
+	 * @param virtualModel
+	 * @return true if there is no {@link BranchAction}s, else false
+	 */
+	public static boolean assertNoBranch(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
 			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
 			if (method_JaMoPP == null) {
 				return false;
@@ -1123,7 +1099,15 @@ public abstract class ApplyingChangesTestUtil {
 	  
 	  
 	  
-	  public static boolean assertClassMethodWithName(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+	  /**
+	   * Asserts existence of at least one {@link ResourceDemandingSEFF} to the method with name <code>methodName</code> from the class <code>compilationUnit</code>
+	   * 
+	 * @param methodName
+	 * @param compilationUnit
+	 * @param virtualModel
+	 * @return true if there is at least one corresponding {@link ResourceDemandingSEFF} to the method, else false
+	 */
+	public static boolean assertClassMethodWithName(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
 			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
 			if (method_JaMoPP == null) {
 				return false;
@@ -1138,7 +1122,16 @@ public abstract class ApplyingChangesTestUtil {
 			return false;
 	  }
 	  
-	  public static boolean assertInterfaceMethodWithName(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+	
+	  /**
+	   *  Asserts existence of at least one {@link OperationSignature} to the method with name <code>methodName</code> from the interface <code>compilationUnit</code>
+	   * 
+	 * @param methodName
+	 * @param compilationUnit
+	 * @param virtualModel
+	 * @return true if there is at least one corresponding {@link OperationSignature} to the method, else false
+	 */
+	public static boolean assertInterfaceMethodWithName(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
 			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
 			if (method_JaMoPP == null) {
 				return false;
@@ -1152,7 +1145,16 @@ public abstract class ApplyingChangesTestUtil {
 	  }
 	  
 	  
-	  public static boolean assertInterfaceMethodPrimitiveReturnTypeWithName(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+	  /**
+	   *  Asserts that the {@link OperationSignature} to the method <code>methodName</code> has a primitive return type {@link PrimitiveDataType}
+	   * 
+	 * @param methodName
+	 * @param compilationUnit
+	 * @param virtualModel
+	 * @return true if the {@link OperationSignature} has a primitive return type
+	 * 		   false if there is no JaMoPP-Model to the method or the return type of the {@link OperationSignature} is not a primitive type
+	 */
+	public static boolean assertInterfaceMethodPrimitiveReturnTypeWithName(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
 			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
 			if (method_JaMoPP == null) {
 				return false;
@@ -1172,7 +1174,17 @@ public abstract class ApplyingChangesTestUtil {
 	  
 	
 	  
-	  public static boolean assertInterfaceMethodParameterWithName(String methodName, String parameterName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+	  /**
+	   * Asserts that the found {@link OperationSignature} has a method parameter with the name <code>parameterName</code>
+	   * 
+	 * @param methodName
+	 * @param parameterName
+	 * @param compilationUnit
+	 * @param virtualModel
+	 * @return true if the is a method parameter with the name <code>parameterName</code>
+	 * 		   false if there is no JaMoPP-Model to the method or the is no method parameter with <code>parameterName</code>
+	 */
+	public static boolean assertInterfaceMethodParameterWithName(String methodName, String parameterName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
 			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
 			if (method_JaMoPP == null) {
 				return false;
@@ -1192,52 +1204,16 @@ public abstract class ApplyingChangesTestUtil {
 	  }
 	  
 	  
-	  public static boolean assertNoClassMethodWithName(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
-			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
-			if (method_JaMoPP == null) {
-				return true;
-			}
-			//Find the corresponding PCM SEFF. If not found, look for an InternalAction or an ExternalCall corresponding to method_JaMoPP
-			Set<ResourceDemandingSEFF> SEFFs_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
-					virtualModel.getCorrespondenceModel(), method_JaMoPP,  ResourceDemandingSEFF.class);
-			if (!SEFFs_PCM.isEmpty()) {
-				return false;
-			}
-			/*TODO Remove
-			Set<InternalAction> internalActions_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
-					virtualModel.getCorrespondenceModel(), method_JaMoPP,  InternalAction.class);
-			if (!internalActions_PCM.isEmpty()) {
-				return false;
-			}
-			Set<ExternalCallAction> externalCalls_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
-					virtualModel.getCorrespondenceModel(), method_JaMoPP,  ExternalCallAction.class);
-			if (!externalCalls_PCM.isEmpty()) {
-				return false;
-			}
-			*/
-			return true;
-	  }
-	  
-	  
-	  public static boolean assertNoInterfaceMethodWithName(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
-			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
-			if (method_JaMoPP == null) {
-				return true;
-			}
-			//Find the corresponding PCM OperationRequiredRole
-			//claimOne throws an exception if no or many correspondences was found
-			Set<OperationSignature> methods_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
-					virtualModel.getCorrespondenceModel(), method_JaMoPP,  OperationSignature.class);
-			if (methods_PCM.isEmpty()) {
-				return true;
-			}
-			else {
-				return false;
-			}
-	  }
-	  
-	  
-	  private static Method getJaMoPPMethodFromClass(ICompilationUnit compilationUnit, String methodName, InternalVirtualModel virtualModel) {
+
+	  /**
+	   * Finds a JaMoPP-Model in VSUM for the method with name <code>methodName</code>
+	   * 
+	 * @param compilationUnit
+	 * @param methodName
+	 * @param virtualModel
+	 * @return JaMoPP-Method or null, if no JaMoPP-Method found
+	 */
+	private static Method getJaMoPPMethodFromClass(ICompilationUnit compilationUnit, String methodName, InternalVirtualModel virtualModel) {
 			//Find the JaMoPP model for the changedCompilationUnit
 			ModelInstance modelInstance = virtualModel.getModelInstance(VURI.getInstance(compilationUnit.getResource()));
 			modelInstance.load(new HashMap(), true);
@@ -1256,6 +1232,14 @@ public abstract class ApplyingChangesTestUtil {
 	  }
 	  
 	  
+	/**
+	 * Asserts existence of one {@link OperationRequiredRole} for the filed with name <code>fieldName</code>
+	 * 
+	 * @param fieldName
+	 * @param compilationUnit
+	 * @param virtualModel
+	 * @return true if exactly one {@link OperationRequiredRole} was found, false else
+	 */
 	public static boolean assertFieldWithName(String fieldName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
 		Field field_JaMoPP = getJaMoPPFieldFromClass(compilationUnit, fieldName, virtualModel);
 		if (field_JaMoPP == null) {
@@ -1270,6 +1254,15 @@ public abstract class ApplyingChangesTestUtil {
 	}
 	
 	
+	/**
+	 * Asserts existence of {@link OperationProvidedRole} for the interface with name <code>providedInterfaceName</code>
+	 * 
+	 * @param classifierName
+	 * @param providedInterfaceName
+	 * @param compilationUnit
+	 * @param virtualModel
+	 * @return true if a {@link OperationProvidedRole} was found, else false 
+	 */
 	public static boolean assertOperationProvidedRole(String classifierName, String providedInterfaceName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
 		ConcreteClassifier concreteClassifier_JaMoPP = getJaMoPPClassifier(compilationUnit, classifierName, virtualModel);
 		if (concreteClassifier_JaMoPP == null) {
@@ -1295,6 +1288,15 @@ public abstract class ApplyingChangesTestUtil {
 	}
 	
 	
+	/**
+	 * Asserts absence of {@link OperationProvidedRole} for the interface with name <code>providedInterfaceName</code>
+	 * 
+	 * @param classifierName
+	 * @param providedInterfaceName
+	 * @param compilationUnit
+	 * @param virtualModel
+	 * @return true if no {@link OperationProvidedRole} was found, else false
+	 */
 	public static boolean assertNoOperationProvidedRole(String classifierName, String providedInterfaceName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
 		ConcreteClassifier concreteClassifier_JaMoPP = getJaMoPPClassifier(compilationUnit, classifierName, virtualModel);
 		if (concreteClassifier_JaMoPP == null) {
@@ -1320,6 +1322,14 @@ public abstract class ApplyingChangesTestUtil {
 	}
 	
 	  
+	/**
+	 * Finds a JaMoPP-Model for filed with <code>fieldName</code> in <code>compilationUnit</code> 
+	 * 
+	 * @param compilationUnit
+	 * @param fieldName
+	 * @param virtualModel
+	 * @return JaMoPP-Field or null, if no JaMoPP-Field was found 
+	 */
 	private static Field getJaMoPPFieldFromClass(final ICompilationUnit compilationUnit, final String fieldName, final InternalVirtualModel virtualModel) {
 		//Find the JaMoPP model for the changedCompilationUnit
 		ModelInstance modelInstance = virtualModel.getModelInstance(VURI.getInstance(compilationUnit.getResource()));
@@ -1339,6 +1349,14 @@ public abstract class ApplyingChangesTestUtil {
 	}
 	
 	
+	/**
+	 * Finds a JaMoPP-Classifier with <code>classifierName</code> for the <code>compilationUnit</code>
+	 * 
+	 * @param compilationUnit
+	 * @param classifierName
+	 * @param virtualModel
+	 * @return JaMoPP-Classifier or null, if no JaMoPP-Classifier was found 
+	 */
 	private static ConcreteClassifier getJaMoPPClassifier(final ICompilationUnit compilationUnit, final String classifierName, final InternalVirtualModel virtualModel) {
 		//Find the JaMoPP model for the changedCompilationUnit
 		ModelInstance modelInstance = virtualModel.getModelInstance(VURI.getInstance(compilationUnit.getResource()));
@@ -1351,6 +1369,14 @@ public abstract class ApplyingChangesTestUtil {
 	}
 	
 	
+	/**
+	 * Asserts absence of {@link RequiredRole} for the field with <code>fieldName</code>
+	 * 
+	 * @param fieldName
+	 * @param compilationUnit
+	 * @param virtualModel
+	 * @return true if no {@link RequiredRole} was found, else false
+	 */
 	public static boolean assertNoFieldWithName(String fieldName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
 		 ConcreteClassifier classifier_JaMoPP = getJaMoPPClassifier(compilationUnit, compilationUnit.getElementName(), virtualModel);
 		 if (classifier_JaMoPP == null) {
@@ -1377,6 +1403,15 @@ public abstract class ApplyingChangesTestUtil {
 	}
 	
 
+	/**
+	 * Asserts field type for {@link OperationRequiredRole} with name <code>fieldName</code>
+	 * 
+	 * @param fieldName
+	 * @param fieldType
+	 * @param compilationUnit
+	 * @param virtualModel
+	 * @return true if the found {@link OperationRequiredRole} has the type <code>fieldType</code>, else false
+	 */
 	public static boolean assertFieldTypeWithName(String fieldName, String fieldType, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
 		Field field_JaMoPP = getJaMoPPFieldFromClass(compilationUnit, fieldName, virtualModel);
 		if (field_JaMoPP == null) {
@@ -1402,6 +1437,15 @@ public abstract class ApplyingChangesTestUtil {
 	}
 	
 	
+	/**
+	 * Asserts absence of field {@link OperationRequiredRole} with type <code>fieldType</code> 
+	 * 
+	 * @param fieldName
+	 * @param fieldType
+	 * @param compilationUnit
+	 * @param virtualModel
+	 * @return true if no field with <code>fieldType</code> was found, else false
+	 */
 	public static boolean assertNoFieldTypeWithName(String fieldName, String fieldType, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
 		Field field_JaMoPP = getJaMoPPFieldFromClass(compilationUnit, fieldName, virtualModel);
 		if (field_JaMoPP == null) {
@@ -1443,6 +1487,16 @@ public abstract class ApplyingChangesTestUtil {
 	}
 	
 	
+	/**
+	 * Asserts existence JaMoPP-Model to the package with path to the package info-file <code>packageInfoFile</code>
+	 * 
+	 * @param packageInfoFile
+	 * @param virtualModel
+	 * @return true if the JaMoPP-Package exists, else false
+	 * @throws IOException
+	 * @throws CoreException
+	 * @throws InterruptedException
+	 */
 	public static boolean packageExistsInVSUM(ICompilationUnit packageInfoFile, InternalVirtualModel virtualModel) throws IOException, CoreException, InterruptedException {
 		//helps to avoid synchronization problems
 		Thread.sleep(3000);
@@ -1456,6 +1510,50 @@ public abstract class ApplyingChangesTestUtil {
 		
 		return false;
 	}
+
+	
+	//TODO how to ensure absence of pcm model for removed jamopp model?
+	public static boolean assertNoClassMethodWithName(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
+			if (method_JaMoPP == null) {
+				return true;
+			}
+			//Find the corresponding PCM SEFF. If not found, look for an InternalAction or an ExternalCall corresponding to method_JaMoPP
+			Set<ResourceDemandingSEFF> SEFFs_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  ResourceDemandingSEFF.class);
+			if (!SEFFs_PCM.isEmpty()) {
+				return false;
+			}
+			
+			return true;
+	  }
+	  
+	  //TODO how to ensure absence of pcm model for removed jamopp model?
+	  public static boolean assertNoInterfaceMethodWithName(String methodName, ICompilationUnit compilationUnit, InternalVirtualModel virtualModel) {
+			Method method_JaMoPP = getJaMoPPMethodFromClass(compilationUnit, methodName, virtualModel);
+			if (method_JaMoPP == null) {
+				return true;
+			}
+			//Find the corresponding PCM OperationRequiredRole
+			Set<OperationSignature> methods_PCM = CorrespondenceModelUtil.getCorrespondingEObjectsByType(
+					virtualModel.getCorrespondenceModel(), method_JaMoPP,  OperationSignature.class);
+			if (methods_PCM.isEmpty()) {
+				return true;
+			}
+			else {
+				return false;
+			}
+	  }
+	
+	
+	
+//The end of the class. The methods below can be removed 	
+//*********************************************************************************************************************************************************************************************************************	
+//*********************************************************************************************************************************************************************************************************************
+//*********************************************************************************************************************************************************************************************************************
+//*********************************************************************************************************************************************************************************************************************
+	
+	
 	
 	
 	/*

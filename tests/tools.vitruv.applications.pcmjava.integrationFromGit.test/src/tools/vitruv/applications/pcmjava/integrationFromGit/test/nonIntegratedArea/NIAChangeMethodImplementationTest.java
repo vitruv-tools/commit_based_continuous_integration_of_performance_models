@@ -441,7 +441,7 @@ public class NIAChangeMethodImplementationTest {
 		//Compare JaMoPP-Models 
 		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit,  virtualModel);
 		//Ensure that there is a corresponding PCM model to the compUnitChanged.
-		boolean pcmExists = ApplyingChangesTestUtil.assertNoInternalAction("firstMethodInFirstInterface", compUnitChanged, virtualModel);
+		boolean pcmExists = ApplyingChangesTestUtil.assertNumberOfInternalActions("firstMethodInFirstInterface", compUnitChanged, virtualModel, 0);
 			
 		assertTrue("In testRemoveInternalAction() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
 		assertTrue("In testRemoveInternalAction() corresponding PCM model does not exist, but it should exist", pcmExists);
