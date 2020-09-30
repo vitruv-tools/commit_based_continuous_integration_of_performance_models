@@ -1,7 +1,5 @@
 package tools.vitruv.applications.pcmjava.integrationFromGit;
 
-
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -20,6 +18,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -68,7 +67,6 @@ import tools.vitruv.framework.vsum.modelsynchronization.ChangePropagationListene
 public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePropagationListener {
 
 	private GitRepository gitRepository;
-	
 	private static final Logger logger = Logger.getLogger(Java2PcmTransformationTest.class.getSimpleName());
 	private static int MAXIMUM_SYNC_WAITING_TIME = 10000;
 	private AtomicInteger expectedNumberOfSyncs = new AtomicInteger(0);
@@ -84,11 +82,8 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * 
 	 * @param commits - commits that contain changes
 	 * @param currentProject - project which the changes are applied on
-	 * @throws CoreException
-	 * @throws InterruptedException
-	 * @throws IOException
 	 */
-	public void applyChangesFromCommits(List<RevCommit> commits, IProject currentProject) throws CoreException, InterruptedException, IOException {
+	public void applyChangesFromCommits(List<RevCommit> commits, IProject currentProject) {
 		Collections.reverse(commits); 
 		for (int i = 0; i < commits.size() - 1; i++) {
 			applyChangesFromCommit(commits.get(i), commits.get(i + 1), currentProject);
@@ -103,11 +98,9 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param oldCommit - commit that contains an older state of the project  
 	 * @param newCommit - commit that contains an newer state of the project  
 	 * @param currentProject - project which the changes are applied on
-	 * @throws CoreException 
-	 * @throws InterruptedException 
-	 * @throws IOException 
+	 *
 	 */
-	public void applyChangesFromCommit(RevCommit oldCommit, RevCommit newCommit, IProject currentProject) throws CoreException, InterruptedException, IOException {
+	public void applyChangesFromCommit(RevCommit oldCommit, RevCommit newCommit, IProject currentProject) {
 		
 		//Compute changes between two commits
 		ArrayList<DiffEntry> diffs = new ArrayList<>(gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, /*true*/false, true));
@@ -165,9 +158,28 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param oldPath path to the original file
 	 * @param newPath path to the copy
 	 * @param project project that contains the original file and its copy
-	 * @throws CoreException
+	 * @exception CoreException if this resource could not be copied. Reasons include:
+	 * <ul>
+	 * <li> This resource does not exist.</li>
+	 * <li> This resource or one of its descendents is not local.</li>
+	 * <li> The source or destination is the workspace root.</li>
+	 * <li> The source is a project but the destination is not.</li>
+	 * <li> The destination is a project but the source is not.</li>
+	 * <li> The resource corresponding to the parent destination path does not exist.</li>
+	 * <li> The resource corresponding to the parent destination path is a closed project.</li>
+	 * <li> A resource at destination path does exist.</li>
+	 * <li> This resource or one of its descendents is out of sync with the local file
+	 *      system and <code>force</code> is <code>false</code>.</li>
+	 * <li> The workspace and the local file system are out of sync
+	 *      at the destination resource or one of its descendents.</li>
+	 * <li> The source resource is a file and the destination path specifies a project.</li>
+	 * <li> Resource changes are disallowed during certain types of resource change
+	 *       event notification. See <code>IResourceChangeEvent</code> for more details.</li>
+	 * </ul>
+	 * @exception OperationCanceledException if the operation is canceled.
+	 * Cancellation can occur even if no progress monitor is provided.
 	 */
-	private void copyElementInProject(String oldPath, String newPath, IProject project) throws CoreException {
+	private void copyElementInProject(String oldPath, String newPath, IProject project) {
 		//Convert old path from String into Path. For convenience only.
 		IPath tempOldPath = new Path(oldPath);
 		//Get rid of the project name in the path
@@ -182,7 +194,12 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		if (originalFile.exists()) {		
 			IFile copiedFile = project.getFile(tempNewPath);
 			if (!copiedFile.exists()) {
-				originalFile.copy(copiedFile.getFullPath()/*tempNewPath*/, true, new NullProgressMonitor());	
+				try {
+					originalFile.copy(copiedFile.getFullPath(), true, new NullProgressMonitor());
+				} catch (CoreException e) {
+					System.err.println(e.getMessage());
+					e.printStackTrace();
+				}	
 			}	
 		}
 	}
@@ -257,37 +274,82 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param oldElementPath
 	 * @param newElementPath
 	 * @param editList 
-	 * @throws CoreException 
-	 * @throws IOException 
+ 	 *
+ 	 * @exception CoreException if this method fails. Reasons include:
+	 * <ul>
+	 * <li> This resource does not exist.</li>
+	 * <li> The corresponding location in the local file system
+	 *       is occupied by a directory.</li>
+	 * <li> The workspace is not in sync with the corresponding location
+	 *       in the local file system and <code>FORCE</code> is not specified.</li>
+	 * <li> Resource changes are disallowed during certain types of resource change
+	 *       event notification. See <code>IResourceChangeEvent</code> for more details.</li>
+	 * <li> The file modification validator disallowed the change.</li>
+	 * </ul>
+	 * 
+	 * @exception JavaModelException a failure in the Java model. See: 
+	 * 	{@link ICompilationUnit#becomeWorkingCopy}
+	 * 	{@link ICompilationUnit#applyTextEdit}
+	 * 	{@link ICompilationUnit#reconcile}
+	 * 	{@link ICompilationUnit#commitWorkingCopy}
+	 * 	{@link ICompilationUnit#discardWorkingCopy}
+	 * 
+	 * @exception  IOException  if an I/O error occurs.
 	 */
 	private void modifyElementInProject(IProject project,
 			OutputStream oldElementContent, OutputStream newElementContent, 
 			String oldElementPath, String newElementPath,
-			EditList editList) throws CoreException, IOException {
+			EditList editList) {
 		
 		//Check if the modified file is a java file
 		if (oldElementPath.endsWith(".java")) {
 			//Find the compilation unit
 			ICompilationUnit compilationUnit = findICompilationUnitInProject(oldElementPath, project);
 			String oldContent = oldElementContent.toString();
-			oldElementContent.close();
 			String newContent = newElementContent.toString();
-			newElementContent.close();
+			try {
+				oldElementContent.close();
+				newElementContent.close();
+			} catch (IOException e) {
+				System.err.println(e.getMessage());
+				e.printStackTrace();
+			}
+			
 			//Convert EditList into List<TextEdit>. Necessary because EditList is from JGit (see: org.eclipse.jgit.diff.EditList),
 			//but changes must be applied on a JDT Model, what is only possible with TextEdit (see: org.eclipse.jdt.core.ICompilationUnit.applyTextEdit(TextEdit edit, IProgressMonitor monitor))	
 			List<TextEdit> textEdits = gitRepository.transformEditListIntoTextEdits(editList, oldContent, newContent);
 			//Apply changes on the given compilation unit
-			CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, textEdits.toArray(new TextEdit[textEdits.size()]));
+			try {
+				CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, textEdits.toArray(new TextEdit[textEdits.size()]));
+			} catch (JavaModelException e) {
+				System.err.println(e.getMessage());
+				e.printStackTrace();
+			}
 		}
 		//Find the non-java file and replace its entire content with the new one
 		else {
-			oldElementContent.close();
+			try {
+				oldElementContent.close();
+			} catch (IOException e) {
+				System.err.println(e.getMessage());
+				e.printStackTrace();
+			}
 			IFile file = project.getFile(oldElementPath.substring(oldElementPath.indexOf("/") + 1));
 			if (file.exists()) {
 				ByteArrayInputStream inputStream = new ByteArrayInputStream(((ByteArrayOutputStream) newElementContent).toByteArray());
-				newElementContent.close();
-				file.setContents(inputStream, IFile.FORCE, null);
-				inputStream.close();
+				try {
+					file.setContents(inputStream, IFile.FORCE, null);
+				} catch (CoreException e) {
+					System.err.println(e.getMessage());
+					e.printStackTrace();
+				}
+				try {
+					newElementContent.close();
+					//inputStream.close(); //has no effect
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+					e.printStackTrace();
+				}
 			}	
 		}
 		
@@ -302,13 +364,29 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param project project which the new file or folder will be created in
 	 * @param pathToElement path to the new file
 	 * @param elementContent file content
-	 * @throws CoreException 
-	 * @throws InterruptedException 
-	 * @throws IOException 
+	 * 
+	 * @exception CoreException if this method fails. Reasons include:
+	 * <ul>
+	 * <li> Resource changes are disallowed during certain types of resource change
+	 *       event notification. See <code>IResourceChangeEvent</code> for more details.</li>
+	 * </ul> 
+	 * 
+	 * 	 * @exception JavaModelException a failure in the Java model. See: 
+	 * 	{@link ICompilationUnit#becomeWorkingCopy}
+	 * 	{@link ICompilationUnit#applyTextEdit}
+	 * 	{@link ICompilationUnit#reconcile}
+	 * 	{@link ICompilationUnit#commitWorkingCopy}
+	 * 	{@link ICompilationUnit#discardWorkingCopy}
+	 * 
 	 */
-	private void addElementToProject(IProject project, String pathToElement, String elementContent) throws CoreException, InterruptedException, IOException {
+	private void addElementToProject(IProject project, String pathToElement, String elementContent) {
 		//Refresh the project to avoid inconsistency
-		project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+		try {
+			project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+		} catch (CoreException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
 		//Convert path from String into Path. For convenience only.
 		IPath tempPath = new Path(pathToElement);
 		//Get rid of the project name in the path
@@ -328,9 +406,9 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			String firstSegment = tempPath.segment(0);
 			String lastSegment = tempPath.lastSegment();
 			
-			IJavaProject javaProject;
-			IPackageFragmentRoot packageFragmentRoot;
-			IPackageFragment packageFragment;
+			IJavaProject javaProject = null;
+			IPackageFragmentRoot packageFragmentRoot = null;
+			IPackageFragment packageFragment = null;
 			
 			//Check if we need to handle a IJavaProject
 			//For more details, what a java project in JDT looks like, see https://www.vogella.com/tutorials/EclipseJDT/article.html
@@ -338,14 +416,26 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			//		|| fileExtension.equals("jar") || fileExtension.equals("zip")) {
 			
 			//Check if the project is a java project
-			if (project.hasNature(JavaCore.NATURE_ID)) {
+			boolean javaNature = false;
+			try {
+				javaNature = project.hasNature(JavaCore.NATURE_ID);
+			} catch (CoreException e) {
+				System.err.println(e.getMessage());
+				e.printStackTrace();
+			}
+			if (javaNature) {
 				javaProject = JavaCore.create(project);
 				//A Java File must not be directly in the src folder. Instead it must be in a package, that is contained in the src folder.
 				//Therefore, a path to a new java file must contain at least three segments.
 				if (segmentCounter > 2) {
 					//Find the package fragment root. If it does not exist, create it
 					IPath packageFragmentRootPath = javaProject.getPath().append("/" + firstSegment);
-					packageFragmentRoot = javaProject.findPackageFragmentRoot(packageFragmentRootPath);//javaProject.getPackageFragmentRoot(firstSegment);
+					try {
+						packageFragmentRoot = javaProject.findPackageFragmentRoot(packageFragmentRootPath);
+					} catch (JavaModelException e) {
+						System.err.println(e.getMessage());
+						e.printStackTrace();
+					}//javaProject.getPackageFragmentRoot(firstSegment);
 					if (!packageFragmentRoot.exists()) {
 						packageFragmentRoot = createPacakgeFragmentRoot(firstSegment, javaProject);
 					}
@@ -354,18 +444,28 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 					packageFragment = packageFragmentRoot.getPackageFragment(packageFragmentName);
 					//Check if the PackageFragment exists. If not, create it
 					if (!packageFragment.exists()) {
-						createPackageWithPackageInfo(project, packageFragmentRoot, tempPath.removeFirstSegments(1).removeLastSegments(1).segments());				
+						createPackageWithPackageInfo(project, packageFragmentRoot, tempPath.removeFirstSegments(1).removeLastSegments(1).segments());
 					}
 					//packageFragment.makeConsistent(new NullProgressMonitor());
 					ICompilationUnit compilationUnit = packageFragment.getCompilationUnit(lastSegment);
 					//The new file must not exist yet.
 					if (!compilationUnit.exists()) {
 						//Create java file per JDT
-						compilationUnit = packageFragment.createCompilationUnit(lastSegment, "", false/*true*/, new NullProgressMonitor());
+						try {
+							compilationUnit = packageFragment.createCompilationUnit(lastSegment, "", false/*true*/, new NullProgressMonitor());
+						} catch (JavaModelException e) {
+							System.err.println(e.getMessage());
+							e.printStackTrace();
+						}
 						//Thread.sleep(5000);
 						//Set empty content on the new file. Necessary to inform Vitruv about the new created java file.
 						InsertEdit edit = new InsertEdit(0, elementContent);
-						CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, edit);
+						try {
+							CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, edit);
+						} catch (JavaModelException e) {
+							System.err.println(e.getMessage());
+							e.printStackTrace();
+						}
 						//project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 					}
 					else {
@@ -387,23 +487,61 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param packageFragmentRootPath path to the package fragment root
 	 * @param javaProject project which the package fragment root must be created in
 	 * @return created package fragment root
-	 * @throws CoreException
+	 * 
+	 * @exception CoreException if this method fails. Reasons include:
+	 * <ul>
+	 * <li> This resource already exists in the workspace.</li>
+	 * <li> The workspace contains a resource of a different type
+	 *      at the same path as this resource.</li>
+	 * <li> The parent of this resource does not exist.</li>
+	 * <li> The parent of this resource is a project that is not open.</li>
+	 * <li> The parent contains a resource of a different type
+	 *      at the same path as this resource.</li>
+	 * <li> The parent of this resource is virtual, but this resource is not.</li>
+	 * <li> The name of this resource is not valid (according to
+	 *    <code>IWorkspace.validateName</code>).</li>
+	 * <li> The corresponding location in the local file system is occupied
+	 *    by a file (as opposed to a directory).</li>
+	 * <li> The corresponding location in the local file system is occupied
+	 *    by a folder and <code>FORCE</code> is not specified.</li>
+	 * <li> Resource changes are disallowed during certain types of resource change
+	 *       event notification.  See <code>IResourceChangeEvent</code> for more details.</li>
+	 * </ul>
+	 * 
+	 * @exception JavaModelException if this element does not exist or if an
+	 *	exception occurs while accessing its corresponding resource
 	 */
-	private IPackageFragmentRoot createPacakgeFragmentRoot(String packageFragmentRootPath, IJavaProject javaProject) throws CoreException {
+	private IPackageFragmentRoot createPacakgeFragmentRoot(String packageFragmentRootPath, IJavaProject javaProject) {
 		IFolder rootFolder = javaProject.getProject().getFolder(packageFragmentRootPath);
 		//Check if the PackageFragmentRoot exists. If not, create it
 		if (!rootFolder.exists()) {
-			rootFolder.create(false/*true*/, false/*true*/, new NullProgressMonitor());		
+			try {
+				rootFolder.create(false/*true*/, false/*true*/, new NullProgressMonitor());
+			} catch (CoreException e) {
+				System.err.println(e.getMessage());
+				e.printStackTrace();
+			}		
 		}
 
 		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(rootFolder);
 		
-		IClasspathEntry[] oldEntries = javaProject.getRawClasspath();
+		IClasspathEntry[] oldEntries = null;
+		try {
+			oldEntries = javaProject.getRawClasspath();
+		} catch (JavaModelException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
 		IClasspathEntry[] newEntries = new IClasspathEntry[oldEntries.length + 1];
 		System.arraycopy(oldEntries, 0, newEntries, 0, oldEntries.length);
 		
 		newEntries[oldEntries.length] = JavaCore.newSourceEntry(root.getPath());
-		javaProject.setRawClasspath(newEntries, null);
+		try {
+			javaProject.setRawClasspath(newEntries, null);
+		} catch (JavaModelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		return root;
 	}
@@ -417,10 +555,26 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param pathToFile path to the file
 	 * @param elementContent file content 
 	 * @param project project which the file must be created in
-	 * @throws CoreException
-	 * @throws IOException 
+	 
+	 * @exception CoreException if this method fails. Reasons include:
+	 * <ul>
+	 * <li> This resource already exists in the workspace.</li>
+	 * <li> The parent of this resource does not exist.</li>
+	 * <li> The parent of this resource is a virtual folder.</li>
+	 * <li> The project of this resource is not accessible.</li>
+	 * <li> The parent contains a resource of a different type
+	 *      at the same path as this resource.</li>
+	 * <li> The name of this resource is not valid (according to
+	 *    <code>IWorkspace.validateName</code>).</li>
+	 * <li> The corresponding location in the local file system is occupied
+	 *    by a directory.</li>
+	 * <li> The corresponding location in the local file system is occupied
+	 *    by a file and <code>force </code> is <code>false</code>.</li>
+	 * <li> Resource changes are disallowed during certain types of resource change
+	 *       event notification. See <code>IResourceChangeEvent</code> for more details.</li>
+	 * </ul>
 	 */
-	private void createNonJavaFile(IPath pathToFile, String elementContent, IProject project) throws CoreException, IOException {
+	private void createNonJavaFile(IPath pathToFile, String elementContent, IProject project) {
 		int segmentCounter = pathToFile.segmentCount();
 		if(segmentCounter < 1) {
 			System.out.println("Could not create a new file because of an invalid file path");
@@ -432,7 +586,12 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			for(int i = segmentCounter - 1; i > 0; i--) {
 				IFolder folder = project.getFolder(pathToFile.removeLastSegments(i));
 				if (!folder.exists()) {
-					folder.create(false, true, new NullProgressMonitor());
+					try {
+						folder.create(false, true, new NullProgressMonitor());
+					} catch (CoreException e) {
+						System.err.println(e.getMessage());
+						e.printStackTrace();
+					}
 				}
 			}
 		}
@@ -440,8 +599,13 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		IFile file = project.getFile(pathToFile);
 		if (!file.exists()) {
 			ByteArrayInputStream elementContentStream = new ByteArrayInputStream(elementContent.getBytes());
-			file.create(elementContentStream, false, new NullProgressMonitor());
-			elementContentStream.close();
+			try {
+				file.create(elementContentStream, false, new NullProgressMonitor());
+				//elementContentStream.close(); //has no effect
+			} catch (CoreException e) {
+				System.err.println(e.getMessage());
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -452,9 +616,33 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param oldPath path to the file (including file name) before renaming
 	 * @param newPath path to the file (including file name) after renaming
 	 * @param project project which the file must be renamed in
-	 * @throws CoreException
+	 *
+	 * @exception CoreException if this resource could not be moved. Reasons include:
+	 * <ul>
+	 * <li> This resource does not exist.</li>
+	 * <li> This resource or one of its descendents is not local.</li>
+	 * <li> The source or destination is the workspace root.</li>
+	 * <li> The source is a project but the destination is not.</li>
+	 * <li> The destination is a project but the source is not.</li>
+	 * <li> The resource corresponding to the parent destination path does not exist.</li>
+	 * <li> The resource corresponding to the parent destination path is a closed
+	 *      project.</li>
+	 * <li> The source is a linked resource, but the destination is not a project
+	 *      and  {@link #SHALLOW} is specified.</li>
+	 * <li> A resource at destination path does exist.</li>
+	 * <li> A resource of a different type exists at the destination path.</li>
+	 * <li> This resource or one of its descendents is out of sync with the local file system
+	 *      and <code>force</code> is <code>false</code>.</li>
+	 * <li> The workspace and the local file system are out of sync
+	 *      at the destination resource or one of its descendents.</li>
+	 * <li> The source resource is a file and the destination path specifies a project.</li>
+	 * <li> The location of the source resource on disk is the same or a prefix of
+	 * the location of the destination resource on disk.</li>
+	 * <li> Resource changes are disallowed during certain types of resource change
+	 * event notification. See <code>IResourceChangeEvent</code> for more details.</li>
+	 * </ul>
 	 */
-	private void renameElementInProject(String oldPath, String newPath, IProject project) throws CoreException {
+	private void renameElementInProject(String oldPath, String newPath, IProject project) {
 		//Convert old path from String into Path. For convenience only.
 		IPath tempOldPath = new Path(oldPath);
 		//Get rid of the project name in the path
@@ -469,7 +657,12 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		if (fileBeforeRename.exists()) {		
 			IFile fileAfterRename = project.getFile(tempNewPath);
 			if (!fileAfterRename.exists()) {
-				fileBeforeRename.move(fileAfterRename.getFullPath()/*tempNewPath*/, true, new NullProgressMonitor());	
+				try {
+					fileBeforeRename.move(fileAfterRename.getFullPath()/*tempNewPath*/, true, new NullProgressMonitor());
+				} catch (CoreException e) {
+					System.err.println(e.getMessage());
+					e.printStackTrace();
+				}	
 			}	
 		}
 	}
@@ -480,9 +673,15 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * 
 	 * @param project given project which the file or folder must be removed from
 	 * @param pathToElement path to the file or folder which must be removed
-	 * @throws CoreException 
+	 *
+	 * @exception JavaModelException if this element could not be deleted. Reasons include:
+	 * <ul>
+	 * <li> This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
+	 * <li> A <code>CoreException</code> occurred while updating an underlying resource (CORE_EXCEPTION)</li>
+	 * <li> This element is read-only (READ_ONLY)</li>
+	 * </ul>
 	 */
-	private void removeElementFromProject(IProject project, String pathToElement) throws CoreException {
+	private void removeElementFromProject(IProject project, String pathToElement) {
 		//Determine if a package, a compilation unit or a non-java file must be removed
 		if (pathToElement.endsWith("package-info.java")) {
 			//Do we need to delete package-info.java explicitly before we delete package?
@@ -490,17 +689,32 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			//compilationUnit.delete(true, null);
 			//Find and delete the package
 			IPackageFragment packageFragment = findIPackageFragmentInProject(pathToElement, project);
-			packageFragment.delete(true, null);
+			try {
+				packageFragment.delete(true, null);
+			} catch (JavaModelException e) {
+				System.err.println(e.getMessage());
+				e.printStackTrace();
+			}
 		}
 		else if (pathToElement.endsWith(".java")) {
 			ICompilationUnit compilationUnit = findICompilationUnitInProject(pathToElement, project);
-			compilationUnit.delete(true/*false*/, null);
+			try {
+				compilationUnit.delete(true/*false*/, null);
+			} catch (JavaModelException e) {
+				System.err.println(e.getMessage());
+				e.printStackTrace();
+			}
 		}
 		else {
 			IPath pathToElementInProject = new Path(pathToElement).removeFirstSegments(1);
 			IFile fileToRemove = project.getFile(pathToElementInProject);
 			if (fileToRemove.exists()) {
-				fileToRemove.delete(true, new NullProgressMonitor());	
+				try {
+					fileToRemove.delete(true, new NullProgressMonitor());
+				} catch (CoreException e) {
+					System.err.println(e.getMessage());
+					e.printStackTrace();
+				}	
 			}
 		}
 
@@ -513,9 +727,10 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param project project which a new package must be created in
 	 * @param namespace package name space
 	 * @return JaMoPP Model of the created package
-	 * @throws IOException
+	 *
+	 * @exception IOException if an error occurred during saving
 	 */
-	protected Package createPackageWithPackageInfo(final IProject project, final IPackageFragmentRoot packageFragmentRoot, final String... namespace) throws IOException {
+	protected Package createPackageWithPackageInfo(final IProject project, final IPackageFragmentRoot packageFragmentRoot, final String... namespace) {
 		assert (namespace.length > 0);
 		Package jaMoPPPackage = null;
 		//Check if there are parent subpackages on the path, which don't exist yet. If so, create them before creating the target package.
@@ -532,7 +747,12 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				VURI vuri = VURI.getInstance(project.getName() + "/src/" + currentPackage);
 				final Resource resource = resourceSet.createResource(vuri.getEMFUri());
 				
-				EcoreResourceBridge.saveEObjectAsOnlyContent(jaMoPPPackage, resource);
+				try {
+					EcoreResourceBridge.saveEObjectAsOnlyContent(jaMoPPPackage, resource);
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+					e.printStackTrace();
+				}
 				waitForSynchronization(1);
 			}
 			
@@ -612,10 +832,12 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
      * @param pathToCompilationUnit path to the compilation unit
      * @param project given project
      * @return found {@link ICompilationUnit}
-     * @throws JavaModelException
+     * 
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
      */
     public static ICompilationUnit findICompilationUnitInProject(String pathToCompilationUnit,
-            final IProject project) throws JavaModelException {
+            final IProject project) {
     	//Convert path to the compilation unit from Sting to Path
     	IPath path = new Path(pathToCompilationUnit);
     	//Get rid of the project name
@@ -627,26 +849,31 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
     	
         final IJavaProject javaProject = JavaCore.create(project);
         //Iterate over all package fragment roots
-        for (final IPackageFragmentRoot packageFragmentRoot : javaProject.getPackageFragmentRoots()) {
-        	if (packageFragmentRoot.getElementName().equals(packageFragmentRootName)) {
-        		final IJavaElement[] children = packageFragmentRoot.getChildren();
-                //Iterate over all package fragments
-        		for (final IJavaElement iJavaElement : children) {
-                    if (iJavaElement instanceof IPackageFragment && iJavaElement.getElementName().equals(packageFragmentName)) {
-                        final IPackageFragment fragment = (IPackageFragment) iJavaElement;
-                        final IJavaElement[] javaElements = fragment.getChildren();
-                        //Iterate over all compilation units
-                        for (int k = 0; k < javaElements.length; k++) {
-                            final IJavaElement javaElement = javaElements[k];
-                            if (javaElement.getElementType() == IJavaElement.COMPILATION_UNIT && javaElement.getElementName().equals(compilationUnitName)) {
-                                final ICompilationUnit compilationUnit = (ICompilationUnit) javaElement;
-                                    return compilationUnit;
-                            }
-                        }
-                    }
-                }
-        	} 
-        }
+        try {
+			for (final IPackageFragmentRoot packageFragmentRoot : javaProject.getPackageFragmentRoots()) {
+				if (packageFragmentRoot.getElementName().equals(packageFragmentRootName)) {
+					final IJavaElement[] children = packageFragmentRoot.getChildren();
+			        //Iterate over all package fragments
+					for (final IJavaElement iJavaElement : children) {
+			            if (iJavaElement instanceof IPackageFragment && iJavaElement.getElementName().equals(packageFragmentName)) {
+			                final IPackageFragment fragment = (IPackageFragment) iJavaElement;
+			                final IJavaElement[] javaElements = fragment.getChildren();
+			                //Iterate over all compilation units
+			                for (int k = 0; k < javaElements.length; k++) {
+			                    final IJavaElement javaElement = javaElements[k];
+			                    if (javaElement.getElementType() == IJavaElement.COMPILATION_UNIT && javaElement.getElementName().equals(compilationUnitName)) {
+			                        final ICompilationUnit compilationUnit = (ICompilationUnit) javaElement;
+			                            return compilationUnit;
+			                    }
+			                }
+			            }
+			        }
+				} 
+			}
+		} catch (JavaModelException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
         throw new RuntimeException("Could not find a compilation unit with name " + pathToCompilationUnit);
     }
     
@@ -656,10 +883,12 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
      * @param pathToPackageFragment path to the package fragment
      * @param project given project
      * @return found {@link IPackageFragment}
-     * @throws JavaModelException
+     *
+     * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
      */
     public static IPackageFragment findIPackageFragmentInProject(String pathToPackageFragment,
-            final IProject project) throws JavaModelException {
+            final IProject project){
     	//Convert path to the compilation unit from Sting to Path
     	IPath path = new Path(pathToPackageFragment);
     	//Get rid of the project name
@@ -670,18 +899,23 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
     	
         final IJavaProject javaProject = JavaCore.create(project);
         //Iterate over all package fragment roots
-        for (final IPackageFragmentRoot packageFragmentRoot : javaProject.getPackageFragmentRoots()) {
-        	if (packageFragmentRoot.getElementName().equals(packageFragmentRootName)) {
-        		final IJavaElement[] children = packageFragmentRoot.getChildren();
-        		//Iterate over all package fragments
-        		for (final IJavaElement iJavaElement : children) {
-                    if (iJavaElement instanceof IPackageFragment && iJavaElement.getElementName().equals(packageFragmentName)) {
-                        final IPackageFragment fragment = (IPackageFragment) iJavaElement;
-                        return fragment;
-                    }
-                }
-        	} 
-        }
+        try {
+			for (final IPackageFragmentRoot packageFragmentRoot : javaProject.getPackageFragmentRoots()) {
+				if (packageFragmentRoot.getElementName().equals(packageFragmentRootName)) {
+					final IJavaElement[] children = packageFragmentRoot.getChildren();
+					//Iterate over all package fragments
+					for (final IJavaElement iJavaElement : children) {
+			            if (iJavaElement instanceof IPackageFragment && iJavaElement.getElementName().equals(packageFragmentName)) {
+			                final IPackageFragment fragment = (IPackageFragment) iJavaElement;
+			                return fragment;
+			            }
+			        }
+				} 
+			}
+		} catch (JavaModelException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
         throw new RuntimeException("Could not find a compilation unit with name " + pathToPackageFragment);
     }
 	
@@ -751,8 +985,15 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	}
 
 	
-	
-	public void applyChangesFromCommitUsingStateBasedChangePropagation(IProject newProjectState, IProject oldProjectState, ICompilationUnit newCompilationUnitState, InternalVirtualModel virtualModel) throws CoreException, InterruptedException, IOException {
+	/**
+	 * Updates the project state in Virtual Model using State Based Propagation Strategy 
+	 * 
+	 * @param newProjectState
+	 * @param oldProjectState
+	 * @param newCompilationUnitState
+	 * @param virtualModel
+	 */
+	public void applyChangesFromCommitUsingStateBasedChangePropagation(IProject newProjectState, IProject oldProjectState, ICompilationUnit newCompilationUnitState, InternalVirtualModel virtualModel) {
 		VURI vuriNew = VURI.getInstance(newProjectState);
 		final Resource resourceNew = URIUtil.loadResourceAtURI(URI.createPlatformResourceURI(newProjectState.getLocationURI().toString())/*vuri.getEMFUri()*//*newProjectState.getLocationURI()*/, new ResourceSetImpl());
 		

@@ -403,9 +403,10 @@ public class GitRepository {
 	 * 
 	 * @param diff contains information about changes on a file 
 	 * @return {@link EditList}
-	 * @throws IOException 
+	 * 
+	 * @exception  IOException  if an I/O error occurs.
 	 */
-	public EditList computeEditListFromDiffEntry(DiffEntry diff) throws IOException {
+	public EditList computeEditListFromDiffEntry(DiffEntry diff) {
 		DisabledOutputStream outputStream = DisabledOutputStream.INSTANCE;
 		DiffFormatter diffFormatter = new DiffFormatter(outputStream);
 		diffFormatter.setRepository(git.getRepository());
@@ -419,7 +420,12 @@ public class GitRepository {
 		}
 		finally {
 			diffFormatter.close();
-			outputStream.close();
+			try {
+				outputStream.close();
+			} catch (IOException e) {
+				System.err.println(e.getMessage());
+				e.printStackTrace();
+			}
 		}
 		return null;
 	}
