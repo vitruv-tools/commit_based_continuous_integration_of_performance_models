@@ -1,7 +1,5 @@
 package tools.vitruv.applications.pcmjava.integrationFromGit;
 
-//import java.io.BufferedReader;
-//import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 //import java.io.FileNotFoundException;
@@ -25,15 +23,20 @@ import java.util.stream.Stream;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.AbortedByHookException;
+import org.eclipse.jgit.api.errors.CanceledException;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.ConcurrentRefUpdateException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidConfigurationException;
 import org.eclipse.jgit.api.errors.InvalidRefNameException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.NoFilepatternException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.api.errors.NoMessageException;
 import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
+import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
 import org.eclipse.jgit.api.errors.RefNotFoundException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.api.errors.UnmergedPathsException;
 import org.eclipse.jgit.api.errors.WrongRepositoryStateException;
 //import org.eclipse.jgit.blame.BlameResult;
@@ -45,9 +48,11 @@ import org.eclipse.jgit.diff.EditList;
 //import org.eclipse.jgit.diff.RawText;
 //import org.eclipse.jgit.diff.RawTextComparator;
 import org.eclipse.jgit.diff.RenameDetector;
+import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.NoWorkTreeException;
+import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
@@ -81,9 +86,9 @@ import org.eclipse.text.edits.TextEdit;
  */
 public class GitRepository {
 
-	private final Git git;
+	private Git git;
 	private RevCommit latestCommit;
-	private final File rootDirectory;
+	private File rootDirectory;
 	private List<DiffEntry> diffs;
 	private String lineDelimiter = System.lineSeparator();
 
@@ -92,12 +97,26 @@ public class GitRepository {
 	 * Creates a new git repository in <code>rootDirectory</code>
 	 * 
 	 * @param rootDirectory directory which a new git repository will be created in
-	 * @throws IllegalStateException
-	 * @throws GitAPIException
+	 * 
+	 * @exception IllegalStateException
+	 * if the combination of directory, gitDir and bare is illegal.
+	 * E.g. if for a non-bare repository directory and gitDir point
+	 * to the same directory of if for a bare repository both
+	 * directory and gitDir are specified
+	 * 
+	 * @exception GitAPIException if unable to compute a result
 	 */
-	public GitRepository(File rootDirectory) throws IllegalStateException, GitAPIException {
+	public GitRepository(File rootDirectory) {
 		this.rootDirectory = rootDirectory;
-		this.git = Git.init().setDirectory(rootDirectory).call();
+		try {
+			this.git = Git.init().setDirectory(rootDirectory).call();
+		} catch (IllegalStateException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -106,16 +125,42 @@ public class GitRepository {
 	 * 
 	 * @param rootDirectory directory which the cloned git repository will be created in
 	 * @param uriToRemoteRepository uri to the remote repository
-	 * @throws IllegalStateException
-	 * @throws GitAPIException
+	 *
+	 * @exception IllegalStateException
+	 * if the combination of directory, gitDir and bare is illegal.
+	 * E.g. if for a non-bare repository directory and gitDir point
+	 * to the same directory of if for a bare repository both
+	 * directory and gitDir are specified
+	 *
+     * @exception GitAPIException if unable to compute a result
+     * 
+     * @exception InvalidRemoteException Exception thrown when a fetch command was called with an invalid remote
+     * 
+     * @exception TransportException Exception thrown when transport operation failed
+     *
 	 */
-	public GitRepository(File rootDirectory, String uriToRemoteRepository) throws IllegalStateException, GitAPIException {
+	public GitRepository(File rootDirectory, String uriToRemoteRepository) {
 		this.rootDirectory = rootDirectory;
-		this.git = Git.cloneRepository()
-		  .setURI(uriToRemoteRepository)
-		  .setDirectory(rootDirectory)
-		  .setCloneAllBranches(true)
-		  .call();
+		try {
+			this.git = Git.cloneRepository()
+			  .setURI(uriToRemoteRepository)
+			  .setDirectory(rootDirectory)
+			  .setCloneAllBranches(true)
+			  .call();
+		} catch (InvalidRemoteException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (TransportException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (IllegalStateException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
+
 	}
 	
 	
@@ -124,16 +169,31 @@ public class GitRepository {
 	 * 
 	 * @param rootDirectory directory which the cloned git repository will be created in
 	 * @param localRepository local git directory
-	 * @throws IllegalStateException
-	 * @throws GitAPIException
+	 *
+	 * @exception GitAPIException if unable to compute a result
+	 * 
+     * @exception InvalidRemoteException Exception thrown when a fetch command was called with an invalid remote
+     * 
+     * @exception TransportException Exception thrown when transport operation failed
 	 */
-	public GitRepository(File rootDirectory, File localRepository) throws IllegalStateException, GitAPIException {
+	public GitRepository(File rootDirectory, File localRepository) {
 		this.rootDirectory = rootDirectory;
-		this.git = Git.cloneRepository()
-		  .setGitDir(localRepository)
-		  .setDirectory(rootDirectory)
-		  .setCloneAllBranches(true)
-		  .call();
+		try {
+			this.git = Git.cloneRepository()
+			  .setGitDir(localRepository)
+			  .setDirectory(rootDirectory)
+			  .setCloneAllBranches(true)
+			  .call();
+		} catch (InvalidRemoteException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (TransportException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	
@@ -151,11 +211,21 @@ public class GitRepository {
 	 * Represents "git add <fileName>" command
 	 * 
 	 * @param fileName
-	 * @throws NoFilepatternException
-	 * @throws GitAPIException
+	 * 
+	 * @exception GitAPIException if unable to compute a result
+	 * 
+     * @exception NoFilepatternException Exception thrown when the options given to a command don't include afile pattern which is mandatory for processing.
 	 */
-	public void addFilePattern(String fileName) throws NoFilepatternException, GitAPIException {
-		git.add().addFilepattern(fileName).call();
+	public void addFilePattern(String fileName) {
+		try {
+			git.add().addFilepattern(fileName).call();
+		} catch (NoFilepatternException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	
@@ -163,11 +233,21 @@ public class GitRepository {
 	 * Represents "git status" command 
 	 * 
 	 * @return status
-	 * @throws NoWorkTreeException
-	 * @throws GitAPIException
+	 * 
+	 * @exception NoWorkTreeException Indicates a org.eclipse.jgit.lib.Repository has no working directory,and is thus bare.
+	 * @exception GitAPIException if unable to compute a result
 	 */
-	public Status getStatus() throws NoWorkTreeException, GitAPIException {
-		return git.status().call();
+	public Status getStatus()  {
+		try {
+			return git.status().call();
+		} catch (NoWorkTreeException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	
@@ -175,32 +255,84 @@ public class GitRepository {
 	 *  Represents "git checkout <commitHash>" command 
 	 * 
 	 * @param commitId commit hash
-	 * @throws RefAlreadyExistsException
-	 * @throws RefNotFoundException
-	 * @throws InvalidRefNameException
-	 * @throws CheckoutConflictException
-	 * @throws GitAPIException
+	 * 
+	 * @exception RefAlreadyExistsException Thrown when trying to create a org.eclipse.jgit.lib.Ref with the samename as an existing one
+	 * @exception RefNotFoundException Thrown when a Ref can not be resolved
+	 * @exception InvalidRefNameException Exception thrown when an invalid Ref name was encountered
+	 * @exception CheckoutConflictException Exception thrown when a command can't succeed because of unresolvedconflicts.
+	 * @exception GitAPIException if unable to compute a result
 	 */
-	public void checkoutFromCommitId(String commitId) throws RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
-		git.checkout().setName(commitId).call();
+	public void checkoutFromCommitId(String commitId) {
+		try {
+			git.checkout().setName(commitId).call();
+		} catch (RefAlreadyExistsException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (RefNotFoundException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (InvalidRefNameException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (CheckoutConflictException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
 	}
 	
 	
 	/**
 	 * Switches to the branch with <code>branchName</code> and checks it out
 	 * 
-	 * @param branchName
-	 * @throws RefAlreadyExistsException
-	 * @throws RefNotFoundException
-	 * @throws InvalidRefNameException
-	 * @throws CheckoutConflictException
-	 * @throws GitAPIException
+	 * @param branchName Branch name
+	 * 
+	 * @exception RefNotAdvertisedException Thrown when a ref is not found in advertised refs
+	 * @exception RefNotFoundException Thrown when a Ref can not be resolved
+	 * @exception GitAPIException if unable to compute a result
+	 * @exception WrongRepositoryStateException Exception thrown when the state of the repository doesn't allow the executionof a certain command. 
+	 * 	E.g. when a CommitCommand should be executed on arepository with unresolved conflicts this exception will be thrown.
+	 * @exception InvalidConfigurationException Exception thrown when a command fails due to an invalid configuration
+	 * @exception InvalidRemoteException Exception thrown when a fetch command was called with an invalid remote
+	 * @exception CanceledException Exception thrown when an operation was canceled
+	 * @exception NoHeadException Exception thrown when a command expected the HEAD reference to existbut couldn't find such a reference
+	 * @exception TransportException Exception thrown when transport operation failed
 	 */
-	public void checkoutAndTrackBranch(String branchName) throws RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
-		 git.pull()/*.setCredentialsProvider(user)*/.call();
-		 git.branchCreate().setForce(true).setName(branchName).setStartPoint("origin/" + branchName).call();
-		 git.checkout().setName(branchName).call();
-		 
+	public void checkoutAndTrackBranch(String branchName) {
+		 try {
+			git.pull()/*.setCredentialsProvider(user)*/.call();
+			git.branchCreate().setForce(true).setName(branchName).setStartPoint("origin/" + branchName).call();
+			git.checkout().setName(branchName).call();
+		} catch (WrongRepositoryStateException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (InvalidConfigurationException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (InvalidRemoteException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (CanceledException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (RefNotFoundException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (RefNotAdvertisedException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (NoHeadException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (TransportException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} 
 	}
 
 	
@@ -209,17 +341,43 @@ public class GitRepository {
 	 * 
 	 * @param commitMessage
 	 * @return commit
-	 * @throws NoHeadException
-	 * @throws NoMessageException
-	 * @throws UnmergedPathsException
-	 * @throws ConcurrentRefUpdateException
-	 * @throws WrongRepositoryStateException
-	 * @throws AbortedByHookException
-	 * @throws GitAPIException
+	 * 
+	 * @exception NoHeadException Exception thrown when a command expected the HEAD reference to existbut couldn't find such a reference
+	 * @exception NoMessageException Exception thrown when the options given to a command don't include aspecification of
+	 *  a message text (e.g. a commit was called without explicitlyspecifying a commit message (or other options telling where to take themessage from.
+	 * @exception UnmergedPathsException Thrown when branch deletion fails due to unmerged data
+	 * @exception ConcurrentRefUpdateException Exception thrown when a command wants to update a ref but failed becauseanother process is accessing (or even also updating) the ref.
+	 * @exception WrongRepositoryStateException Exception thrown when the state of the repository doesn't allow the executionof a certain command. 
+	 *  E.g. when a CommitCommand should be executed on arepository with unresolved conflicts this exception will be thrown.
+	 * @exception AbortedByHookException Exception thrown when a hook returns a process result with a value differentfrom 0.
+	 *  It is up to the caller to decide whether this should block executionor not
+	 * @exception GitAPIException  if unable to compute a result
 	 */
-	public RevCommit commit(String commitMessage) throws NoHeadException, NoMessageException, UnmergedPathsException,
-			ConcurrentRefUpdateException, WrongRepositoryStateException, AbortedByHookException, GitAPIException {
-		latestCommit = git.commit().setMessage(commitMessage).call();
+	public RevCommit commit(String commitMessage) {
+		try {
+			latestCommit = git.commit().setMessage(commitMessage).call();
+		} catch (NoHeadException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (NoMessageException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (UnmergedPathsException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (ConcurrentRefUpdateException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (WrongRepositoryStateException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (AbortedByHookException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
 		return latestCommit;
 	}
 
@@ -228,12 +386,25 @@ public class GitRepository {
 	 * Returns all commits 
 	 * 
 	 * @return all commits
-	 * @throws NoHeadException
-	 * @throws GitAPIException
-	 * @throws IOException
+	 * @exception NoHeadException Exception thrown when a command expected the HEAD reference to existbut couldn't find such a reference
+	 * @exception GitAPIException   if unable to compute a result
+	 * @exception IOException Signals that an I/O exception of some sort has occurred.
+	 *  This class is the general class of exceptions produced by failed or interrupted I/O operations.
 	 */
-	public List<RevCommit> getAllCommits() throws NoHeadException, GitAPIException, IOException {
-		Iterable<RevCommit> commits = git.log().all().call();
+	public List<RevCommit> getAllCommits() {
+		Iterable<RevCommit> commits = null;
+		try {
+			commits = git.log().all().call();
+		} catch (NoHeadException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
 		List<RevCommit> listOfCommits = new ArrayList<>();
 		commits.forEach(listOfCommits :: add);
 		return listOfCommits;
@@ -243,14 +414,46 @@ public class GitRepository {
 	 * Returns all commits from current branch
 	 * 
 	 * @return all commits from branch
-	 * @throws NoHeadException
-	 * @throws GitAPIException
-	 * @throws IOException
+	 * 
+	 * @exception RevisionSyntaxException This signals a revision or object reference was notproperly formatted.
+	 * @exception NoHeadException Exception thrown when a command expected the HEAD reference to existbut couldn't find such a reference
+	 * @exception MissingObjectException An expected object is missing.
+	 * @exception IncorrectObjectTypeException An inconsistency with respect to handling different object types.
+	 *  This most likely signals a programming error rather than a corruptobject database.
+	 * @exception AmbiguousObjectException An org.eclipse.jgit.lib.AbbreviatedObjectId cannot be extended.
+	 * @exception GitAPIException if unable to compute a result
+	 * @exception IOException Signals that an I/O exception of some sort has occurred. 
+	 *  This class is the general class of exceptions produced by failed or interrupted I/O operations.
 	 */
-	public List<RevCommit> getAllCommitsFromBranch(String branchName) throws NoHeadException, GitAPIException, IOException {
-		Iterable<RevCommit> commits = git.log().add(git.getRepository().resolve(branchName)).call();
+	public List<RevCommit> getAllCommitsFromBranch(String branchName) {
+		Iterable<RevCommit> commits = null;
+		try {
+			commits = git.log().add(git.getRepository().resolve(branchName)).call();
+		} catch (RevisionSyntaxException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (NoHeadException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (MissingObjectException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (IncorrectObjectTypeException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (AmbiguousObjectException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
 		List<RevCommit> listOfCommits = new ArrayList<>();
 		commits.forEach(listOfCommits :: add);
+		
 		return listOfCommits;
 	}
 	
@@ -258,18 +461,35 @@ public class GitRepository {
 	/**
 	 * Returns all commits between two particular commits
 	 * 
-	 * @param startCommitHash 
-	 * @param endCommitHash
+	 * @param startCommitHash start commit 
+	 * @param endCommitHash end commit
 	 * @return commits between two particular commits
-	 * @throws IOException
-	 * @throws GitAPIException
+	 * @exception IOException Signals that an I/O exception of some sort has occurred. 
+	 *  This class is the general class of exceptions produced by failed or interrupted I/O operations.
+	 * @exception GitAPIException  if unable to compute a result
+	 * @exception NoHeadException Exception thrown when a command expected the HEAD reference to existbut couldn't find such a reference
 	 */
-	public List<RevCommit> getAllCommitsBetweenTwoCommits(final String startCommitHash, final String endCommitHash) throws IOException, GitAPIException {
-		Ref refFrom = git.getRepository().findRef(startCommitHash);
-		Ref refTo = git.getRepository().findRef(endCommitHash);
-		Iterable<RevCommit> commits = git.log().addRange(refFrom.getObjectId(), refTo.getObjectId()).call();
+	public List<RevCommit> getAllCommitsBetweenTwoCommits(final String startCommitHash, final String endCommitHash) {
+		Ref refFrom;
+		Iterable<RevCommit> commits = null;
+		try {
+			refFrom = git.getRepository().findRef(startCommitHash);
+			Ref refTo = git.getRepository().findRef(endCommitHash);
+			commits = git.log().addRange(refFrom.getObjectId(), refTo.getObjectId()).call();
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (NoHeadException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		} catch (GitAPIException e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
+		
 		List<RevCommit> listOfCommits = new ArrayList<>();
 		commits.forEach(listOfCommits :: add);
+		
 		return listOfCommits;
 	}
 	
