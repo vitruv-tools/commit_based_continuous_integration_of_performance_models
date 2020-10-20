@@ -168,27 +168,61 @@ public class StateBasedChangePropagationTest {
 
 	}
 	
+	
+	
+	
 	//added import, implements, implemented method with override and implementation used only internal actions
 	private void testFirstCoarseGrainedChange() throws CoreException, InterruptedException, IOException, RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException, CheckoutConflictException, GitAPIException {
-		//applyChangesFromCommitUsingStateBasedChangePropagation(...)
-		changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.ADD_FIRST_METHOD_IN_SECOND_INTERFACE), commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.FIRST_COARSE_GRAINED_COMMIT), testProject);
+		
 		//Checkout the repository on the certain commit
 		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.FIRST_COARSE_GRAINED_COMMIT);
 		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
-		IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
-		//Get the changed compilation unit and the compilation unit from git repository to compare
+		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get compilation unit from git repository
 		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
-
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//System.out.println(compUnitChanged.getBuffer());
+		//State based propagation
+		
+		//changeApplier.applyChangesFromCommitUsingStateBasedChangePropagation(compUnitFromGit, virtualModel);
+		
+		compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+		//System.out.println(compUnitChanged.getBuffer());
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
+		
+		//changeApplier.applyChangesFromCommitUsingStateBasedChangePropagation(compUnitFromGit, virtualModel);
+		
+		jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
+		
+		
+		//changeApplier.applyChangesFromCommit(commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.ADD_FIRST_METHOD_IN_SECOND_INTERFACE), commits.get(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.FIRST_COARSE_GRAINED_COMMIT), testProject);
+		//Checkout the repository on the certain commit
+		//gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_nonIntegratedArea_compilationUnitChanges_coarseGrained_Commits.FIRST_COARSE_GRAINED_COMMIT);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		//IProject projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		//ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", projectFromGitRepository);
+		//applyChangesFromCommitUsingStateBasedChangePropagation(...)
 		//Propagate changes
 		//changeApplier.applyChangesFromCommitUsingStateBasedChangePropagation(projectFromGitRepository, testProject, compUnitFromGit, virtualModel);
 		
-		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
+
+		
+		
+		
+		//ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("FirstClassImpl.java", testProject);
 
 		//Thread.sleep(5000);
 		//Compare the buffers from compilation units
 		//boolean compUnitsBuffersAreEqual = ApplyingChangesTestUtil.compareCompilationUnitsBuffers(compUnitChanged, compUnitFromGit, true);
 		//Compare JaMoPP-Models 
-		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
+		//boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
+		
+		//changeApplier.applyChangesFromCommitUsingStateBasedChangePropagation(compUnitFromGit, virtualModel);
+		
+		
+		
 		//TODO: Compare PCM Repository Models
 		//TODO: comparePCMBasicComponents(...) does NOT work
 		//boolean pcmBasicComponentsAreEqual = ApplyingChangesTestUtil.comparePCMBasicComponents(compUnitChanged, compUnitReference);

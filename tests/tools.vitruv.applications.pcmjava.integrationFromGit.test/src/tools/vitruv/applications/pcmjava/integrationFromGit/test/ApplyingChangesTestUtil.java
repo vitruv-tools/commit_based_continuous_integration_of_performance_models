@@ -370,13 +370,7 @@ public abstract class ApplyingChangesTestUtil {
 		File originGitRepository = new File(originGitRepositoryPath);
 		GitRepository gitRepository = null;
 		//Copie git repository
-		try {
-			gitRepository = new GitRepository(clonedGitRepository, originGitRepository.getAbsolutePath());
-		} catch (IllegalStateException e) {
-			e.printStackTrace();
-		} catch (GitAPIException e) {
-			e.printStackTrace();
-		}
+		gitRepository = new GitRepository(clonedGitRepository, originGitRepository.getAbsolutePath());
 
 		return gitRepository;
 	}
@@ -458,9 +452,13 @@ public abstract class ApplyingChangesTestUtil {
                 	//Prints the JaMoPP model
                 	//System.out.println("changedCompilationUnit_JaMoPP:\n");
             		//changedCompilationUnit_JaMoPP.eResource().unload();
-            		changedCompilationUnit_JaMoPP.eResource().load(new HashMap()); 
+            		
+                	changedCompilationUnit_JaMoPP.eResource().load(new HashMap()); 
                 	changedCompilationUnit_JaMoPP.eResource().save(changedCompilationUnitStream, new HashMap());
-                	//System.out.println(changedCompilationUnitStream);
+                	
+                	//Prints the JaMoPP model
+                	System.out.println("changedCompilationUnit_JaMoPP:\n");
+                	System.out.println(changedCompilationUnitStream);
                 } catch (final Throwable e) {
                     throw new RuntimeException(e);
                 }
@@ -486,7 +484,10 @@ public abstract class ApplyingChangesTestUtil {
                 	//Prints the JaMoPP model
                 	//System.out.println("gitClassifier:\n");
                 	gitCompilationUnit_JaMoPP.eResource().save(gitCompilationUnitStream, new HashMap());
-                	//System.out.println(gitCompilationUnitStream);
+                	
+                	//Prints the JaMoPP model
+                	System.out.println("gitClassifier:\n");
+                	System.out.println(gitCompilationUnitStream);
                 } catch (final Throwable e) {
                     throw new RuntimeException(e);
                 }
