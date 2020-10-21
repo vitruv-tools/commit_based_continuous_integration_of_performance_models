@@ -991,6 +991,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param newProjectState
 	 * @param oldProjectState
 	 * @param newCompilationUnitState
+	 * @param oldCompilationUnitState - can be null. If null, the location of the changed compilation unit was not be changed.
 	 * @param virtualModel
 	 */
 	public void applyChangesFromCommitUsingStateBasedChangePropagation(/*IProject newProjectState, IProject oldProjectState,*/ ICompilationUnit newCompilationUnitState, ICompilationUnit oldCompilationUnitState, InternalVirtualModel virtualModel) {
@@ -1003,12 +1004,14 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		VURI newVuriCompilationUnit = VURI.getInstance(newCompilationUnitState.getResource());
 		final Resource newResourceCompilationUnit = URIUtil.loadResourceAtURI(newVuriCompilationUnit.getEMFUri(), new ResourceSetImpl());
 		
-		VURI oldVuriCompilationUnit = VURI.getInstance(oldCompilationUnitState.getResource());
-		final Resource oldResourceCompilationUnit = URIUtil.loadResourceAtURI(oldVuriCompilationUnit.getEMFUri(), new ResourceSetImpl());
-		
-		
-		virtualModel.propagateChangedState(newResourceCompilationUnit, oldResourceCompilationUnit.getURI());
-		
+		if (oldCompilationUnitState != null) {
+			VURI oldVuriCompilationUnit = VURI.getInstance(oldCompilationUnitState.getResource());
+			final Resource oldResourceCompilationUnit = URIUtil.loadResourceAtURI(oldVuriCompilationUnit.getEMFUri(), new ResourceSetImpl());
+			virtualModel.propagateChangedState(newResourceCompilationUnit, oldResourceCompilationUnit.getURI());
+		}
+		else {
+			virtualModel.propagateChangedState(newResourceCompilationUnit);
+		}
 	}
 	
 	

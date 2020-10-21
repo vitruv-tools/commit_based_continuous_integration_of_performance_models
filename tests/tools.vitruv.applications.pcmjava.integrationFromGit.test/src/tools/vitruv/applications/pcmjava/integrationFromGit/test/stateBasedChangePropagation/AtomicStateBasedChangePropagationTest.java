@@ -131,10 +131,11 @@ public class AtomicStateBasedChangePropagationTest {
 	@Test
 	public void testChangeMethodHeader() throws Throwable {
 		
-		//testRenameMethodInInterfaceWithSBPS();
+		testRenameMethodInInterfaceWithSBPS();
 		//testRenameMethodInInterfaceWithSBPSAndWithoutSynchronization();
 		
-		testRenameMethodInInterface();
+		//testRenameMethodInInterface();
+		
 		//testRenameMethodInClass();
 		//testChangeReturnTypeInInterfaceMethod();
 		//testChangeReturnTypeInClassMethod();
@@ -143,6 +144,31 @@ public class AtomicStateBasedChangePropagationTest {
 		//testAddMethodParameterInInterface();
 		//testAddMethodParameterInClass();
 		
+	}
+	
+	
+
+	//TODO: Does not work
+	private void testRenameMethodInInterfaceWithSBPS() throws Throwable {			
+		//Checkout the repository on the certain commit
+		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.RENAME_METHOD_IN_INTERFACE);
+		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
+		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
+		//Get the changed compilation unit and the compilation unit from git repository to compare
+		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("IDisplay.java", projectFromGitRepository);
+		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("IDisplay.java", testProject);
+		//State based propagation
+		changeApplier.applyChangesFromCommitUsingStateBasedChangePropagation(compUnitFromGit, compUnitChanged, virtualModel);
+		//Compare JaMoPP-Models 
+		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
+		//Ensure that there is a corresponding PCM model to the compUnitChanged.
+		boolean pcmExists = ApplyingChangesTestUtil.assertInterfaceMethodWithName("drawFrameRenamed", compUnitChanged, virtualModel);
+		//Ensure that there is a corresponding PCM model to the compUnitChanged.
+		boolean noPcmExists = ApplyingChangesTestUtil.assertNoInterfaceMethodWithName("drawFrame", compUnitChanged, virtualModel);
+				
+		assertTrue("In testRenameMethodInInterface() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
+		assertTrue("In testRenameMethodInInterface() corresponding PCM model does not exist, but it should exist", pcmExists);
+		assertTrue("In testRenameMethodInInterface() corresponding PCM model exists, but it should not exist", noPcmExists);
 	}
 	
 	
@@ -173,28 +199,6 @@ public class AtomicStateBasedChangePropagationTest {
 	
 	
 	
-	//TODO: Does not work
-	private void testRenameMethodInInterfaceWithSBPS() throws Throwable {			
-		//Checkout the repository on the certain commit
-		gitRepository.checkoutFromCommitId(EuFpetersenCbsPc_integratedArea_fineGrained_commits.RENAME_METHOD_IN_INTERFACE);
-		//Create temporary model from project from git repository. It does NOT add the created project to the workspace.
-		projectFromGitRepository = ApplyingChangesTestUtil.createIProject(workspace, workspace.getRoot().getLocation().toString() + "/clonedGitRepositories/" + testProjectName + ".withGit");
-		//Get the changed compilation unit and the compilation unit from git repository to compare
-		ICompilationUnit compUnitFromGit = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("IDisplay.java", projectFromGitRepository);
-		ICompilationUnit compUnitChanged = CompilationUnitManipulatorHelper.findICompilationUnitWithClassName("IDisplay.java", testProject);
-		//State based propagation
-		changeApplier.applyChangesFromCommitUsingStateBasedChangePropagation(compUnitFromGit, compUnitChanged, virtualModel);
-		//Compare JaMoPP-Models 
-		boolean jamoppClassifiersAreEqual = ApplyingChangesTestUtil.compareJaMoPPCompilationUnits(compUnitChanged, compUnitFromGit, virtualModel);
-		//Ensure that there is a corresponding PCM model to the compUnitChanged.
-		boolean pcmExists = ApplyingChangesTestUtil.assertInterfaceMethodWithName("drawFrameRenamed", compUnitChanged, virtualModel);
-		//Ensure that there is a corresponding PCM model to the compUnitChanged.
-		boolean noPcmExists = ApplyingChangesTestUtil.assertNoInterfaceMethodWithName("drawFrame", compUnitChanged, virtualModel);
-				
-		assertTrue("In testRenameMethodInInterface() the JaMoPP-models are NOT equal, but they should be", jamoppClassifiersAreEqual);
-		assertTrue("In testRenameMethodInInterface() corresponding PCM model does not exist, but it should exist", pcmExists);
-		assertTrue("In testRenameMethodInInterface() corresponding PCM model exists, but it should not exist", noPcmExists);
-	}
 	
 	
 	private void testRenameMethodInInterface() throws Throwable {

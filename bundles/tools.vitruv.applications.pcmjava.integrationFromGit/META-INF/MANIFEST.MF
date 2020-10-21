@@ -30,6 +30,7 @@ Require-Bundle: org.apache.log4j,
  tools.vitruv.framework.change.processing,
  tools.vitruv.applications.pcmjava.pojotransformations.java2pcm;bundle-version="0.1.0",
  tools.vitruv.applications.pcmjava.seffstatements.pojotransformations;bundle-version="1.0.0",
- tools.vitruv.applications.pcmjava.seffstatements;bundle-version="1.0.0"
+ tools.vitruv.applications.pcmjava.seffstatements;bundle-version="1.0.0",
+ org.eclipse.emf.compare
 Automatic-Module-Name: tools.vitruv.applications.javapcm.integrationFromGit
 Bundle-RequiredExecutionEnvironment: JavaSE-12
