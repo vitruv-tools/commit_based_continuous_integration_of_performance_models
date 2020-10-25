@@ -4,6 +4,7 @@ Bundle-Name: IntegrationFromGit
 Bundle-SymbolicName: tools.vitruv.applications.pcmjava.integrationFromGit
 Bundle-Version: 1.0.0.qualifier
 Export-Package: tools.vitruv.applications.pcmjava.integrationFromGit,
+ tools.vitruv.applications.pcmjava.integrationFromGit.propagation,
  tools.vitruv.applications.pcmjava.integrationFromGit.response
 Require-Bundle: org.apache.log4j,
  org.eclipse.core.resources,
@@ -31,6 +32,10 @@ Require-Bundle: org.apache.log4j,
  tools.vitruv.applications.pcmjava.pojotransformations.java2pcm;bundle-version="0.1.0",
  tools.vitruv.applications.pcmjava.seffstatements.pojotransformations;bundle-version="1.0.0",
  tools.vitruv.applications.pcmjava.seffstatements;bundle-version="1.0.0",
- org.eclipse.emf.compare
+ org.eclipse.emf.compare,
+ tools.vitruv.domains.java,
+ tools.vitruv.domains.java.builder,
+ org.emftext.language.java.resource,
+ tools.vitruv.domains.java.echange
 Automatic-Module-Name: tools.vitruv.applications.javapcm.integrationFromGit
 Bundle-RequiredExecutionEnvironment: JavaSE-12

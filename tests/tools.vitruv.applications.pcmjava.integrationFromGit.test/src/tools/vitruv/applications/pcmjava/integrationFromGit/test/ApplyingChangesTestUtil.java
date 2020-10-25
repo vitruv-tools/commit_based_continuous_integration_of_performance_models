@@ -289,6 +289,101 @@ public abstract class ApplyingChangesTestUtil {
 	}
 	
 	
+	
+
+	/**
+	 * Integrates the given <code>project</code> in Vitruv.
+	 * 
+	 * @param project project that will be integrated in Vitruv
+	 * @param changePropagationSpecifications change propagation specifications which should define reactions for changes on the project
+	 * @param listener listener for the changes on the <code>project</code>
+	 * @param firstDomain first virtuv domain
+	 * @param secondDomain second vitruv domain
+	 * @return Vitruv Internal Virtual Model which contains all meta data for the integrated <code>project</code>
+	 */
+	public static InternalVirtualModel integrateProjectWithChangePropagationSpecification(final IProject project,
+			final ChangePropagationSpecification[] changePropagationSpecifications,
+			final ChangePropagationListener listener, final VitruvDomain firstDomain, final VitruvDomain secondDomain) {
+		// workspace relative Path
+		// IPath projectPath = project.getFullPath(); 
+		//Absolute path to the project
+		final IPath projectPath = project.getLocation();
+		//Path to the PCM Repository corresponding to the project. The PCM Repository name must be "internal_architecture_model"
+		final IPath models = projectPath.append("model").addTrailingSeparator().append("internal_architecture_model");
+		//File extension for the Source Code Decorator Model
+		final IPath scdmPath = models.addFileExtension("sourcecodedecorator");
+		//File extension for the PCM Repository
+		final IPath pcmPath = models.addFileExtension("repository");
+		//Pathes to all source folders
+		List<IPath> srcPaths = new ArrayList<IPath>();
+		//Create a java project for the given project
+		IJavaProject javaProject = JavaCore.create(project);
+		try {
+			//Find pathes to all source folders
+			IPackageFragmentRoot[] packageFragmentRoot = javaProject.getAllPackageFragmentRoots();
+			for (int i = 0; i < packageFragmentRoot.length; i++) {
+				if (packageFragmentRoot[i].getElementType() == IJavaElement.PACKAGE_FRAGMENT_ROOT
+						&& !packageFragmentRoot[i].isArchive()) {
+					srcPaths.add(packageFragmentRoot[i].getPath());
+				}
+			}
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+		}
+		//Make pathes to the source folders absolute
+		List<IPath> jamoppPaths = new ArrayList<>();
+		for (IPath path : srcPaths) {
+			IPath projectRelative = path.removeFirstSegments(1);
+			IPath abs = project.getLocation().append(projectRelative);
+			jamoppPaths.add(abs);
+		}
+		//Absolute path to the folder, that contains the project
+		final IPath projectBase = projectPath.removeLastSegments(1);
+		//Check if a Source Code Decorator Model exists 
+		final File f = scdmPath.toFile();
+		if (!f.exists()) {
+			throw new IllegalArgumentException("Run SoMoX first!");
+		}
+		//Create Vitruv configuration for Java und PCM Metamodels
+		List<VitruvDomain> metamodels = new ArrayList<VitruvDomain>();
+		metamodels.add(firstDomain);
+		metamodels.add(secondDomain);
+		VirtualModelConfiguration config = new VirtualModelConfiguration();
+		for (VitruvDomain metamodel : metamodels) {
+			config.addMetamodel(metamodel);
+		}
+		//Add change propagation specifications to the Virtuv configuration
+		for (int i = 0; i < changePropagationSpecifications.length; i++) {
+			config.addChangePropagationSpecification(changePropagationSpecifications[i]);
+		}
+		//Create user dialog
+		InternalUserInteractor userInteractor = UserInteractionFactory.instance.createDialogUserInteractor();
+		//Create forlder for Vitruv meta data
+		File vsumFolder = new File(ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile(), "vitruvius.meta");
+		//Create Vitruv Virtual Model
+		final InternalVirtualModel vsum = new VirtualModelImpl(vsumFolder, userInteractor, config);		
+		//Transform Source Code Decarator Model into Vitruv Correspondences
+		final PcmJavaCorrespondenceModelTransformation transformation = new PcmJavaCorrespondenceModelTransformation(
+				scdmPath.toString(), pcmPath.toString(), jamoppPaths, vsum, projectBase);
+		transformation.createCorrespondences();
+		//Add change propagation listener to the project that will be notified when the project changes
+		vsum.addChangePropagationListener(listener);
+		//Build project. It creates a Vitruv monitor to detect and propagate changes
+		VitruviusJavaBuilderApplicator pcmJavaBuilder = new VitruviusJavaBuilderApplicator();
+		pcmJavaBuilder.addToProject(project, vsumFolder,
+				Collections.singletonList(PcmNamespace.REPOSITORY_FILE_EXTENSION));
+		try {
+			project.build(IncrementalProjectBuilder.INCREMENTAL_BUILD, VitruviusJavaBuilder.BUILDER_ID,
+					new HashMap<String, String>(), new NullProgressMonitor());
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+
+		return vsum;
+	}
+	
+	
+	
 	/**
 	 * Integrates the given <code>project</code> with an already existing folder, that contains Vitruv meta data for the project, in Vitruv.
 	 * 

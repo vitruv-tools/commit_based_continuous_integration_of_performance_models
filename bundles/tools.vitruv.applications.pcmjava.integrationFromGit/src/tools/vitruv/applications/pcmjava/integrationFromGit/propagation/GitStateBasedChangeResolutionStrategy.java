@@ -1,5 +1,6 @@
 package tools.vitruv.applications.pcmjava.integrationFromGit.propagation;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.eclipse.emf.common.notify.Notifier;
@@ -7,10 +8,31 @@ import org.eclipse.emf.common.util.BasicMonitor;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.EMFCompare;
+import org.eclipse.emf.compare.Match;
+import org.eclipse.emf.compare.diff.DefaultDiffEngine;
+import org.eclipse.emf.compare.diff.DiffBuilder;
+import org.eclipse.emf.compare.diff.FeatureFilter;
+import org.eclipse.emf.compare.diff.IDiffEngine;
+import org.eclipse.emf.compare.diff.IDiffProcessor;
+import org.eclipse.emf.compare.impl.AttributeChangeImpl;
+import org.eclipse.emf.compare.match.DefaultComparisonFactory;
+import org.eclipse.emf.compare.match.DefaultEqualityHelperFactory;
+import org.eclipse.emf.compare.match.DefaultMatchEngine;
+import org.eclipse.emf.compare.match.IComparisonFactory;
+import org.eclipse.emf.compare.match.IMatchEngine;
+import org.eclipse.emf.compare.match.eobject.IEObjectMatcher;
+import org.eclipse.emf.compare.match.impl.MatchEngineFactoryImpl;
+import org.eclipse.emf.compare.match.impl.MatchEngineFactoryRegistryImpl;
 import org.eclipse.emf.compare.merge.BatchMerger;
 import org.eclipse.emf.compare.merge.IMerger;
 import org.eclipse.emf.compare.scope.DefaultComparisonScope;
+import org.eclipse.emf.compare.scope.IComparisonScope;
+import org.eclipse.emf.compare.utils.UseIdentifiers;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.EcorePackage;
+import org.eclipse.emf.ecore.impl.EAttributeImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -32,13 +54,13 @@ import tools.vitruv.framework.uuid.UuidGeneratorAndResolverImpl;
  * @author changed by Ilia Chupakhin
  */
 @SuppressWarnings("all")
-public class ResolutionStrategy implements StateBasedChangeResolutionStrategy {
+public class GitStateBasedChangeResolutionStrategy implements StateBasedChangeResolutionStrategy {
   private final VitruviusChangeFactory changeFactory;
   
   /**
    * Creates the strategy.
    */
-  public ResolutionStrategy() {
+  public GitStateBasedChangeResolutionStrategy() {
     this.changeFactory = VitruviusChangeFactory.getInstance();
   }
   
@@ -71,12 +93,76 @@ public class ResolutionStrategy implements StateBasedChangeResolutionStrategy {
     ResourceSet _resourceSet = resolver.getResourceSet();
     final UuidGeneratorAndResolverImpl uuidGeneratorAndResolver = new UuidGeneratorAndResolverImpl(resolver, _resourceSet, true);
     final Resource currentStateCopy = this.copy(currentState);
-    final List<Diff> diffs = this.compareStates(newState, currentStateCopy);
+    
+    
+    //List<Diff> diffs = this.compareStates(newState, currentStateCopy);
+    List<Diff> diffs = compareTwoModels(newState, currentStateCopy).getDifferences();
+    //EAttributeImpl
+    //Get rid of some types of Diffs. For example, layout changes 
+    diffs = filterDiffs(diffs);
+    
     final List<TransactionalChange> vitruvDiffs = this.replayChanges(diffs, currentStateCopy, uuidGeneratorAndResolver);
     return this.changeFactory.createCompositeChange(vitruvDiffs);
   }
   
+  private List<Diff> filterDiffs(List<Diff> diffs) {
+	  List<Diff> filteredDiffs = new ArrayList<Diff>();
+	  for (Diff d : diffs) {
+		if (!(d instanceof AttributeChangeImpl && ((AttributeChangeImpl) d).getAttribute().getContainerClass().getName().equals("org.emftext.commons.layout.LayoutInformation"))) {
+			filteredDiffs.add(d);
+		}
+	}
+	return filteredDiffs;
+  }
+  
+  
   /**
+	 * Compares two JaMoPP Models <code>firstModel</code> and <code>secondModel</code> using {@link EMFCompare}
+	 *  @see <a href="https://www.eclipse.org/emf/compare/documentation/latest/developer/developer-guide.html">http://eclipse.org</a>
+	 * 
+	 * @param firstModel first JaMoPP Model
+	 * @param secondModel second JaMoPP Model
+	 * @return comparison result
+	 */
+	private Comparison compareTwoModels(Resource firstModel, Resource secondModel) {	
+		// Configure EMF Compare
+  	IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.NEVER);
+  	IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
+  	IMatchEngine.Factory matchEngineFactory = new MatchEngineFactoryImpl(matcher, comparisonFactory);
+          matchEngineFactory.setRanking(20);
+          IMatchEngine.Factory.Registry matchEngineRegistry = new MatchEngineFactoryRegistryImpl();
+          matchEngineRegistry.add(matchEngineFactory);
+  	//The logic to determine whether a feature should be checked for differences has been extracted into its own class, and is quite easy to alter. 
+      //For example, if you would like to ignore the name feature of your elements or never detect any ordering change: 
+  	IDiffProcessor diffProcessor = new DiffBuilder();
+  	IDiffEngine diffEngine = new DefaultDiffEngine(diffProcessor) {
+  		@Override
+  		protected FeatureFilter createFeatureFilter() {
+  			return new FeatureFilter() {
+  				@Override
+  				protected boolean isIgnoredReference(Match match, EReference reference) {
+  					return reference.getName().equalsIgnoreCase("layoutInformations") ||
+  							super.isIgnoredReference(match, reference);
+  					/*reference == EcorePackage.Literals.ENAMED_ELEMENT__NAME ||*/
+  				}
+
+  				@Override
+  				public boolean checkForOrderingChanges(EStructuralFeature feature) {
+  					return false;
+  				}
+  			};
+  		}
+  	};
+  	
+  	EMFCompare comparator = EMFCompare.builder().setMatchEngineFactoryRegistry(matchEngineRegistry).setDiffEngine(diffEngine).build();
+  	// Compare the two models
+  	IComparisonScope scope = new DefaultComparisonScope(firstModel, secondModel, null);
+  	return comparator.compare(scope);
+  }
+	
+	
+
+/**
    * Compares states using EMFCompare and returns a list of all differences.
    */
   private List<Diff> compareStates(final Notifier newState, final Notifier currentState) {
