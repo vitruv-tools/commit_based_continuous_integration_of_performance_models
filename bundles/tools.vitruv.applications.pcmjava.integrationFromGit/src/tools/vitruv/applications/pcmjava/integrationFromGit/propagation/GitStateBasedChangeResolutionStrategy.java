@@ -2,7 +2,10 @@ package tools.vitruv.applications.pcmjava.integrationFromGit.propagation;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
+
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.BasicMonitor;
 import org.eclipse.emf.compare.Comparison;
@@ -95,13 +98,14 @@ public class GitStateBasedChangeResolutionStrategy implements StateBasedChangeRe
     final Resource currentStateCopy = this.copy(currentState);
     
     
-    //List<Diff> diffs = this.compareStates(newState, currentStateCopy);
-    List<Diff> diffs = compareTwoModels(newState, currentStateCopy).getDifferences();
-    //EAttributeImpl
+    List<Diff> diffs = this.compareStates(newState, currentStateCopy/*currentState*/);
+    //List<Diff> diffs = compareTwoModels(newState, currentStateCopy).getDifferences();
+    
     //Get rid of some types of Diffs. For example, layout changes 
     diffs = filterDiffs(diffs);
     
-    final List<TransactionalChange> vitruvDiffs = this.replayChanges(diffs, currentStateCopy, uuidGeneratorAndResolver);
+    final List<TransactionalChange> vitruvDiffs = this.replayChanges(diffs, /*currentState*/currentStateCopy, uuidGeneratorAndResolver);
+    
     return this.changeFactory.createCompositeChange(vitruvDiffs);
   }
   
@@ -124,7 +128,7 @@ public class GitStateBasedChangeResolutionStrategy implements StateBasedChangeRe
 	 * @param secondModel second JaMoPP Model
 	 * @return comparison result
 	 */
-	private Comparison compareTwoModels(Resource firstModel, Resource secondModel) {	
+	public static Comparison compareTwoModels(Resource firstModel, Resource secondModel) {	
 		// Configure EMF Compare
   	IEObjectMatcher matcher = DefaultMatchEngine.createDefaultEObjectMatcher(UseIdentifiers.NEVER);
   	IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
@@ -182,6 +186,21 @@ public class GitStateBasedChangeResolutionStrategy implements StateBasedChangeRe
     final BatchMerger merger = new BatchMerger(mergerRegistry);
     BasicMonitor _basicMonitor = new BasicMonitor();
     merger.copyAllLeftToRight(changesToReplay, _basicMonitor);
+   /* 
+    virtualModel.executeCommand(new Callable<Void>() {
+
+        @Override
+        public Void call() {
+            try {
+            	merger.copyAllLeftToRight(changesToReplay, _basicMonitor);
+            } catch (final Throwable e) {
+                throw new RuntimeException(e);
+            }
+            return null;
+        }
+    });
+    */
+    
     changeRecorder.endRecording();
     return changeRecorder.getChanges();
   }

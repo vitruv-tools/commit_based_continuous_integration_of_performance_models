@@ -126,6 +126,7 @@ import tools.vitruv.domains.pcm.PcmDomainProvider;
 import tools.vitruv.domains.pcm.PcmNamespace;
 import tools.vitruv.framework.change.processing.ChangePropagationSpecification;
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
+import tools.vitruv.framework.domains.StateBasedChangeResolutionStrategy;
 import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.framework.userinteraction.InternalUserInteractor;
 import tools.vitruv.framework.userinteraction.UserInteractionFactory;
@@ -532,7 +533,10 @@ public abstract class ApplyingChangesTestUtil {
 		//changedCompilationUnit.getResource().refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 		//Find the JaMoPP model for the changedCompilationUnit
 		ModelInstance modelInstance = virtualModel.getModelInstance(VURI.getInstance(changedCompilationUnit.getResource()));
-		modelInstance.load(new HashMap(), true);	
+		
+		//Warning! This command loads the model from file saved on disc. 
+		//modelInstance.load(new HashMap(), true);	
+		
 		CompilationUnit changedCompilationUnit_JaMoPP = modelInstance.getUniqueRootEObjectIfCorrectlyTyped(CompilationUnit.class);
 		
 		OutputStream changedCompilationUnitStream = new ByteArrayOutputStream();
@@ -1312,7 +1316,8 @@ public abstract class ApplyingChangesTestUtil {
 	private static Method getJaMoPPMethodFromClass(ICompilationUnit compilationUnit, String methodName, InternalVirtualModel virtualModel) {
 			//Find the JaMoPP model for the changedCompilationUnit
 			ModelInstance modelInstance = virtualModel.getModelInstance(VURI.getInstance(compilationUnit.getResource()));
-			modelInstance.load(new HashMap(), true);
+			//Warning! This command loads the model from file saved on disc. 
+			//modelInstance.load(new HashMap(), true);
 			CompilationUnit compilationUnit_JaMoPP = (CompilationUnit) modelInstance.getResource().getContents().get(0);
 			String classifierName = compilationUnit.getElementName();
 			//Get rid of the file extension ".java". The length of ".java" is 5.
