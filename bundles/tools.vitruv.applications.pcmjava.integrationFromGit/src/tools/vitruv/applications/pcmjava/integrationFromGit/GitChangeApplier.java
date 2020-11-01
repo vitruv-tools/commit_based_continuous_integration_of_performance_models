@@ -988,13 +988,8 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	/**
 	 * Updates the project state in Virtual Model using State Based Propagation Strategy 
 	 * 
-	 * @param newProjectState
-	 * @param oldProjectState
-	 * @param newCompilationUnitState
-	 * @param oldCompilationUnitState - can be null. If null, the location of the changed compilation unit was not be changed.
-	 * @param virtualModel
 	 */
-	public void applyChangesFromCommitUsingStateBasedChangePropagation(/*IProject newProjectState, IProject oldProjectState,*/ ICompilationUnit newCompilationUnitState, ICompilationUnit oldCompilationUnitState, InternalVirtualModel virtualModel) {
+	public void applyChangesFromCommitUsingStateBasedChangePropagation( ICompilationUnit newCompilationUnitState, ICompilationUnit oldCompilationUnitState, InternalVirtualModel virtualModel) {
 		//VURI vuriNew = VURI.getInstance(newProjectState);
 		//final Resource resourceNew = URIUtil.loadResourceAtURI(URI.createPlatformResourceURI(newProjectState.getLocationURI().toString())/*vuri.getEMFUri()*//*newProjectState.getLocationURI()*/, new ResourceSetImpl());
 		
@@ -1004,156 +999,14 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		VURI newVuriCompilationUnit = VURI.getInstance(newCompilationUnitState.getResource());
 		final Resource newResourceCompilationUnit = URIUtil.loadResourceAtURI(newVuriCompilationUnit.getEMFUri(), new ResourceSetImpl());
 		
-		if (oldCompilationUnitState != null) {
-			VURI oldVuriCompilationUnit = VURI.getInstance(oldCompilationUnitState.getResource());
-			final Resource oldResourceCompilationUnit = URIUtil.loadResourceAtURI(oldVuriCompilationUnit.getEMFUri(), new ResourceSetImpl());
-			virtualModel.propagateChangedState(newResourceCompilationUnit, oldResourceCompilationUnit.getURI());
-		}
-		else {
-			virtualModel.propagateChangedState(newResourceCompilationUnit);
-		}
-	}
-	
-	
-/**
- * Applies changes without synchronization. That means, the Java Monitor will not be triggered for model updating.
- * Necessary for state based propagation specification. 
- * 
- * @param oldCommit
- * @param newCommit
- * @param currentProject
- */
-public void applyChangesFromCommitWithoutSynchronization(RevCommit oldCommit, RevCommit newCommit, IProject currentProject) {
+		VURI oldVuriCompilationUnit = VURI.getInstance(oldCompilationUnitState.getResource());
+		final Resource oldResourceCompilationUnit = URIUtil.loadResourceAtURI(oldVuriCompilationUnit.getEMFUri(), new ResourceSetImpl());
 		
-		//Compute changes between two commits
-		ArrayList<DiffEntry> diffs = new ArrayList<>(gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, /*true*/false, true));
-		//Sort changes. Necessary to avoid some problems like adding a reference in an existing class to a new class. 
-		//In this case, the new class must be created before the reference to it. Thus ADD new class before MODIFY in the existing class.
-		diffs = sortDiffs(diffs);
+		virtualModel.propagateChangedState(newResourceCompilationUnit, oldResourceCompilationUnit.getURI());
 
-		for (DiffEntry diff : diffs) {
-			//Classify changes and call an appropriate routine
-			switch (diff.getChangeType()) {
-			//Add a new file
-			case ADD:
-				String pathToAddedFile = diff.getNewPath();
-				String fileContent = gitRepository.getNewContentOfFileFromDiffEntry(diff);
-				//JGit returns the content of files and uses within the content "\n" as line separator.
-				//Therefore, replace all occurrences of "\n" with the system line separator.
-				fileContent = gitRepository.replaceAllLineDelimitersWithSystemLineDelimiters(fileContent);
-				addElementToProject(currentProject, pathToAddedFile, fileContent);
-				break;
-			//Copy an existing file
-			case COPY:
-				copyElementInProject(diff.getOldPath(), diff.getNewPath(), currentProject);
-				break;
-			//Remove an existing file
-			case DELETE:
-				removeElementFromProject(currentProject, diff.getOldPath());
-				break;
-			//Modify an existing file
-			case MODIFY:
-				OutputStream oldElementContent = gitRepository.getOldContentOfFileFromDiffEntryInOutputStream(diff);
-				OutputStream newElementContent = gitRepository.getNewContentOfFileFromDiffEntryInOutputStream(diff);
-				String oldElementPath = diff.getOldPath();
-				String newElementPath = diff.getNewPath();
-				//Compute changed lines in the given file 
-				EditList editList = gitRepository.computeEditListFromDiffEntry(diff);
-				modifyElementInProjectWithoutSynchronization(currentProject, oldElementContent, newElementContent,
-						oldElementPath, newElementPath, editList);
-				break;
-			//Rename an existing file
-			case RENAME:
-				renameElementInProject(diff.getOldPath(), diff.getNewPath(), currentProject);
-				break;
-			default:
-				//Error
-				System.out.println("Changes for the DiffEntry " + diff + "could not be classified");
-				break;
-			}	
-		}
 	}
-	
 	
 
-	private void modifyElementInProjectWithoutSynchronization(IProject project,
-			OutputStream oldElementContent, OutputStream newElementContent, 
-			String oldElementPath, String newElementPath,
-			EditList editList) {
-		
-		//Check if the modified file is a java file
-		if (oldElementPath.endsWith(".java")) {
-			//Find the compilation unit
-			ICompilationUnit compilationUnit = findICompilationUnitInProject(oldElementPath, project);
-			String oldContent = oldElementContent.toString();
-			String newContent = newElementContent.toString();
-			try {
-				oldElementContent.close();
-				newElementContent.close();
-			} catch (IOException e) {
-				System.err.println(e.getMessage());
-				e.printStackTrace();
-			}
-			
-			//Convert EditList into List<TextEdit>. Necessary because EditList is from JGit (see: org.eclipse.jgit.diff.EditList),
-			//but changes must be applied on a JDT Model, what is only possible with TextEdit (see: org.eclipse.jdt.core.ICompilationUnit.applyTextEdit(TextEdit edit, IProgressMonitor monitor))	
-			List<TextEdit> textEdits = gitRepository.transformEditListIntoTextEdits(editList, oldContent, newContent);
-			//Apply changes on the given compilation unit
-			try {
-				editCompilationUnitWithoutSynchronization(compilationUnit, this, textEdits.toArray(new TextEdit[textEdits.size()]));
-			} catch (JavaModelException e) {
-				System.err.println(e.getMessage());
-				e.printStackTrace();
-			}
-		}
-		//Find the non-java file and replace its entire content with the new one
-		else {
-			try {
-				oldElementContent.close();
-			} catch (IOException e) {
-				System.err.println(e.getMessage());
-				e.printStackTrace();
-			}
-			IFile file = project.getFile(oldElementPath.substring(oldElementPath.indexOf("/") + 1));
-			if (file.exists()) {
-				ByteArrayInputStream inputStream = new ByteArrayInputStream(((ByteArrayOutputStream) newElementContent).toByteArray());
-				try {
-					file.setContents(inputStream, IFile.FORCE, null);
-				} catch (CoreException e) {
-					System.err.println(e.getMessage());
-					e.printStackTrace();
-				}
-				try {
-					newElementContent.close();
-					//inputStream.close(); //has no effect
-				} catch (IOException e) {
-					System.err.println(e.getMessage());
-					e.printStackTrace();
-				}
-			}	
-		}
-		
-	}
-	
-	
-	public static void editCompilationUnitWithoutSynchronization(final ICompilationUnit cu, SynchronizationAwaitCallback synchronizationCallback, 
-    		final TextEdit... edits) throws JavaModelException {
-    	cu.becomeWorkingCopy(new NullProgressMonitor());
-        for (final TextEdit edit : edits) {
-            cu.applyTextEdit(edit, null);
-        }
-        //cu.reconcile(ICompilationUnit.NO_AST, false, null, null);
-        cu.commitWorkingCopy(false, new NullProgressMonitor());
-        cu.discardWorkingCopy();
-        //synchronizationCallback.waitForSynchronization(1);
-    }
-	
-	
-	
-	
-	
-	
-	
 	
 	
 //***************************************************************************************************************************

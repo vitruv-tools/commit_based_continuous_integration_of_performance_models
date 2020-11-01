@@ -51,10 +51,11 @@ import tools.vitruv.framework.uuid.UuidGeneratorAndResolver;
 import tools.vitruv.framework.uuid.UuidGeneratorAndResolverImpl;
 
 /**
- * This default strategy for diff based state changes uses EMFCompare to resolve a
- * diff to a sequence of individual changes.
- * @author Timur Saglam
- * @author changed by Ilia Chupakhin
+ * An alternative implementation of {@link StateBasedChangeResolutionStrategy} if you are not using {@link DefaultStateBasedChangeResolutionStrategy}
+ * The biggest part of code was copied from {@link DefaultStateBasedChangeResolutionStrategy}
+ * 
+ * @author Ilia Chupakhin
+ * @author Manar Mazkatli (advisor)
  */
 @SuppressWarnings("all")
 public class GitStateBasedChangeResolutionStrategy implements StateBasedChangeResolutionStrategy {
@@ -99,6 +100,7 @@ public class GitStateBasedChangeResolutionStrategy implements StateBasedChangeRe
     
     
     List<Diff> diffs = this.compareStates(newState, currentStateCopy/*currentState*/);
+    //An alternative method to compare two models
     //List<Diff> diffs = compareTwoModels(newState, currentStateCopy).getDifferences();
     
     //Get rid of some types of Diffs. For example, layout changes 
@@ -109,7 +111,14 @@ public class GitStateBasedChangeResolutionStrategy implements StateBasedChangeRe
     return this.changeFactory.createCompositeChange(vitruvDiffs);
   }
   
-  private List<Diff> filterDiffs(List<Diff> diffs) {
+  /**
+   * Filters some diff types after model comparison. 
+   * A better solution would be to define filters that are applied during model comparing in {@link #compareTwoModels(Resource, Resource)}. 
+   * 
+ * @param diffs
+ * @return filtered diffs
+ */
+private List<Diff> filterDiffs(List<Diff> diffs) {
 	  List<Diff> filteredDiffs = new ArrayList<Diff>();
 	  for (Diff d : diffs) {
 		if (!(d instanceof AttributeChangeImpl && ((AttributeChangeImpl) d).getAttribute().getContainerClass().getName().equals("org.emftext.commons.layout.LayoutInformation"))) {
@@ -124,6 +133,9 @@ public class GitStateBasedChangeResolutionStrategy implements StateBasedChangeRe
 	 * Compares two JaMoPP Models <code>firstModel</code> and <code>secondModel</code> using {@link EMFCompare}
 	 *  @see <a href="https://www.eclipse.org/emf/compare/documentation/latest/developer/developer-guide.html">http://eclipse.org</a>
 	 * 
+	 * This is an alternative method to  {@link #compareStates(Notifier, Notifier)}. 
+	 * You can define your own filters in {@link #compareTwoModels(Resource, Resource)} in order to ignore some change types during model comparing.
+	 * 
 	 * @param firstModel first JaMoPP Model
 	 * @param secondModel second JaMoPP Model
 	 * @return comparison result
@@ -137,7 +149,6 @@ public class GitStateBasedChangeResolutionStrategy implements StateBasedChangeRe
           IMatchEngine.Factory.Registry matchEngineRegistry = new MatchEngineFactoryRegistryImpl();
           matchEngineRegistry.add(matchEngineFactory);
   	//The logic to determine whether a feature should be checked for differences has been extracted into its own class, and is quite easy to alter. 
-      //For example, if you would like to ignore the name feature of your elements or never detect any ordering change: 
   	IDiffProcessor diffProcessor = new DiffBuilder();
   	IDiffEngine diffEngine = new DefaultDiffEngine(diffProcessor) {
   		@Override
@@ -186,21 +197,6 @@ public class GitStateBasedChangeResolutionStrategy implements StateBasedChangeRe
     final BatchMerger merger = new BatchMerger(mergerRegistry);
     BasicMonitor _basicMonitor = new BasicMonitor();
     merger.copyAllLeftToRight(changesToReplay, _basicMonitor);
-   /* 
-    virtualModel.executeCommand(new Callable<Void>() {
-
-        @Override
-        public Void call() {
-            try {
-            	merger.copyAllLeftToRight(changesToReplay, _basicMonitor);
-            } catch (final Throwable e) {
-                throw new RuntimeException(e);
-            }
-            return null;
-        }
-    });
-    */
-    
     changeRecorder.endRecording();
     return changeRecorder.getChanges();
   }
