@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ASCII"?>
+<allocation:Allocation xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:allocation="http://palladiosimulator.org/PalladioComponentModel/Allocation/5.2" id="_HLxZwaHAEeqwHv2MRjj-Sg" entityName="SoMoX Reverse Engineered Allocation Model">
+  <targetResourceEnvironment_Allocation href="internal_architecture_model.resourceenvironment#/"/>
+  <system_Allocation href="internal_architecture_model.system#_HLuWcKHAEeqwHv2MRjj-Sg"/>
+  <allocationContexts_Allocation id="_HOiZ4KHAEeqwHv2MRjj-Sg" entityName="CC No. 1 (dir: eu.fpetersen.cbs.pc.graphics.) &lt;...rsen.cbs.pc.graphics.GraphicsCard.java.GraphicsCard>>">
+    <resourceContainer_AllocationContext href="internal_architecture_model.resourceenvironment#_HOUXcKHAEeqwHv2MRjj-Sg"/>
+    <assemblyContext_AllocationContext href="internal_architecture_model.system#_HOhLwKHAEeqwHv2MRjj-Sg"/>
+  </allocationContexts_Allocation>
+</allocation:Allocation>

@@ -1,6 +1,8 @@
 package tools.vitruv.applications.pcmjava.reconstructionintegration.handler;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -23,7 +25,8 @@ import tools.vitruv.applications.pcmjava.reconstructionintegration.invariantchec
 import tools.vitruv.applications.pcmjava.reconstructionintegration.strategies.PcmRepositoryIntegrationStrategy;
 import tools.vitruv.applications.pcmjava.reconstructionintegration.strategies.PcmSystemIntegrationStrategy;
 import tools.vitruv.applications.pcmjava.reconstructionintegration.util.PcmMetaModelConverter;
-import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
+import tools.vitruv.domains.java.JavaDomainProvider;
+import tools.vitruv.domains.pcm.PcmDomainProvider;
 import tools.vitruv.domains.pcm.util.RepositoryModelLoader;
 import tools.vitruv.extensions.constructionsimulation.handler.IntegrationHandler;
 import tools.vitruv.extensions.constructionsimulation.invariantcheckers.IMModelImplExtractor;
@@ -70,7 +73,9 @@ public class PcmIntegrationHandler extends IntegrationHandler<IFile> {
 
         if (vmodel == null) {
         	// TODO No change2command transformers are added here
-        	final Iterable<VitruvDomain> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
+            List<VitruvDomain> metamodels = new ArrayList<VitruvDomain>();
+            metamodels.add(new PcmDomainProvider().getDomain());
+            metamodels.add(new JavaDomainProvider().getDomain());
             vmodel = IntegrationUtil.createVsum(metamodels);
         }
 
@@ -101,7 +106,9 @@ public class PcmIntegrationHandler extends IntegrationHandler<IFile> {
         }
 
         // create underlying elements (MetaRepo, VSUM,...)
-        final Iterable<VitruvDomain> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
+        List<VitruvDomain> metamodels = new ArrayList<VitruvDomain>();
+        metamodels.add(new PcmDomainProvider().getDomain());
+        metamodels.add(new JavaDomainProvider().getDomain());
         final InternalVirtualModel vmodel = IntegrationUtil.createVsum(metamodels);
 
         // find all referenced repositories and integrate them first

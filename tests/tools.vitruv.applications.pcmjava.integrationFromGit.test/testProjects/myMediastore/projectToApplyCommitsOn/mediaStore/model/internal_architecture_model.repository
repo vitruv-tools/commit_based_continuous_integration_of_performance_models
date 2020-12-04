@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ASCII"?>
+<repository:Repository xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:composition="http://palladiosimulator.org/PalladioComponentModel/Core/Composition/5.2" xmlns:repository="http://palladiosimulator.org/PalladioComponentModel/Repository/5.2" id="_pfzN8In2EeqxMoqbH8nCNw">
+  <components__Repository xsi:type="repository:BasicComponent" id="_pf_bMIn2EeqxMoqbH8nCNw" entityName=" &lt;PC No. 0 WebGUI.mediaStore.WebGUI.WebGUIImpl.java.WebGUIImpl>">
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_pgH-EIn2EeqxMoqbH8nCNw" entityName="IWebGUI 0 (prov)" providedInterface__OperationProvidedRole="_pgGv8In2EeqxMoqbH8nCNw"/>
+    <requiredRoles_InterfaceRequiringEntity xsi:type="repository:OperationRequiredRole" id="_pgGI4In2EeqxMoqbH8nCNw" entityName="IMediaStore 0 (req)" requiredInterface__OperationRequiredRole="_pgE6wIn2EeqxMoqbH8nCNw"/>
+  </components__Repository>
+  <components__Repository xsi:type="repository:BasicComponent" id="_pgNdoIn2EeqxMoqbH8nCNw" entityName=" &lt;PC No. 1 MediaStore.mediaStore.MediaStore.MediaStoreImpl.java.MediaStoreImpl>">
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_pgOEsYn2EeqxMoqbH8nCNw" entityName="IMediaStore 1 (prov)" providedInterface__OperationProvidedRole="_pgE6wIn2EeqxMoqbH8nCNw"/>
+  </components__Repository>
+  <components__Repository xsi:type="repository:CompositeComponent" id="_pg6oQIn2EeqxMoqbH8nCNw" entityName="CC No. 1 (dir: mediaStore.MediaStore.) &lt;...Store.MediaStore.MediaStoreImpl.java.MediaStoreImpl>>">
+    <assemblyContexts__ComposedStructure id="_pg72YIn2EeqxMoqbH8nCNw" entityName=" &lt;PC No. 0 WebGUI.mediaStore.WebGUI.WebGUIImpl.java.WebGUIImpl>-instance" encapsulatedComponent__AssemblyContext="_pf_bMIn2EeqxMoqbH8nCNw"/>
+    <assemblyContexts__ComposedStructure id="_pg8dcIn2EeqxMoqbH8nCNw" entityName=" &lt;PC No. 1 MediaStore.mediaStore.MediaStore.MediaStoreImpl.java.MediaStoreImpl>-instance" encapsulatedComponent__AssemblyContext="_pgNdoIn2EeqxMoqbH8nCNw"/>
+    <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_pg9rkIn2EeqxMoqbH8nCNw" entityName="Assembly Connector from  &lt;PC No. 0 WebGUI.mediaStore.WebGUI.WebGUIImpl.java.WebGUIImpl> to  &lt;PC No. 1 MediaStore.mediaStore.MediaStore.MediaStoreImpl.java.MediaStoreImpl>" requiringAssemblyContext_AssemblyConnector="_pg72YIn2EeqxMoqbH8nCNw" providingAssemblyContext_AssemblyConnector="_pg8dcIn2EeqxMoqbH8nCNw" providedRole_AssemblyConnector="_pgOEsYn2EeqxMoqbH8nCNw" requiredRole_AssemblyConnector="_pgGI4In2EeqxMoqbH8nCNw"/>
+    <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_pg_gwIn2EeqxMoqbH8nCNw" entityName="IWebGUI.java.IWebGUI" innerProvidedRole_ProvidedDelegationConnector="_pgH-EIn2EeqxMoqbH8nCNw" outerProvidedRole_ProvidedDelegationConnector="_pg-5sIn2EeqxMoqbH8nCNw" assemblyContext_ProvidedDelegationConnector="_pg72YIn2EeqxMoqbH8nCNw"/>
+    <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_phAH0Yn2EeqxMoqbH8nCNw" entityName="IMediaStore.java.IMediaStore" innerProvidedRole_ProvidedDelegationConnector="_pgOEsYn2EeqxMoqbH8nCNw" outerProvidedRole_ProvidedDelegationConnector="_phAH0In2EeqxMoqbH8nCNw" assemblyContext_ProvidedDelegationConnector="_pg8dcIn2EeqxMoqbH8nCNw"/>
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_pg-5sIn2EeqxMoqbH8nCNw" entityName="IWebGUI 0 (prov)" providedInterface__OperationProvidedRole="_pgGv8In2EeqxMoqbH8nCNw"/>
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_phAH0In2EeqxMoqbH8nCNw" entityName="IMediaStore 1 (prov)" providedInterface__OperationProvidedRole="_pgE6wIn2EeqxMoqbH8nCNw"/>
+  </components__Repository>
+  <interfaces__Repository xsi:type="repository:OperationInterface" id="_pgE6wIn2EeqxMoqbH8nCNw" entityName="IMediaStore.java.IMediaStore"/>
+  <interfaces__Repository xsi:type="repository:OperationInterface" id="_pgGv8In2EeqxMoqbH8nCNw" entityName="IWebGUI.java.IWebGUI"/>
+</repository:Repository>

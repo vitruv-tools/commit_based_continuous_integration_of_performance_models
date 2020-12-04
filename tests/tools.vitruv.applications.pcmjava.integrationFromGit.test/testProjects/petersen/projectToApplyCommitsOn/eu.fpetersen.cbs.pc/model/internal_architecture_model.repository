@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ASCII"?>
+<repository:Repository xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:composition="http://palladiosimulator.org/PalladioComponentModel/Core/Composition/5.2" xmlns:repository="http://palladiosimulator.org/PalladioComponentModel/Repository/5.2" xmlns:seff="http://palladiosimulator.org/PalladioComponentModel/SEFF/5.2" id="_z0b2QMD7EeqIdp8fGz9t4A">
+  <components__Repository xsi:type="repository:BasicComponent" id="_z0vYQMD7EeqIdp8fGz9t4A" entityName=" &lt;PC No. 0 display.eu.fpetersen.cbs.pc.display.Display.java.Display>">
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_z07lgMD7EeqIdp8fGz9t4A" entityName="IDisplay 0 (prov)" providedInterface__OperationProvidedRole="_z06-cMD7EeqIdp8fGz9t4A"/>
+    <requiredRoles_InterfaceRequiringEntity xsi:type="repository:OperationRequiredRole" id="_z06XYMD7EeqIdp8fGz9t4A" entityName="IGraphicsCard 0 (req)" requiredInterface__OperationRequiredRole="_z02F8MD7EeqIdp8fGz9t4A"/>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_z08zoMD7EeqIdp8fGz9t4A" describedService__SEFF="_z06-ccD7EeqIdp8fGz9t4A">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_z2JGcMD7EeqIdp8fGz9t4A" successor_AbstractAction="_z2UsoMD7EeqIdp8fGz9t4A"/>
+      <steps_Behaviour xsi:type="seff:ExternalCallAction" id="_z2UsoMD7EeqIdp8fGz9t4A" entityName="renderFrame @position: display.eu.fpetersen.cbs.pc.display.Display.java.Display.drawFrame() at 393" predecessor_AbstractAction="_z2JGcMD7EeqIdp8fGz9t4A" successor_AbstractAction="_z2JGccD7EeqIdp8fGz9t4A" calledService_ExternalService="_z03UEMD7EeqIdp8fGz9t4A" role_ExternalService="_z06XYMD7EeqIdp8fGz9t4A"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_z2JGccD7EeqIdp8fGz9t4A" predecessor_AbstractAction="_z2UsoMD7EeqIdp8fGz9t4A"/>
+    </serviceEffectSpecifications__BasicComponent>
+  </components__Repository>
+  <components__Repository xsi:type="repository:BasicComponent" id="_z1EIYMD7EeqIdp8fGz9t4A" entityName=" &lt;PC No. 1 graphics.eu.fpetersen.cbs.pc.graphics.GraphicsCard.java.GraphicsCard>">
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_z1EIYsD7EeqIdp8fGz9t4A" entityName="IGraphicsCard 1 (prov)" providedInterface__OperationProvidedRole="_z02F8MD7EeqIdp8fGz9t4A"/>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_z1EIY8D7EeqIdp8fGz9t4A" describedService__SEFF="_z03UEMD7EeqIdp8fGz9t4A">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_z2Wh0MD7EeqIdp8fGz9t4A" successor_AbstractAction="_z2XI4MD7EeqIdp8fGz9t4A"/>
+      <steps_Behaviour xsi:type="seff:InternalAction" id="_z2XI4MD7EeqIdp8fGz9t4A" entityName="IA  @position: graphics.eu.fpetersen.cbs.pc.graphics.GraphicsCard.java.GraphicsCard.renderFrame() from 180 to 233" predecessor_AbstractAction="_z2Wh0MD7EeqIdp8fGz9t4A" successor_AbstractAction="_z2Wh0cD7EeqIdp8fGz9t4A">
+        <resourceDemand_Action>
+          <specification_ParametericResourceDemand specification="0"/>
+          <requiredResource_ParametricResourceDemand href="pathmap://PCM_MODELS/Palladio.resourcetype#_oro4gG3fEdy4YaaT-RYrLQ"/>
+        </resourceDemand_Action>
+      </steps_Behaviour>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_z2Wh0cD7EeqIdp8fGz9t4A" predecessor_AbstractAction="_z2XI4MD7EeqIdp8fGz9t4A"/>
+    </serviceEffectSpecifications__BasicComponent>
+  </components__Repository>
+  <components__Repository xsi:type="repository:CompositeComponent" id="_z10WUMD7EeqIdp8fGz9t4A" entityName="CC No. 1 (dir: eu.fpetersen.cbs.pc.graphics.) &lt;...rsen.cbs.pc.graphics.GraphicsCard.java.GraphicsCard>>">
+    <assemblyContexts__ComposedStructure id="_z109YMD7EeqIdp8fGz9t4A" entityName=" &lt;PC No. 0 display.eu.fpetersen.cbs.pc.display.Display.java.Display>-instance" encapsulatedComponent__AssemblyContext="_z0vYQMD7EeqIdp8fGz9t4A"/>
+    <assemblyContexts__ComposedStructure id="_z11kcMD7EeqIdp8fGz9t4A" entityName=" &lt;PC No. 1 graphics.eu.fpetersen.cbs.pc.graphics.GraphicsCard.java.GraphicsCard>-instance" encapsulatedComponent__AssemblyContext="_z1EIYMD7EeqIdp8fGz9t4A"/>
+    <connectors__ComposedStructure xsi:type="composition:AssemblyConnector" id="_z12LgMD7EeqIdp8fGz9t4A" entityName="Assembly Connector from  &lt;PC No. 0 display.eu.fpetersen.cbs.pc.display.Display.java.Display> to  &lt;PC No. 1 graphics.eu.fpetersen.cbs.pc.graphics.GraphicsCard.java.GraphicsCard>" requiringAssemblyContext_AssemblyConnector="_z109YMD7EeqIdp8fGz9t4A" providingAssemblyContext_AssemblyConnector="_z11kcMD7EeqIdp8fGz9t4A" providedRole_AssemblyConnector="_z1EIYsD7EeqIdp8fGz9t4A" requiredRole_AssemblyConnector="_z06XYMD7EeqIdp8fGz9t4A"/>
+    <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_z14AsMD7EeqIdp8fGz9t4A" entityName="IDisplay.java.IDisplay" innerProvidedRole_ProvidedDelegationConnector="_z07lgMD7EeqIdp8fGz9t4A" outerProvidedRole_ProvidedDelegationConnector="_z13ZoMD7EeqIdp8fGz9t4A" assemblyContext_ProvidedDelegationConnector="_z109YMD7EeqIdp8fGz9t4A"/>
+    <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_z14AssD7EeqIdp8fGz9t4A" entityName="IGraphicsCard.java.IGraphicsCard" innerProvidedRole_ProvidedDelegationConnector="_z1EIYsD7EeqIdp8fGz9t4A" outerProvidedRole_ProvidedDelegationConnector="_z14AscD7EeqIdp8fGz9t4A" assemblyContext_ProvidedDelegationConnector="_z11kcMD7EeqIdp8fGz9t4A"/>
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_z13ZoMD7EeqIdp8fGz9t4A" entityName="IDisplay 0 (prov)" providedInterface__OperationProvidedRole="_z06-cMD7EeqIdp8fGz9t4A"/>
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_z14AscD7EeqIdp8fGz9t4A" entityName="IGraphicsCard 1 (prov)" providedInterface__OperationProvidedRole="_z02F8MD7EeqIdp8fGz9t4A"/>
+  </components__Repository>
+  <interfaces__Repository xsi:type="repository:OperationInterface" id="_z02F8MD7EeqIdp8fGz9t4A" entityName="IGraphicsCard.java.IGraphicsCard">
+    <signatures__OperationInterface id="_z03UEMD7EeqIdp8fGz9t4A" entityName="renderFrame" returnType__OperationSignature="_z04iMMD7EeqIdp8fGz9t4A"/>
+  </interfaces__Repository>
+  <interfaces__Repository xsi:type="repository:OperationInterface" id="_z06-cMD7EeqIdp8fGz9t4A" entityName="IDisplay.java.IDisplay">
+    <signatures__OperationInterface id="_z06-ccD7EeqIdp8fGz9t4A" entityName="drawFrame"/>
+  </interfaces__Repository>
+  <dataTypes__Repository xsi:type="repository:CompositeDataType" id="_z04iMMD7EeqIdp8fGz9t4A" entityName="Frame"/>
+</repository:Repository>

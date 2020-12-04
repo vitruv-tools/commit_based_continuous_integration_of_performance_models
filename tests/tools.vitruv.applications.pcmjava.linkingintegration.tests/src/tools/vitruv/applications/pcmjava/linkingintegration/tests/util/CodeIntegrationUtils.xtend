@@ -37,7 +37,7 @@ class CodeIntegrationUtils {
         val IPath workspacePath = workspace.getRoot().getFullPath().append("/" + testProjectName);
 
         val Bundle bundle = Platform.getBundle(testBundleName);
-        val URL projectBluePrintBundleURL = bundle.getEntry(testSourceAndModelFolder)
+        val URL projectBluePrintBundleURL = bundle.getEntry(testSourceAndModelFolder);
         val URL fileURL = FileLocator.resolve(projectBluePrintBundleURL);
         val File file = new File(fileURL.toURI());
         val String baseDir = file.getAbsolutePath();// location of files to import
@@ -48,9 +48,11 @@ class CodeIntegrationUtils {
         importOperation.run(progress);
 
         // Wait for the project to be imported 
+        /* Disabled by Ilia Chupakhin
         while (!progress.isDone()) {
             Thread.sleep(100);
         }
+        */
     }
    
 }

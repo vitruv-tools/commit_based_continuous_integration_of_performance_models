@@ -21,8 +21,9 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import tools.vitruv.applications.pcmjava.util.PcmJavaRepositoryCreationUtil;
 import tools.vitruv.applications.pcmjava.linkingintegration.PcmJavaCorrespondenceModelTransformation;
+import tools.vitruv.domains.java.JavaDomainProvider;
+import tools.vitruv.domains.pcm.PcmDomainProvider;
 import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.framework.userinteraction.UserInteractionFactory;
 import tools.vitruv.framework.vsum.InternalVirtualModel;
@@ -87,7 +88,9 @@ public class IntegrateProjectHandler extends AbstractHandler {
             throw new IllegalArgumentException("Run SoMoX first!");
         }
 
-        final Iterable<VitruvDomain> metamodels = PcmJavaRepositoryCreationUtil.createPcmJamoppMetamodels();
+        List<VitruvDomain> metamodels = new ArrayList<VitruvDomain>();
+        metamodels.add(new PcmDomainProvider().getDomain());
+        metamodels.add(new JavaDomainProvider().getDomain());
         VirtualModelConfiguration config = new VirtualModelConfiguration();
         for (VitruvDomain metamodel : metamodels) {
         	config.addMetamodel(metamodel);

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ASCII"?>
+<system:System xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:composition="http://palladiosimulator.org/PalladioComponentModel/Core/Composition/5.2" xmlns:repository="http://palladiosimulator.org/PalladioComponentModel/Repository/5.2" xmlns:system="http://palladiosimulator.org/PalladioComponentModel/System/5.2" id="_z0aBEMD7EeqIdp8fGz9t4A" entityName="SoMoX Reverse Engineered System">
+  <assemblyContexts__ComposedStructure id="_z2GDIMD7EeqIdp8fGz9t4A" entityName="CC No. 1 (dir: eu.fpetersen.cbs.pc.graphics.) &lt;...rsen.cbs.pc.graphics.GraphicsCard.java.GraphicsCard>>">
+    <encapsulatedComponent__AssemblyContext xsi:type="repository:CompositeComponent" href="internal_architecture_model.repository#_z10WUMD7EeqIdp8fGz9t4A"/>
+  </assemblyContexts__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_z2GqMsD7EeqIdp8fGz9t4A" entityName="IDisplay.java.IDisplay" outerProvidedRole_ProvidedDelegationConnector="_z2GqMcD7EeqIdp8fGz9t4A" assemblyContext_ProvidedDelegationConnector="_z2GDIMD7EeqIdp8fGz9t4A">
+    <innerProvidedRole_ProvidedDelegationConnector href="internal_architecture_model.repository#_z13ZoMD7EeqIdp8fGz9t4A"/>
+  </connectors__ComposedStructure>
+  <connectors__ComposedStructure xsi:type="composition:ProvidedDelegationConnector" id="_z2GqNMD7EeqIdp8fGz9t4A" entityName="IGraphicsCard.java.IGraphicsCard" outerProvidedRole_ProvidedDelegationConnector="_z2GqM8D7EeqIdp8fGz9t4A" assemblyContext_ProvidedDelegationConnector="_z2GDIMD7EeqIdp8fGz9t4A">
+    <innerProvidedRole_ProvidedDelegationConnector href="internal_architecture_model.repository#_z14AscD7EeqIdp8fGz9t4A"/>
+  </connectors__ComposedStructure>
+  <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_z2GqMcD7EeqIdp8fGz9t4A" entityName="IDisplay 2 (prov)(sys)">
+    <providedInterface__OperationProvidedRole href="internal_architecture_model.repository#_z06-cMD7EeqIdp8fGz9t4A"/>
+  </providedRoles_InterfaceProvidingEntity>
+  <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_z2GqM8D7EeqIdp8fGz9t4A" entityName="IGraphicsCard 3 (prov)(sys)">
+    <providedInterface__OperationProvidedRole href="internal_architecture_model.repository#_z02F8MD7EeqIdp8fGz9t4A"/>
+  </providedRoles_InterfaceProvidingEntity>
+</system:System>

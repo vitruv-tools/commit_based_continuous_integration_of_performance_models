@@ -11,7 +11,7 @@ import org.palladiosimulator.pcm.repository.OperationSignature
 import org.somox.gast2seff.visitors.AbstractFunctionClassificationStrategy
 import org.somox.gast2seff.visitors.MethodCallFinder
 import tools.vitruv.framework.correspondence.CorrespondenceModel
-import tools.vitruv.applications.pcmjava.util.java2pcm.Java2PcmUtils
+import tools.vitruv.applications.util.temporary.other.UriUtil
 
 class Ejb2PcmFunctionClassificationStrategy extends AbstractFunctionClassificationStrategy {
 	
@@ -31,12 +31,12 @@ class Ejb2PcmFunctionClassificationStrategy extends AbstractFunctionClassificati
 
     //copied from  FunctionClassificationStrategyForPackageMapping
 	override protected boolean isExternalCall(Method method) {
-		if (!Java2PcmUtils.normalizeURI(method)) {
+		if (!UriUtil.normalizeURI(method)) {
             logger.info("Could not normalize URI for method " + method
                     + ". Method call is not considered as as external call");
             return false;
         }
-        if (!Java2PcmUtils.normalizeURI(method)) {
+        if (!UriUtil.normalizeURI(method)) {
             logger.info("Could not normalize URI for method " + method
                     + ". Method call is not considered as as external call");
             return false;

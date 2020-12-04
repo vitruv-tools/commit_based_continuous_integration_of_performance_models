@@ -10,14 +10,32 @@ import tools.vitruv.framework.change.processing.impl.AbstractChangePropagationSp
 import tools.vitruv.domains.java.JavaDomainProvider
 import tools.vitruv.domains.pcm.PcmDomainProvider
 import tools.vitruv.framework.util.command.ResourceAccess
+import tools.vitruv.framework.userinteraction.UserInteractor
 
 class CodeIntegrationChangeProcessor extends AbstractChangePropagationSpecification {
 	private val IntegrationChange2CommandTransformer integrationTransformer;
-	
+
+ 	//original constructor
 	new() {
 		super(new JavaDomainProvider().domain, new PcmDomainProvider().domain);
 		this.integrationTransformer = new IntegrationChange2CommandTransformer(userInteractor);
 	}
+	
+	//Constructor changed by Ilia Chupakhin
+	/* 
+	new(UserInteractor userInteractor) {
+		super(new JavaDomainProvider().domain, new PcmDomainProvider().domain);
+		this.integrationTransformer = new IntegrationChange2CommandTransformer(userInteractor);
+	}
+	*/
+	
+		//Method added by Ilia Chupakhin
+	override setUserInteractor(UserInteractor userInteractor) {
+		super.setUserInteractor(userInteractor);
+		this.integrationTransformer.setUserInteractor(userInteractor);
+	}
+	
+
 	
 	override doesHandleChange(TransactionalChange change, CorrespondenceModel correspondenceModel) {
 		return true;

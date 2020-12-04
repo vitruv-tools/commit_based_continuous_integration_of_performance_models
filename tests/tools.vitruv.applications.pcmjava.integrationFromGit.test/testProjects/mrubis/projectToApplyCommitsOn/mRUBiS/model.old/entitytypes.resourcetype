@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="ASCII"?>
+<resourcetype:ResourceRepository xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:pcmtx="http://palladiosimulator.org/PalladioComponentModel/Transactional/1.0" xmlns:resourcetype="http://palladiosimulator.org/PalladioComponentModel/ResourceType/5.1">
+  <resourceInterfaces__ResourceRepository id="_nXyugaqSEeaKVc70akcW6A" entityName="IBuyNow">
+    <resourceSignatures__ResourceInterface id="_nXyugqqSEeaKVc70akcW6A" entityName="Read" resourceServiceId="1"/>
+    <resourceSignatures__ResourceInterface id="_nXyug6qSEeaKVc70akcW6A" entityName="Insert" resourceServiceId="2"/>
+    <resourceSignatures__ResourceInterface id="_nXyuhKqSEeaKVc70akcW6A" entityName="Update" resourceServiceId="3"/>
+  </resourceInterfaces__ResourceRepository>
+  <resourceInterfaces__ResourceRepository id="_nXyuh6qSEeaKVc70akcW6A" entityName="IRegions">
+    <resourceSignatures__ResourceInterface id="_nXyuiKqSEeaKVc70akcW6A" entityName="Read" resourceServiceId="1"/>
+    <resourceSignatures__ResourceInterface id="_nXyuiaqSEeaKVc70akcW6A" entityName="Insert" resourceServiceId="2"/>
+    <resourceSignatures__ResourceInterface id="_nXyuiqqSEeaKVc70akcW6A" entityName="Update" resourceServiceId="3"/>
+  </resourceInterfaces__ResourceRepository>
+  <resourceInterfaces__ResourceRepository id="_nXyujaqSEeaKVc70akcW6A" entityName="ISequence">
+    <resourceSignatures__ResourceInterface id="_nXyujqqSEeaKVc70akcW6A" entityName="Read" resourceServiceId="1"/>
+    <resourceSignatures__ResourceInterface id="_nXyuj6qSEeaKVc70akcW6A" entityName="Insert" resourceServiceId="2"/>
+    <resourceSignatures__ResourceInterface id="_nXyukKqSEeaKVc70akcW6A" entityName="Update" resourceServiceId="3"/>
+  </resourceInterfaces__ResourceRepository>
+  <resourceInterfaces__ResourceRepository id="_nXyuk6qSEeaKVc70akcW6A" entityName="IBids">
+    <resourceSignatures__ResourceInterface id="_nXyulKqSEeaKVc70akcW6A" entityName="Read" resourceServiceId="1"/>
+    <resourceSignatures__ResourceInterface id="_nXyulaqSEeaKVc70akcW6A" entityName="Insert" resourceServiceId="2"/>
+    <resourceSignatures__ResourceInterface id="_nXyulqqSEeaKVc70akcW6A" entityName="Update" resourceServiceId="3"/>
+  </resourceInterfaces__ResourceRepository>
+  <resourceInterfaces__ResourceRepository id="_nXyumaqSEeaKVc70akcW6A" entityName="ICategories">
+    <resourceSignatures__ResourceInterface id="_nXyumqqSEeaKVc70akcW6A" entityName="Read" resourceServiceId="1"/>
+    <resourceSignatures__ResourceInterface id="_nXyum6qSEeaKVc70akcW6A" entityName="Insert" resourceServiceId="2"/>
+    <resourceSignatures__ResourceInterface id="_nXyunKqSEeaKVc70akcW6A" entityName="Update" resourceServiceId="3"/>
+  </resourceInterfaces__ResourceRepository>
+  <resourceInterfaces__ResourceRepository id="_nXyun6qSEeaKVc70akcW6A" entityName="IItems">
+    <resourceSignatures__ResourceInterface id="_nXyuoKqSEeaKVc70akcW6A" entityName="Read" resourceServiceId="1"/>
+    <resourceSignatures__ResourceInterface id="_nXyuoaqSEeaKVc70akcW6A" entityName="Insert" resourceServiceId="2"/>
+    <resourceSignatures__ResourceInterface id="_nXyuoqqSEeaKVc70akcW6A" entityName="Update" resourceServiceId="3"/>
+  </resourceInterfaces__ResourceRepository>
+  <resourceInterfaces__ResourceRepository id="_nXyupaqSEeaKVc70akcW6A" entityName="IInventoryItems">
+    <resourceSignatures__ResourceInterface id="_nXyupqqSEeaKVc70akcW6A" entityName="Read" resourceServiceId="1"/>
+    <resourceSignatures__ResourceInterface id="_nXyup6qSEeaKVc70akcW6A" entityName="Insert" resourceServiceId="2"/>
+    <resourceSignatures__ResourceInterface id="_nXyuqKqSEeaKVc70akcW6A" entityName="Update" resourceServiceId="3"/>
+  </resourceInterfaces__ResourceRepository>
+  <resourceInterfaces__ResourceRepository id="_nXyuq6qSEeaKVc70akcW6A" entityName="IUsers">
+    <resourceSignatures__ResourceInterface id="_nXyurKqSEeaKVc70akcW6A" entityName="Read" resourceServiceId="1"/>
+    <resourceSignatures__ResourceInterface id="_nXyuraqSEeaKVc70akcW6A" entityName="Insert" resourceServiceId="2"/>
+    <resourceSignatures__ResourceInterface id="_nXyurqqSEeaKVc70akcW6A" entityName="Update" resourceServiceId="3"/>
+  </resourceInterfaces__ResourceRepository>
+  <availableResourceTypes_ResourceRepository xsi:type="pcmtx:EntityType" id="_nXyugKqSEeaKVc70akcW6A" entityName="BuyNow">
+    <resourceProvidedRoles__ResourceInterfaceProvidingEntity id="_nXyuhaqSEeaKVc70akcW6A" entityName="BuyNowProvidedRole" providedResourceInterface__ResourceProvidedRole="_nXyugaqSEeaKVc70akcW6A"/>
+  </availableResourceTypes_ResourceRepository>
+  <availableResourceTypes_ResourceRepository xsi:type="pcmtx:EntityType" id="_nXyuhqqSEeaKVc70akcW6A" entityName="Regions">
+    <resourceProvidedRoles__ResourceInterfaceProvidingEntity id="_nXyui6qSEeaKVc70akcW6A" entityName="RegionsProvidedRole" providedResourceInterface__ResourceProvidedRole="_nXyuh6qSEeaKVc70akcW6A"/>
+  </availableResourceTypes_ResourceRepository>
+  <availableResourceTypes_ResourceRepository xsi:type="pcmtx:EntityType" id="_nXyujKqSEeaKVc70akcW6A" entityName="Sequence">
+    <resourceProvidedRoles__ResourceInterfaceProvidingEntity id="_nXyukaqSEeaKVc70akcW6A" entityName="SequenceProvidedRole" providedResourceInterface__ResourceProvidedRole="_nXyujaqSEeaKVc70akcW6A"/>
+  </availableResourceTypes_ResourceRepository>
+  <availableResourceTypes_ResourceRepository xsi:type="pcmtx:EntityType" id="_nXyukqqSEeaKVc70akcW6A" entityName="Bids">
+    <resourceProvidedRoles__ResourceInterfaceProvidingEntity id="_nXyul6qSEeaKVc70akcW6A" entityName="BidsProvidedRole" providedResourceInterface__ResourceProvidedRole="_nXyuk6qSEeaKVc70akcW6A"/>
+  </availableResourceTypes_ResourceRepository>
+  <availableResourceTypes_ResourceRepository xsi:type="pcmtx:EntityType" id="_nXyumKqSEeaKVc70akcW6A" entityName="Categories">
+    <resourceProvidedRoles__ResourceInterfaceProvidingEntity id="_nXyunaqSEeaKVc70akcW6A" entityName="CategoriesProvidedRole" providedResourceInterface__ResourceProvidedRole="_nXyumaqSEeaKVc70akcW6A"/>
+  </availableResourceTypes_ResourceRepository>
+  <availableResourceTypes_ResourceRepository xsi:type="pcmtx:EntityType" id="_nXyunqqSEeaKVc70akcW6A" entityName="Items">
+    <resourceProvidedRoles__ResourceInterfaceProvidingEntity id="_nXyuo6qSEeaKVc70akcW6A" entityName="ItemsProvidedRole" providedResourceInterface__ResourceProvidedRole="_nXyun6qSEeaKVc70akcW6A"/>
+  </availableResourceTypes_ResourceRepository>
+  <availableResourceTypes_ResourceRepository xsi:type="pcmtx:EntityType" id="_nXyupKqSEeaKVc70akcW6A" entityName="InventoryItems">
+    <resourceProvidedRoles__ResourceInterfaceProvidingEntity id="_nXyuqaqSEeaKVc70akcW6A" entityName="InventoryItemsProvidedRole" providedResourceInterface__ResourceProvidedRole="_nXyupaqSEeaKVc70akcW6A"/>
+  </availableResourceTypes_ResourceRepository>
+  <availableResourceTypes_ResourceRepository xsi:type="pcmtx:EntityType" id="_nXyuqqqSEeaKVc70akcW6A" entityName="Users">
+    <resourceProvidedRoles__ResourceInterfaceProvidingEntity id="_nXyur6qSEeaKVc70akcW6A" entityName="UsersProvidedRole" providedResourceInterface__ResourceProvidedRole="_nXyuq6qSEeaKVc70akcW6A"/>
+  </availableResourceTypes_ResourceRepository>
+</resourcetype:ResourceRepository>

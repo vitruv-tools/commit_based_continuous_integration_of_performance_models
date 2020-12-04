@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ASCII"?>
+<repository:Repository xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:repository="http://palladiosimulator.org/PalladioComponentModel/Repository/5.2" xmlns:seff="http://palladiosimulator.org/PalladioComponentModel/SEFF/5.2" id="_AztPEIYiEeqmXZUSUMKRFw">
+  <components__Repository xsi:type="repository:BasicComponent" id="_Az-74IYiEeqmXZUSUMKRFw" entityName=" &lt;PC No. 0 human.humanBeing.human.Human.java.Human>">
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_A0OMcIYiEeqmXZUSUMKRFw" entityName="Human 0 (prov)" providedInterface__OperationProvidedRole="_A0JT8IYiEeqmXZUSUMKRFw"/>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_A0QosIYiEeqmXZUSUMKRFw" describedService__SEFF="_A0LJIIYiEeqmXZUSUMKRFw">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_A03FoIYiEeqmXZUSUMKRFw" successor_AbstractAction="_A03ssIYiEeqmXZUSUMKRFw"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_A03ssIYiEeqmXZUSUMKRFw" predecessor_AbstractAction="_A03FoIYiEeqmXZUSUMKRFw"/>
+    </serviceEffectSpecifications__BasicComponent>
+  </components__Repository>
+  <interfaces__Repository xsi:type="repository:OperationInterface" id="_A0JT8IYiEeqmXZUSUMKRFw" entityName="IHuman.java.Human">
+    <signatures__OperationInterface id="_A0LJIIYiEeqmXZUSUMKRFw" entityName="live"/>
+  </interfaces__Repository>
+</repository:Repository>

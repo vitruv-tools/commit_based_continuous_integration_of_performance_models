@@ -22,6 +22,10 @@ public class EjbCorrepondenceTypeDecider implements CorrespondenceTypeDeciding {
     @Override
     public boolean useIntegratedCorrespondence(final EObject objectA, final EObject objectB,
             final CorrespondenceModel cInstance, final List<Resource> jaMoppResources) {
-        return false;
+        //original line
+    	//return false;
+    	
+    	//line added by Ilia Chupakhin
+    	return true;
     }
 }
