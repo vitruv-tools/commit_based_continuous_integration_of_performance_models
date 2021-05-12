@@ -2,6 +2,7 @@
 .metadata
 bin/
 tmp/
+src-gen/
 *.tmp
 *.bak
 *.swp
