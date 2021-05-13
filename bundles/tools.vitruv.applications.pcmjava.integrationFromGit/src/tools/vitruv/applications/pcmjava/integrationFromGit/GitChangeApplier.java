@@ -101,7 +101,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	public void applyChangesFromCommit(RevCommit oldCommit, RevCommit newCommit, IProject currentProject) {
 		
 		//Compute changes between two commits
-		ArrayList<DiffEntry> diffs = new ArrayList<>(gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, /*true*/false, true));
+		List<DiffEntry> diffs = new ArrayList<>(gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, /*true*/false, true));
 		//Sort changes. Necessary to avoid some problems like adding a reference in an existing class to a new class. 
 		//In this case, the new class must be created before the reference to it. Thus ADD new class before MODIFY in the existing class.
 		diffs = sortDiffs(diffs);
@@ -211,7 +211,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param diffs unsorted changes
 	 * @return <code>ArrayList</code>
 	 */
-	private ArrayList<DiffEntry> sortDiffs(ArrayList<DiffEntry> diffs) {
+	public static List<DiffEntry> sortDiffs(List<DiffEntry> diffs) {
 		
 		//temp lists for all diff types
 		ArrayList<DiffEntry> copies = new ArrayList<DiffEntry>();

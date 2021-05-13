@@ -967,8 +967,17 @@ public class GitRepository {
 	public String getLineDelimiter() {
 		return lineDelimiter;
 	}
-
-
-
-
+	
+	public List<RevCommit> getNewCommits() {
+		List<RevCommit> result = new ArrayList<>();
+		try {
+			git.fetch().call();
+			String branchName = git.getRepository().getBranch();
+			ObjectId curCommit = git.getRepository().resolve(branchName);
+			ObjectId lastCommit = git.getRepository().resolve("origin/" + branchName);
+			git.log().addRange(curCommit, lastCommit).call().forEach(result::add);
+		} catch (GitAPIException | IOException e) {
+		}
+		return result;
+	}
 }
