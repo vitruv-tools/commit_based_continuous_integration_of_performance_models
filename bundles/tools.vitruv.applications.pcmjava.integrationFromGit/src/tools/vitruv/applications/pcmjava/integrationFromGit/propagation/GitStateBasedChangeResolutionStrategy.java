@@ -45,10 +45,8 @@ import tools.vitruv.framework.change.description.CompositeContainerChange;
 import tools.vitruv.framework.change.description.TransactionalChange;
 import tools.vitruv.framework.change.description.VitruviusChange;
 import tools.vitruv.framework.change.description.VitruviusChangeFactory;
-import tools.vitruv.framework.change.recording.AtomicEmfChangeRecorder;
+import tools.vitruv.framework.change.recording.ChangeRecorder;
 import tools.vitruv.framework.domains.StateBasedChangeResolutionStrategy;
-import tools.vitruv.framework.uuid.UuidGeneratorAndResolver;
-import tools.vitruv.framework.uuid.UuidGeneratorAndResolverImpl;
 
 /**
  * An alternative implementation of {@link StateBasedChangeResolutionStrategy} if you are not using {@link DefaultStateBasedChangeResolutionStrategy}
@@ -69,12 +67,11 @@ public class GitStateBasedChangeResolutionStrategy implements StateBasedChangeRe
   }
   
   @Override
-  public CompositeChange<VitruviusChange> getChangeSequences(final Resource newState, final Resource currentState, final UuidGeneratorAndResolver resolver) {
-    return this.resolveChangeSequences(newState, currentState, resolver);
+  public VitruviusChange getChangeSequenceBetween(final Resource newState, final Resource currentState) {
+    return this.resolveChangeSequences(newState, currentState);
   }
   
-  @Override
-  public CompositeChange<VitruviusChange> getChangeSequences(final EObject newState, final EObject currentState, final UuidGeneratorAndResolver resolver) {
+  public VitruviusChange getChangeSequences(final EObject newState, final EObject currentState) {
     Resource _eResource = null;
     if (newState!=null) {
       _eResource=newState.eResource();
@@ -83,19 +80,14 @@ public class GitStateBasedChangeResolutionStrategy implements StateBasedChangeRe
     if (currentState!=null) {
       _eResource_1=currentState.eResource();
     }
-    return this.resolveChangeSequences(_eResource, _eResource_1, resolver);
+    return this.resolveChangeSequences(_eResource, _eResource_1);
   }
   
-  private CompositeContainerChange resolveChangeSequences(final Resource newState, final Resource currentState, final UuidGeneratorAndResolver resolver) {
-    if ((resolver == null)) {
-      throw new IllegalArgumentException("UUID generator and resolver cannot be null!");
-    } else {
-      if (((newState == null) || (currentState == null))) {
-        return this.changeFactory.createCompositeChange(Collections.<VitruviusChange>emptyList());
-      }
-    }
-    ResourceSet _resourceSet = resolver.getResourceSet();
-    final UuidGeneratorAndResolverImpl uuidGeneratorAndResolver = new UuidGeneratorAndResolverImpl(resolver, _resourceSet, true);
+  private CompositeContainerChange resolveChangeSequences(final Resource newState, final Resource currentState) {
+	  if (((newState == null) || (currentState == null))) {
+	    return this.changeFactory.createCompositeChange(Collections.<VitruviusChange>emptyList());
+	  }
+
     final Resource currentStateCopy = this.copy(currentState);
     
     
@@ -106,7 +98,7 @@ public class GitStateBasedChangeResolutionStrategy implements StateBasedChangeRe
     //Get rid of some types of Diffs. For example, layout changes 
     diffs = filterDiffs(diffs);
     
-    final List<TransactionalChange> vitruvDiffs = this.replayChanges(diffs, /*currentState*/currentStateCopy, uuidGeneratorAndResolver);
+    final List<TransactionalChange> vitruvDiffs = List.of(this.replayChanges(diffs, /*currentState*/currentStateCopy));
     
     return this.changeFactory.createCompositeChange(vitruvDiffs);
   }
@@ -189,8 +181,8 @@ private List<Diff> filterDiffs(List<Diff> diffs) {
   /**
    * Replays a list of of EMFCompare differences and records the changes to receive Vitruv change sequences.
    */
-  private List<TransactionalChange> replayChanges(final List<Diff> changesToReplay, final Notifier currentState, final UuidGeneratorAndResolver resolver) {
-    final AtomicEmfChangeRecorder changeRecorder = new AtomicEmfChangeRecorder(resolver);
+  private TransactionalChange replayChanges(final List<Diff> changesToReplay, final Notifier currentState) {
+    final ChangeRecorder changeRecorder = new ChangeRecorder(new ResourceSetImpl());
     changeRecorder.addToRecording(currentState);
     changeRecorder.beginRecording();
     final IMerger.Registry mergerRegistry = IMerger.RegistryImpl.createStandaloneInstance();
@@ -198,7 +190,7 @@ private List<Diff> filterDiffs(List<Diff> diffs) {
     BasicMonitor _basicMonitor = new BasicMonitor();
     merger.copyAllLeftToRight(changesToReplay, _basicMonitor);
     changeRecorder.endRecording();
-    return changeRecorder.getChanges();
+    return changeRecorder.getChange();
   }
   
   /**
@@ -210,5 +202,14 @@ private List<Diff> filterDiffs(List<Diff> diffs) {
     copy.getContents().addAll(EcoreUtil.<EObject>copyAll(resource.getContents()));
     return copy;
   }
-}
 
+	@Override
+	public VitruviusChange getChangeSequenceForCreated(Resource newState) {
+		return null;
+	}
+
+	@Override
+	public VitruviusChange getChangeSequenceForDeleted(Resource oldState) {
+		return null;
+	}
+}
