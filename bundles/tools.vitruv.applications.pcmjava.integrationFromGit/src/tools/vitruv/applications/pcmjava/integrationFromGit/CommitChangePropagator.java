@@ -25,15 +25,49 @@ import tools.vitruv.framework.vsum.VirtualModel;
 public class CommitChangePropagator {
 	private GitRepositoryWrapper repoWrapper;
 	private VirtualModel vsum;
+	private File localRemoteRepository;
+	private String remoteRepository;
+	private boolean isCurrentStateIntegratedIntoVSUM = false;
 	
-	public CommitChangePropagator(String repositoryPath, String localRepositoryPath, VirtualModel vSUM) {
+	public CommitChangePropagator(File repositoryPath, String localRepositoryPath, VirtualModel vSUM) {
+		localRemoteRepository = repositoryPath;
 		repoWrapper = new GitRepositoryWrapper(new File(localRepositoryPath));
 		vsum = vSUM;
 	}
 	
+	public CommitChangePropagator(String repositoryPath, String localRepositoryPath, VirtualModel vSUM) {
+		remoteRepository = repositoryPath;
+		repoWrapper = new GitRepositoryWrapper(new File(localRepositoryPath));
+		vsum = vSUM;
+	}
+	
+	public void setCurrentStateIntegratedIntoVSUM(boolean integrated) {
+		isCurrentStateIntegratedIntoVSUM = integrated;
+	}
+	
 	public void propagteChanges() throws IOException, GitAPIException {
-		RevCommit lastCommit = repoWrapper.getLatestCommit();
-		List<RevCommit> nextCommits = repoWrapper.fetchAndGetNewCommits();
+		boolean isInitializedFromRemoteRepository = false;
+		if (!repoWrapper.isInitialized()) {
+			String[] files = repoWrapper.getRootDirectory().list();
+			if (files != null && files.length > 0) {
+				repoWrapper.initFromRootDirectory();
+			} else if (localRemoteRepository != null) {
+				repoWrapper.initFromLocalRepository(localRemoteRepository);
+				isInitializedFromRemoteRepository = true;
+			} else {
+				repoWrapper.initFromRemoteRepository(remoteRepository);
+				isInitializedFromRemoteRepository = true;
+			}
+		}
+		RevCommit lastCommit;
+		List<RevCommit> nextCommits;
+		if (isInitializedFromRemoteRepository && !isCurrentStateIntegratedIntoVSUM) {
+			lastCommit = null;
+			nextCommits = repoWrapper.getAllCommitsBetweenTwoCommits(null, repoWrapper.getLatestCommit().getId().getName());
+		} else {
+			lastCommit = repoWrapper.getLatestCommit();
+			nextCommits = repoWrapper.fetchAndGetNewCommits();
+		}
 		for (RevCommit next : nextCommits) {
 			repoWrapper.checkout(next.getId().getName());
 			List<DiffEntry> diffs = repoWrapper.computeDiffsBetweenTwoCommits(lastCommit, next, true, true);

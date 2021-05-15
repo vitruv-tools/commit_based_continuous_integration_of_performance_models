@@ -30,7 +30,9 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.patch.FileHeader;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
+import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.io.NullOutputStream;
@@ -196,13 +198,19 @@ public class GitRepositoryWrapper {
 	public List<DiffEntry> computeDiffsBetweenTwoCommits(RevCommit oldRevCommit, RevCommit newRevCommit, boolean onlyChangesOnJavaFiles,
 			boolean detectRenames) throws IncorrectObjectTypeException, IOException {
 
-		ObjectId oldTreeId = oldRevCommit.getTree().getId();
-		ObjectId newTreeId = newRevCommit.getTree().getId();
 		ObjectReader treeReader = git.getRepository().newObjectReader();
 		
-		CanonicalTreeParser oldTreeParser = new CanonicalTreeParser();
-		oldTreeParser.reset(treeReader, oldTreeId);
+		AbstractTreeIterator oldParser;
+		if (oldRevCommit != null) {
+			ObjectId oldTreeId = oldRevCommit.getTree().getId();
+			CanonicalTreeParser oldTreeParser = new CanonicalTreeParser();
+			oldTreeParser.reset(treeReader, oldTreeId);
+			oldParser = oldTreeParser;
+		} else {
+			oldParser = new EmptyTreeIterator();
+		}
 		
+		ObjectId newTreeId = newRevCommit.getTree().getId();
 		CanonicalTreeParser newTreeParser = new CanonicalTreeParser();
 		newTreeParser.reset(treeReader, newTreeId);
 
@@ -216,7 +224,7 @@ public class GitRepositoryWrapper {
 			df.setPathFilter(treeFilter);
 		}
 		// Compute diffs between the commits.
-		List<DiffEntry> diffs = df.scan(oldTreeParser, newTreeParser);
+		List<DiffEntry> diffs = df.scan(oldParser, newTreeParser);
 		
 		// Detect renames on changed files if necessary.
 		if (detectRenames) {
