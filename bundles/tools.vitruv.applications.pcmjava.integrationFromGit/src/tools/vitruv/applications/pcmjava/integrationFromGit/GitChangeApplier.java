@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -34,9 +36,13 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.EditList;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
+import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.emftext.language.java.classifiers.Classifier;
 import org.emftext.language.java.classifiers.ConcreteClassifier;
@@ -64,13 +70,14 @@ import tools.vitruv.framework.vsum.ChangePropagationListener;
  */
 public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePropagationListener {
 
-	private GitRepository gitRepository;
+	private GitRepositoryWrapper gitRepository;
 	private static final Logger logger = Logger.getLogger(Java2PcmTransformationTest.class.getSimpleName());
 	private static int MAXIMUM_SYNC_WAITING_TIME = 10000;
 	private AtomicInteger expectedNumberOfSyncs = new AtomicInteger(0);
+	private String lineDelimiter = System.lineSeparator();
 	
 	
-	public GitChangeApplier(GitRepository git) {
+	public GitChangeApplier(GitRepositoryWrapper git) {
 		this.gitRepository = git;
 	}
 	
@@ -80,8 +87,10 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * 
 	 * @param commits - commits that contain changes
 	 * @param currentProject - project which the changes are applied on
+	 * @throws IOException if the repository cannot be read.
+	 * @throws IncorrectObjectTypeException if an object within the repository is incorrectly used.
 	 */
-	public void applyChangesFromCommits(List<RevCommit> commits, IProject currentProject) {
+	public void applyChangesFromCommits(List<RevCommit> commits, IProject currentProject) throws IncorrectObjectTypeException, IOException {
 		Collections.reverse(commits); 
 		for (int i = 0; i < commits.size() - 1; i++) {
 			applyChangesFromCommit(commits.get(i), commits.get(i + 1), currentProject);
@@ -96,9 +105,10 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param oldCommit - commit that contains an older state of the project  
 	 * @param newCommit - commit that contains an newer state of the project  
 	 * @param currentProject - project which the changes are applied on
-	 *
+	 * @throws IOException if the repository cannot be read.
+	 * @throws IncorrectObjectTypeException if an object within the repository is incorrectly used.
 	 */
-	public void applyChangesFromCommit(RevCommit oldCommit, RevCommit newCommit, IProject currentProject) {
+	public void applyChangesFromCommit(RevCommit oldCommit, RevCommit newCommit, IProject currentProject) throws IncorrectObjectTypeException, IOException {
 		
 		//Compute changes between two commits
 		List<DiffEntry> diffs = new ArrayList<>(gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, /*true*/false, true));
@@ -115,7 +125,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				String fileContent = gitRepository.getNewContentOfFileFromDiffEntry(diff);
 				//JGit returns the content of files and uses within the content "\n" as line separator.
 				//Therefore, replace all occurrences of "\n" with the system line separator.
-				fileContent = gitRepository.replaceAllLineDelimitersWithSystemLineDelimiters(fileContent);
+				fileContent = replaceAllLineDelimitersWithSystemLineDelimiters(fileContent);
 				addElementToProject(currentProject, pathToAddedFile, fileContent);
 				break;
 			//Copy an existing file
@@ -315,7 +325,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			
 			//Convert EditList into List<TextEdit>. Necessary because EditList is from JGit (see: org.eclipse.jgit.diff.EditList),
 			//but changes must be applied on a JDT Model, what is only possible with TextEdit (see: org.eclipse.jdt.core.ICompilationUnit.applyTextEdit(TextEdit edit, IProgressMonitor monitor))	
-			List<TextEdit> textEdits = gitRepository.transformEditListIntoTextEdits(editList, oldContent, newContent);
+			List<TextEdit> textEdits = transformEditListIntoTextEdits(editList, oldContent, newContent);
 			//Apply changes on the given compilation unit
 			try {
 				CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, textEdits.toArray(new TextEdit[textEdits.size()]));
@@ -1004,256 +1014,166 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 
 	}
 	
-
-	
-	
-//***************************************************************************************************************************
-//***************************************************************************************************************************
-//***************************************************************************************************************************
-
-	
-	
-	
-
-	//TODO: Delete method applyChangesFromCommitWithGumTree(...)
 	/**
-	 * @param oldCommit
-	 * @param newCommit
-	 * @param currentProject
-	 * @throws CoreException 
-	 * @throws InterruptedException 
-	 * @throws IOException 
+	 * Replaces all possible kinds of line separators with one particular kind of line separator in <code>fileContent</code>
+	 * 
+	 * @param fileContent
+	 * @return file content with replaced line separators
 	 */
-/*	public void applyChangesFromCommitWithGumTree (RevCommit oldCommit, RevCommit newCommit, IProject currentProject) throws CoreException, InterruptedException, IOException {
+	public String replaceAllLineDelimitersWithSystemLineDelimiters(String fileContent) {
+		return fileContent.replaceAll("\r\n|\n|\r", lineDelimiter);
+	}
+	
+	/**
+	 * Transforms {@link EditList} into {@link List} of {@link TextEdit}.
+	 * There are two main problems to solve:
+	 *  
+	 * The first one is, an {@link Edit} contains information about content in form of line numbers, 
+	 * whereas an {@link TextEdit} deals with offsets of content. Therefore, we have to compute offsets to line numbers.
+	 * 
+	 * The second problem is, {@link EditList} contains Edits that describe which lines in the old content have to be add/removed/replaced with
+	 * lines from the new content or which lines from the new content have to be inserted in the old content. Edits are independent from each other.
+	 * That means, all Edits on the old content have to be applied at the same time. Applying Edits one by one would cause shifting in the old content
+	 * after each applying and would create wrong content, that does not match to the new content. On the other hand, TextEdits have to be applied one by one. 
+	 * Therefore, while computing offset for a TextEdit we have to consider shifting caused by previously applied TextEdits.   
+	 * 
+	 * @param editList - list of Edits to be applied on the old context to transform the old context into the new context.
+	 * @param oldFileContent - old content as plain text
+	 * @param newFileContent - new content as plain text
+	 * @return list of TextEdits, that have to be applied one by one (the applying order is important) on the old context to transform the old context into the new context.
+	 */
+	public List<TextEdit> transformEditListIntoTextEdits(EditList editList, String oldFileContent, String newFileContent) {
 		
-		ArrayList<DiffEntry> diffs = new ArrayList<>(gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, false, true));
-		diffs = sortDiffs(diffs);
-		//Collections.reverse(diffs); 
-
-		for (DiffEntry diff : diffs) {
+		ArrayList<TextEdit> textEdits = new ArrayList<>();
+		
+		//Split the content into separated lines
+		List<String> oldContentLines = splitFileContentIntoLinesWithLineDelimitors(oldFileContent);
+		List<String> newContentLines = splitFileContentIntoLinesWithLineDelimitors(newFileContent);
+		//Determine begin offset for each line of contexts 
+		List<Integer> oldContentStartOffsetsToLines = computeStartOffsetsToLineNumbers(oldContentLines);
+		List<Integer> newContentStartOffsetsToLines = computeStartOffsetsToLineNumbers(newContentLines);
+		//Contains shifting that appears while applying Edits one by one
+		int shifting = 0;
+	
+		for(Edit edit : editList) {
+			//begin line number in the old content
+			int beginPositionOld = oldContentStartOffsetsToLines.get(edit.getBeginA());
+			//end line number in the old content
+			int endPositionOld = oldContentStartOffsetsToLines.get(edit.getEndA());
+			//begin line number in the new content
+			int beginPositionNew = newContentStartOffsetsToLines.get(edit.getBeginB());
+			//end line number in the new content
+			int endPositionNew = newContentStartOffsetsToLines.get(edit.getEndB());
 			
-			ICompilationUnit iCu;
-			
-			switch (diff.getChangeType()) {
-			case ADD:
-				String pathToAddedFile = diff.getNewPath();
-				String fileContent = gitRepository.getNewContentOfFileFromDiffEntry(diff);
-				//JGit returns the content of files and uses within the content "\n" as line separator.
-				//Therefore, replace all occurrences of "\n" with the system line separator.
-				fileContent = gitRepository.replaceAllLineDelimitersWithSystemLineDelimiters(fileContent);
-				addElementToProjectWithGumTree(currentProject, pathToAddedFile, fileContent);
-				break;
-			case COPY:
-				
+			switch (edit.getType()) {
+			case INSERT:
+				int positionForInsert = beginPositionOld + shifting;
+				//"- edit.getBeginB()" and "- edit.getEndB()" are needed because of the third problem described above in the java doc for the method.
+				String textForInsert = concatenateContentLines(newContentLines, edit.getBeginB(), edit.getEndB());
+				TextEdit insertEdit = new InsertEdit(positionForInsert, textForInsert);
+				textEdits.add(insertEdit);
+				shifting += endPositionNew - beginPositionNew;
 				break;
 			case DELETE:
-				
-				iCu = findICompilationUnitInProject(diff.getOldPath(), currentProject);
-				//deleteCompilationUnit(iCu, this);
-				
-				iCu.delete(true, null);
-				
-				//EcoreUtil.delete(iCu.);
-				//waitForSynchronization(1);
-				//Thread.sleep(20000);
+				int positionForDelete = beginPositionOld + shifting;
+				int lengthForDelete = endPositionOld - beginPositionOld;
+				TextEdit deleteEdit = new DeleteEdit(positionForDelete, lengthForDelete);
+				textEdits.add(deleteEdit);
+				shifting -= lengthForDelete;
 				break;
-			case MODIFY:
-				OutputStream oldElementContent = gitRepository.getOldContentOfFileFromDiffEntryInOutputStream(diff);
-				OutputStream newElementContent = gitRepository.getNewContentOfFileFromDiffEntryInOutputStream(diff);
-				String oldElementPath = diff.getOldPath();
-				String newElementPath = diff.getNewPath();
-				EditList editList = gitRepository.computeEditListFromDiffEntry(diff);
-				modifyElementInProjectWithGumTree(currentProject, oldElementContent, newElementContent,
-						oldElementPath, newElementPath, editList);
+			case REPLACE:
+				int positionForReplace = beginPositionOld + shifting;
+				int lengthForReplace = endPositionOld - beginPositionOld;
+				String textForReplace = concatenateContentLines(newContentLines, edit.getBeginB(), edit.getEndB());
+				TextEdit replaceEdit = new ReplaceEdit(positionForReplace, lengthForReplace, textForReplace);
+				textEdits.add(replaceEdit);
+				shifting = shifting - lengthForReplace + (endPositionNew - beginPositionNew);
 				break;
-			case RENAME:
-				
+			case EMPTY:
+				//do nothing
 				break;
 			default:
-				//error
+				//do nothing
 				break;
-			}	
+			}
 		}
+		
+		return textEdits;
 	}
 	
-*/
-/*	
-	//TODO: Delete method modifyElementInProjectWithGumTree(...)
-	private void modifyElementInProjectWithGumTree(IProject project,
-			OutputStream oldElementContent, OutputStream newElementContent, 
-			String oldElementPath, String newElementPath,
-			EditList editList) throws CoreException {
+	
+	/**
+	 * Concatenate <code>contentLines</code> between [<code>beginLineNumber</code>, <code>endLineNumber</code>)
+	 * 
+	 * @param newContentLines - Lines of the content
+	 * @param beginPositionNew - begin line number. Included
+	 * @param endPositionNew - end line number. Not included.
+	 * @return concatenated lines as String
+	 */
+	private String concatenateContentLines(List<String> contentLines, int beginLineNumber, int endLineNumber) {
+		String content = "";
 		
-		//Check if the modified file is a java file
-		if (oldElementPath.endsWith(".java")) {	
-			ICompilationUnit compilationUnit = findICompilationUnitInProject(oldElementPath, project);
-			//EditList from JGit Bib
-			//TextEdit from Eclipse text.edits
-			String oldContent = oldElementContent.toString();
-			//new String(((ByteArrayOutputStream) oldElementContent).toByteArray());
-			String newContent = newElementContent.toString();
-			URI uri = URI.createPlatformResourceURI(compilationUnit.getPath().toString(), true);
-			GumTreeChangeExtractor atomicChangeExtractor = new GumTreeChangeExtractor(oldContent, newContent, uri);
-			List<String> contentStatesAfterApplyingAtomicChanges = atomicChangeExtractor.extract();
-			contentStatesAfterApplyingAtomicChanges.remove(0);
-			int currentContentLength = compilationUnit.getBuffer().getLength(); 
-					//oldContent.length();
-			for (String contentState : contentStatesAfterApplyingAtomicChanges) {
-				TextEdit replaceEdit = new ReplaceEdit(0, currentContentLength, contentState);
-				CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, replaceEdit);
-				currentContentLength = compilationUnit.getBuffer().getLength(); 
-						//contentState.length();
-			}
+		for (int i = beginLineNumber;  i < endLineNumber; i++) {
+			content += contentLines.get(i);
 		}
-		else {
-			IFile file = project.getFile(oldElementPath.substring(oldElementPath.indexOf("/") + 1));
-			if (file.exists()) {
-				ByteArrayInputStream inputStream = new ByteArrayInputStream(((ByteArrayOutputStream) newElementContent).toByteArray());
-				file.setContents(inputStream, IFile.FORCE, null);
-			}	
-		}
+		
+		return content;
 	}
-*/
-/*	
-	//TODO: Delete method addElementToProjectWithGumTree(...)
-	private void addElementToProjectWithGumTree(IProject project, String pathToElement, String elementContent) throws CoreException, InterruptedException, IOException {
-			
-			project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-			
-			IPath tempPath = new Path(pathToElement);
-			//Get rid of the project name in the path
-			tempPath = tempPath.removeFirstSegments(1);
-			
-			String[] segments = tempPath.segments();
-			
-			if (segments.length == 0) {
-				System.out.println("Path: " + pathToElement + " is not valid");
-				return;
+
+
+	/**
+	 * Splits <code>fileContent</code> into lines. Each split line except the last line contains a line delimiter at the end.
+	 * The last line may contain a line delimiter at the end.
+	 * @param fileContent
+	 * @return List of content lines with line delimiters at the end
+	 */
+	private List<String> splitFileContentIntoLinesWithLineDelimitors(String fileContent) {
+		
+		List<String> contentLines = new ArrayList<String>();
+		
+		Stream<String> lines = fileContent.lines();
+		Iterator<String> iterator = lines.iterator();
+		
+		//Determine begin offset for each line
+		while (iterator.hasNext()) {
+			String line = iterator.next() + lineDelimiter;
+			//if the current line is the last line, check if the last line ends with a line delimiter
+			if (!iterator.hasNext()) {
+				if (!fileContent.endsWith(lineDelimiter)) {
+					//remove line delimiter
+					line = line.substring(0, line.length() - lineDelimiter.length());
+				} 
 			}
-			
-			//int segmentCounter = 0;
-			String firstSegment = tempPath.segment(0);
-			String lastSegment = tempPath.lastSegment();
-			String fileExtension = tempPath.getFileExtension();
-			
-			IJavaProject javaProject;
-			IPackageFragmentRoot packageFragmentRoot;
-			IPackageFragment packageFragment;
-			
-			
-			//Check if we need to handle IJavaProject
-			//For more details, what a java project in JDT looks like, see https://www.vogella.com/tutorials/EclipseJDT/article.html
-			if (firstSegment.equals("src") || firstSegment.equals("bin") 
-					|| fileExtension.equals("jar") || fileExtension.equals("zip")) {
-				
-				javaProject = JavaCore.create(project);
-				
-				if (segments.length == 2) {
-					IFile file = project.getFile(tempPath.toString());
-					file.create(new ByteArrayInputStream(elementContent.getBytes()), false , new NullProgressMonitor());
-					System.out.println("Begin to wait for syncronization at the place 0");
-					//waitForSynchronization(1);
-					project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-				}
-				else {
-					//Check if the PackageFragmentRoot exists. If not, create it
-					IFolder packageFragmentRootFolder = project.getFolder(tempPath.segment(0));
-					
-					if (!packageFragmentRootFolder.exists()) {
-						packageFragmentRootFolder.create(false, false, new NullProgressMonitor());
-						System.out.println("Begin to wait for syncronization at the place 1");
-						//waitForSynchronization(1);
-						project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());				
-					}
-					
-					packageFragmentRoot = javaProject.getPackageFragmentRoot(packageFragmentRootFolder);
-					String packageFragmentName = tempPath.removeFirstSegments(1).removeLastSegments(1).toString();
-					packageFragmentName = packageFragmentName.replace("/", ".");
-					packageFragment = packageFragmentRoot.getPackageFragment(packageFragmentName);
-					
-					if (!packageFragment.exists()) {
-						
-						//Create package per EMF and JaMoPP
-						createPackageWithPackageInfo(project, tempPath.removeFirstSegments(1).removeLastSegments(1).segments());
-					
-						//Create packaga per JDT
-						//packageFragment = packageFragmentRoot.createPackageFragment(packageFragmentName, false , new NullProgressMonitor());
-						////packageFragment.makeConsistent(new NullProgressMonitor());
-						//System.out.println("Begin to wait for syncronization at the place 2");
-						////waitForSynchronization(1);
-						//project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-						
-					}
-					
-					packageFragment.makeConsistent(new NullProgressMonitor());
-					
-					if (fileExtension.equals("java")) {
-						//For testing:
-						ICompilationUnit[] compilationUnits = packageFragment.getCompilationUnits();
-						
-						
-						ICompilationUnit compilationUnit = packageFragment.getCompilationUnit(lastSegment);
-						if (!compilationUnit.exists()) {
-							//Create java file per JDT
-							compilationUnit = packageFragment.createCompilationUnit(lastSegment, "", false, new NullProgressMonitor());
-							Thread.sleep(5000);
-							
-							//EditList from JGit Bib
-							//TextEdit from Eclipse text.edits
-							String oldContent = "";
-							//new String(((ByteArrayOutputStream) oldElementContent).toByteArray());
-							String newContent = elementContent;
-							URI uri = URI.createPlatformResourceURI(compilationUnit.getPath().toString(), true);
-							GumTreeChangeExtractor atomicChangeExtractor = new GumTreeChangeExtractor(oldContent, newContent, uri);
-							List<String> contentStatesAfterApplyingAtomicChanges = atomicChangeExtractor.extract();
-							contentStatesAfterApplyingAtomicChanges.remove(0);
-							int currentContentLength = compilationUnit.getBuffer().getLength();
-									//oldContent.length();
-							for (String contentState : contentStatesAfterApplyingAtomicChanges) {
-								TextEdit replaceEdit = new ReplaceEdit(0, currentContentLength, contentState);
-								CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, replaceEdit);
-								currentContentLength = compilationUnit.getBuffer().getLength();
-										//contentState.length();
-							}
-							
-							
-							//InsertEdit edit = new InsertEdit(0, elementContent);
-							//CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, edit);
-							
-							//VURI vuri = getVURIForElementInPackage(packageFragment, compilationUnit.getElementName());
-							//getJaMoPPClassifierForVURI(vuri);
-							
-							//System.out.println("Begin to wait for syncronization at the place 3");
-							//waitForSynchronization(1);
-							project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-						}
-					}
-					else {
-						IFile file = project.getFile(tempPath.toString());
-						if (!file.exists()) {
-							file.create(new ByteArrayInputStream(elementContent.getBytes()), false , new NullProgressMonitor());
-							System.out.println("Begin to wait for syncronization at the place 4");
-							//waitForSynchronization(1);
-							project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-						}
-					}		
-				}
-				
-			}
-			//We only have to handle IProject
-			else {
-				//String tempPathString = pathToElement.substring(pathToElement.indexOf("/") + 1);
-				(new File(tempPath.toString())).mkdirs();
-				//IFile file = project.getFile(tempPath);
-				IFile file = project.getFile(tempPath.toString());
-				if (!file.exists()) {
-					file.create(new ByteArrayInputStream(elementContent.getBytes()), false , new NullProgressMonitor());	
-					System.out.println("Begin to wait for syncronization at the place 5");
-					//waitForSynchronization(1);
-					project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-				}
-			}
+			contentLines.add(line);
 		}
-*/
-    	
+		lines.close();
+		
+		return contentLines;
+	}
+	
+	
+	/**
+	 * Computes start offset for each line of <code>fileContent</code>. The file content is represented as List of content lines with line delimiters.
+	 * The last element in the result list contains the length of the last content line. This implies, that the length
+	 * of the result list equals the number of content lines + 1.
+	 *  
+	 * @param fileContent - file content.
+	 * @return list of computed start offsets. The last element in the list contains the length of the last content line.
+	 */
+
+	private List<Integer> computeStartOffsetsToLineNumbers(List<String> fileContent) {
+		//Index of each element in the list corresponds to the line number of the context
+		List<Integer> startOffsets = new ArrayList<>();
+		
+		int offsetCounter = 0;
+		
+		for (String line : fileContent) {
+			startOffsets.add(offsetCounter);
+			offsetCounter += line.length();
+		}
+		//The last element in startOffsets contains length of the last line
+		startOffsets.add(offsetCounter);
+		
+		return startOffsets;
+	}
 }
