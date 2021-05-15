@@ -2,7 +2,6 @@ package tools.vitruv.applications.pcmjava.integrationFromGit;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -14,7 +13,6 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import tools.vitruv.domains.java.ui.monitorededitor.changeclassification.ResourceChange;
 import tools.vitruv.framework.vsum.VirtualModel;
 
 /**
@@ -69,18 +67,77 @@ public class CommitChangePropagator {
 	
 	/**
 	 * Propagates changes of commits of a remote repository to the VSUM.
-	 * On the first call, the remote repository is cloned into the local directory. If the repository was
-	 * already cloned beforehand, the Git repository is initialized from the local directory.
-	 * If the remote repository is cloned and the state is not integrated into the VSUM, all commits from
-	 * the start to the latest commit of the remote repository are integrated into the VSUM.
-	 * Otherwise, the changes from the remote repository are fetched and propagated to the VSUM.
+	 * The changes are fetched from the remote repository and propagated to the VSUM.
 	 * 
 	 * @throws IOException if something from the repositories cannot be read.
 	 * @throws GitAPIException if there is an exception within the Git usage.
 	 */
 	public void propagteChanges() throws IOException, GitAPIException {
-		boolean isInitializedFromRemoteRepository = false;
+		RevCommit lastCommit = repoWrapper.getLatestCommit();
+		logger.debug("Latest commit is " + lastCommit.getId().getName());
+		logger.debug("Fetching remote repository to get new commits.");
+		List<RevCommit> nextCommits = repoWrapper.fetchAndGetNewCommits();
+		logger.debug("Got " + nextCommits.size() + " new commits.");
+		nextCommits.add(0, lastCommit);
+		propagateChanges(nextCommits);
+		logger.debug("Finished the change propagation.");
+	}
+	
+	/**
+	 * Propagates changes from a given list of commits to the VSUM.
+	 * 
+	 * @param commits the list of commits with changes to propagate.
+	 * @throws GitAPIException if something from the repositories cannot be read.
+	 * @throws IOException if there is an exception within the Git usage.
+	 */
+	public void propagateChanges(List<RevCommit> commits) throws GitAPIException, IOException {
+		if (commits.size() > 0) {
+			RevCommit first = commits.remove(0);
+			logger.debug("Propagating " + commits.size() + " commits.");
+			for (RevCommit next : commits) {
+				propagateChanges(first, next);
+				first = next;
+			}
+			logger.debug("Finished propagating the commits.");
+		}
+	}
+	
+	/**
+	 * Propagates changes between two commits to the VSUM.
+	 * 
+	 * @param start the first commit.
+	 * @param end the second commit.
+	 * @throws GitAPIException if something from the repositories cannot be read.
+	 * @throws IOException if there is an exception within the Git usage.
+	 */
+	public void propagateChanges(RevCommit start, RevCommit end) throws GitAPIException, IOException {
+		String commitId = end.getId().getName();
+		logger.debug("Checkout of " + commitId);
+		repoWrapper.checkout(commitId);
+		logger.debug("Obtaining the differences.");
+		List<DiffEntry> diffs = repoWrapper.computeDiffsBetweenTwoCommits(start, end, true, true);
+		logger.debug("Sorting the differences.");
+		diffs = GitChangeApplier.sortDiffs(diffs);
+		logger.debug("Analyzing the differences.");
+		for (DiffEntry diffEntry : diffs) {
+			processDiff(diffEntry);
+		}
+		logger.debug("Finished the propagation of " + commitId);
+	}
+	
+	/**
+	 * Initializes the propagator.
+	 * The remote repository is cloned into the local directory. If the repository was
+	 * already cloned beforehand, the Git repository is initialized from the local directory.
+	 * If the remote repository is cloned and the state is not integrated into the VSUM, all commits from
+	 * the start to the latest commit of the remote repository are integrated into the VSUM.
+	 * 
+	 * @throws IOException if something from the repositories cannot be read.
+	 * @throws GitAPIException if there is an exception within the Git usage.
+	 */
+	public void initialize() throws IOException, GitAPIException {
 		if (!repoWrapper.isInitialized()) {
+			boolean isInitializedFromRemoteRepository = false;
 			String[] files = repoWrapper.getRootDirectory().list();
 			if (files != null && files.length > 0) {
 				logger.debug("Initializing the git repository in " + repoWrapper.getRootDirectory().getAbsolutePath());
@@ -94,70 +151,60 @@ public class CommitChangePropagator {
 				repoWrapper.initFromRemoteRepository(remoteRepository);
 				isInitializedFromRemoteRepository = true;
 			}
-		}
-		RevCommit lastCommit;
-		List<RevCommit> nextCommits;
-		if (isInitializedFromRemoteRepository && !isCurrentStateIntegratedIntoVSUM) {
-			lastCommit = null;
-			logger.debug("Obtaining all commits from the start to the latest commit " + repoWrapper.getLatestCommit().getId().getName());
-			nextCommits = repoWrapper.getAllCommitsBetweenTwoCommits(null, repoWrapper.getLatestCommit().getId().getName());
-			logger.debug("Got " + nextCommits.size() + " commits.");
-		} else {
-			lastCommit = repoWrapper.getLatestCommit();
-			logger.debug("Latest commit is " + lastCommit.getId().getName());
-			logger.debug("Fetching remote repository to get new commits.");
-			nextCommits = repoWrapper.fetchAndGetNewCommits();
-			logger.debug("Got " + nextCommits.size() + " new commits.");
-		}
-		for (RevCommit next : nextCommits) {
-			String commitId = next.getId().getName();
-			logger.debug("Checkout of " + commitId);
-			repoWrapper.checkout(commitId);
-			logger.debug("Obtaining the differences.");
-			List<DiffEntry> diffs = repoWrapper.computeDiffsBetweenTwoCommits(lastCommit, next, true, true);
-			logger.debug("Sorting the differences.");
-			diffs = GitChangeApplier.sortDiffs(diffs);
-			logger.debug("Analyzing the differences.");
-			List<ResourceChange> resChanges = new ArrayList<>();
-			for (DiffEntry diffEntry : diffs) {
-				ResourceChange change = null;
-				switch (diffEntry.getChangeType()) {
-					case ADD:
-					case COPY:
-						change = new ResourceChange(null, URI.createFileURI(diffEntry.getNewPath()));
-						break;
-					case DELETE:
-						change = new ResourceChange(URI.createFileURI(diffEntry.getOldPath()), null);
-						break;
-					case RENAME:
-					case MODIFY:
-						change = new ResourceChange(URI.createFileURI(diffEntry.getOldPath()), URI.createFileURI(diffEntry.getNewPath()));
-						break;
-					default:
-						break;
-				}
-				resChanges.add(change);
+			if (isInitializedFromRemoteRepository && !isCurrentStateIntegratedIntoVSUM) {
+				logger.debug("Obtaining all commits from the start to the latest commit " + repoWrapper.getLatestCommit().getId().getName());
+				List<RevCommit> commits = repoWrapper.getAllCommitsBetweenTwoCommits(null, repoWrapper.getLatestCommit().getId().getName());
+				logger.debug("Got " + commits.size() + " commits.");
+				commits.add(0, null);
+				propagateChanges(commits);
+				logger.debug("Finished integration.");
 			}
-			internalPropagateChanges(resChanges);
-			lastCommit = next;
+			logger.debug("Finished initialization.");
 		}
-		logger.debug("Finished the change propagation.");
 	}
 	
-	private void internalPropagateChanges(List<ResourceChange> changes) {
-		for (ResourceChange resChange : changes) {
-			logger.debug("Starting to propagate the changes between " + resChange.getOldResourceURI()
-					+ " and " + resChange.getNewResourceURI());
-			Resource newResource = null;
-			if (resChange.getNewResourceURI() != null) {
-				logger.debug("Loading " + resChange.getNewResourceURI());
-				newResource = new ResourceSetImpl().getResource(resChange.getNewResourceURI(), true);
-				logger.debug("Resolving the references for " + resChange.getNewResourceURI());
-				EcoreUtil.resolveAll(newResource);
-			}
-			logger.debug("Propagating the changes.");
-			vsum.propagateChangedState(newResource, resChange.getOldResourceURI());
-			logger.debug("Finished the propagation.");
+	/**
+	 * Shuts the propagator down by freeing up resources.
+	 */
+	public void shutdown() {
+		logger.debug("Shutting down.");
+		repoWrapper.closeRepository();
+	}
+	
+	/**
+	 * Processes a diff.
+	 * 
+	 * @param entry the diff.
+	 */
+	protected void processDiff(DiffEntry entry) {
+		switch (entry.getChangeType()) {
+			case ADD:
+			case COPY:
+				internalPropagateChanges(null, URI.createFileURI(entry.getNewPath()));
+				break;
+			case DELETE:
+				internalPropagateChanges(URI.createFileURI(entry.getOldPath()), null);
+				break;
+			case RENAME:
+			case MODIFY:
+				internalPropagateChanges(URI.createFileURI(entry.getOldPath()), URI.createFileURI(entry.getNewPath()));
+				break;
+			default:
+				break;
 		}
+	}
+	
+	private void internalPropagateChanges(URI oldURI, URI newURI) {
+		logger.debug("Starting to propagate the changes between " + oldURI + " and " + newURI);
+		Resource newResource = null;
+		if (newURI != null) {
+			logger.debug("Loading " + newURI);
+			newResource = new ResourceSetImpl().getResource(newURI, true);
+			logger.debug("Resolving the references for " + newURI);
+			EcoreUtil.resolveAll(newResource);
+		}
+		logger.debug("Propagating the changes.");
+		vsum.propagateChangedState(newResource, oldURI);
+		logger.debug("Finished the propagation.");
 	}
 }
