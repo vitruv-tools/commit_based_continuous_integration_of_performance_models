@@ -2,6 +2,7 @@ package tools.vitruv.applications.pcmjava.integrationFromGit;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -20,6 +21,7 @@ import tools.vitruv.framework.vsum.VirtualModel;
  * within a VSUM using the state-based change propagation.
  * 
  * @author Martin Armbruster
+ * @author Ilia Chupakhin
  */
 public class CommitChangePropagator {
 	private static final Logger logger = Logger.getLogger(CommitChangePropagator.class.getSimpleName());
@@ -117,7 +119,7 @@ public class CommitChangePropagator {
 		logger.debug("Obtaining the differences.");
 		List<DiffEntry> diffs = repoWrapper.computeDiffsBetweenTwoCommits(start, end, true, true);
 		logger.debug("Sorting the differences.");
-		diffs = GitChangeApplier.sortDiffs(diffs);
+		diffs = sortDiffs(diffs);
 		logger.debug("Analyzing the differences.");
 		for (DiffEntry diffEntry : diffs) {
 			processDiff(diffEntry);
@@ -206,5 +208,60 @@ public class CommitChangePropagator {
 		logger.debug("Propagating the changes.");
 		vsum.propagateChangedState(newResource, oldURI);
 		logger.debug("Finished the propagation.");
+	}
+	
+	/**
+	 * Sorts changes in the form of <code>DiffEntry</code> in a particular order:
+	 * [COPY,...,RENAME,...,DELETE,...,ADD,...,MODIFY,...]
+	 * This is necessary to avoid certain problems.
+	 * For example, adding a reference in an existing class to a new class. 
+	 * In this case, the new class must be created before the reference is added.
+	 * Thus, ADD new class has to be done before MODIFY in the existing class.
+	 * 
+	 * @param diffs unsorted changes.
+	 * @return the sorted changes.
+	 */
+	private List<DiffEntry> sortDiffs(List<DiffEntry> diffs) {
+		
+		// Temporary lists for all diff types.
+		ArrayList<DiffEntry> copies = new ArrayList<DiffEntry>();
+		ArrayList<DiffEntry> renames = new ArrayList<DiffEntry>();
+		ArrayList<DiffEntry> deletes = new ArrayList<DiffEntry>();
+		ArrayList<DiffEntry> adds = new ArrayList<DiffEntry>();
+		ArrayList<DiffEntry> modifies = new ArrayList<DiffEntry>();
+		
+		for (DiffEntry diff : diffs) {
+			switch (diff.getChangeType()) {
+			case COPY:
+				copies.add(diff);
+				break;
+			case RENAME:
+				renames.add(diff);
+				break;
+			case DELETE:
+				deletes.add(diff);
+				break;
+			case ADD:
+				adds.add(diff);
+				break;
+			case MODIFY:
+				modifies.add(diff);
+				break;
+			}
+		}
+		
+		ArrayList<DiffEntry> result = new ArrayList<DiffEntry>();
+		
+		result.addAll(copies);
+		result.addAll(renames);
+		result.addAll(deletes);
+		result.addAll(adds);
+		result.addAll(modifies);
+		
+		return result;
+	}
+	
+	protected GitRepositoryWrapper getWrapper() {
+		return repoWrapper;
 	}
 }

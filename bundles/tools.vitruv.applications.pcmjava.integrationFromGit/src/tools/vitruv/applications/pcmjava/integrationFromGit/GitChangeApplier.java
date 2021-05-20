@@ -2,9 +2,9 @@ package tools.vitruv.applications.pcmjava.integrationFromGit;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -38,8 +38,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.Edit;
 import org.eclipse.jgit.diff.EditList;
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.text.edits.DeleteEdit;
 import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.ReplaceEdit;
@@ -52,120 +50,95 @@ import org.emftext.language.java.containers.JavaRoot;
 import org.emftext.language.java.containers.Package;
 
 import tools.vitruv.applications.pcmjava.tests.util.java2pcm.CompilationUnitManipulatorHelper;
-import tools.vitruv.applications.pcmjava.tests.util.java2pcm.Java2PcmTransformationTest;
 import tools.vitruv.applications.pcmjava.tests.util.java2pcm.SynchronizationAwaitCallback;
-import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
+import tools.vitruv.framework.vsum.VirtualModel;
 import tools.vitruv.framework.vsum.ChangePropagationAbortCause;
 import tools.vitruv.framework.vsum.ChangePropagationListener;
-//import tools.vitruv.domains.java.util.gitchangereplay.extractors.GumTreeChangeExtractor;
-
 
 /**
- * Class for applying changes contained in git commits on a project. The commits must be contained in {@link #gitRepository}. 
- * The changes are applied on the JDT Model of the given {@link IProject}.
+ * Class for applying changes contained in Git commits on a project. The commits must be contained in a {@link #gitRepository}. 
+ * The changes are applied on the JDT Model of a given {@link IProject}.
  * 
  * @author Ilia Chupakhin
  * @author Manar Mazkatli (advisor)
- *
+ * @author Martin Armbruster
  */
-public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePropagationListener {
-
-	private GitRepositoryWrapper gitRepository;
-	private static final Logger logger = Logger.getLogger(Java2PcmTransformationTest.class.getSimpleName());
+public class GitChangeApplier extends CommitChangePropagator implements SynchronizationAwaitCallback, ChangePropagationListener {
+	private static final Logger logger = Logger.getLogger(GitChangeApplier.class.getSimpleName());
 	private static int MAXIMUM_SYNC_WAITING_TIME = 10000;
 	private AtomicInteger expectedNumberOfSyncs = new AtomicInteger(0);
 	private String lineDelimiter = System.lineSeparator();
+	private IProject currentProject;
 	
-	
-	public GitChangeApplier(GitRepositoryWrapper git) {
-		this.gitRepository = git;
+	public GitChangeApplier(File repositoryPath, String localRepositoryPath, VirtualModel vsum) {
+		super(repositoryPath, localRepositoryPath, vsum);
 	}
 	
-
-	/**
-	 * Applies changes from commits contained in <code>commits</code> on the given <code>currentProject</code>
-	 * 
-	 * @param commits - commits that contain changes
-	 * @param currentProject - project which the changes are applied on
-	 * @throws IOException if the repository cannot be read.
-	 * @throws IncorrectObjectTypeException if an object within the repository is incorrectly used.
-	 */
-	public void applyChangesFromCommits(List<RevCommit> commits, IProject currentProject) throws IncorrectObjectTypeException, IOException {
-		Collections.reverse(commits); 
-		for (int i = 0; i < commits.size() - 1; i++) {
-			applyChangesFromCommit(commits.get(i), commits.get(i + 1), currentProject);
-		}
+	public GitChangeApplier(String repositoryPath, String localRepositoryPath, VirtualModel vsum) {
+		super(repositoryPath, localRepositoryPath, vsum);
 	}
-
-	/**
-	 * Applies changes detected between <code>oldCommit</code> and <code>newCommit</code> on the <code>currentProject</code>.
-	 * Please note that git does not detect creating of folders if this folders do not contain any files. Therefore we assume 
-	 * that a path to a changed file always ends with a point followed by a file extension, for example: ".java" or ".txt"
-	 *  
-	 * @param oldCommit - commit that contains an older state of the project  
-	 * @param newCommit - commit that contains an newer state of the project  
-	 * @param currentProject - project which the changes are applied on
-	 * @throws IOException if the repository cannot be read.
-	 * @throws IncorrectObjectTypeException if an object within the repository is incorrectly used.
-	 */
-	public void applyChangesFromCommit(RevCommit oldCommit, RevCommit newCommit, IProject currentProject) throws IncorrectObjectTypeException, IOException {
-		
-		//Compute changes between two commits
-		List<DiffEntry> diffs = new ArrayList<>(gitRepository.computeDiffsBetweenTwoCommits(oldCommit, newCommit, /*true*/false, true));
-		//Sort changes. Necessary to avoid some problems like adding a reference in an existing class to a new class. 
-		//In this case, the new class must be created before the reference to it. Thus ADD new class before MODIFY in the existing class.
-		diffs = sortDiffs(diffs);
-
-		for (DiffEntry diff : diffs) {
-			//Classify changes and call an appropriate routine
-			switch (diff.getChangeType()) {
-			//Add a new file
-			case ADD:
+	
+	public void setProject(IProject proj) {
+		currentProject = proj;
+	}
+	
+	@Override
+	protected void processDiff(DiffEntry diff) {
+		// Classify changes and call an appropriate routine.
+		switch (diff.getChangeType()) {
+		// Add a new file.
+		case ADD:
+			try {
 				String pathToAddedFile = diff.getNewPath();
-				String fileContent = gitRepository.getNewContentOfFileFromDiffEntry(diff);
-				//JGit returns the content of files and uses within the content "\n" as line separator.
-				//Therefore, replace all occurrences of "\n" with the system line separator.
+				String fileContent = getWrapper().getNewContentOfFileFromDiffEntry(diff);
+				// JGit returns the content of files and uses "\n" as line separator within the content.
+				// Therefore, replace all occurrences of "\n" with the system line separator.
 				fileContent = replaceAllLineDelimitersWithSystemLineDelimiters(fileContent);
 				addElementToProject(currentProject, pathToAddedFile, fileContent);
-				break;
-			//Copy an existing file
-			case COPY:
-				copyElementInProject(diff.getOldPath(), diff.getNewPath(), currentProject);
-				break;
-			//Remove an existing file
-			case DELETE:
-				removeElementFromProject(currentProject, diff.getOldPath());
-				break;
-			//Modify an existing file
-			case MODIFY:
-				OutputStream oldElementContent = gitRepository.getOldContentOfFileFromDiffEntryInOutputStream(diff);
-				OutputStream newElementContent = gitRepository.getNewContentOfFileFromDiffEntryInOutputStream(diff);
+			} catch (IOException e) {
+				logger.error(e);
+			}
+			break;
+		// Copy an existing file.
+		case COPY:
+			copyElementInProject(diff.getOldPath(), diff.getNewPath(), currentProject);
+			break;
+		// Remove an existing file.
+		case DELETE:
+			removeElementFromProject(currentProject, diff.getOldPath());
+			break;
+		// Modify an existing file.
+		case MODIFY:
+			try {
+				OutputStream oldElementContent = getWrapper().getOldContentOfFileFromDiffEntryInOutputStream(diff);
+				OutputStream newElementContent = getWrapper().getNewContentOfFileFromDiffEntryInOutputStream(diff);
 				String oldElementPath = diff.getOldPath();
 				String newElementPath = diff.getNewPath();
-				//Compute changed lines in the given file 
-				EditList editList = gitRepository.computeEditListFromDiffEntry(diff);
+				// Compute changed lines in the given file. 
+				EditList editList = getWrapper().computeEditListFromDiffEntry(diff);
 				modifyElementInProject(currentProject, oldElementContent, newElementContent,
 						oldElementPath, newElementPath, editList);
-				break;
-			//Rename an existing file
-			case RENAME:
-				renameElementInProject(diff.getOldPath(), diff.getNewPath(), currentProject);
-				break;
-			default:
-				//Error
-				System.out.println("Changes for the DiffEntry " + diff + "could not be classified");
-				break;
-			}	
+			} catch (IOException e) {
+				logger.error(e);
+			}
+			break;
+		// Rename an existing file.
+		case RENAME:
+			renameElementInProject(diff.getOldPath(), diff.getNewPath(), currentProject);
+			break;
+		default:
+			// Error.
+			System.out.println("Changes for the DiffEntry " + diff + "could not be classified");
+			break;
 		}
 	}
-
 	
 	/**
-	 * Creates a copy of an existing file with <code>oldPath</code> in <code>newPath</code> in <code>project</code>
+	 * Creates a copy of an existing file with <code>oldPath</code> in <code>newPath</code> in <code>project</code>.
 	 * 
-	 * @param oldPath path to the original file
-	 * @param newPath path to the copy
-	 * @param project project that contains the original file and its copy
+	 * @param oldPath path to the original file.
+	 * @param newPath path to the copy.
+	 * @param project project that contains the original file and its copy.
 	 * @exception CoreException if this resource could not be copied. Reasons include:
 	 * <ul>
 	 * <li> This resource does not exist.</li>
@@ -199,82 +172,31 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		tempNewPath = tempNewPath.removeFirstSegments(1);
 		
 		IFile originalFile = project.getFile(tempOldPath);
-		if (originalFile.exists()) {		
+		if (originalFile.exists()) {
 			IFile copiedFile = project.getFile(tempNewPath);
 			if (!copiedFile.exists()) {
 				try {
 					originalFile.copy(copiedFile.getFullPath(), true, new NullProgressMonitor());
 				} catch (CoreException e) {
-					System.err.println(e.getMessage());
-					e.printStackTrace();
-				}	
-			}	
-		}
-	}
-
-
-	/**
-	 * Sorts changes <code>DiffEntry</code> in a particular order:
-	 * [COPY,...,RENAME,...,DELETE,...,ADD,...,MODIFY,...]
-	 * 
-	 * 
-	 * @param diffs unsorted changes
-	 * @return <code>ArrayList</code>
-	 */
-	public static List<DiffEntry> sortDiffs(List<DiffEntry> diffs) {
-		
-		//temp lists for all diff types
-		ArrayList<DiffEntry> copies = new ArrayList<DiffEntry>();
-		ArrayList<DiffEntry> renames = new ArrayList<DiffEntry>();
-		ArrayList<DiffEntry> deletes = new ArrayList<DiffEntry>();
-		ArrayList<DiffEntry> adds = new ArrayList<DiffEntry>();
-		ArrayList<DiffEntry> modifies = new ArrayList<DiffEntry>();
-		
-		for(DiffEntry diff : diffs) {
-			switch (diff.getChangeType()) {
-			case COPY:
-				copies.add(diff);
-				break;
-			case RENAME:
-				renames.add(diff);
-				break;
-			case DELETE:
-				deletes.add(diff);
-				break;
-			case ADD:
-				adds.add(diff);
-				break;
-			case MODIFY:
-				modifies.add(diff);
-				break;
+					logger.error(e);
+				}
 			}
 		}
-		ArrayList<DiffEntry> result = new ArrayList<DiffEntry>();
-		
-		result.addAll(copies);
-		result.addAll(renames);
-		result.addAll(deletes);
-		result.addAll(adds);
-		result.addAll(modifies);
-		
-		return result;
 	}
 
-
 	/**
-	 * Computes the name (including the file extension) of the file from the given path to this file
+	 * Computes the name (including the file extension) of the file from the given path to this file.
 	 * 
-	 * @param path path to the file
-	 * @return file name
+	 * @param path path to the file.
+	 * @return file name.
 	 */
 	public String getNameOfFileFromPath(String path) {
 		return  path.substring(path.lastIndexOf("/") + 1);
 	}
 	
-	
 	/**
-	 * Apples changes on the give file. If the file is a java file, only the changed lines will be replaced. 
-	 * For all other file types the entire old content will be replaced with the <code>newContent</code>. 
+	 * Applies changes on the give file. If the file is a java file, only the changed lines will be replaced. 
+	 * For all other file types, the entire old content will be replaced with the <code>newContent</code>. 
 	 * 
 	 * @param project
 	 * @param oldElementContent
@@ -319,8 +241,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				oldElementContent.close();
 				newElementContent.close();
 			} catch (IOException e) {
-				System.err.println(e.getMessage());
-				e.printStackTrace();
+				logger.error(e);
 			}
 			
 			//Convert EditList into List<TextEdit>. Necessary because EditList is from JGit (see: org.eclipse.jgit.diff.EditList),
@@ -330,8 +251,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			try {
 				CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, textEdits.toArray(new TextEdit[textEdits.size()]));
 			} catch (JavaModelException e) {
-				System.err.println(e.getMessage());
-				e.printStackTrace();
+				logger.error(e);
 			}
 		}
 		//Find the non-java file and replace its entire content with the new one
@@ -339,8 +259,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			try {
 				oldElementContent.close();
 			} catch (IOException e) {
-				System.err.println(e.getMessage());
-				e.printStackTrace();
+				logger.error(e);
 			}
 			IFile file = project.getFile(oldElementPath.substring(oldElementPath.indexOf("/") + 1));
 			if (file.exists()) {
@@ -348,24 +267,20 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				try {
 					file.setContents(inputStream, IFile.FORCE, null);
 				} catch (CoreException e) {
-					System.err.println(e.getMessage());
-					e.printStackTrace();
+					logger.error(e);
 				}
 				try {
 					newElementContent.close();
 					//inputStream.close(); //has no effect
 				} catch (IOException e) {
-					System.err.println(e.getMessage());
-					e.printStackTrace();
+					logger.error(e);
 				}
-			}	
+			}
 		}
-		
 	}
 	
-	
 	/**
-	 * Create a new file in the <code>project</code>.
+	 * Creates a new file in the <code>project</code>.
 	 * The <code>pathToElement</code> contains the path to the new file, but some folders on the path to the new file
 	 * may not exist yet. The non-existing parent folders will also be created.
 	 * 
@@ -392,8 +307,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		try {
 			project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 		} catch (CoreException e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
+			logger.error(e);
 		}
 		//Convert path from String into Path. For convenience only.
 		IPath tempPath = new Path(pathToElement);
@@ -403,7 +317,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		int segmentCounter = tempPath.segmentCount();
 		//Check if the path to the file is valid
 		if (segmentCounter == 0) {
-			System.out.println("Path: " + pathToElement + " is not valid");
+			logger.warn("Path: " + pathToElement + " is not valid");
 			return;
 		}
 		//Check if the file to be created is a java file
@@ -428,8 +342,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			try {
 				javaNature = project.hasNature(JavaCore.NATURE_ID);
 			} catch (CoreException e) {
-				System.err.println(e.getMessage());
-				e.printStackTrace();
+				logger.error(e);
 			}
 			if (javaNature) {
 				javaProject = JavaCore.create(project);
@@ -441,8 +354,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 					try {
 						packageFragmentRoot = javaProject.findPackageFragmentRoot(packageFragmentRootPath);
 					} catch (JavaModelException e) {
-						System.err.println(e.getMessage());
-						e.printStackTrace();
+						logger.error(e);
 					}//javaProject.getPackageFragmentRoot(firstSegment);
 					if (!packageFragmentRoot.exists()) {
 						packageFragmentRoot = createPacakgeFragmentRoot(firstSegment, javaProject);
@@ -462,8 +374,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 						try {
 							compilationUnit = packageFragment.createCompilationUnit(lastSegment, "", false/*true*/, new NullProgressMonitor());
 						} catch (JavaModelException e) {
-							System.err.println(e.getMessage());
-							e.printStackTrace();
+							logger.error(e);
 						}
 						//Thread.sleep(5000);
 						//Set empty content on the new file. Necessary to inform Vitruv about the new created java file.
@@ -471,26 +382,23 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 						try {
 							CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, edit);
 						} catch (JavaModelException e) {
-							System.err.println(e.getMessage());
-							e.printStackTrace();
+							logger.error(e);
 						}
 						//project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
 					}
 					else {
-						System.out.println("The compilation unit with name " + lastSegment + " in package fragment "+ packageFragmentName + " already existed and therefore could not be created");
+						logger.warn("The compilation unit with name " + lastSegment + " in package fragment "+ packageFragmentName + " already existed and therefore could not be created");
 					}
 				}
 				else {
-					System.out.println("The java file " + lastSegment + " could not be created because it's not in a Package Fragment");
+					logger.warn("The java file " + lastSegment + " could not be created because it's not in a Package Fragment");
 				}
 			}
 		}
 	}
 	
-	
-	
 	/**
-	 * Creates a {@link IPackageFragmentRoot} with <code>packageFragmentRootPath</code> in <code>javaProject</code>
+	 * Creates a {@link IPackageFragmentRoot} with <code>packageFragmentRootPath</code> in <code>javaProject</code>.
 	 * 
 	 * @param packageFragmentRootPath path to the package fragment root
 	 * @param javaProject project which the package fragment root must be created in
@@ -526,8 +434,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			try {
 				rootFolder.create(false/*true*/, false/*true*/, new NullProgressMonitor());
 			} catch (CoreException e) {
-				System.err.println(e.getMessage());
-				e.printStackTrace();
+				logger.error(e);
 			}		
 		}
 
@@ -537,8 +444,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		try {
 			oldEntries = javaProject.getRawClasspath();
 		} catch (JavaModelException e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
+			logger.error(e);
 		}
 		IClasspathEntry[] newEntries = new IClasspathEntry[oldEntries.length + 1];
 		System.arraycopy(oldEntries, 0, newEntries, 0, oldEntries.length);
@@ -547,14 +453,11 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		try {
 			javaProject.setRawClasspath(newEntries, null);
 		} catch (JavaModelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e);
 		}
 		
 		return root;
 	}
-	
-	
 	
 	/**
 	 * Creates a non-java {@link IFile} with <code>elementContent</code> in <code>project</code>.
@@ -585,7 +488,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	private void createNonJavaFile(IPath pathToFile, String elementContent, IProject project) {
 		int segmentCounter = pathToFile.segmentCount();
 		if(segmentCounter < 1) {
-			System.out.println("Could not create a new file because of an invalid file path");
+			logger.warn("Could not create a new file because of an invalid file path");
 			return;
 		}
 		//Check if the file has no parent folders
@@ -597,8 +500,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 					try {
 						folder.create(false, true, new NullProgressMonitor());
 					} catch (CoreException e) {
-						System.err.println(e.getMessage());
-						e.printStackTrace();
+						logger.error(e);
 					}
 				}
 			}
@@ -611,15 +513,13 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				file.create(elementContentStream, false, new NullProgressMonitor());
 				//elementContentStream.close(); //has no effect
 			} catch (CoreException e) {
-				System.err.println(e.getMessage());
-				e.printStackTrace();
+				logger.error(e);
 			}
 		}
 	}
 	
-	
 	/**
-	 * Renames an existing {@link IFile} in the <code>project</code>
+	 * Renames an existing {@link IFile} in the <code>project</code>.
 	 * 
 	 * @param oldPath path to the file (including file name) before renaming
 	 * @param newPath path to the file (including file name) after renaming
@@ -668,16 +568,14 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				try {
 					fileBeforeRename.move(fileAfterRename.getFullPath()/*tempNewPath*/, true, new NullProgressMonitor());
 				} catch (CoreException e) {
-					System.err.println(e.getMessage());
-					e.printStackTrace();
-				}	
-			}	
+					logger.error(e);
+				}
+			}
 		}
 	}
 	
-	
 	/**
-	 * Removes file or folder from the given <code>project</code>
+	 * Removes file or folder from the given <code>project</code>.
 	 * 
 	 * @param project given project which the file or folder must be removed from
 	 * @param pathToElement path to the file or folder which must be removed
@@ -700,8 +598,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			try {
 				packageFragment.delete(true, null);
 			} catch (JavaModelException e) {
-				System.err.println(e.getMessage());
-				e.printStackTrace();
+				logger.error(e);
 			}
 		}
 		else if (pathToElement.endsWith(".java")) {
@@ -709,8 +606,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 			try {
 				compilationUnit.delete(true/*false*/, null);
 			} catch (JavaModelException e) {
-				System.err.println(e.getMessage());
-				e.printStackTrace();
+				logger.error(e);
 			}
 		}
 		else {
@@ -720,17 +616,14 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				try {
 					fileToRemove.delete(true, new NullProgressMonitor());
 				} catch (CoreException e) {
-					System.err.println(e.getMessage());
-					e.printStackTrace();
-				}	
+					logger.error(e);
+				}
 			}
 		}
-
 	}
 	
-	
 	/**
-	 * Creates a new package with a containing file 'package-info.java' in <code>project</code> 
+	 * Creates a new package with a containing file 'package-info.java' in <code>project</code>.
 	 * 
 	 * @param project project which a new package must be created in
 	 * @param namespace package name space
@@ -758,8 +651,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				try {
 					resource.save(new HashMap<>());
 				} catch (IOException e) {
-					System.err.println(e.getMessage());
-					e.printStackTrace();
+					logger.error(e);
 				}
 				waitForSynchronization(1);
 			}
@@ -768,32 +660,14 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		}
 		
 		return jaMoPPPackage;
-		
-		/* TODO delete
-		String packageFile = StringUtils.join(namespace, "/");
-		packageFile = packageFile + "/package-info.java";
-		Package jaMoPPPackage = ContainersFactory.eINSTANCE.createPackage();
-		List<String> namespaceList = Arrays.asList(namespace);
-		jaMoPPPackage.setName(namespaceList.get(namespaceList.size() - 1));
-		jaMoPPPackage.getNamespaces().addAll(namespaceList.subList(0, namespaceList.size() - 1));
-		
-		ResourceSet resourceSet = new ResourceSetImpl();
-		VURI vuri = VURI.getInstance(project.getName() + "/src/" + packageFile);
-		final Resource resource = resourceSet.createResource(vuri.getEMFUri());
-		
-		EcoreResourceBridge.saveEObjectAsOnlyContent(jaMoPPPackage, resource);
-		waitForSynchronization(1);
-		return jaMoPPPackage;
-		*/
 	}
 	
-	
 	/**
-	 * Computes a {@link VURI} for the path to the file <code>elementName</code>.
+	 * Computes a {@link URI} for the path to the file <code>elementName</code>.
 	 * 
 	 * @param packageFragment package that contains file <code>elementName</code>
 	 * @param elementName file
-	 * @return computed {@link VURI}
+	 * @return computed {@link URI}
 	 */
 	public URI getVURIForElementInPackage(final IPackageFragment packageFragment, final String elementName) {
 		String vuriKey = packageFragment.getResource().getFullPath().toString() + "/" + elementName;
@@ -805,9 +679,9 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	}
 	
 	/**
-	 * Returns a JaMoPP {@link ConcreteClassifier} for the given {@link VURI}
+	 * Returns a JaMoPP {@link ConcreteClassifier} for the given {@link URI}
 	 * 
-	 * @param vuri given {@link VURI}
+	 * @param vuri given {@link URI}
 	 * @return found {@link ConcreteClassifier}
 	 */
 	protected ConcreteClassifier getJaMoPPClassifierForVURI(final URI vuri) {
@@ -817,7 +691,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	}
 
 	/**
-	 * Returns a JaMoPP {@link JavaRoot} for the given {@link VURI}
+	 * Returns a JaMoPP {@link JavaRoot} for the given {@link URI}.
 	 * 
 	 * @param <T>
 	 * @param vuri given {@link VURI}
@@ -831,11 +705,8 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		return javaRoot;
 	}
 
-	
-	
-
     /**
-     * Finds a {@link ICompilationUnit} in the given project <code>project</code> based on <code>pathToCompilationUnit</code>
+     * Finds a {@link ICompilationUnit} in the given project <code>project</code> based on <code>pathToCompilationUnit</code>.
      * 
      * @param pathToCompilationUnit path to the compilation unit
      * @param project given project
@@ -879,14 +750,13 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				} 
 			}
 		} catch (JavaModelException e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
+			logger.error(e);
 		}
         throw new RuntimeException("Could not find a compilation unit with name " + pathToCompilationUnit);
     }
     
     /**
-     * Finds a {@link IPackageFragment} in the given project <code>project</code> based on <code>pathToPackageFragment</code>
+     * Finds a {@link IPackageFragment} in the given project <code>project</code> based on <code>pathToPackageFragment</code>.
      * 
      * @param pathToPackageFragment path to the package fragment
      * @param project given project
@@ -921,16 +791,14 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				} 
 			}
 		} catch (JavaModelException e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
+			logger.error(e);
 		}
         throw new RuntimeException("Could not find a compilation unit with name " + pathToPackageFragment);
     }
 	
-	
 	/**
 	 * Waits for Vitruv reaction on changes. This method is used for synchronization when a {@link ICompilationUnit} is changed.
-	 * See {@link CompilationUnitManipulatorHelper#editCompilationUnit(ICompilationUnit, SynchronizationAwaitCallback, TextEdit...)}
+	 * See {@link CompilationUnitManipulatorHelper#editCompilationUnit(ICompilationUnit, SynchronizationAwaitCallback, TextEdit...)}.
 	 *
 	 * @param numberOfExpectedSynchronizationCalls usually equals 1
 	 */
@@ -948,30 +816,27 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 				// timeout
 				// and so the synchronization was not finished as expected
 				if (wakeups > numberOfExpectedSynchronizationCalls) {
-					System.out.println("Waiting for synchronization timed out. Continue the programm anyway.");
+					logger.info("Waiting for synchronization timed out. Continue the programm anyway.");
 					expectedNumberOfSyncs.addAndGet(-numberOfExpectedSynchronizationCalls);
 					break;
 				}
-				System.out.println("Waiting for synchronization timed out. Please check if there is an opened user dialog.\nTry to wait one more time");
+				logger.info("Waiting for synchronization timed out. Please check if there is an opened user dialog.\nTry to wait one more time");
 			}
 		} catch (InterruptedException e) {
-			System.out.println("An interrupt occurred unexpectedly");
+			logger.warn("An interrupt occurred unexpectedly");
 		} finally {
 			logger.debug("Finished waiting for synchronization");
 		}
 	}
-	
 	
 	@Override
 	public synchronized void startedChangePropagation() {
 		// Not needed yet
 	}
 	
-	
 	/**
 	 * Notifies all waiting threads when change propagation is done.
 	 * This method is called from Vitruv.
-	 *
 	 */
 	@Override
 	public synchronized void finishedChangePropagation() {
@@ -979,7 +844,6 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		logger.debug("Reducing number of expected syncs to: " + expectedNumberOfSyncs);
 		this.notifyAll();
 	}
-
 	
 	/**
 	 * Notifies all waiting threads when change propagation is aborted.
@@ -991,28 +855,6 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		logger.debug("Reducing number of expected syncs to: " + expectedNumberOfSyncs);
 		this.notifyAll();
 	}
-
-	
-	/**
-	 * Updates the project state in Virtual Model using State Based Propagation Strategy 
-	 * 
-	 */
-	public void applyChangesFromCommitUsingStateBasedChangePropagation( ICompilationUnit newCompilationUnitState, ICompilationUnit oldCompilationUnitState, InternalVirtualModel virtualModel) {
-		//VURI vuriNew = VURI.getInstance(newProjectState);
-		//final Resource resourceNew = URIUtil.loadResourceAtURI(URI.createPlatformResourceURI(newProjectState.getLocationURI().toString())/*vuri.getEMFUri()*//*newProjectState.getLocationURI()*/, new ResourceSetImpl());
-		
-		//VURI vuriOld = VURI.getInstance(oldProjectState);
-		//final Resource resourceOld = URIUtil.loadResourceAtURI(URI.createPlatformResourceURI(oldProjectState.getLocationURI().toString())/*vuri.getEMFUri()*//*newProjectState.getLocationURI()*/, new ResourceSetImpl());
-		
-		URI newVuriCompilationUnit = URI.createFileURI(newCompilationUnitState.getResource().getFullPath().toPortableString());
-		final Resource newResourceCompilationUnit = new ResourceSetImpl().getResource(newVuriCompilationUnit, true);
-		
-		URI oldVuriCompilationUnit = URI.createFileURI(oldCompilationUnitState.getResource().getFullPath().toPortableString());
-		final Resource oldResourceCompilationUnit = new ResourceSetImpl().getResource(oldVuriCompilationUnit, true);
-		
-		virtualModel.propagateChangedState(newResourceCompilationUnit, oldResourceCompilationUnit.getURI());
-
-	}
 	
 	/**
 	 * Replaces all possible kinds of line separators with one particular kind of line separator in <code>fileContent</code>
@@ -1020,7 +862,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param fileContent
 	 * @return file content with replaced line separators
 	 */
-	public String replaceAllLineDelimitersWithSystemLineDelimiters(String fileContent) {
+	private String replaceAllLineDelimitersWithSystemLineDelimiters(String fileContent) {
 		return fileContent.replaceAll("\r\n|\n|\r", lineDelimiter);
 	}
 	
@@ -1042,7 +884,7 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param newFileContent - new content as plain text
 	 * @return list of TextEdits, that have to be applied one by one (the applying order is important) on the old context to transform the old context into the new context.
 	 */
-	public List<TextEdit> transformEditListIntoTextEdits(EditList editList, String oldFileContent, String newFileContent) {
+	private List<TextEdit> transformEditListIntoTextEdits(EditList editList, String oldFileContent, String newFileContent) {
 		
 		ArrayList<TextEdit> textEdits = new ArrayList<>();
 		
@@ -1101,7 +943,6 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		return textEdits;
 	}
 	
-	
 	/**
 	 * Concatenate <code>contentLines</code> between [<code>beginLineNumber</code>, <code>endLineNumber</code>)
 	 * 
@@ -1119,7 +960,6 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		
 		return content;
 	}
-
 
 	/**
 	 * Splits <code>fileContent</code> into lines. Each split line except the last line contains a line delimiter at the end.
@@ -1151,7 +991,6 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 		return contentLines;
 	}
 	
-	
 	/**
 	 * Computes start offset for each line of <code>fileContent</code>. The file content is represented as List of content lines with line delimiters.
 	 * The last element in the result list contains the length of the last content line. This implies, that the length
@@ -1160,7 +999,6 @@ public class GitChangeApplier implements SynchronizationAwaitCallback, ChangePro
 	 * @param fileContent - file content.
 	 * @return list of computed start offsets. The last element in the list contains the length of the last content line.
 	 */
-
 	private List<Integer> computeStartOffsetsToLineNumbers(List<String> fileContent) {
 		//Index of each element in the list corresponds to the line number of the context
 		List<Integer> startOffsets = new ArrayList<>();
