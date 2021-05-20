@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Test2 for the Git integration
+Bundle-SymbolicName: tools.vitruv.applications.pcmjava.integrationFromGit.test2
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: tools.vitruv.applications.pcmjava.integrationFromGit.test2
+Bundle-RequiredExecutionEnvironment: JavaSE-12
+Require-Bundle: tools.vitruv.applications.pcmjava.integrationFromGit
+Export-Package: tools.vitruv.applications.pcmjava.integrationFromGit.test2
