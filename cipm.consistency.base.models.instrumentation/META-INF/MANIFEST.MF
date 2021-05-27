@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Extended Instrumentation Meta-Model
+Bundle-SymbolicName: cipm.consistency.base.models.instrumentation;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: 
+ org.palladiosimulator.pcm;bundle-version="4.3.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-13
+Automatic-Module-Name: cipm.consistency.base.models.instrumentation
+Export-Package: cipm.consistency.base.models.inmodel,
+ cipm.consistency.base.models.instrumentation.InstrumentationModel,
+ cipm.consistency.base.models.instrumentation.InstrumentationModel.impl,
+ cipm.consistency.base.models.instrumentation.InstrumentationModel.util
