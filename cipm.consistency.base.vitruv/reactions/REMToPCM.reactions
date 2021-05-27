@@ -1,0 +1,179 @@
+import dmodel.pipeline.vsum.util.ReactionHelper
+
+import "http://palladiosimulator.org/PalladioComponentModel/ResourceEnvironment/5.2" as ResourceEnvironment
+import "http://palladiosimulator.org/PalladioComponentModel/Core/5.2" as PCMCore
+import "http://www.dmodel.com/RuntimeEnvironmentModel" as REM
+import "http://palladiosimulator.org/PalladioComponentModel/ResourceType/5.2" as PCMResourceType
+
+reactions: remToPCM
+in reaction to changes in REM
+execute actions in PCMExtended
+
+reaction CreateHostNameCorrespondence {
+	after element REM::RuntimeResourceContainer created
+	call syncHostCreation(affectedEObject)
+}
+
+reaction DeleteHostCorrespondence {
+	after element REM::RuntimeResourceContainer deleted
+	call syncHostDeletion(affectedEObject)
+}
+
+reaction CreateHostLinkCorrespondence {
+	after element REM::RuntimeResourceContainerConnection created
+	call syncHostConnectionCreation(affectedEObject)
+}
+
+reaction DeleteHostLinkCorrespondence {
+	after element REM::RuntimeResourceContainerConnection deleted
+	call syncHostConnectionDeletion(affectedEObject)
+}
+
+// HOST REACTIONS //
+// _____________ //
+routine syncHostDeletion(REM::RuntimeResourceContainer affectedObject) {
+	match {
+		val el = retrieve ResourceEnvironment::ResourceContainer corresponding to affectedObject
+	}
+	action {
+		call {
+			if (el !== null) {
+				removeCorrespondenceContainers(el, affectedObject)
+			}
+		}
+	}
+}
+
+routine syncHostCreation(REM::RuntimeResourceContainer affectedObject) {
+	match {
+		require absence of ResourceEnvironment::ResourceContainer corresponding to affectedObject
+		
+		val parent = retrieve ResourceEnvironment::ResourceEnvironment corresponding to affectedObject.eContainer
+	}
+	action {
+		val nContainer = create ResourceEnvironment::ResourceContainer
+		call {
+			val filtered = parent.getResourceContainer_ResourceEnvironment.findFirst[entityName==affectedObject.hostname]
+			
+			if (filtered !== null) {
+				createCorrespondenceContainers(filtered, affectedObject)
+			} else {
+				// create new container and add the correspondence
+				parent.resourceContainer_ResourceEnvironment += nContainer
+				enrichContainer(nContainer, affectedObject)
+				createCorrespondenceContainers(nContainer, affectedObject)
+			}
+		}
+	}
+}
+
+routine enrichContainer(ResourceEnvironment::ResourceContainer container, REM::RuntimeResourceContainer corr) {
+	action {
+		val processingRate = create ResourceEnvironment::ProcessingResourceSpecification
+		val processingRateStoex = create PCMCore::PCMRandomVariable
+		
+		call {
+			processingRateStoex.specification = "1"
+			
+			processingRate.MTTF = 0
+			processingRate.MTTR = 0
+			processingRate.numberOfReplicas = 1
+			processingRate.processingRate_ProcessingResourceSpecification = processingRateStoex
+			processingRate.activeResourceType_ActiveResourceSpecification = ReactionHelper.CPUProcessingResourceType
+			processingRate.schedulingPolicy = ReactionHelper.processSharingSchedulingPolicy
+			
+			container.entityName = corr.hostname
+			container.activeResourceSpecifications_ResourceContainer += processingRate
+		}
+	}
+}
+
+// LINK REACTIONS //
+// _____________ //
+routine syncHostConnectionDeletion(REM::RuntimeResourceContainerConnection affectedObject) {
+	match {
+		val corr = retrieve ResourceEnvironment::LinkingResource corresponding to affectedObject
+	}
+	action {
+		remove correspondence between affectedObject and corr
+	}
+}
+
+routine syncHostConnectionCreation(REM::RuntimeResourceContainerConnection affectedObject) {
+	match {
+		require absence of ResourceEnvironment::LinkingResource corresponding to affectedObject
+		val containerFrom = retrieve ResourceEnvironment::ResourceContainer corresponding to affectedObject.containerFrom
+		val containerTo = retrieve ResourceEnvironment::ResourceContainer corresponding to affectedObject.containerTo
+		
+		val parent = retrieve ResourceEnvironment::ResourceEnvironment corresponding to affectedObject.eContainer
+	}
+	action {
+		call {
+			if (containerFrom !== null && containerTo !== null && parent !== null) {
+				val corrLink = parent.linkingResources__ResourceEnvironment.
+				findFirst[connectedResourceContainers_LinkingResource.contains(containerFrom)
+					&& connectedResourceContainers_LinkingResource.contains(containerTo)]
+					
+				if (corrLink === null) {
+					// create new one
+					buildLinkAndMap(affectedObject, parent, containerFrom, containerTo)
+				} else {
+					// link
+					createCorrespondenceLinks(affectedObject, corrLink)
+				}
+			}
+		}
+	}
+}
+
+routine buildLinkAndMap(REM::RuntimeResourceContainerConnection conn, ResourceEnvironment::ResourceEnvironment parent,
+	ResourceEnvironment::ResourceContainer containerFrom, ResourceEnvironment::ResourceContainer containerTo) {
+	
+	action {
+		val latencyStoex = create PCMCore::PCMRandomVariable and initialize {
+			latencyStoex.specification = "0"
+		}
+		val throughputStoex = create PCMCore::PCMRandomVariable and initialize {
+			throughputStoex.specification = String.valueOf(Math.pow(10, 6))
+		}
+		
+		val nCommunicationSpec = create ResourceEnvironment::CommunicationLinkResourceSpecification and initialize {
+			nCommunicationSpec.failureProbability = 0
+			nCommunicationSpec.latency_CommunicationLinkResourceSpecification = latencyStoex
+			nCommunicationSpec.throughput_CommunicationLinkResourceSpecification = throughputStoex
+			nCommunicationSpec.communicationLinkResourceType_CommunicationLinkResourceSpecification = ReactionHelper.LANCommunicationResourceType
+		}
+		
+		val nLink = create ResourceEnvironment::LinkingResource and initialize {
+			nLink.connectedResourceContainers_LinkingResource.^add(containerFrom)
+			nLink.connectedResourceContainers_LinkingResource.^add(containerTo)
+			
+			nLink.entityName = containerFrom.entityName + "<->" + containerTo.entityName
+			nLink.communicationLinkResourceSpecifications_LinkingResource = nCommunicationSpec
+		}
+		call {
+			parent.linkingResources__ResourceEnvironment += nLink
+			createCorrespondenceLinks(conn, nLink)
+		}
+	}
+}
+
+// HELPER ROUTINES //
+// _____________ //
+routine removeCorrespondenceContainers(ResourceEnvironment::ResourceContainer filtered, REM::RuntimeResourceContainer affectedObject) {
+	action {
+		remove correspondence between affectedObject and filtered
+	}
+}
+
+routine createCorrespondenceContainers(ResourceEnvironment::ResourceContainer filtered, REM::RuntimeResourceContainer affectedObject) {
+	action {
+		add correspondence between affectedObject and filtered
+	}
+}
+
+routine createCorrespondenceLinks(REM::RuntimeResourceContainerConnection conn, ResourceEnvironment::LinkingResource link) {
+	action {
+		add correspondence between conn and link
+	}
+}

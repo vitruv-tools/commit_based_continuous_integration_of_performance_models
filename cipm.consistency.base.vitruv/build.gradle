@@ -1,0 +1,17 @@
+
+dependencies {
+	api project(":cipm.consistency.base.shared")
+	api project(":cipm.consistency.base.core")
+	
+	testFixturesApi(testFixtures(project(":cipm.consistency.base.core")))
+	testImplementation(testFixtures(project(":cipm.consistency.base.core")))
+	
+	implementation project(":cipm.consistency.base.models.runtimeenvironment")
+	implementation project(":cipm.consistency.base.models.instrumentation")
+	
+	// Vitruv Reactions however need this dependency
+	implementation group: 'log4j', name: 'log4j', version: '1.2.17'
+	
+	implementation group: 'org.eclipse.xtend', name: 'org.eclipse.xtend.lib', version: '2.24.0'
+}
+
