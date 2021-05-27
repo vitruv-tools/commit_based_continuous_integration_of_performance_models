@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -30,31 +31,41 @@ public class CommitChangePropagator {
 	private File localRemoteRepository;
 	private String remoteRepository;
 	private boolean isCurrentStateIntegratedIntoVSUM = false;
+	private File workSpaceCopy;
 
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param repositoryPath path to a local Git repository which will be observed.
-	 * @param localRepositoryPath path to a local directory in which the Git repository will be cloned.
+	 * @param javaCacheDir path to a local directory in which Java files are cached.
+	 *                     This includes the cloning of the Git repository.
 	 * @param vSUM the VSUM which is used to propagate the changes.
 	 */
-	public CommitChangePropagator(File repositoryPath, String localRepositoryPath, VirtualModel vSUM) {
+	public CommitChangePropagator(File repositoryPath, String javaCacheDir, VirtualModel vSUM) {
 		localRemoteRepository = repositoryPath;
-		repoWrapper = new GitRepositoryWrapper(new File(localRepositoryPath));
 		vsum = vSUM;
+		prepareJavaCacheDir(javaCacheDir);
 	}
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param repositoryPath path to a remote repository which will be observed.
-	 * @param localRepositoryPath path to a local directory in which the Git repository will be cloned.
+	 * @param javaCacheDir path to a local directory in which Java files are cached.
+	 *                     This includes the cloning of the Git repository.
 	 * @param vSUM the VSUM which is used to propagate the changes.
 	 */
-	public CommitChangePropagator(String repositoryPath, String localRepositoryPath, VirtualModel vSUM) {
+	public CommitChangePropagator(String repositoryPath, String javaCacheDir, VirtualModel vSUM) {
 		remoteRepository = repositoryPath;
-		repoWrapper = new GitRepositoryWrapper(new File(localRepositoryPath));
 		vsum = vSUM;
+		prepareJavaCacheDir(javaCacheDir);
+	}
+	
+	private void prepareJavaCacheDir(String dir) {
+		File localCacheDir = new File(dir);
+		File rootDir = new File(localCacheDir, "repo-cache");
+		repoWrapper = new GitRepositoryWrapper(rootDir);
+		workSpaceCopy = new File(localCacheDir, "vsum-java-cache");
 	}
 	
 	/**
@@ -179,17 +190,45 @@ public class CommitChangePropagator {
 	 * @param entry the diff.
 	 */
 	protected void processDiff(DiffEntry entry) {
+		String prefix = repoWrapper.getRootDirectory().getAbsolutePath() + File.separator;
+		String prefixInCopy = workSpaceCopy.getAbsolutePath() + File.separator;
+		String newFileInCopy = prefixInCopy + entry.getNewPath();
+		// Perform file operations to transfer the changes in the local repository to the workspace copy.
 		switch (entry.getChangeType()) {
 			case ADD:
 			case COPY:
-				internalPropagateChanges(null, URI.createFileURI(entry.getNewPath()));
+			case RENAME:
+			case MODIFY:
+				try {
+					FileUtils.copyFile(new File(prefix + entry.getNewPath()),
+							new File(newFileInCopy));
+				} catch (IOException e) {
+					logger.error(e);
+				}
+				break;
+			default:
+				break;
+		}
+		switch (entry.getChangeType()) {
+			case DELETE:
+			case RENAME:
+				new File(prefixInCopy + entry.getOldPath()).delete();
+				break;
+			default:
+				break;
+		}
+		// Propagate the changes.
+		switch (entry.getChangeType()) {
+			case ADD:
+			case COPY:
+				internalPropagateChanges(null, URI.createFileURI(newFileInCopy));
 				break;
 			case DELETE:
-				internalPropagateChanges(URI.createFileURI(entry.getOldPath()), null);
+				internalPropagateChanges(URI.createFileURI(prefixInCopy + entry.getOldPath()), null);
 				break;
 			case RENAME:
 			case MODIFY:
-				internalPropagateChanges(URI.createFileURI(entry.getOldPath()), URI.createFileURI(entry.getNewPath()));
+				internalPropagateChanges(URI.createFileURI(prefixInCopy + entry.getOldPath()), URI.createFileURI(newFileInCopy));
 				break;
 			default:
 				break;

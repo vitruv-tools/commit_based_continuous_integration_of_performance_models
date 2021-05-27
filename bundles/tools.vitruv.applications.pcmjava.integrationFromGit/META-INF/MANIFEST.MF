@@ -17,7 +17,7 @@ Require-Bundle: org.apache.log4j,
  tools.vitruv.framework.vsum,
  org.apache.commons.lang;bundle-version="2.6.0",
  tools.vitruv.framework.correspondence;bundle-version="0.3.0",
- tools.vitruv.framework.userinteraction;bundle-version="0.3.0",
+ tools.vitruv.framework.userinteraction,
  com.google.guava,
  org.eclipse.emf.ecore,
  org.eclipse.xtend.lib,
@@ -26,6 +26,7 @@ Require-Bundle: org.apache.log4j,
  tools.vitruv.framework.change.echange,
  org.eclipse.emf.compare,
  tools.vitruv.domains.java,
- tools.vitruv.applications.pcmjava.tests.util
+ tools.vitruv.applications.pcmjava.tests.util,
+ org.apache.commons.io
 Automatic-Module-Name: tools.vitruv.applications.javapcm.integrationFromGit
 Bundle-RequiredExecutionEnvironment: JavaSE-12
