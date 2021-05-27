@@ -1,0 +1,7 @@
+repositories {
+    jcenter()
+}
+
+dependencies {
+    api project(":cipm.consistency.base.shared")
+}
