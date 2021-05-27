@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jgit.api.Git;
@@ -27,7 +28,6 @@ import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.patch.FileHeader;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
@@ -98,9 +98,7 @@ public class GitRepositoryWrapper {
 	 */
 	public void initFromLocalRepository(File localRepository)
 			throws InvalidRemoteException, TransportException, GitAPIException, IOException {
-		this.git = Git.cloneRepository().setGitDir(localRepository)
-		  .setDirectory(rootDirectory).setCloneAllBranches(true).call();
-		readInitialState();
+		initFromRemoteRepository(localRepository.getAbsolutePath());
 	}
 	
 	private void readInitialState() throws IOException, NoHeadException, GitAPIException {
@@ -147,6 +145,7 @@ public class GitRepositoryWrapper {
 			git.log().all().call().forEach(listOfCommits::add);
 		} catch (GitAPIException | IOException e) {
 		}
+		Collections.reverse(listOfCommits);
 		return listOfCommits;
 	}
 	
@@ -162,6 +161,7 @@ public class GitRepositoryWrapper {
 			git.log().add(git.getRepository().resolve(branchName)).call().forEach(listOfCommits::add);
 		} catch (RevisionSyntaxException | GitAPIException | IOException e) {
 		}
+		Collections.reverse(listOfCommits);
 		return listOfCommits;
 	}
 	
@@ -175,11 +175,16 @@ public class GitRepositoryWrapper {
 	public List<RevCommit> getAllCommitsBetweenTwoCommits(final String startCommitHash, final String endCommitHash) {
 		List<RevCommit> listOfCommits = new ArrayList<>();
 		try {
-			Ref refFrom = git.getRepository().findRef(startCommitHash);
-			Ref refTo = git.getRepository().findRef(endCommitHash);
-			git.log().addRange(refFrom.getObjectId(), refTo.getObjectId()).call().forEach(listOfCommits::add);
+			ObjectId refTo = git.getRepository().resolve(endCommitHash);
+			if (startCommitHash == null) {
+				git.log().add(refTo).call().forEach(listOfCommits::add);
+			} else {
+				ObjectId refFrom = git.getRepository().resolve(startCommitHash);
+				git.log().addRange(refFrom, refTo).call().forEach(listOfCommits::add);
+			}
 		} catch (IOException | GitAPIException e) {
 		}
+		Collections.reverse(listOfCommits);
 		return listOfCommits;
 	}
 
@@ -366,6 +371,7 @@ public class GitRepositoryWrapper {
 			git.log().addRange(curCommit, lastCommit).call().forEach(result::add);
 		} catch (GitAPIException | IOException e) {
 		}
+		Collections.reverse(result);
 		return result;
 	}
 }
