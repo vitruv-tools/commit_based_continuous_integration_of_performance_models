@@ -1,4 +1,4 @@
-package tools.vitruv.applications.pcmjava.integrationFromGit;
+package tools.vitruv.applications.pcmjava.commitintegration;
 
 import java.io.File;
 import java.io.IOException;
