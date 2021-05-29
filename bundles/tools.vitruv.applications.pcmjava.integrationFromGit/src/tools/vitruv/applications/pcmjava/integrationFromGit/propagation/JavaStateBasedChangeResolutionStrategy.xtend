@@ -22,6 +22,9 @@ import org.eclipse.emf.ecore.EReference
 import org.emftext.language.java.commons.CommonsPackage
 import org.emftext.commons.layout.LayoutInformation
 import org.emftext.language.java.commons.Commentable
+import org.eclipse.emf.compare.postprocessor.BasicPostProcessorDescriptorImpl
+import org.eclipse.emf.compare.postprocessor.PostProcessorDescriptorRegistryImpl
+import java.util.regex.Pattern
 
 /**
  * This default strategy for diff based state changes uses EMFCompare to resolve a 
@@ -108,7 +111,12 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 				}
 			}
 		}
-		val comparison = EMFCompare.builder.setDiffEngine(diffEngine).build.compare(scope)
+		val postProcessor =  new JavaPostProcessor()
+		val processorDescriptor = new BasicPostProcessorDescriptorImpl(postProcessor, Pattern.compile(".*"), null)
+		val processorRegistry = new PostProcessorDescriptorRegistryImpl()
+		processorRegistry.put("java", processorDescriptor)
+		val comparison = EMFCompare.builder.setDiffEngine(diffEngine)
+			.setPostProcessorRegistry(processorRegistry).build.compare(scope)
 		val changes = comparison.differences
 		// Replay the EMF compare differences
 		val mergerRegistry = IMerger.RegistryImpl.createStandaloneInstance()
