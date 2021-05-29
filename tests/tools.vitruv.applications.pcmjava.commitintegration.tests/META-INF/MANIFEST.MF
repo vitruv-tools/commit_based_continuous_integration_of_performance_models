@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tests for the Git integration
-Bundle-SymbolicName: tools.vitruv.applications.pcmjava.integrationFromGit.test2
+Bundle-SymbolicName: tools.vitruv.applications.pcmjava.commitintegration.tests
 Bundle-Version: 1.0.0.qualifier
-Automatic-Module-Name: tools.vitruv.applications.pcmjava.integrationFromGit.test2
-Bundle-RequiredExecutionEnvironment: JavaSE-12
+Automatic-Module-Name: tools.vitruv.applications.pcmjava.commitintegration.tests
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: tools.vitruv.applications.pcmjava.commitintegration,
  tools.vitruv.applications.pcmjava.commitintegration.domains,
  tools.vitruv.framework.vsum,
