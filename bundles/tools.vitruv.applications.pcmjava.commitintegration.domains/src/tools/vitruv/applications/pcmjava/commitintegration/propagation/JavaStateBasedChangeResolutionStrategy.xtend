@@ -1,4 +1,4 @@
-package tools.vitruv.applications.pcmjava.integrationFromGit.propagation
+package tools.vitruv.applications.pcmjava.commitintegration.propagation
 
 import org.eclipse.emf.common.notify.Notifier
 import org.eclipse.emf.common.util.BasicMonitor
