@@ -27,6 +27,7 @@ public class JavaPostProcessor implements IPostProcessor {
 				ReferenceChange methodDiff = CompareFactory.eINSTANCE.createReferenceChange();
 				if (m.getLeft() != null) {
 					methodDiff.setKind(DifferenceKind.ADD);
+					m.getLeft().eAdapters().add(new OldMethodAdapter((Method) m.getRight()));
 				} else {
 					methodDiff.setKind(DifferenceKind.DELETE);
 				}
