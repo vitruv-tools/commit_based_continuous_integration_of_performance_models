@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Vitruvius PCM-Java Seffstatements Processing
 Bundle-SymbolicName: tools.vitruv.applications.pcmjava.seffstatements
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: com.google.guava,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtend.lib,
@@ -18,12 +18,10 @@ Require-Bundle: com.google.guava,
  org.palladiosimulator.pcm;bundle-version="4.0.0",
  tools.vitruv.framework.util,
  tools.vitruv.framework.userinteraction,
- tools.vitruv.framework.tuid,
  tools.vitruv.framework.correspondence,
  tools.vitruv.framework.change,
- tools.vitruv.framework.change.processing,
- tools.vitruv.domains.java.echange,
  tools.vitruv.domains.java,
- tools.vitruv.domains.pcm
+ tools.vitruv.domains.pcm,
+ tools.vitruv.framework.propagation
 Export-Package: tools.vitruv.applications.pcmjava.seffstatements.code2seff
-
+Automatic-Module-Name: tools.vitruv.applications.pcmjava.seffstatements
