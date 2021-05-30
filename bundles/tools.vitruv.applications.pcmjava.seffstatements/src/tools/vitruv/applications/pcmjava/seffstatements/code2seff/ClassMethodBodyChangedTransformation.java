@@ -21,10 +21,11 @@ import org.somox.gast2seff.visitors.MethodCallFinder;
 import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding;
 import org.somox.gast2seff.visitors.VisitorUtils;
 
+import com.google.common.collect.Lists;
+
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
 import tools.vitruv.framework.userinteraction.UserInteractor;
-import tools.vitruv.framework.util.bridges.CollectionBridge;
 
 /**
  * Class that keeps changes within a class method body consistent with the
@@ -115,7 +116,7 @@ public class ClassMethodBodyChangedTransformation {
 	private boolean isMethodArchitectureRelevant(final Method method, final CorrespondenceModel ci) {
 		if (null != method) {
 			final Set<ResourceDemandingBehaviour> correspondingEObjectsByType = CorrespondenceModelUtil
-					.getCorrespondingEObjectsByType(ci, method, ResourceDemandingBehaviour.class);
+					.getCorrespondingEObjects(ci, method, ResourceDemandingBehaviour.class);
 			if (null != correspondingEObjectsByType && !correspondingEObjectsByType.isEmpty()) {
 				return true;
 			}
@@ -149,7 +150,7 @@ public class ClassMethodBodyChangedTransformation {
 			final ResourceDemandingBehaviour newResourceDemandingBehaviourElements,
 			final BasicComponent basicComponent) {
 		for (final AbstractAction abstractAction : newResourceDemandingBehaviourElements.getSteps_Behaviour()) {
-			CorrespondenceModelUtil.createAndAddCorrespondence(ci, abstractAction, this.newMethod);
+			ci.createAndAddCorrespondence(Lists.newArrayList(abstractAction), Lists.newArrayList(this.newMethod));
 		}
 	}
 
@@ -171,7 +172,7 @@ public class ClassMethodBodyChangedTransformation {
 
 	private void removeCorrespondingAbstractActions(final CorrespondenceModel ci) {
 		final Set<AbstractAction> correspondingAbstractActions = CorrespondenceModelUtil
-				.getCorrespondingEObjectsByType(ci, this.oldMethod, AbstractAction.class);
+				.getCorrespondingEObjects(ci, this.oldMethod, AbstractAction.class);
 		if (null == correspondingAbstractActions) {
 			return;
 		}
@@ -181,7 +182,7 @@ public class ClassMethodBodyChangedTransformation {
 			return;
 		}
 		for (final AbstractAction correspondingAbstractAction : correspondingAbstractActions) {
-			ci.removeCorrespondencesFor(CollectionBridge.toList(correspondingAbstractAction), null);
+			ci.removeCorrespondencesFor(Lists.newArrayList(correspondingAbstractAction), null);
 			EcoreUtil.remove(correspondingAbstractAction);
 		}
 
@@ -220,7 +221,7 @@ public class ClassMethodBodyChangedTransformation {
 
 	private ResourceDemandingBehaviour findRdBehaviorToInsertElements(final CorrespondenceModel ci) {
 		final Set<ResourceDemandingBehaviour> correspondingResourceDemandingBehaviours = CorrespondenceModelUtil
-				.getCorrespondingEObjectsByType(ci, this.oldMethod, ResourceDemandingBehaviour.class);
+				.getCorrespondingEObjects(ci, this.oldMethod, ResourceDemandingBehaviour.class);
 		if (null == correspondingResourceDemandingBehaviours || correspondingResourceDemandingBehaviours.isEmpty()) {
 			logger.warn("No ResourceDemandingBehaviours found for method " + this.oldMethod
 					+ ". Could not create ResourceDemandingBehavoir to insert SEFF elements");
