@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.annotationsmox.inspectit2pcm.model.SQLStatement;
 import org.palladiosimulator.pcm.core.CoreFactory;
 import org.palladiosimulator.pcm.core.PCMRandomVariable;
 import org.palladiosimulator.pcm.core.entity.Entity;
@@ -24,7 +23,6 @@ import org.palladiosimulator.pcm.seff.SeffPackage;
 import org.palladiosimulator.pcm.seff.StartAction;
 import org.palladiosimulator.pcm.seff.StopAction;
 import org.palladiosimulator.pcm.seff.seff_performance.ParametricResourceDemand;
-import org.palladiosimulator.pcm.seff.seff_performance.ResourceCall;
 import org.palladiosimulator.pcm.seff.seff_performance.SeffPerformanceFactory;
 import org.somox.util.DefaultResourceEnvironment;
 
@@ -126,14 +124,6 @@ public class PCMHelper {
         }
 
         return calls;
-    }
-
-    public static void insertSQLStatementAsResourceCall(InternalAction action, SQLStatement stmt) {
-        ResourceCall call = SeffPerformanceFactory.eINSTANCE.createResourceCall();
-        call.setEntityName(stmt.getSql());
-        call.setNumberOfCalls__ResourceCall(createPCMRandomVariable(1));
-        // TODO set resource interface
-        action.getResourceCall__Action().add(call);
     }
 
     public static InternalAction createInternalActionStub(ResourceDemandingBehaviour container, String name) {
