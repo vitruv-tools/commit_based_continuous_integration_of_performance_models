@@ -18,14 +18,12 @@ Require-Bundle: com.google.guava,
  org.palladiosimulator.pcm;bundle-version="4.0.0",
  tools.vitruv.framework.util,
  tools.vitruv.framework.userinteraction,
- tools.vitruv.framework.tuid,
  tools.vitruv.framework.correspondence,
  tools.vitruv.framework.change,
- tools.vitruv.framework.change.processing,
- tools.vitruv.domains.java.echange,
  tools.vitruv.domains.java,
  tools.vitruv.domains.pcm,
- org.somox.ejbmox.inspectit2pcm,
- org.splevo.jamopp.diffing;bundle-version="1.0.0"
+ org.somox.util,
+ org.splevo.jamopp.diffing;bundle-version="1.0.0",
+ tools.vitruv.applications.pcmjava.seffstatements
 Export-Package: tools.vitruv.applications.pcmjava.seffstatements.code2seff
 Automatic-Module-Name: tools.vitruv.applications.pcmjava.seffstatements.extended
