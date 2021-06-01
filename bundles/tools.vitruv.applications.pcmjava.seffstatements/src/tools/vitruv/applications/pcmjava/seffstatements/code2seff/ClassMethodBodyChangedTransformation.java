@@ -20,6 +20,8 @@ import org.somox.gast2seff.visitors.InterfaceOfExternalCallFindingFactory;
 import org.somox.gast2seff.visitors.MethodCallFinder;
 import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding;
 import org.somox.gast2seff.visitors.VisitorUtils;
+import org.somox.sourcecodedecorator.SourceCodeDecoratorRepository;
+import org.somox.sourcecodedecorator.SourcecodedecoratorFactory;
 
 import com.google.common.collect.Lists;
 
@@ -48,6 +50,8 @@ public class ClassMethodBodyChangedTransformation {
 	private final InterfaceOfExternalCallFindingFactory interfaceOfExternalCallFinderFactory;
 
 	private final ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding;
+	
+	private SourceCodeDecoratorRepository sourceCodeDecorator;
 
 	public ClassMethodBodyChangedTransformation(final Method oldMethod, final Method newMethod,
 			final BasicComponentFinding basicComponentFinder,
@@ -126,6 +130,7 @@ public class ClassMethodBodyChangedTransformation {
 
 	private void executeSoMoXForMethod(final BasicComponent basicComponent,
 			final ResourceDemandingBehaviour targetResourceDemandingBehaviour) {
+		sourceCodeDecorator = SourcecodedecoratorFactory.eINSTANCE.createSourceCodeDecoratorRepository();
 		final MethodCallFinder methodCallFinder = new MethodCallFinder();
 		final FunctionCallClassificationVisitor functionCallClassificationVisitor = new FunctionCallClassificationVisitor(
 				this.iFunctionClassificationStrategy, methodCallFinder);
@@ -136,7 +141,7 @@ public class ClassMethodBodyChangedTransformation {
 			// problems when
 			// changing an abstract method to a ClassMethod
 			VisitorUtils.visitJaMoPPMethod(targetResourceDemandingBehaviour, basicComponent,
-					(StatementListContainer) this.newMethod, null, functionCallClassificationVisitor,
+					(StatementListContainer) this.newMethod, sourceCodeDecorator, functionCallClassificationVisitor,
 					this.interfaceOfExternalCallFinderFactory, this.resourceDemandingBehaviourForClassMethodFinding,
 					methodCallFinder);
 		} else {
@@ -152,6 +157,7 @@ public class ClassMethodBodyChangedTransformation {
 		for (final AbstractAction abstractAction : newResourceDemandingBehaviourElements.getSteps_Behaviour()) {
 			ci.createAndAddCorrespondence(Lists.newArrayList(abstractAction), Lists.newArrayList(this.newMethod));
 		}
+		ci.createAndAddCorrespondence(Lists.newArrayList(newResourceDemandingBehaviourElements), Lists.newArrayList(this.newMethod));
 	}
 
 	private void connectCreatedResourceDemandingBehaviour(final ResourceDemandingBehaviour rdBehavior,
@@ -228,5 +234,9 @@ public class ClassMethodBodyChangedTransformation {
 			return null;
 		}
 		return correspondingResourceDemandingBehaviours.iterator().next();
+	}
+	
+	protected SourceCodeDecoratorRepository getSourceCodeDecoratorRepository() {
+		return sourceCodeDecorator;
 	}
 }
