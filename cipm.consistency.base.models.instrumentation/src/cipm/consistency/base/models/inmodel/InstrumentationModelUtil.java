@@ -1,5 +1,10 @@
 package cipm.consistency.base.models.inmodel;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.emf.common.util.TreeIterator;
+import org.eclipse.emf.ecore.EObject;
 import org.palladiosimulator.pcm.repository.Repository;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.BranchAction;
@@ -13,12 +18,11 @@ import cipm.consistency.base.models.instrumentation.InstrumentationModel.Instrum
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelFactory;
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationType;
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint;
-import cipm.consistency.base.shared.ModelUtil;
 
 public class InstrumentationModelUtil {
 
 	public static void enrichInitialInstrumentationModel(InstrumentationModel imm, Repository repository) {
-		for (ResourceDemandingSEFF service : ModelUtil.getObjects(repository, ResourceDemandingSEFF.class)) {
+		for (ResourceDemandingSEFF service : getObjects(repository, ResourceDemandingSEFF.class)) {
 			ServiceInstrumentationPoint sip = InstrumentationModelFactory.eINSTANCE.createServiceInstrumentationPoint();
 			sip.setActive(true);
 			sip.setService(service);
@@ -26,6 +30,28 @@ public class InstrumentationModelUtil {
 
 			recursiveBuildImm(service, sip);
 		}
+	}
+	
+	/**
+	 * Gets all objects of a given type within a model.
+	 * 
+	 * @param <T>      type of the objects
+	 * @param pcmModel the model
+	 * @param type     the class corresponding to the type of the objects
+	 * @return a list of all objects within the given model which conform to the
+	 *         given type
+	 */
+	@SuppressWarnings("unchecked")
+	private static <T extends EObject> List<T> getObjects(final EObject pcmModel, final Class<T> type) {
+		List<T> results = new ArrayList<>();
+		TreeIterator<EObject> it = pcmModel.eAllContents();
+		while (it.hasNext()) {
+			EObject eo = it.next();
+			if (type.isInstance(eo)) {
+				results.add((T) eo);
+			}
+		}
+		return results;
 	}
 
 	public static void recursiveBuildImm(ResourceDemandingBehaviour service, ServiceInstrumentationPoint sip) {
