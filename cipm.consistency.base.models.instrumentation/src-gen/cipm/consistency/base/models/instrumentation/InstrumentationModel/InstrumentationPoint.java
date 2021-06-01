@@ -15,10 +15,10 @@ import org.eclipse.emf.ecore.EObject;
  * The following features are supported:
  * </p>
  * <ul>
- *   <li>{@link dmodel.base.models.inmodel.InstrumentationMetamodel.InstrumentationPoint#isActive <em>Active</em>}</li>
+ *   <li>{@link cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationPoint#isActive <em>Active</em>}</li>
  * </ul>
  *
- * @see dmodel.base.models.inmodel.InstrumentationMetamodel.InstrumentationModelPackage#getInstrumentationPoint()
+ * @see cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage#getInstrumentationPoint()
  * @model
  * @generated
  */
@@ -29,14 +29,14 @@ public interface InstrumentationPoint extends EObject, Identifier {
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Active</em>' attribute.
 	 * @see #setActive(boolean)
-	 * @see dmodel.base.models.inmodel.InstrumentationMetamodel.InstrumentationModelPackage#getInstrumentationPoint_Active()
+	 * @see cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage#getInstrumentationPoint_Active()
 	 * @model
 	 * @generated
 	 */
 	boolean isActive();
 
 	/**
-	 * Sets the value of the '{@link dmodel.base.models.inmodel.InstrumentationMetamodel.InstrumentationPoint#isActive <em>Active</em>}' attribute.
+	 * Sets the value of the '{@link cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationPoint#isActive <em>Active</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Active</em>' attribute.

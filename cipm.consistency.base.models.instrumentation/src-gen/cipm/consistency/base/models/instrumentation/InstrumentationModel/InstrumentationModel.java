@@ -17,21 +17,21 @@ import org.eclipse.emf.ecore.EObject;
  * The following features are supported:
  * </p>
  * <ul>
- *   <li>{@link dmodel.base.models.inmodel.InstrumentationMetamodel.InstrumentationModel#getPoints <em>Points</em>}</li>
+ *   <li>{@link cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel#getPoints <em>Points</em>}</li>
  * </ul>
  *
- * @see dmodel.base.models.inmodel.InstrumentationMetamodel.InstrumentationModelPackage#getInstrumentationModel()
+ * @see cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage#getInstrumentationModel()
  * @model
  * @generated
  */
 public interface InstrumentationModel extends EObject, Identifier {
 	/**
 	 * Returns the value of the '<em><b>Points</b></em>' containment reference list.
-	 * The list contents are of type {@link dmodel.base.models.inmodel.InstrumentationMetamodel.ServiceInstrumentationPoint}.
+	 * The list contents are of type {@link cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint}.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Points</em>' containment reference list.
-	 * @see dmodel.base.models.inmodel.InstrumentationMetamodel.InstrumentationModelPackage#getInstrumentationModel_Points()
+	 * @see cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage#getInstrumentationModel_Points()
 	 * @model containment="true"
 	 * @generated
 	 */

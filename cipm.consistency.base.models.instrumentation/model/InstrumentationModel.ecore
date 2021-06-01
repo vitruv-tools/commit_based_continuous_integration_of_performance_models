@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="InstrumentationMetamodel" nsURI="http://www.dmodel.com/InstrumentationMetamodel"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="InstrumentationModel" nsURI="http://www.dmodel.com/InstrumentationMetamodel"
     nsPrefix="imm">
   <eClassifiers xsi:type="ecore:EClass" name="InstrumentationModel" eSuperTypes="platform:/plugin/de.uka.ipd.sdq.identifier/model/identifier.ecore#//Identifier">
     <eStructuralFeatures xsi:type="ecore:EReference" name="points" upperBound="-1"
@@ -24,5 +24,7 @@
     <eLiterals name="Internal" literal="INTERNAL"/>
     <eLiterals name="Branch" value="1" literal="BRANCH"/>
     <eLiterals name="Loop" value="2" literal="LOOP"/>
+    <eLiterals name="ExternalCall" value="3" literal="EXTERNAL_CALL"/>
+    <eLiterals name="InternalCall" value="4" literal="INTERNAL_CALL"/>
   </eClassifiers>
 </ecore:EPackage>

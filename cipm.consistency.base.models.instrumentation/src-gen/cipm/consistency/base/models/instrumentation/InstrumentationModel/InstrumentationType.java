@@ -13,7 +13,7 @@ import org.eclipse.emf.common.util.Enumerator;
  * A representation of the literals of the enumeration '<em><b>Instrumentation Type</b></em>',
  * and utility methods for working with them.
  * <!-- end-user-doc -->
- * @see dmodel.base.models.inmodel.InstrumentationMetamodel.InstrumentationModelPackage#getInstrumentationType()
+ * @see cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage#getInstrumentationType()
  * @model
  * @generated
  */
@@ -46,7 +46,27 @@ public enum InstrumentationType implements Enumerator {
 	 * @generated
 	 * @ordered
 	 */
-	LOOP(2, "Loop", "LOOP");
+	LOOP(2, "Loop", "LOOP"),
+
+	/**
+	 * The '<em><b>External Call</b></em>' literal object.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #EXTERNAL_CALL_VALUE
+	 * @generated
+	 * @ordered
+	 */
+	EXTERNAL_CALL(3, "ExternalCall", "EXTERNAL_CALL"),
+
+	/**
+	 * The '<em><b>Internal Call</b></em>' literal object.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #INTERNAL_CALL_VALUE
+	 * @generated
+	 * @ordered
+	 */
+	INTERNAL_CALL(4, "InternalCall", "INTERNAL_CALL");
 
 	/**
 	 * The '<em><b>Internal</b></em>' literal value.
@@ -82,6 +102,28 @@ public enum InstrumentationType implements Enumerator {
 	public static final int LOOP_VALUE = 2;
 
 	/**
+	 * The '<em><b>External Call</b></em>' literal value.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #EXTERNAL_CALL
+	 * @model name="ExternalCall" literal="EXTERNAL_CALL"
+	 * @generated
+	 * @ordered
+	 */
+	public static final int EXTERNAL_CALL_VALUE = 3;
+
+	/**
+	 * The '<em><b>Internal Call</b></em>' literal value.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #INTERNAL_CALL
+	 * @model name="InternalCall" literal="INTERNAL_CALL"
+	 * @generated
+	 * @ordered
+	 */
+	public static final int INTERNAL_CALL_VALUE = 4;
+
+	/**
 	 * An array of all the '<em><b>Instrumentation Type</b></em>' enumerators.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -92,6 +134,8 @@ public enum InstrumentationType implements Enumerator {
 			INTERNAL,
 			BRANCH,
 			LOOP,
+			EXTERNAL_CALL,
+			INTERNAL_CALL,
 		};
 
 	/**
@@ -151,6 +195,8 @@ public enum InstrumentationType implements Enumerator {
 			case INTERNAL_VALUE: return INTERNAL;
 			case BRANCH_VALUE: return BRANCH;
 			case LOOP_VALUE: return LOOP;
+			case EXTERNAL_CALL_VALUE: return EXTERNAL_CALL;
+			case INTERNAL_CALL_VALUE: return INTERNAL_CALL;
 		}
 		return null;
 	}
@@ -193,6 +239,7 @@ public enum InstrumentationType implements Enumerator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public int getValue() {
 	  return value;
 	}
@@ -202,6 +249,7 @@ public enum InstrumentationType implements Enumerator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getName() {
 	  return name;
 	}
@@ -211,6 +259,7 @@ public enum InstrumentationType implements Enumerator {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public String getLiteral() {
 	  return literal;
 	}

@@ -2,23 +2,26 @@
  */
 package cipm.consistency.base.models.instrumentation.InstrumentationModel.impl;
 
-import org.eclipse.emf.common.notify.Notification;
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.impl.ENotificationImpl;
-
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage;
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationPoint;
+
 import de.uka.ipd.sdq.identifier.impl.IdentifierImpl;
 
+import org.eclipse.emf.common.notify.Notification;
+
+import org.eclipse.emf.ecore.EClass;
+
+import org.eclipse.emf.ecore.impl.ENotificationImpl;
+
 /**
- * <!-- begin-user-doc --> An implementation of the model object
- * '<em><b>Instrumentation Point</b></em>'. <!-- end-user-doc -->
+ * <!-- begin-user-doc -->
+ * An implementation of the model object '<em><b>Instrumentation Point</b></em>'.
+ * <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
  * </p>
  * <ul>
- * <li>{@link dmodel.base.models.inmodel.InstrumentationMetamodel.impl.InstrumentationPointImpl#isActive
- * <em>Active</em>}</li>
+ *   <li>{@link cipm.consistency.base.models.instrumentation.InstrumentationModel.impl.InstrumentationPointImpl#isActive <em>Active</em>}</li>
  * </ul>
  *
  * @generated
@@ -26,8 +29,8 @@ import de.uka.ipd.sdq.identifier.impl.IdentifierImpl;
 public class InstrumentationPointImpl extends IdentifierImpl implements InstrumentationPoint {
 	/**
 	 * The default value of the '{@link #isActive() <em>Active</em>}' attribute.
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @see #isActive()
 	 * @generated
 	 * @ordered
@@ -35,9 +38,9 @@ public class InstrumentationPointImpl extends IdentifierImpl implements Instrume
 	protected static final boolean ACTIVE_EDEFAULT = false;
 
 	/**
-	 * The cached value of the '{@link #isActive() <em>Active</em>}' attribute. <!--
-	 * begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * The cached value of the '{@link #isActive() <em>Active</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @see #isActive()
 	 * @generated
 	 * @ordered
@@ -45,8 +48,8 @@ public class InstrumentationPointImpl extends IdentifierImpl implements Instrume
 	protected boolean active = ACTIVE_EDEFAULT;
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	protected InstrumentationPointImpl() {
@@ -54,8 +57,8 @@ public class InstrumentationPointImpl extends IdentifierImpl implements Instrume
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -64,94 +67,94 @@ public class InstrumentationPointImpl extends IdentifierImpl implements Instrume
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public boolean isActive() {
 		return active;
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	@Override
 	public void setActive(boolean newActive) {
 		boolean oldActive = active;
 		active = newActive;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET,
-					InstrumentationModelPackage.INSTRUMENTATION_POINT__ACTIVE, oldActive, active));
+			eNotify(new ENotificationImpl(this, Notification.SET, InstrumentationModelPackage.INSTRUMENTATION_POINT__ACTIVE, oldActive, active));
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-		case InstrumentationModelPackage.INSTRUMENTATION_POINT__ACTIVE:
-			return isActive();
+			case InstrumentationModelPackage.INSTRUMENTATION_POINT__ACTIVE:
+				return isActive();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-		case InstrumentationModelPackage.INSTRUMENTATION_POINT__ACTIVE:
-			setActive((Boolean) newValue);
-			return;
+			case InstrumentationModelPackage.INSTRUMENTATION_POINT__ACTIVE:
+				setActive((Boolean)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-		case InstrumentationModelPackage.INSTRUMENTATION_POINT__ACTIVE:
-			setActive(ACTIVE_EDEFAULT);
-			return;
+			case InstrumentationModelPackage.INSTRUMENTATION_POINT__ACTIVE:
+				setActive(ACTIVE_EDEFAULT);
+				return;
 		}
 		super.eUnset(featureID);
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-		case InstrumentationModelPackage.INSTRUMENTATION_POINT__ACTIVE:
-			return active != ACTIVE_EDEFAULT;
+			case InstrumentationModelPackage.INSTRUMENTATION_POINT__ACTIVE:
+				return active != ACTIVE_EDEFAULT;
 		}
 		return super.eIsSet(featureID);
 	}
 
 	/**
-	 * <!-- begin-user-doc --> <!-- end-user-doc -->
-	 * 
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
 	public String toString() {
-		if (eIsProxy())
-			return super.toString();
+		if (eIsProxy()) return super.toString();
 
 		StringBuilder result = new StringBuilder(super.toString());
 		result.append(" (active: ");
@@ -160,4 +163,4 @@ public class InstrumentationPointImpl extends IdentifierImpl implements Instrume
 		return result.toString();
 	}
 
-} // InstrumentationPointImpl
+} //InstrumentationPointImpl

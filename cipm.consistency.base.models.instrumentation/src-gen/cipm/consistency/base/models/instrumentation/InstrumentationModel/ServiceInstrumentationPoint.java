@@ -15,11 +15,11 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
  * The following features are supported:
  * </p>
  * <ul>
- *   <li>{@link dmodel.base.models.inmodel.InstrumentationMetamodel.ServiceInstrumentationPoint#getService <em>Service</em>}</li>
- *   <li>{@link dmodel.base.models.inmodel.InstrumentationMetamodel.ServiceInstrumentationPoint#getActionInstrumentationPoints <em>Action Instrumentation Points</em>}</li>
+ *   <li>{@link cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint#getService <em>Service</em>}</li>
+ *   <li>{@link cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint#getActionInstrumentationPoints <em>Action Instrumentation Points</em>}</li>
  * </ul>
  *
- * @see dmodel.base.models.inmodel.InstrumentationMetamodel.InstrumentationModelPackage#getServiceInstrumentationPoint()
+ * @see cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage#getServiceInstrumentationPoint()
  * @model
  * @generated
  */
@@ -30,14 +30,14 @@ public interface ServiceInstrumentationPoint extends InstrumentationPoint {
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Service</em>' reference.
 	 * @see #setService(ResourceDemandingSEFF)
-	 * @see dmodel.base.models.inmodel.InstrumentationMetamodel.InstrumentationModelPackage#getServiceInstrumentationPoint_Service()
+	 * @see cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage#getServiceInstrumentationPoint_Service()
 	 * @model required="true"
 	 * @generated
 	 */
 	ResourceDemandingSEFF getService();
 
 	/**
-	 * Sets the value of the '{@link dmodel.base.models.inmodel.InstrumentationMetamodel.ServiceInstrumentationPoint#getService <em>Service</em>}' reference.
+	 * Sets the value of the '{@link cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint#getService <em>Service</em>}' reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Service</em>' reference.
@@ -48,11 +48,11 @@ public interface ServiceInstrumentationPoint extends InstrumentationPoint {
 
 	/**
 	 * Returns the value of the '<em><b>Action Instrumentation Points</b></em>' containment reference list.
-	 * The list contents are of type {@link dmodel.base.models.inmodel.InstrumentationMetamodel.ActionInstrumentationPoint}.
+	 * The list contents are of type {@link cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint}.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Action Instrumentation Points</em>' containment reference list.
-	 * @see dmodel.base.models.inmodel.InstrumentationMetamodel.InstrumentationModelPackage#getServiceInstrumentationPoint_ActionInstrumentationPoints()
+	 * @see cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage#getServiceInstrumentationPoint_ActionInstrumentationPoints()
 	 * @model containment="true"
 	 * @generated
 	 */
