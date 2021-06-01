@@ -8,7 +8,9 @@ import org.eclipse.emf.ecore.EObject;
 import org.palladiosimulator.pcm.repository.Repository;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.BranchAction;
+import org.palladiosimulator.pcm.seff.ExternalCallAction;
 import org.palladiosimulator.pcm.seff.InternalAction;
+import org.palladiosimulator.pcm.seff.InternalCallAction;
 import org.palladiosimulator.pcm.seff.LoopAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
@@ -85,6 +87,20 @@ public class InstrumentationModelUtil {
 				ActionInstrumentationPoint inner = InstrumentationModelFactory.eINSTANCE
 						.createActionInstrumentationPoint();
 				inner.setType(InstrumentationType.INTERNAL);
+				inner.setAction(action);
+				inner.setActive(true);
+				sip.getActionInstrumentationPoints().add(inner);
+			} else if (action instanceof ExternalCallAction) {
+				ActionInstrumentationPoint inner = InstrumentationModelFactory.eINSTANCE
+						.createActionInstrumentationPoint();
+				inner.setType(InstrumentationType.EXTERNAL_CALL);
+				inner.setAction(action);
+				inner.setActive(true);
+				sip.getActionInstrumentationPoints().add(inner);
+			} else if (action instanceof InternalCallAction) {
+				ActionInstrumentationPoint inner = InstrumentationModelFactory.eINSTANCE
+						.createActionInstrumentationPoint();
+				inner.setType(InstrumentationType.INTERNAL_CALL);
 				inner.setAction(action);
 				inner.setActive(true);
 				sip.getActionInstrumentationPoints().add(inner);
