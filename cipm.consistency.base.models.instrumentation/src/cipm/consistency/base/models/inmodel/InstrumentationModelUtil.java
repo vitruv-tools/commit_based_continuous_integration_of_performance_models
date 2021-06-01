@@ -23,12 +23,7 @@ public class InstrumentationModelUtil {
 
 	public static void enrichInitialInstrumentationModel(InstrumentationModel imm, Repository repository) {
 		for (ResourceDemandingSEFF service : getObjects(repository, ResourceDemandingSEFF.class)) {
-			ServiceInstrumentationPoint sip = InstrumentationModelFactory.eINSTANCE.createServiceInstrumentationPoint();
-			sip.setActive(true);
-			sip.setService(service);
-			imm.getPoints().add(sip);
-
-			recursiveBuildImm(service, sip);
+			imm.getPoints().add(recursiveBuildImm(service));
 		}
 	}
 	
@@ -52,6 +47,16 @@ public class InstrumentationModelUtil {
 			}
 		}
 		return results;
+	}
+	
+	public static ServiceInstrumentationPoint recursiveBuildImm(ResourceDemandingSEFF service) {
+		ServiceInstrumentationPoint sip = InstrumentationModelFactory.eINSTANCE.createServiceInstrumentationPoint();
+		sip.setActive(true);
+		sip.setService(service);
+
+		recursiveBuildImm(service, sip);
+		
+		return sip;
 	}
 
 	public static void recursiveBuildImm(ResourceDemandingBehaviour service, ServiceInstrumentationPoint sip) {
@@ -86,5 +91,4 @@ public class InstrumentationModelUtil {
 			}
 		}
 	}
-
 }
