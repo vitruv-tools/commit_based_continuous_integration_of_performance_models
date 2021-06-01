@@ -9,7 +9,10 @@ import tools.vitruv.framework.change.echange.EChange
 import tools.vitruv.framework.propagation.ResourceAccess
 import cipm.consistency.base.vsum.domains.InstrumentationModelDomainProvider
 import tools.vitruv.framework.change.echange.feature.reference.InsertEReference
-import tools.vitruv.applications.pcmjava.commitintegration.propagation.OldMethodAdapter
+import tools.vitruv.framework.correspondence.CorrespondenceModelUtil
+import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel
+import cipm.consistency.base.models.inmodel.InstrumentationModelUtil
 
 /**
  * Propagates changes in method bodies to the instrumentation model.
@@ -18,9 +21,11 @@ import tools.vitruv.applications.pcmjava.commitintegration.propagation.OldMethod
  * @author Martin Armbruster
  */
 class Java2ImChangePropagationSpecification extends AbstractChangePropagationSpecification {
+	InstrumentationModel internalIM;
 	
-	new() {
+	new(InstrumentationModel im) {
 		super(new AdjustedJavaDomainProvider().domain, new InstrumentationModelDomainProvider().domain)
+		internalIM = im;
 	}
 	
 	override propagateChange(EChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
@@ -42,8 +47,13 @@ class Java2ImChangePropagationSpecification extends AbstractChangePropagationSpe
 		UserInteractor userInteracting, InsertEReference<?, ?> insertionChange) {
 		
 		val newMethod = insertionChange.newValue as Method;
-		val oldMethod = newMethod.eAdapters.filter(OldMethodAdapter).last?.oldMethod
+		val correspondingSEFFs = CorrespondenceModelUtil.getCorrespondingEObjects(correspondenceModel, newMethod, ResourceDemandingSEFF)
 		
-		Java2ImMethodChangeTransformationUtil.execute(correspondenceModel, oldMethod, newMethod)
+		if (!correspondingSEFFs.empty) {
+			val seff = correspondingSEFFs.last
+			val sip = internalIM.points.filter[it.service == seff].last
+			sip.actionInstrumentationPoints.clear
+			InstrumentationModelUtil.recursiveBuildImm(seff, sip)
+		}
 	}
 }
