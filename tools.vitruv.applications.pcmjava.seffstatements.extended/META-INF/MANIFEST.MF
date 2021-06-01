@@ -23,6 +23,7 @@ Require-Bundle: com.google.guava,
  tools.vitruv.domains.java,
  tools.vitruv.domains.pcm,
  org.somox.util,
- tools.vitruv.applications.pcmjava.seffstatements
+ tools.vitruv.applications.pcmjava.seffstatements,
+ tools.vitruv.framework.propagation
 Export-Package: tools.vitruv.applications.pcmjava.seffstatements.code2seff
 Automatic-Module-Name: tools.vitruv.applications.pcmjava.seffstatements.extended

@@ -1,0 +1,21 @@
+package tools.vitruv.applications.pcmjava.seffstatements.code2seff
+
+import org.emftext.language.java.members.Method
+import org.somox.gast2seff.visitors.InterfaceOfExternalCallFindingFactory
+import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding
+import org.somox.gast2seff.visitors.AbstractFunctionClassificationStrategy
+
+abstract class ExtendedJava2PcmMethodBodyChangePreprocessor extends Java2PcmMethodBodyChangePreprocessor {
+
+	new(Code2SeffFactory code2SEFFfactory) {
+		super(code2SEFFfactory)
+	}
+
+	override ClassMethodBodyChangedTransformation createTransformation(Method oldMethod, Method newMethod,
+		BasicComponentFinding basicComponentFinding, AbstractFunctionClassificationStrategy classification,
+		InterfaceOfExternalCallFindingFactory interfaceOfExternalCallFinderFactory,
+		ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding) {
+		return new ExtendedClassMethodBodyChangedTransformation(oldMethod, newMethod, basicComponentFinding,
+			classification, interfaceOfExternalCallFinderFactory, resourceDemandingBehaviourForClassMethodFinding)
+	}
+}
