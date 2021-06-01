@@ -13,6 +13,7 @@ import tools.vitruv.framework.propagation.ResourceAccess
 import tools.vitruv.framework.change.echange.EChange
 import tools.vitruv.applications.pcmjava.commitintegration.domains.java.AdjustedJavaDomainProvider
 import tools.vitruv.applications.pcmjava.commitintegration.propagation.OldMethodAdapter
+import org.somox.gast2seff.visitors.AbstractFunctionClassificationStrategy
 
 class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpecification {
 	val Code2SeffFactory code2SeffFactory;
@@ -53,9 +54,17 @@ class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpec
 			createInterfaceOfExternalCallFindingFactory(correspondenceModel, myBasicComponent);
 		val ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding = code2SeffFactory.
 			createResourceDemandingBehaviourForClassMethodFinding(correspondenceModel);
-		val ClassMethodBodyChangedTransformation methodBodyChanged = new ClassMethodBodyChangedTransformation(
+		val ClassMethodBodyChangedTransformation methodBodyChanged = createTransformation(
 			oldMethod, newMethod, basicComponentFinding, classification, interfaceOfExternalCallFinderFactory,
 			resourceDemandingBehaviourForClassMethodFinding);
 		methodBodyChanged.execute(correspondenceModel, userInteracting);
+	}
+	
+	protected def ClassMethodBodyChangedTransformation createTransformation(Method oldMethod, Method newMethod,
+		BasicComponentFinding basicComponentFinding, AbstractFunctionClassificationStrategy classification,
+		InterfaceOfExternalCallFindingFactory interfaceOfExternalCallFinderFactory,
+		ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding) {
+		return new ClassMethodBodyChangedTransformation(oldMethod, newMethod, basicComponentFinding, classification,
+			interfaceOfExternalCallFinderFactory, resourceDemandingBehaviourForClassMethodFinding)
 	}
 }
