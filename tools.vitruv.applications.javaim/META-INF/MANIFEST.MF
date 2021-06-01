@@ -15,9 +15,7 @@ Require-Bundle: javax.inject,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtend.lib,
  org.eclipse.xtend.lib.macro,
- tools.vitruv.domains.java,
  tools.vitruv.framework.change,
- tools.vitruv.domains.java,
  org.palladiosimulator.pcm,
  org.apache.log4j,
  org.eclipse.emf.ecore,
@@ -32,7 +30,10 @@ Require-Bundle: javax.inject,
  org.somox.gast2seff,
  tools.vitruv.applications.pcmjava.seffstatements,
  cipm.consistency.base.models.instrumentation,
- cipm.consistency.base.vitruv.domain.im
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+ cipm.consistency.base.vitruv.domain.im,
+ tools.vitruv.applications.pcmjava.commitintegration.domains,
+ tools.vitruv.framework.domains,
+ tools.vitruv.domains.java
+Bundle-RequiredExecutionEnvironment: JavaSE-13
 Import-Package: javax.annotation
 Automatic-Module-Name: tools.vitruv.applications.javaim
