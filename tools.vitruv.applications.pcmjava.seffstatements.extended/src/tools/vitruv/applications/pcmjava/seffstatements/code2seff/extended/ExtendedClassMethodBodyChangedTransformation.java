@@ -1,4 +1,4 @@
-package tools.vitruv.applications.pcmjava.seffstatements.code2seff;
+package tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended;
 
 import java.util.List;
 
@@ -18,6 +18,8 @@ import org.somox.sourcecodedecorator.SourceCodeDecoratorRepository;
 
 import com.google.common.collect.Lists;
 
+import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
+import tools.vitruv.applications.pcmjava.seffstatements.code2seff.ClassMethodBodyChangedTransformation;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.userinteraction.UserInteractor;
 

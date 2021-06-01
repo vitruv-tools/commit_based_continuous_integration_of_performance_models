@@ -1,9 +1,13 @@
-package tools.vitruv.applications.pcmjava.seffstatements.code2seff
+package tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended
 
 import org.emftext.language.java.members.Method
 import org.somox.gast2seff.visitors.InterfaceOfExternalCallFindingFactory
 import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding
 import org.somox.gast2seff.visitors.AbstractFunctionClassificationStrategy
+import tools.vitruv.applications.pcmjava.seffstatements.code2seff.Java2PcmMethodBodyChangePreprocessor
+import tools.vitruv.applications.pcmjava.seffstatements.code2seff.Code2SeffFactory
+import tools.vitruv.applications.pcmjava.seffstatements.code2seff.ClassMethodBodyChangedTransformation
+import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding
 
 abstract class ExtendedJava2PcmMethodBodyChangePreprocessor extends Java2PcmMethodBodyChangePreprocessor {
 
