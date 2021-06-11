@@ -50,7 +50,7 @@ public class FunctionClassificationStrategyForPackageMapping extends AbstractFun
             return false;
         }
         final Set<OperationSignature> correspondingSignatures = CorrespondenceModelUtil
-                .getCorrespondingEObjectsByType(this.correspondenceModel, method, OperationSignature.class);
+                .getCorrespondingEObjects(this.correspondenceModel, method, OperationSignature.class);
         if (null != correspondingSignatures && !correspondingSignatures.isEmpty()) {
             return true;
         }

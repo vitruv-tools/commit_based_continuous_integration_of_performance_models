@@ -77,12 +77,12 @@ public class InterfaceOfExternalCallFinderForPackageMapping implements Interface
      */
     private OperationSignature queryInterfaceOperation(final Method invokedMethod) {
         final Set<OperationSignature> correspondingOpSigs = CorrespondenceModelUtil
-                .getCorrespondingEObjectsByType(this.correspondenceModel, invokedMethod, OperationSignature.class);
+                .getCorrespondingEObjects(this.correspondenceModel, invokedMethod, OperationSignature.class);
         if (null != correspondingOpSigs && 0 < correspondingOpSigs.size()) {
             return correspondingOpSigs.iterator().next();
         }
         final Set<ResourceDemandingSEFF> correspondingRDSEFFs = CorrespondenceModelUtil
-                .getCorrespondingEObjectsByType(this.correspondenceModel, invokedMethod,
+                .getCorrespondingEObjects(this.correspondenceModel, invokedMethod,
                         ResourceDemandingSEFF.class);
         if (null != correspondingRDSEFFs && 0 < correspondingRDSEFFs.size()) {
             for (final ResourceDemandingSEFF seff : correspondingRDSEFFs) {

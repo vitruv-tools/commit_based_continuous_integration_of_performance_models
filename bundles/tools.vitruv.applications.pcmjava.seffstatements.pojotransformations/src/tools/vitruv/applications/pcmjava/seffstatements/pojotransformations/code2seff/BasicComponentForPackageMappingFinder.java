@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -17,7 +18,6 @@ import org.palladiosimulator.pcm.repository.BasicComponent;
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
-import tools.vitruv.framework.util.datatypes.VURI;
 
 /**
  * Finds the component for a method if the the simple package mapping structure is used.
@@ -60,16 +60,16 @@ public class BasicComponentForPackageMappingFinder implements BasicComponentFind
         final Package jaMoPPPackage = ContainersFactory.eINSTANCE.createPackage();
         jaMoPPPackage.getNamespaces().addAll(namespace);
         // attach dummy resource in order to enable Tuid calculation
-        final VURI vuri = VURI.getInstance(cu.eResource());
+        final URI vuri = cu.eResource().getURI();
         String packageURIString = vuri.toString();
-        final String lastSegment = vuri.getLastSegment();
+        final String lastSegment = vuri.lastSegment();
         if (packageURIString.endsWith(lastSegment)) {
             final int newLength = packageURIString.length() - lastSegment.length();
             packageURIString = packageURIString.substring(0, newLength);
             packageURIString = packageURIString + "package-info.java";
         }
-        final VURI packageVuri = VURI.getInstance(packageURIString);
-        final Resource dummyResource = this.dummyResourceSet.createResource(packageVuri.getEMFUri());
+        final URI packageVuri = URI.createURI(packageURIString);
+        final Resource dummyResource = this.dummyResourceSet.createResource(packageVuri);
         dummyResource.getContents().add(jaMoPPPackage);
         return jaMoPPPackage;
     }
@@ -88,7 +88,7 @@ public class BasicComponentForPackageMappingFinder implements BasicComponentFind
             return null;
         }
         final Set<BasicComponent> correspondingComponents = CorrespondenceModelUtil
-                .getCorrespondingEObjectsByType(ci, jaMoPPPackage, BasicComponent.class);
+                .getCorrespondingEObjects(ci, jaMoPPPackage, BasicComponent.class);
         if (null == correspondingComponents || correspondingComponents.isEmpty()) {
 
             jaMoPPPackage.getNamespaces().remove(jaMoPPPackage.getNamespaces().size() - 1);

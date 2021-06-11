@@ -31,7 +31,7 @@ public class ResourceDemandingBehaviourForClassMethodFinderForPackageMapping
 
     private <T> T getFirstCorrespondingEObjectIfAny(final ClassMethod classMethod, final Class<T> correspondingClass) {
         final Set<T> correspondingObjects = CorrespondenceModelUtil
-                .getCorrespondingEObjectsByType(this.correspondenceModel, classMethod, correspondingClass);
+                .getCorrespondingEObjects(this.correspondenceModel, classMethod, correspondingClass);
         if (correspondingObjects == null || correspondingObjects.isEmpty()) {
             return null;
         }
