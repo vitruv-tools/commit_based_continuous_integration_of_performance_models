@@ -44,7 +44,7 @@ class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpec
 		val newMethod = insertChange.newValue as Method;
 		val oldAdapter = newMethod.eAdapters.filter(OldMethodAdapter).last
 		newMethod.eAdapters.remove(oldAdapter)
-		val oldMethod = oldAdapter.oldMethod
+		val oldMethod = oldAdapter?.oldMethod
 		val basicComponentFinding = code2SeffFactory.createBasicComponentFinding
 		val BasicComponent myBasicComponent = basicComponentFinding.findBasicComponentForMethod(newMethod,
 			correspondenceModel);
