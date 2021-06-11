@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: IntegrationFromGit
-Bundle-SymbolicName: tools.vitruv.applications.pcmjava.commitintegration.domains
+Bundle-SymbolicName: tools.vitruv.applications.pcmjava.commitintegration.domains;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Export-Package: tools.vitruv.applications.pcmjava.commitintegration.domains.java,
  tools.vitruv.applications.pcmjava.commitintegration.propagation

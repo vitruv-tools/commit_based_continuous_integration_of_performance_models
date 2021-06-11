@@ -13,6 +13,10 @@ public class AdjustedJavaDomain extends JavaDomain {
 	private StateBasedChangeResolutionStrategy internalStrategy =
 			new JavaStateBasedChangeResolutionStrategy();
 	
+	public AdjustedJavaDomain() {
+		super("AdjustedJava");
+	}
+	
 	@Override
 	public StateBasedChangeResolutionStrategy getStateChangePropagationStrategy() {
 		return internalStrategy;
