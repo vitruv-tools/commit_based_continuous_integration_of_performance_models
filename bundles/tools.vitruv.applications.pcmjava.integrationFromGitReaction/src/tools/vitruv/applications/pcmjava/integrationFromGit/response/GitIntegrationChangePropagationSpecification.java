@@ -2,11 +2,8 @@ package tools.vitruv.applications.pcmjava.integrationFromGit.response;
 
 import mir.reactions.allReactions.AllReactionsChangePropagationSpecification;
 import mir.reactions.classifierBody.ClassifierBodyChangePropagationSpecification;
-import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.TuidUpdatePreprocessor;
+import tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended.ExtendedJava2PcmMethodBodyChangePreprocessor;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.Java2PcmPackageMappingMethodBodyChangePreprocessor;
-import tools.vitruv.applications.pcmjava.util.java2pcm.Java2PcmPackagePreprocessor;
-import tools.vitruv.framework.change.processing.ChangePropagationSpecification;
-
 
 /**
  * Change propagation specification used for integrated projects in order to propagate changes on JaMoPP models to the PCM models.
@@ -24,19 +21,14 @@ import tools.vitruv.framework.change.processing.ChangePropagationSpecification;
  * 
  * @author Ilia Chupakhin
  * @author Manar Mazkatli (advisor)
- *
+ * @author Martin Armbruster
  */
 @SuppressWarnings("all")
-public class GitIntegrationChangePropagationSpecification extends AllReactionsChangePropagationSpecification{
-	  
+public class GitIntegrationChangePropagationSpecification extends AllReactionsChangePropagationSpecification {
+	@Override
 	protected void setup() {
-		TuidUpdatePreprocessor _tuidUpdatePreprocessor = new TuidUpdatePreprocessor();
-		this.addChangeMainprocessor(_tuidUpdatePreprocessor);
 		super.setup();
-		Java2PcmPackagePreprocessor _java2PcmPackagePreprocessor = new Java2PcmPackagePreprocessor();
-		this.addChangePreprocessor(_java2PcmPackagePreprocessor);
-		//Change propagation specification for changes on method bodies
-		Java2PcmPackageMappingMethodBodyChangePreprocessor _java2PcmPackageMappingMethodBodyChangePreprocessor = new Java2PcmPackageMappingMethodBodyChangePreprocessor(getUserInteractor());
-		this.addChangePreprocessor(_java2PcmPackageMappingMethodBodyChangePreprocessor);
+		// Change propagation specification for changes on method bodies.
+		this.addChangePreprocessor(new ExtendedJava2PcmMethodBodyChangePreprocessor());
 	}
 }
