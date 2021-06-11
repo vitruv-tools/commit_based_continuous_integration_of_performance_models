@@ -55,8 +55,11 @@ public class ExtendedClassMethodBodyChangedTransformation extends ClassMethodBod
 	public void execute(final CorrespondenceModel correspondenceModel,
 			final UserInteractor userInteracting) {
 		super.execute(correspondenceModel, userInteracting);
-		// 5) Link the abstract actions with their corresponding statements.
-		this.bindAbstractActionsAndStatements(super.getSourceCodeDecoratorRepository(), correspondenceModel);
+		var decorator = super.getSourceCodeDecoratorRepository();
+		if (decorator != null) {
+			// 5) Link the abstract actions with their corresponding statements.
+			this.bindAbstractActionsAndStatements(decorator, correspondenceModel);
+		}
 	}
 	
 	private void bindAbstractActionsAndStatements(SourceCodeDecoratorRepository sourceCodeDecorator,
