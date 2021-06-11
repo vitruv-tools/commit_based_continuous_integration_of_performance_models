@@ -5,14 +5,14 @@ import org.somox.gast2seff.visitors.InterfaceOfExternalCallFindingFactory
 import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding
 import org.somox.gast2seff.visitors.AbstractFunctionClassificationStrategy
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.Java2PcmMethodBodyChangePreprocessor
-import tools.vitruv.applications.pcmjava.seffstatements.code2seff.Code2SeffFactory
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.ClassMethodBodyChangedTransformation
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding
+import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff.PojoJava2PcmCodeToSeffFactory
 
-abstract class ExtendedJava2PcmMethodBodyChangePreprocessor extends Java2PcmMethodBodyChangePreprocessor {
+class ExtendedJava2PcmMethodBodyChangePreprocessor extends Java2PcmMethodBodyChangePreprocessor {
 
-	new(Code2SeffFactory code2SEFFfactory) {
-		super(code2SEFFfactory)
+	new() {
+		super(new PojoJava2PcmCodeToSeffFactory)
 	}
 
 	override ClassMethodBodyChangedTransformation createTransformation(Method oldMethod, Method newMethod,
