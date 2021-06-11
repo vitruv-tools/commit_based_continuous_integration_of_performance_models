@@ -45,7 +45,7 @@ import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
 
 
 reactions: packageAndClassifiers
-in reaction to changes in Java
+in reaction to changes in AdjustedJava
 execute actions in PCM
 
 
@@ -278,7 +278,7 @@ routine createOrFindPCMInterface(java::Interface javaInterface, java::Compilatio
 	action {
 		call {
 			val containingPackage = getContainingPackageFromCorrespondenceModel(javaInterface, correspondenceModel)
-			val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
+//			val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
 			createNonContractsInterface(javaInterface, compilationUnit, containingPackage)
 		}
 	}
@@ -304,12 +304,15 @@ routine createNonContractsInterface(java::Interface javaInterface, java::Compila
 }
 
 routine createInterface(java::Interface javaInterface, java::CompilationUnit compilationUnit, java::Package javaPackage) {
+	match {
+		val pcmRepository = retrieve pcm::Repository corresponding to ContainersPackage.Literals.PACKAGE
+	}
 	action {
 		val pcmInterface = create pcm::OperationInterface and initialize {
 			pcmInterface.entityName = javaInterface.name
 		}
 		call {
-			val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
+//			val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
 			
 			addInterfaceCorrespondence(pcmInterface, javaInterface, compilationUnit)
 			updateRepositoryInterfaces(pcmInterface, pcmRepository)
@@ -415,11 +418,12 @@ routine createOrFindArchitecturalElement(java::Package javaPackage, String conta
 routine createOrFindArchitecturalElementInPackage(java::Package javaPackage, java::Package containingPackage, String rootPackageName) {
 	match {
 		require absence of pcm::RepositoryComponent corresponding to javaPackage
+		val pcmRepository = retrieve pcm::Repository corresponding to ContainersPackage.Literals.PACKAGE
 	}
 	action {
 		
 		call {
-			val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
+//			val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
 			val pcmComponentCandidate = pcmRepository.components__Repository.findFirst[entityName == javaPackage.name.toFirstUpper]
 			if (pcmComponentCandidate === null) {
 				createArchitecturalElement(javaPackage, containingPackage.name, rootPackageName)
@@ -435,12 +439,13 @@ routine createOrFindRepository(java::Package javaPackage, String packageName, St
 	match {
 		require absence of pcm::Repository corresponding to javaPackage tagged with newTag
 		require absence of pcm::Repository corresponding to ContainersPackage.Literals.PACKAGE
+		val foundRepository = retrieve optional pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
 	}
 	action {
 		call {
-			val foundRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
-			ensureFirstCaseUpperCaseRepositoryNaming(foundRepository, javaPackage)
-			addRepositoryCorrespondence(foundRepository, javaPackage, newTag)
+//			val foundRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
+			ensureFirstCaseUpperCaseRepositoryNaming(foundRepository.get, javaPackage)
+			addRepositoryCorrespondence(foundRepository.get, javaPackage, newTag)
 		}
 	}
 }
@@ -626,25 +631,31 @@ routine createSystem(java::Package javaPackage, String name) {
 	}
 }
 
-routine createBasicComponent(java::Package javaPackage, String name, String rootPackageName) {
+routine createBasicComponent(java::Commentable javaPackage, String name, String rootPackageName) {
+	match {
+		val pcmRepository = retrieve pcm::Repository corresponding to ContainersPackage.Literals.PACKAGE
+	}
 	action {
 		val pcmBasicComponent = create pcm::BasicComponent and initialize {
 			pcmBasicComponent.entityName = name
 		}
 		call {
-			val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
+//			val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
 			addCorrespondenceAndUpdateRepository(pcmBasicComponent, javaPackage, pcmRepository)
 		}
 	}
 }
 
 routine createCompositeComponent(java::Package javaPackage, String name, String rootPackageName) {
+	match {
+		val pcmRepository = retrieve pcm::Repository corresponding to ContainersPackage.Literals.PACKAGE
+	}
 	action {
 		val pcmCompositeComponent = create pcm::CompositeComponent and initialize {
 			pcmCompositeComponent.entityName = name
 		}		
 		call {
-			val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
+//			val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
 			addCorrespondenceAndUpdateRepository(pcmCompositeComponent, javaPackage, pcmRepository)
 		}
 	}
