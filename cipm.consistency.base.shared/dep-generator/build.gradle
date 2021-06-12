@@ -1,0 +1,21 @@
+plugins {
+	id "org.standardout.bnd-platform" version "1.7.0"
+}
+
+repositories {
+    mavenCentral()
+}
+
+platform {
+    bundle 'org.cache2k:cache2k-core:1.2.4.Final'
+	bundle 'org.projectlombok:lombok:1.18.12'
+	bundle files('org.pcm.headless.api-0.6.3.jar'), {
+		bnd {
+			version = '0.6.3'
+			symbolicName = 'org.pcm.headless.api'
+		}
+	}
+    fetchSources = false
+    defaultQualifier = ''
+    useBndHashQualifiers = false
+}
