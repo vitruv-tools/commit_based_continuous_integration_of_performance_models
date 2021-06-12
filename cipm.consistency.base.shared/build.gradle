@@ -1,0 +1,128 @@
+
+dependencies {
+	api "org.pcm.headless:api:0.6.3"
+	
+	api group: 'org.cache2k', name: 'cache2k-core', version: '1.2.4.Final'
+
+	// https://mvnrepository.com/artifact/org.eclipse.xtext/org.eclipse.xtext.xbase.lib
+	api group: 'org.eclipse.xtext', name: 'org.eclipse.xtext.xbase.lib', version: '2.18.0'
+	
+	// https://mvnrepository.com/artifact/org.yaml/snakeyaml
+	api group: 'org.yaml', name: 'snakeyaml', version: '1.24'
+
+	/**
+		VITRUV dependencies from here
+	*/
+	api 'extra:tools.vitruv.framework.vsum:0.3.0.202003220942'
+	
+	api 'extra:tools.vitruv.framework.change:0.3.0.202003220942'
+	api 'extra:tools.vitruv.framework.change.echange:0.3.0.202003220942'
+	api 'extra:tools.vitruv.framework.change.processing:0.3.0.202003220942'
+	
+	api 'extra:tools.vitruv.framework.userinteraction:0.3.0.202003220942'
+    api 'extra:tools.vitruv.framework.tuid:0.3.0.202003220942'
+    api 'extra:tools.vitruv.framework.uuid:0.3.0.202003220942'
+	api 'extra:tools.vitruv.framework.correspondence:0.3.0.202003220942'
+	api 'extra:tools.vitruv.framework.util:0.3.0.202003220942'
+	api 'extra:tools.vitruv.testutils:0.3.0.202003220942'
+	api 'extra:tools.vitruv.testutils.domains:0.3.0.202003220942'
+	api 'extra:tools.vitruv.dsls.reactions:0.3.0.202003220942'
+	api 'extra:tools.vitruv.dsls.mappings:0.3.0.202003220942'
+	api 'extra:tools.vitruv.framework.metamodel:0.3.0.202003220942'
+	api 'extra:tools.vitruv.extensions.dslsruntime.reactions:0.3.0.202003220942'
+	
+	api 'extra:tools.vitruv.domains.pcm:0.3.0.202003201543'
+	api 'extra:tools.vitruv.extensions.emf:0.3.0.202003220942'
+	
+	api 'extra:org.eclipse.emf.transaction:1.9.1+'
+	api 'extra:org.eclipse.emf.edit:2.15.0+'
+	api 'extra:org.eclipse.emf.ecore.change:2.14.0'
+	api 'extra:org.eclipse.core.resources:3.13.400'
+	api 'extra:org.eclipse.emf:2.8.0'
+	api 'extra:org.eclipse.emf.compare:3.5.3'
+	api 'extra:org.eclipse.emf.validation:1.8.0.201812070911'
+	api 'extra:org.eclipse.emf.common:2.17.0.v20190920-0401'
+	api 'extra:org.eclipse.core.expressions:3.6.600.v20191122-2104'
+	
+	api 'extra:edu.kit.ipd.sdq.commons.util.java:1.5.0'
+	api 'extra:edu.kit.ipd.sdq.commons.util.emf:1.6.0'
+    
+    /**
+    	Palladio dependencies from here
+    */
+    api 'org.eclipse.emf:org.eclipse.emf.ecore:2.21.+'
+	api 'org.eclipse.emf:org.eclipse.emf.ecore.xmi:2.16.+'
+	api 'org.eclipse.emf:org.eclipse.emf.common:2.16.+'
+	api 'org.eclipse.emf:org.eclipse.emf.mwe.core:1.5.2+'
+    
+  	api 'extra:org.eclipse.ocl:3.6.200+'
+  	api 'extra:org.eclipse.ocl.ecore:3.6.200+'
+	
+	// from extra repo
+    api 'extra:org.palladiosimulator.pcm:4.1.0+'
+    
+    api 'extra:de.uka.ipd.sdq.stoex:2.2.0+'
+    api 'extra:de.uka.ipd.sdq.units:2.1.1+'
+    api 'extra:de.uka.ipd.sdq.identifier:2.1.0+'
+    api 'extra:de.uka.ipd.sdq.probfunction:2.1.1+'
+    
+    api 'extra:tools.descartes.librede.estimation:1.1.0+'
+    api 'extra:tools.descartes.librede.model:1.1.0+'
+    api 'extra:tools.descartes.librede.linalg:1.1.0+'
+    
+    // from extra repo
+	api 'extra:tools.descartes.dlim.generator:0.15.9.201606230914'
+	api 'extra:org.scaledl.usageevolution:0.1.0.201710032259'
+    
+    api 'extra:org.palladiosimulator.edp2.dao:1.0.0.201608091414'
+    api 'extra:org.palladiosimulator.edp2:2.0.0+'
+    api 'extra:org.palladiosimulator.edp2.util:1.0.0.201608091414'
+    api 'extra:org.palladiosimulator.edp2.repository.local:1.0.0.201608091414'
+    api 'extra:org.palladiosimulator.servicelevelobjective.edp2:1.1.0.201709290951'
+    
+    api 'extra:org.palladiosimulator.pcm.edp2.measuringpoint:1.0.0+'
+    api 'extra:org.palladiosimulator.metricspec:1.0.3.201709282208'
+    api 'extra:org.palladiosimulator.pcm.resources:4.0.0+'
+    
+    api 'extra:org.palladiosimulator.experimentautomation.application.tooladapter.simucom:1.0.0+'
+    api 'extra:org.palladiosimulator.experimentautomation.application.tooladapter.simulizar:1.0.0+'
+    api 'extra:org.palladiosimulator.experimentautomation.application.tooladapter.simucom.model:1.0.0+'
+    api 'extra:org.palladiosimulator.experimentautomation.application.tooladapter.simulizar.model:1.0.0+'
+    
+    api 'extra:org.palladiosimulator.experimentautomation:1.1.0+'
+    api 'extra:org.palladiosimulator.servicelevelobjective:1.1.0+'
+    api 'extra:org.palladiosimulator.monitorrepository:3.0.1+'
+    api 'extra:org.palladiosimulator.experimentautomation.application:1.1.0+'
+    
+    api 'extra:org.eclipse.emf.cdo:4.6.0+'
+	api 'extra:org.eclipse.emf.cdo.common:4.6.0+'
+	api 'extra:org.eclipse.net4j:4.6.0+'
+	api 'extra:org.eclipse.net4j.util:3.7.0+'
+    
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+	api group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
+	
+	// https://mvnrepository.com/artifact/commons-codec/commons-codec
+	api group: 'commons-codec', name: 'commons-codec', version: '1.11'
+	
+	// https://mvnrepository.com/artifact/commons-io/commons-io
+	api group: 'commons-io', name: 'commons-io', version: '2.6'
+	
+	// https://mvnrepository.com/artifact/junit/junit
+	api group: 'junit', name: 'junit', version: '4.13-beta-1'
+	
+	// https://mvnrepository.com/artifact/org.jscience/jscience
+	api group: 'org.jscience', name: 'jscience', version: '4.3.1'
+	
+	// https://mvnrepository.com/artifact/org.apache.ant/ant
+	api group: 'org.apache.ant', name: 'ant', version: '1.10.5'
+	
+	// https://mvnrepository.com/artifact/org.eclipse.core/runtime
+	api group: 'org.eclipse.core', name: 'runtime', version: '3.10.0-v20140318-2214'
+	
+	// https://mvnrepository.com/artifact/lpg.runtime/java
+	api group: 'lpg.runtime', name: 'java', version: '2.0.17-v201004271640'
+	
+	api 'org.antlr:antlr-runtime:3.5.2' 
+}
+
