@@ -71,17 +71,28 @@ reaction RemoveClassAnnotationReaction {
 	call {}
 }
 
-
 //Create Interface Method:
 reaction InterfaceMethodCreated {
 	after element java::InterfaceMethod inserted in java::Interface[members] 
-	call createPCMSignature(newValue)
+	call {
+		createPCMSignature(newValue)
+	}
 }
 
-routine createPCMSignature(java::InterfaceMethod interfaceMethod) {
+routine createPCMSignature(java::Method interfaceMethod) {
 	match {
 		val pcmInterface = retrieve pcm::OperationInterface corresponding to interfaceMethod.containingConcreteClassifier
 	}
+	action {
+		call {
+			if (!interfaceMethod.static) {
+				internalCreatePCMSignature(interfaceMethod, pcmInterface)
+			}
+		}
+	}
+}
+
+routine internalCreatePCMSignature(java::Method interfaceMethod, pcm::OperationInterface pcmInterface) {
 	action {
 		val operationSignature = create pcm::OperationSignature and initialize {
 			operationSignature.entityName = interfaceMethod.name
@@ -96,11 +107,30 @@ routine createPCMSignature(java::InterfaceMethod interfaceMethod) {
 	}
 }
 
-
 //Create Class Method:
 reaction ClassMethodCreated {
 	after element java::ClassMethod inserted in java::Class[members]
-	call createSeffFromImplementingInterfaces(newValue, affectedEObject)
+	call {
+		if (newValue.public) {
+			createPCMSignature(newValue)
+		}
+		createSeffFromImplementingInterfaces(newValue, affectedEObject)
+		createSeffFromClassInterface(newValue, affectedEObject)
+	}
+}
+
+routine createSeffFromClassInterface(java::ClassMethod method, java::Class javaClass) {
+	match {
+		val opInterface = retrieve pcm::OperationInterface corresponding to javaClass
+		require absence of pcm::ResourceDemandingSEFF corresponding to method
+	}
+	action {
+		call {
+			if (method.public && !method.static) {
+				createSEFF(method, javaClass, method)
+			}
+		}
+	}
 }
 
 routine createSeffFromImplementingInterfaces(java::ClassMethod classMethod, java::Class javaClass) {
@@ -487,7 +517,8 @@ reaction JavaInterfaceRenamed {
 
 routine renameInterface(java::ConcreteClassifier javaInterface) {
 	match {
-		val pcmInterface = retrieve pcm::OperationInterface corresponding to javaInterface}
+		val pcmInterface = retrieve pcm::OperationInterface corresponding to javaInterface
+	}
 	action {
 		update pcmInterface {
 			pcmInterface.entityName = javaInterface.name
