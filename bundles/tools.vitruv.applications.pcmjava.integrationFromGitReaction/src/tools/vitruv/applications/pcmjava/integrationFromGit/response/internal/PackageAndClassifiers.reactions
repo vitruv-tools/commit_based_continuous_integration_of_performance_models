@@ -188,6 +188,7 @@ reaction ClassCreated {
 	call {
 		createOrFindArchitecturalElement(newValue)
 		decideInterfaceCreation(newValue)
+		createOrFindOperationProvidedRole(newValue, newValue)
 	}
 }
 
@@ -336,41 +337,54 @@ reaction TypeReferenceCreated {
 	after element java::TypeReference inserted in java::Class[implements]
 		with newValue instanceof NamespaceClassifierReference || newValue instanceof ClassifierReference
 	call {
-		createOperationProvidedRole(newValue)
+		createOrFindOperationProvidedRoleFromTypeReference(newValue)
 	}
 }
 
-routine createOperationProvidedRole(java::TypeReference typeReference) {
+routine createOrFindOperationProvidedRoleFromTypeReference(java::TypeReference typeReference) {
 	action {
 		call {
 			val javaClass = typeReference.eContainer as Class
 			var javaInterfaceClassifier = getNormalizedClassifierFromTypeReference(typeReference)
-			createOperationProvidedRoleFromTypeReference(javaInterfaceClassifier, javaClass, typeReference)
+			createOrFindOperationProvidedRole(javaInterfaceClassifier, javaClass)
 		}
 	}
 }
 
-routine createOperationProvidedRoleFromTypeReference(java::Classifier classifierInterface, java::Class javaClass, java::TypeReference reference) {
+routine createOrFindOperationProvidedRole(java::Classifier classifierInterface, java::Class javaClass) {
 	match {
 		val opInterface = retrieve pcm::OperationInterface corresponding to classifierInterface
 		val basicComponent = retrieve pcm::BasicComponent corresponding to javaClass
+		val provRoles = retrieve many pcm::OperationProvidedRole corresponding to javaClass
 	}
+	action {
+		call {
+			val role = provRoles.findFirst[it.providedInterface__OperationProvidedRole === opInterface
+				&& it.providingEntity_ProvidedRole === basicComponent]
+			if (role === null) {
+				createOperationProvidedRole(opInterface, basicComponent, javaClass)
+			}
+		}
+	}
+}
+
+routine createOperationProvidedRole(pcm::OperationInterface opInterface, pcm::BasicComponent basicComponent, java::Class javaClass) {
 	action {
 		val operationProvidedRole = create pcm::OperationProvidedRole and initialize {
 			operationProvidedRole.providedInterface__OperationProvidedRole = opInterface
 			operationProvidedRole.providingEntity_ProvidedRole = basicComponent
 			operationProvidedRole.entityName = basicComponent.entityName + "_provides_" + opInterface.entityName
 		}
-		add correspondence between operationProvidedRole and reference
+		add correspondence between operationProvidedRole and javaClass 
 	}
 }
 
 //Remove implements
 reaction TypeReferenceRemoved {
 	after element java::TypeReference removed from java::Class[implements]
-	with oldValue instanceof NamespaceClassifierReference || oldValue instanceof ClassifierReference
+		with oldValue instanceof NamespaceClassifierReference || oldValue instanceof ClassifierReference
 	call {
-		removeOperationProvidedRole(oldValue)	
+//		removeOperationProvidedRole(oldValue)	
 	}
 }
 
@@ -393,9 +407,15 @@ routine createOrFindBasicComponent(java::ConcreteClassifier javaPackage, String 
 			val pcmBasicComponent = pcmRepository.components__Repository.findFirst[it.entityName == name]
 			if (pcmBasicComponent !== null) {
 				addCorrespondenceAndUpdateRepository(pcmBasicComponent, javaPackage)
-				return
+			} else {
+				createBasicComponent(javaPackage, name)
 			}	
 		}
+	}
+}
+
+routine createBasicComponent(java::ConcreteClassifier javaPackage, String name) {
+	action {
 		val pcmBasicComponent = create pcm::BasicComponent and initialize {
 			pcmBasicComponent.entityName = name
 		}
