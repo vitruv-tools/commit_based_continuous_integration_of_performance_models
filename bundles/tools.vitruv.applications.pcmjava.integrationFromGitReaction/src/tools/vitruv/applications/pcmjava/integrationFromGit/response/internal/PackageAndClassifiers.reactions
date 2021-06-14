@@ -216,23 +216,10 @@ routine removedClassMethodEvent(java::ClassMethod classMethod) {
 reaction ClassCreated {
 	after element java::Class inserted in java::CompilationUnit[classifiers]
 	call {
+		decideDataTypeCreation(newValue)
 		createOrFindArchitecturalElement(newValue)
 		decideInterfaceCreation(newValue)
 		createOrFindOperationProvidedRole(newValue, newValue)
-	}
-}
-
-/**
- * Creates a new architectural element and add correspondence.
- */
-routine createElement(java::Class javaClass, java::Package javaPackage, java::CompilationUnit compilationUnit) {
-	match {
-		require absence of pcm::DataType corresponding to javaClass
-	}
-	action {
-		call { 
-						
-		}
 	}
 }
 
@@ -565,11 +552,14 @@ routine renameDataTypeFromClass(java::Class javaClass) {
 /**
  * User can choose if a composite or collection data type should be created.
  */
-routine createDataType(java::Class javaClass, java::CompilationUnit compilationUnit) {
+routine decideDataTypeCreation(java::Class javaClass) {
+	match {
+		require absence of pcm::DataType corresponding to javaClass
+	}
 	action {
 		call {
 			val String userMsg = "Class " + javaClass.name +
-						" has been created in the datatypes package. Please decide which kind of data type should be created."
+						" has been created. Please decide which kind of data type should be created."
 			val String[] selections = #[Java2PcmUserSelection.SELECT_COMPOSITE_DATA_TYPE.message,
 				Java2PcmUserSelection.SELECT_COLLECTION_DATA_TYPE.message,
 				Java2PcmUserSelection.SELECT_NOTHING_DECIDE_LATER.message
@@ -578,83 +568,82 @@ routine createDataType(java::Class javaClass, java::CompilationUnit compilationU
 				.windowModality(WindowModality.MODAL).startInteraction()
 			switch(selected) {
 				case Java2PcmUserSelection.SELECT_COMPOSITE_DATA_TYPE.selection: 
-					createOrFindCompositeDataType(javaClass, compilationUnit)
+					createOrFindCompositeDataType(javaClass)
 				case Java2PcmUserSelection.SELECT_COLLECTION_DATA_TYPE.selection: 
-					createOrFindCollectionDataType(javaClass, compilationUnit)
+					createOrFindCollectionDataType(javaClass)
 			}
 		}
 	}
 }
 
-routine createOrFindCompositeDataType(java::Class javaClass, java::CompilationUnit compilationUnit) {
+routine createOrFindCompositeDataType(java::Class javaClass) {
 	match {
-		val pcmRepository = retrieve pcm::Repository corresponding to ContainersPackage.Literals.PACKAGE
+		val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
 	}
 	action {
 		call {
 			val foundCompositeDataType = pcmRepository.dataTypes__Repository.filter(CompositeDataType)
 				.filter[entityName.toFirstUpper == javaClass.name.toFirstUpper || javaClass.name === null && entityName == "aName"].claimNotMany
 			if (foundCompositeDataType === null) {
-				createCompositeDataType(javaClass, compilationUnit)
+				createCompositeDataType(javaClass)
 			} else {
-				addDataTypeCorrespondence(javaClass, compilationUnit, foundCompositeDataType)
+				addDataTypeCorrespondence(javaClass, foundCompositeDataType)
 			}
 		}
 	}
 }
 
-routine createCompositeDataType(java::Class javaClass, java::CompilationUnit compilationUnit) {
+routine createCompositeDataType(java::Class javaClass) {
 	action {
 		val pcmCompositeDataType = create pcm::CompositeDataType and initialize {
 			pcmCompositeDataType.entityName = javaClass.name
 		}
 		add correspondence between pcmCompositeDataType and javaClass
 		call {
-			addDataTypeCorrespondence(javaClass, compilationUnit, pcmCompositeDataType)
+			addDataTypeCorrespondence(javaClass, pcmCompositeDataType)
 			addDataTypeInRepository(pcmCompositeDataType)
 		}
 	}
 }
 
-routine createOrFindCollectionDataType(java::Class javaClass, java::CompilationUnit compilationUnit) {
+routine createOrFindCollectionDataType(java::Class javaClass) {
 	match {
-		val pcmRepository = retrieve pcm::Repository corresponding to ContainersPackage.Literals.PACKAGE
+		val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
 	}
 	action {
 		call {
 			val foundCollectionDataType = pcmRepository.dataTypes__Repository.filter(CollectionDataType)
 				.filter[entityName.toFirstUpper == javaClass.name.toFirstUpper || javaClass.name === null && entityName == "aName"].claimNotMany
 			if (foundCollectionDataType === null) {
-				createCollectionDataType(javaClass, compilationUnit)
+				createCollectionDataType(javaClass)
 			} else {
-				addDataTypeCorrespondence(javaClass, compilationUnit, foundCollectionDataType)
+				addDataTypeCorrespondence(javaClass, foundCollectionDataType)
 			}
 		}
 	}
 }
 
-routine createCollectionDataType(java::Class javaClass, java::CompilationUnit compilationUnit) {
+routine createCollectionDataType(java::Class javaClass) {
 	action {
 		val pcmCollectionDataType = create pcm::CollectionDataType and initialize {
 			pcmCollectionDataType.entityName = javaClass.name
 		}
 		call {
-			addDataTypeCorrespondence(javaClass, compilationUnit, pcmCollectionDataType)
+			addDataTypeCorrespondence(javaClass, pcmCollectionDataType)
 			addDataTypeInRepository(pcmCollectionDataType)
 		}
 	}
 }
 
-routine addDataTypeCorrespondence(java::Class javaClass, java::CompilationUnit compilationUnit, pcm::DataType dataType) {
+routine addDataTypeCorrespondence(java::Class javaClass, pcm::DataType dataType) {
 	action {
 		add correspondence between dataType and javaClass
-		add correspondence between compilationUnit and javaClass
 	}
 }
 
 routine addDataTypeInRepository(pcm::DataType pcmDataType) {
 	match {
-		val pcmRepository = retrieve pcm::Repository corresponding to ContainersPackage.Literals.PACKAGE
+		val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
 	}
 	action {
 		update pcmDataType {
