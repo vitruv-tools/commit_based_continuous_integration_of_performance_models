@@ -50,15 +50,15 @@ execute actions in PCM
 
 
 //empty implementation for add and remove imports
-reaction AddImportReaction {
-	after element java::Import inserted in java::JavaRoot[imports]
-	call {}
-}
-
-reaction RemoveImportReaction {
-	after element java::Import removed from java::JavaRoot[imports]
-	call {}
-}
+//reaction AddImportReaction {
+//	after element java::Import inserted in java::JavaRoot[imports]
+//	call {}
+//}
+//
+//reaction RemoveImportReaction {
+//	after element java::Import removed from java::JavaRoot[imports]
+//	call {}
+//}
 
 //empty implementation for add and remove class annotation
 reaction AddClassAnnotationReaction {
@@ -186,44 +186,10 @@ routine removedClassMethodEvent(java::ClassMethod classMethod) {
 reaction ClassCreated {
 	after element java::Class inserted in java::CompilationUnit[classifiers]
 	call {
-		//CorrespondenceModelUtil.getCorrespondingEObjectsByType(correspondenceModel, javaPackage, typeof(Repository))
-		val javaPackage = getContainingPackageFromCorrespondenceModel(newValue,
-			correspondenceModel)
-		classMapping(newValue, affectedEObject, javaPackage)
+		createOrFindArchitecturalElement(newValue)
+		decideInterfaceCreation(newValue)
 	}
 }
-
-
-routine classMapping(java::Class javaClass, java::CompilationUnit compilationUnit, java::Package javaPackage) {
-	action {
-		call {
-			checkSystemAndComponent(javaPackage, javaClass)
-			createElement(javaClass, javaPackage, compilationUnit)
-		}
-	}
-}
-
-
-/**
- * Check if package has a correspondence with a component or system. 
- * If there is one create correspondence between component or system and the given class, as well as the compilation unit if not already exists
- */
-routine checkSystemAndComponent(java::Package javaPackage, java::Class javaClass) {
-	match {
-		val componentOrSystem = retrieve pcm::InterfaceProvidingRequiringEntity corresponding to javaPackage  
-		val correspondenceToCompilationUnit = retrieve optional pcm::RepositoryComponent corresponding to javaClass.containingCompilationUnit
-			with correspondenceToCompilationUnit.entityName == componentOrSystem.entityName
-	}
-	action {
-		add correspondence between componentOrSystem and javaClass
-		call {
-			if (!correspondenceToCompilationUnit.isPresent) {
-				addCorrespondenceBetweenPcmComponentOrSystemAndJavaCompilationUnit(componentOrSystem, javaClass.containingCompilationUnit)
-			}		
-		}
-	}
-}
-
 
 /**
  * Creates a new architectural element and add correspondence.
@@ -234,62 +200,56 @@ routine createElement(java::Class javaClass, java::Package javaPackage, java::Co
 	}
 	action {
 		call { 
-			createArchitecturalElement(javaPackage, javaClass.name, compilationUnit.namespaces.head)			
+						
 		}
 	}
 }
 
-
 /**
- * User can select if he wants to create BasicComponent, CompositeComponent, System or do nothing.
+ * 
+ * User can select if he wants to create BasicComponent, CompositeComponent, or do nothing.
  */
-routine createArchitecturalElement(java::Package javaPackage, String name, String rootPackageName) {
+routine createOrFindArchitecturalElement(java::ConcreteClassifier javaPackage) {
+	match {
+		require absence of pcm::RepositoryComponent corresponding to javaPackage
+	}
 	action {
 		call {
-			val String userMsg = "A package or class has been created. Please decide whether and which corresponding architectural element should be created"
+			val String userMsg = "A classifier (" + javaPackage.qualifiedName + ") has been created. Please decide whether and which corresponding architectural element should be created."
 			val String[] selections = #[Java2PcmUserSelection.SELECT_BASIC_COMPONENT.message,
 				Java2PcmUserSelection.SELECT_COMPOSITE_COMPONENT.message,
-				Java2PcmUserSelection.SELECT_SYSTEM.message,
 				Java2PcmUserSelection.SELECT_NOTHING_DECIDE_LATER.message
 			]
 			val selected = userInteractor.singleSelectionDialogBuilder.message(userMsg).choices(selections)
 				.windowModality(WindowModality.MODAL).startInteraction()
+			if (selected == Java2PcmUserSelection.SELECT_NOTHING_DECIDE_LATER) {
+				return
+			}
+			val comName = userInteractor.textInputDialogBuilder.message("Please enter the name for the component of " + javaPackage.qualifiedName)
+				.windowModality(WindowModality.MODAL).startInteraction
 			switch(selected) {
 				case Java2PcmUserSelection.SELECT_BASIC_COMPONENT.selection: 
-					createBasicComponent(javaPackage, name, rootPackageName) 
-				case Java2PcmUserSelection.SELECT_COMPOSITE_COMPONENT.selection: 
-					createCompositeComponent(javaPackage, name, rootPackageName)
-				case Java2PcmUserSelection.SELECT_SYSTEM.selection: 
-					createOrFindSystem(javaPackage, name)
+					createOrFindBasicComponent(javaPackage, comName) 
+//				case Java2PcmUserSelection.SELECT_COMPOSITE_COMPONENT.selection: 
+//					createCompositeComponent(javaPackage, name, rootPackageName)
 			}
 		}
 	}
 }
 
-
-
 //Create Interface
 reaction InterfaceCreated {
 	after element java::Interface inserted in java::CompilationUnit[classifiers]
-	call createOrFindPCMInterface(newValue, affectedEObject)
-}
-
-routine createOrFindPCMInterface(java::Interface javaInterface, java::CompilationUnit compilationUnit) {
-	action {
-		call {
-			val containingPackage = getContainingPackageFromCorrespondenceModel(javaInterface, correspondenceModel)
-//			val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
-			createNonContractsInterface(javaInterface, compilationUnit, containingPackage)
-		}
+	call {
+		createOrFindArchitecturalElement(newValue)
+		decideInterfaceCreation(newValue)
 	}
 }
 
-
-
-routine createNonContractsInterface(java::Interface javaInterface, java::CompilationUnit compilationUnit, java::Package javaPackage) {
+routine decideInterfaceCreation(java::ConcreteClassifier javaInterface) {
 	action {
 		call {
-			val String userMsg = "Should an architectural interface be created for the interface " +
+			val String userMsg = "Should an architectural interface be created for the classifier " +
 					javaInterface.name + " ?"
 			val String[] selections = #[Java2PcmUserSelection.SELECT_CREATE_INTERFACE_NOT_IN_CONTRACTS.message,
 				Java2PcmUserSelection.SELECT_DONT_CREATE_INTERFACE_NOT_IN_CONTRACTS.message
@@ -297,44 +257,24 @@ routine createNonContractsInterface(java::Interface javaInterface, java::Compila
 			val selected = userInteractor.singleSelectionDialogBuilder.message(userMsg).choices(selections)
 				.windowModality(WindowModality.MODAL).startInteraction()
 			if (selected == Java2PcmUserSelection.SELECT_CREATE_INTERFACE_NOT_IN_CONTRACTS.selection) {
-				createInterface(javaInterface, compilationUnit, javaPackage)
+				createInterface(javaInterface)
 			}
 		}
 	}
 }
 
-routine createInterface(java::Interface javaInterface, java::CompilationUnit compilationUnit, java::Package javaPackage) {
+routine createInterface(java::ConcreteClassifier javaInterface) {
 	match {
-		val pcmRepository = retrieve pcm::Repository corresponding to ContainersPackage.Literals.PACKAGE
+		val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
 	}
 	action {
 		val pcmInterface = create pcm::OperationInterface and initialize {
 			pcmInterface.entityName = javaInterface.name
 		}
-		call {
-//			val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
-			
-			addInterfaceCorrespondence(pcmInterface, javaInterface, compilationUnit)
-			updateRepositoryInterfaces(pcmInterface, pcmRepository)
-		}
-	}
-}
-
-routine addInterfaceCorrespondence(pcm::OperationInterface pcmInterface, java::Interface javaInterface, java::CompilationUnit compilationUnit) {
-	match {
-		require absence of pcm::Interface corresponding to javaInterface
-	}
-	action {
-		add correspondence between pcmInterface and javaInterface
-		add correspondence between pcmInterface and compilationUnit 
-	}
-}
-
-routine updateRepositoryInterfaces(pcm::OperationInterface pcmInterface, pcm::Repository pcmRepository) {
-	action {
 		update pcmRepository {
 			pcmRepository.interfaces__Repository += pcmInterface
 		}
+		add correspondence between pcmInterface and javaInterface
 	}
 }
 
@@ -342,9 +282,8 @@ routine updateRepositoryInterfaces(pcm::OperationInterface pcmInterface, pcm::Re
 reaction RemoveClassEvent {
 	after element java::Class removed from java::CompilationUnit[classifiers]
 	call {
-		removedClassEvent(oldValue)
+//		removedClassEvent(oldValue)
 	}
-
 } 
 
 routine removedClassEvent(java::Class clazz) {
@@ -360,7 +299,7 @@ routine removedClassEvent(java::Class clazz) {
 reaction RemoveInterfaceEvent {
 	after element java::Interface removed from java::CompilationUnit[classifiers]
 	call {
-		removedInterfaceEvent(oldValue)
+//		removedInterfaceEvent(oldValue)
 	}
 } 
 
@@ -370,48 +309,6 @@ routine removedInterfaceEvent(java::Interface interfaze) {
 	}
 	action {
 		delete pcmComponent
-	}
-}
-
-
-//Create Package
-reaction PackageCreated {
-	after element java::Package inserted as root
-	call {
-		createOrFindArchitecturalElement(newValue, getLastPackageName(newValue.name))
-		//Creates meta-element for the package in correspondences
-		createPackageEClassCorrespondence(newValue) 
-	}
-}
-
-/**
- * Required to enable locating existing packages with missing correspondences when keeping more than two models consistent.
- */
-routine createPackageEClassCorrespondence(java::Package jPackage) {
-	match {
-		val allPackages = retrieve many java::Package corresponding to jPackage.eClass
-		check !allPackages.contains(jPackage)
-	}
-	action {
-		add correspondence between jPackage and jPackage.eClass
-	}
-}
-
-routine createOrFindArchitecturalElement(java::Package javaPackage, String containerName) {
-	match {
-		val containerPackage = retrieve optional java::Package corresponding to ContainersPackage.Literals.PACKAGE
-			with containerPackage.name == containerName
-		require absence of pcm::RepositoryComponent corresponding to javaPackage
-	}
-	action {
-		call {
-			val rootPackageName = getRootPackageName(javaPackage.name)
-			if (containerPackage.isPresent) { // can actually be located if it exists:
-				createOrFindArchitecturalElementInPackage(javaPackage, containerPackage.get, rootPackageName)
-			} else { // cannot be located if it already exists, so just create it anyways:
-				createArchitecturalElement(javaPackage, containerName, rootPackageName)
-			}
-		}
 	}
 }
 
@@ -426,123 +323,18 @@ routine createOrFindArchitecturalElementInPackage(java::Package javaPackage, jav
 //			val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
 			val pcmComponentCandidate = pcmRepository.components__Repository.findFirst[entityName == javaPackage.name.toFirstUpper]
 			if (pcmComponentCandidate === null) {
-				createArchitecturalElement(javaPackage, containingPackage.name, rootPackageName)
+//				createArchitecturalElement(javaPackage, containingPackage.name, rootPackageName)
 			} else {
-				addCorrespondenceAndUpdateRepository(pcmComponentCandidate, javaPackage, pcmRepository)
+//				addCorrespondenceAndUpdateRepository(pcmComponentCandidate, javaPackage, pcmRepository)
 			}
 		}
 	}
 }
-
-
-routine createOrFindRepository(java::Package javaPackage, String packageName, String newTag) {
-	match {
-		require absence of pcm::Repository corresponding to javaPackage tagged with newTag
-		require absence of pcm::Repository corresponding to ContainersPackage.Literals.PACKAGE
-		val foundRepository = retrieve optional pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
-	}
-	action {
-		call {
-//			val foundRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
-			ensureFirstCaseUpperCaseRepositoryNaming(foundRepository.get, javaPackage)
-			addRepositoryCorrespondence(foundRepository.get, javaPackage, newTag)
-		}
-	}
-}
-
-routine ensureFirstCaseUpperCaseRepositoryNaming(pcm::Repository pcmRepository, java::Package javaPackage) {
-	match {
-		check pcmRepository.entityName == javaPackage.name
-	}
-	action {
-		update pcmRepository {
-			pcmRepository.entityName = javaPackage.name.toFirstUpper
-		}
-	}
-}
-
-routine addRepositoryCorrespondence(pcm::Repository pcmRepository, java::Package javaPackage, String newTag) {
-	action {
-		add correspondence between pcmRepository and ContainersPackage.Literals.PACKAGE
-		add correspondence between pcmRepository and javaPackage tagged with newTag
-	}
-}
-
-
-routine createRepository(java::Package javaPackage, String packageName, String newTag) {
-	action {
-		update javaPackage {
-			// If the package-info.java is not persisted, do it
-			val packageUri = javaPackage.eResource.URI;
-			if (!URIUtil.existsResourceAtUri(packageUri)) {
-				val projectRelativeResourcePath = packageUri.segmentsList.tail.fold("", [a, b | a + "/" + b])
-				persistProjectRelative(javaPackage, javaPackage, projectRelativeResourcePath)
-			}
-		}
-		val pcmRepository = create pcm::Repository and initialize {
-			pcmRepository.entityName = packageName.toFirstUpper
-			persistProjectRelative(javaPackage, pcmRepository, "model/" + pcmRepository.entityName + ".repository")
-		}
-		
-		add correspondence between pcmRepository and javaPackage 
-			tagged with newTag
-			
-		call createJavaSubPackages(javaPackage)
-		add correspondence between pcmRepository and ContainersPackage.Literals.PACKAGE
-		add correspondence between pcmRepository and RepositoryPackage.Literals.REPOSITORY
-	}
-}
-
-
-//Remove Package
-reaction RemovePackage {
-	after element java::Package removed as root
-
-	call {
-		removedPackageRoutine(oldValue)
-	}
-}
-
-routine removedPackageRoutine(java::Package javaPackage) {
-	match {
-		val metaElement = retrieve optional java::Package corresponding to javaPackage
-		val pcmComponent = retrieve pcm::RepositoryComponent corresponding to javaPackage
-		
-	}
-	action {
-		delete pcmComponent
-
-		call {
-			if (metaElement.isPresent) {
-				//Does not work as expected and the correspondence between meta-element and package is still there.
-				deleteMetaElementForPackage(metaElement.get)
-				//Does not work as expected and the correspondence between meta-element and package is still there.
-				//deleteCorrespondenceBetweenJavaPackageAndMetaElement(javaPackage, metaElement.get)
-			}
-		}
-	}
-	
-}
-
-
-routine deleteCorrespondenceBetweenJavaPackageAndMetaElement(java::Package javaPackage,  java::Package metaElement) {
-	action {
-		remove correspondence between javaPackage and metaElement
-	}
-}
-
-
-routine deleteMetaElementForPackage(java::Package packageCorrespondingToMetaElement) {
-	action {
-		delete packageCorrespondingToMetaElement
-	}
-}
-
 
 //Add implements
 reaction TypeReferenceCreated {
 	after element java::TypeReference inserted in java::Class[implements]
-	with newValue instanceof NamespaceClassifierReference || newValue instanceof ClassifierReference
+		with newValue instanceof NamespaceClassifierReference || newValue instanceof ClassifierReference
 	call {
 		createOperationProvidedRole(newValue)
 	}
@@ -573,7 +365,6 @@ routine createOperationProvidedRoleFromTypeReference(java::Classifier classifier
 	}
 }
 
-
 //Remove implements
 reaction TypeReferenceRemoved {
 	after element java::TypeReference removed from java::Class[implements]
@@ -593,137 +384,66 @@ routine removeOperationProvidedRole(java::TypeReference typeReference) {
 	}
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-//The following methods are not needed yet:
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-routine createOrFindSystem(java::Package javaPackage, String name) {
-	 match {
-		require absence of pcm::System corresponding to javaPackage
-		val foundSystem = retrieve optional pcm::System corresponding to SystemPackage.Literals.SYSTEM
-			with foundSystem.entityName.toFirstLower == javaPackage.name // PCM systems can be both upper and lower case
+routine createOrFindBasicComponent(java::ConcreteClassifier javaPackage, String name) {
+	match {
+		val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
 	}
 	action {
 		call {
-			if (foundSystem.isPresent) {
-				addSystemCorrespondence(foundSystem.get, javaPackage)
-			} else {
-				createSystem(javaPackage, name)
-			}
+			val pcmBasicComponent = pcmRepository.components__Repository.findFirst[it.entityName == name]
+			if (pcmBasicComponent !== null) {
+				addCorrespondenceAndUpdateRepository(pcmBasicComponent, javaPackage)
+				return
+			}	
 		}
-	}
-}
-
-routine addSystemCorrespondence(pcm::System pcmSystem, java::Package javaPackage) {
-	action {
-		add correspondence between pcmSystem and javaPackage tagged with "root_system"
-	}
-}
-
-routine createSystem(java::Package javaPackage, String name) {
-	action {
-		val pcmSystem = create pcm::System and initialize {
-			pcmSystem.entityName = name
-			persistProjectRelative(javaPackage, pcmSystem, "model/" + pcmSystem.entityName + ".system")
-		}
-		add correspondence between pcmSystem and javaPackage
-		add correspondence between pcmSystem and SystemPackage.Literals.SYSTEM tagged with "root_system"
-	}
-}
-
-routine createBasicComponent(java::Commentable javaPackage, String name, String rootPackageName) {
-	match {
-		val pcmRepository = retrieve pcm::Repository corresponding to ContainersPackage.Literals.PACKAGE
-	}
-	action {
 		val pcmBasicComponent = create pcm::BasicComponent and initialize {
 			pcmBasicComponent.entityName = name
 		}
 		call {
-//			val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
-			addCorrespondenceAndUpdateRepository(pcmBasicComponent, javaPackage, pcmRepository)
+			addCorrespondenceAndUpdateRepository(pcmBasicComponent, javaPackage)
 		}
 	}
 }
 
 routine createCompositeComponent(java::Package javaPackage, String name, String rootPackageName) {
 	match {
-		val pcmRepository = retrieve pcm::Repository corresponding to ContainersPackage.Literals.PACKAGE
+		val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
 	}
 	action {
 		val pcmCompositeComponent = create pcm::CompositeComponent and initialize {
 			pcmCompositeComponent.entityName = name
 		}		
 		call {
-//			val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
-			addCorrespondenceAndUpdateRepository(pcmCompositeComponent, javaPackage, pcmRepository)
+//			addCorrespondenceAndUpdateRepository(pcmCompositeComponent, javaPackage, pcmRepository)
 		}
 	}
 }
 
 /**
- * Adds correspondence between component and package if not already exists, and adds component into repository.
+ * Adds a correspondence between a component and a classifier if the correspondence does not already exists, and adds the component to the repository.
  */
-routine addCorrespondenceAndUpdateRepository(pcm::RepositoryComponent pcmComponent, java::Package javaPackage, pcm::Repository pcmRepository) {
+routine addCorrespondenceAndUpdateRepository(pcm::RepositoryComponent pcmComponent, java::ConcreteClassifier javaPackage) {
 	match {
 		val correspondingElement = retrieve optional pcm::RepositoryComponent corresponding to javaPackage
+		val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
 	}
 	action {
-		call {
-			if(!correspondingElement.isPresent) {
-				addCorrespondenceBetweenPcmComponentAndJavaPackage(pcmComponent, javaPackage)
-			}
-		}
 		update pcmRepository {
 			if(!pcmRepository.components__Repository.contains(pcmComponent)) {
 				pcmRepository.components__Repository += pcmComponent
 			}
 		}
-
-	}
-}
-
-routine addCorrespondenceBetweenPcmComponentAndJavaPackage(pcm::RepositoryComponent pcmComponent, java::Package javaPackage) {
-	action {
-		add correspondence between pcmComponent and javaPackage
-	}
-}
-
-
-routine addCorrespondenceBetweenPcmComponentOrSystemAndJavaCompilationUnit(pcm::InterfaceProvidingRequiringEntity pcmComponentOrSystem, java::CompilationUnit compilationUnit) {
-	action {
-		add correspondence between pcmComponentOrSystem and compilationUnit
-	}
-}
-
-reaction JavaPackageRenamed {
-	after attribute replaced at java::Package[name]
-	call {
-		renameRepository(affectedEObject)
-		renameSystem(affectedEObject)
-		renameComponent(affectedEObject)
-	}
-}
-
-routine renameRepository(java::Package javaPackage) {
-	match {
-		val pcmRepository = retrieve pcm::Repository corresponding to javaPackage tagged with "package_root"
-	}
-	action {
-		update pcmRepository {
-			pcmRepository.entityName = javaPackage.name.toFirstUpper
+		call {
+			if(!correspondingElement.isPresent) {
+				addCorrespondenceForPcmComponent(pcmComponent, javaPackage)
+			}
 		}
 	}
 }
 
-routine renameSystem(java::Package javaPackage) {
-	match {
-		val pcmSystem = retrieve pcm::System corresponding to javaPackage tagged with "root_system"
-	}
+routine addCorrespondenceForPcmComponent(pcm::RepositoryComponent pcmComponent, java::Commentable javaElement) {
 	action {
-		update pcmSystem {
-			pcmSystem.entityName = javaPackage.name.toFirstUpper
-		}
+		add correspondence between pcmComponent and javaElement
 	}
 }
 
@@ -738,13 +458,14 @@ routine renameComponent(java::Package javaPackage) {
 	}
 }
 
-
 reaction JavaInterfaceRenamed {
 	after attribute replaced at java::Interface[name]
-	call renameInterface(affectedEObject)
+	call {
+		renameInterface(affectedEObject)
+	}
 }
 
-routine renameInterface(java::Interface javaInterface) {
+routine renameInterface(java::ConcreteClassifier javaInterface) {
 	match {
 		val pcmInterface = retrieve pcm::OperationInterface corresponding to javaInterface}
 	action {
@@ -754,14 +475,13 @@ routine renameInterface(java::Interface javaInterface) {
 	}
 }
 
-
-
 //Class
 reaction JavaClassRenamed {
 	after attribute replaced at java::Class[name]
 	call {
-		renameComponentFromClass(affectedEObject)
+//		renameComponentFromClass(affectedEObject)
 		renameDataTypeFromClass(affectedEObject)
+		renameInterface(affectedEObject)
 	}
 }
 
@@ -791,10 +511,6 @@ routine renameDataTypeFromClass(java::Class javaClass) {
 	}
 }
 
-
-
-
-
 /**
  * User can choose if a composite or collection data type should be created.
  */
@@ -818,10 +534,6 @@ routine createDataType(java::Class javaClass, java::CompilationUnit compilationU
 		}
 	}
 }
-
-
-
-
 
 routine createOrFindCompositeDataType(java::Class javaClass, java::CompilationUnit compilationUnit) {
 	match {
@@ -902,45 +614,3 @@ routine addDataTypeInRepository(pcm::DataType pcmDataType) {
 		}
 	}
 }
-
-
-
-//Other
-/**
- * Creates datatypes and contracts package into given javaPackage after it was created.
- */
-routine createJavaSubPackages(java::Package javaPackage) {
-	match {
-		val repository = retrieve pcm::Repository corresponding to javaPackage
-	}
-	action {
-		call {
-			createJavaPackage(repository, javaPackage, "datatypes", "datatypes");
-			createJavaPackage(repository, javaPackage, "contracts", "contracts");
-		}
-	}
-}	
-
-/**
- * Create java package and tag it.
- */
-routine createJavaPackage(EObject sourceElementMappedToPackage, java::Package parentPackage, String packageName, String newTag)	 { 
-	match {
-		require absence of java::Package corresponding to sourceElementMappedToPackage tagged with newTag
-	} 
-	action { // TODO FIXME find or create pattern
-		val javaPackage = create java::Package and initialize {
-			if (parentPackage !== null) {
-				javaPackage.namespaces += parentPackage.namespaces;
-				javaPackage.namespaces += parentPackage.name; 
-			}
-			javaPackage.name = packageName;
-			persistProjectRelative(parentPackage, javaPackage, buildJavaFilePath(javaPackage));
-		}
-		add correspondence between javaPackage and ContainersPackage.Literals.PACKAGE
-		add correspondence between javaPackage and sourceElementMappedToPackage
-			tagged with newTag
-	}
-}
-
-	
