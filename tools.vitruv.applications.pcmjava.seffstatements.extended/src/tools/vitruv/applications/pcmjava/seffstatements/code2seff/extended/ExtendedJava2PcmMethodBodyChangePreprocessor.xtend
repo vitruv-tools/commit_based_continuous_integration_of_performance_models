@@ -8,11 +8,13 @@ import tools.vitruv.applications.pcmjava.seffstatements.code2seff.Java2PcmMethod
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.ClassMethodBodyChangedTransformation
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff.PojoJava2PcmCodeToSeffFactory
+import tools.vitruv.applications.pcmjava.commitintegration.domains.java.AdjustedJavaDomainProvider
+import tools.vitruv.domains.pcm.PcmDomainProvider
 
 class ExtendedJava2PcmMethodBodyChangePreprocessor extends Java2PcmMethodBodyChangePreprocessor {
 
 	new() {
-		super(new PojoJava2PcmCodeToSeffFactory)
+		super(new PojoJava2PcmCodeToSeffFactory, new AdjustedJavaDomainProvider().domain, new PcmDomainProvider().domain)
 	}
 
 	override ClassMethodBodyChangedTransformation createTransformation(Method oldMethod, Method newMethod,
