@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -50,10 +49,7 @@ import org.emftext.language.java.containers.JavaRoot;
 import org.emftext.language.java.containers.Package;
 
 import tools.vitruv.applications.pcmjava.tests.util.java2pcm.CompilationUnitManipulatorHelper;
-import tools.vitruv.applications.pcmjava.tests.util.java2pcm.SynchronizationAwaitCallback;
 import tools.vitruv.framework.vsum.VirtualModel;
-import tools.vitruv.framework.vsum.ChangePropagationAbortCause;
-import tools.vitruv.framework.vsum.ChangePropagationListener;
 
 /**
  * Class for applying changes contained in Git commits on a project. The commits must be contained in a {@link #gitRepository}. 
@@ -63,10 +59,8 @@ import tools.vitruv.framework.vsum.ChangePropagationListener;
  * @author Manar Mazkatli (advisor)
  * @author Martin Armbruster
  */
-public class GitChangeApplier extends CommitChangePropagator implements SynchronizationAwaitCallback, ChangePropagationListener {
+public class GitChangeApplier extends CommitChangePropagator {
 	private static final Logger logger = Logger.getLogger(GitChangeApplier.class.getSimpleName());
-	private static int MAXIMUM_SYNC_WAITING_TIME = 10000;
-	private AtomicInteger expectedNumberOfSyncs = new AtomicInteger(0);
 	private String lineDelimiter = System.lineSeparator();
 	private IProject currentProject;
 	
@@ -249,7 +243,7 @@ public class GitChangeApplier extends CommitChangePropagator implements Synchron
 			List<TextEdit> textEdits = transformEditListIntoTextEdits(editList, oldContent, newContent);
 			//Apply changes on the given compilation unit
 			try {
-				CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, textEdits.toArray(new TextEdit[textEdits.size()]));
+				CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, textEdits.toArray(new TextEdit[textEdits.size()]));
 			} catch (JavaModelException e) {
 				logger.error(e);
 			}
@@ -380,7 +374,7 @@ public class GitChangeApplier extends CommitChangePropagator implements Synchron
 						//Set empty content on the new file. Necessary to inform Vitruv about the new created java file.
 						InsertEdit edit = new InsertEdit(0, elementContent);
 						try {
-							CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, this, edit);
+							CompilationUnitManipulatorHelper.editCompilationUnit(compilationUnit, edit);
 						} catch (JavaModelException e) {
 							logger.error(e);
 						}
@@ -653,7 +647,6 @@ public class GitChangeApplier extends CommitChangePropagator implements Synchron
 				} catch (IOException e) {
 					logger.error(e);
 				}
-				waitForSynchronization(1);
 			}
 			
 			parentPackage = i + 1 < namespace.length ? parentPackage + "." + namespace[i + 1] : parentPackage  ;
@@ -795,66 +788,6 @@ public class GitChangeApplier extends CommitChangePropagator implements Synchron
 		}
         throw new RuntimeException("Could not find a compilation unit with name " + pathToPackageFragment);
     }
-	
-	/**
-	 * Waits for Vitruv reaction on changes. This method is used for synchronization when a {@link ICompilationUnit} is changed.
-	 * See {@link CompilationUnitManipulatorHelper#editCompilationUnit(ICompilationUnit, SynchronizationAwaitCallback, TextEdit...)}.
-	 *
-	 * @param numberOfExpectedSynchronizationCalls usually equals 1
-	 */
-	@Override
-	public synchronized void waitForSynchronization(int numberOfExpectedSynchronizationCalls) {
-		expectedNumberOfSyncs.addAndGet(numberOfExpectedSynchronizationCalls);
-		logger.debug("Starting to wait for finished synchronization. Expected syncs: "
-				+ numberOfExpectedSynchronizationCalls + ", remaining syncs: " + expectedNumberOfSyncs);
-		try {
-			int wakeups = 0;
-			while (expectedNumberOfSyncs.get() > 0) {
-				wait(MAXIMUM_SYNC_WAITING_TIME);
-				wakeups++;
-				// If we had more wakeups than expected sync calls, we had a
-				// timeout
-				// and so the synchronization was not finished as expected
-				if (wakeups > numberOfExpectedSynchronizationCalls) {
-					logger.info("Waiting for synchronization timed out. Continue the programm anyway.");
-					expectedNumberOfSyncs.addAndGet(-numberOfExpectedSynchronizationCalls);
-					break;
-				}
-				logger.info("Waiting for synchronization timed out. Please check if there is an opened user dialog.\nTry to wait one more time");
-			}
-		} catch (InterruptedException e) {
-			logger.warn("An interrupt occurred unexpectedly");
-		} finally {
-			logger.debug("Finished waiting for synchronization");
-		}
-	}
-	
-	@Override
-	public synchronized void startedChangePropagation() {
-		// Not needed yet
-	}
-	
-	/**
-	 * Notifies all waiting threads when change propagation is done.
-	 * This method is called from Vitruv.
-	 */
-	@Override
-	public synchronized void finishedChangePropagation() {
-		expectedNumberOfSyncs.decrementAndGet();
-		logger.debug("Reducing number of expected syncs to: " + expectedNumberOfSyncs);
-		this.notifyAll();
-	}
-	
-	/**
-	 * Notifies all waiting threads when change propagation is aborted.
-	 * This method is called from Vitruv.
-	 */
-	@Override
-	public synchronized void abortedChangePropagation(ChangePropagationAbortCause cause) {
-		expectedNumberOfSyncs.decrementAndGet();
-		logger.debug("Reducing number of expected syncs to: " + expectedNumberOfSyncs);
-		this.notifyAll();
-	}
 	
 	/**
 	 * Replaces all possible kinds of line separators with one particular kind of line separator in <code>fileContent</code>

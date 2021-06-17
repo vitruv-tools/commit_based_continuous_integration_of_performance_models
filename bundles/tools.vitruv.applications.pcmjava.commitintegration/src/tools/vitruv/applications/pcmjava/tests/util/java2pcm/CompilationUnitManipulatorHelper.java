@@ -30,7 +30,7 @@ public final class CompilationUnitManipulatorHelper {
 	}
 
 	public static void editCompilationUnit(final ICompilationUnit cu,
-			SynchronizationAwaitCallback synchronizationCallback, final TextEdit... edits) throws JavaModelException {
+			final TextEdit... edits) throws JavaModelException {
 		cu.becomeWorkingCopy(new NullProgressMonitor());
 		for (final TextEdit edit : edits) {
 			cu.applyTextEdit(edit, null);
@@ -39,7 +39,6 @@ public final class CompilationUnitManipulatorHelper {
 		cu.commitWorkingCopy(false, new NullProgressMonitor());
 		cu.discardWorkingCopy();
 		cu.save(null, true);
-		synchronizationCallback.waitForSynchronization(1);
 	}
 
 	public static ICompilationUnit findICompilationUnitWithClassName(String entityName,
@@ -68,13 +67,12 @@ public final class CompilationUnitManipulatorHelper {
 	}
 
 	public static ICompilationUnit addMethodToCompilationUnit(final String compilationUnitName,
-			final String methodString, final IProject currentTestProject,
-			SynchronizationAwaitCallback synchronizerCallback) throws JavaModelException {
+			final String methodString, final IProject currentTestProject) throws JavaModelException {
 		final ICompilationUnit cu = findICompilationUnitWithClassName(compilationUnitName, currentTestProject);
 		final IType firstType = cu.getAllTypes()[0];
 		final int offset = CompilationUnitManipulatorHelper.getOffsetForClassifierManipulation(firstType);
 		final InsertEdit insertEdit = new InsertEdit(offset, methodString);
-		editCompilationUnit(cu, synchronizerCallback, insertEdit);
+		editCompilationUnit(cu, insertEdit);
 		return cu;
 	}
 
