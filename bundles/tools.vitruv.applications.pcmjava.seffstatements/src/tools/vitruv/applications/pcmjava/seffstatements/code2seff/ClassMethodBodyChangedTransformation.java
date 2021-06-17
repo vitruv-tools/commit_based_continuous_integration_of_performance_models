@@ -157,7 +157,6 @@ public class ClassMethodBodyChangedTransformation {
 		for (final AbstractAction abstractAction : newResourceDemandingBehaviourElements.getSteps_Behaviour()) {
 			ci.createAndAddCorrespondence(Lists.newArrayList(abstractAction), Lists.newArrayList(this.newMethod));
 		}
-		ci.createAndAddCorrespondence(Lists.newArrayList(newResourceDemandingBehaviourElements), Lists.newArrayList(this.newMethod));
 	}
 
 	private void connectCreatedResourceDemandingBehaviour(final ResourceDemandingBehaviour rdBehavior,
