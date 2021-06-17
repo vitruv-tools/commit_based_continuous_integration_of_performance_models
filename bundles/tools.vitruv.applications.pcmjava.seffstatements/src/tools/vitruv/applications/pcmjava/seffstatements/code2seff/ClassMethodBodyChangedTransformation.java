@@ -177,7 +177,8 @@ public class ClassMethodBodyChangedTransformation {
 	}
 
 	private void removeCorrespondingAbstractActions(final CorrespondenceModel ci) {
-		final Set<AbstractAction> correspondingAbstractActions = CorrespondenceModelUtil
+		final Set<AbstractAction> correspondingAbstractActions =
+				this.oldMethod == null ? null : CorrespondenceModelUtil
 				.getCorrespondingEObjects(ci, this.oldMethod, AbstractAction.class);
 		if (null == correspondingAbstractActions) {
 			return;
@@ -226,8 +227,10 @@ public class ClassMethodBodyChangedTransformation {
 	}
 
 	private ResourceDemandingBehaviour findRdBehaviorToInsertElements(final CorrespondenceModel ci) {
-		final Set<ResourceDemandingBehaviour> correspondingResourceDemandingBehaviours = CorrespondenceModelUtil
-				.getCorrespondingEObjects(ci, this.oldMethod, ResourceDemandingBehaviour.class);
+		final Set<ResourceDemandingBehaviour> correspondingResourceDemandingBehaviours =
+				CorrespondenceModelUtil.getCorrespondingEObjects(ci,
+						this.oldMethod == null ? this.newMethod : this.oldMethod,
+						ResourceDemandingBehaviour.class);
 		if (null == correspondingResourceDemandingBehaviours || correspondingResourceDemandingBehaviours.isEmpty()) {
 			logger.warn("No ResourceDemandingBehaviours found for method " + this.oldMethod
 					+ ". Could not create ResourceDemandingBehavoir to insert SEFF elements");
