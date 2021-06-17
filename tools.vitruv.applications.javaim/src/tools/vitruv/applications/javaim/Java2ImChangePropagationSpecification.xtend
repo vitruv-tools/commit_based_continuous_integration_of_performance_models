@@ -51,9 +51,14 @@ class Java2ImChangePropagationSpecification extends AbstractChangePropagationSpe
 		
 		if (!correspondingSEFFs.empty) {
 			val seff = correspondingSEFFs.last
-			val sip = internalIM.points.filter[it.service == seff].last
-			sip.actionInstrumentationPoints.clear
-			InstrumentationModelUtil.recursiveBuildImm(seff, sip)
+			var sip = internalIM.points.filter[it.service == seff].last
+			if (sip !== null) {
+				sip.actionInstrumentationPoints.clear
+				InstrumentationModelUtil.recursiveBuildImm(seff, sip)
+			} else {
+				sip = InstrumentationModelUtil.recursiveBuildImm(seff)
+				internalIM.points.add(sip)
+			}
 		}
 	}
 }
