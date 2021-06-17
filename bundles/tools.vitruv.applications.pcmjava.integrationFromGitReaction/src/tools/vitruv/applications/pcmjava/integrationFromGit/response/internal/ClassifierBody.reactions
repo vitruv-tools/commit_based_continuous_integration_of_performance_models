@@ -1,28 +1,27 @@
-import org.palladiosimulator.pcm.repository.OperationProvidedRole
 import org.emftext.language.java.classifiers.ConcreteClassifier
 import tools.vitruv.applications.pcmjava.util.java2pcm.TypeReferenceCorrespondenceHelper
-import tools.vitruv.framework.userinteraction.UserInteractionOptions.WindowModality
 
 import static tools.vitruv.applications.pcmjava.util.java2pcm.TypeReferenceCorrespondenceHelper.*
 import static tools.vitruv.applications.util.temporary.java.JavaTypeUtil.*
 
 import static extension edu.kit.ipd.sdq.commons.util.org.palladiosimulator.pcm.repository.ParameterUtil.*
-import static extension tools.vitruv.applications.util.temporary.java.JavaMemberAndParameterUtil.hasSameSignature
-import org.eclipse.emf.ecore.util.EcoreUtil
+import org.emftext.language.java.members.Field
 
 import "http://www.emftext.org/java" as java 
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
+
 
 reactions: classifierBody
 in reaction to changes in AdjustedJava
 execute actions in PCM
 
 
-
 reaction MemberRenamed {
 	after attribute replaced at java::Member[name]
-	with !(affectedEObject instanceof ConcreteClassifier) // avoid class renames
-	call renameMember(affectedEObject)
+		with !(affectedEObject instanceof ConcreteClassifier) && !(affectedEObject instanceof Field)
+	call {
+		renameMember(affectedEObject)
+	}
 }
 
 routine renameMember(java::Member javaMember) {
@@ -35,7 +34,6 @@ routine renameMember(java::Member javaMember) {
 	}
 }
 
-// Parameter:
 reaction ParameterCreated {
 	after element java::OrdinaryParameter inserted in java::Parametrizable[parameters]
 	call {
@@ -102,7 +100,6 @@ routine changeParameterName(String newName, java::Parameter javaParameter) {
 	}
 }
 
-// Field:
 /**
  * Check if Field has correspondence to CompositeDataType, ComposedProvidingRequiringEntity, 
  * OperationInterface or RepositoryComponent and react accordingly.
@@ -113,8 +110,6 @@ reaction FieldCreated {
 		createInnerDeclaration(newValue.containingConcreteClassifier, newValue)
 		val type = getNormalizedClassifierFromTypeReference(newValue.typeReference)
 		fieldCreatedCorrespondingToOperationInterface(type, newValue)
-		fieldCreatedCorrespondingToRepositoryComponent(type, newValue)
-		createOrFindAssemblyContext(newValue.containingConcreteClassifier, newValue)
 	}
 }
 
@@ -134,66 +129,16 @@ routine createInnerDeclaration(java::ConcreteClassifier classifier, java::Field 
 	}
 }
 
-routine createOrFindAssemblyContext(java::ConcreteClassifier classifier, java::Field javaField) {
-    match {
-        val composedProvidingRequiringEntity = retrieve pcm::ComposedProvidingRequiringEntity corresponding to classifier
-        val repositoryComponent = retrieve pcm::RepositoryComponent corresponding to getClassifierFromTypeReference(javaField.typeReference)
-        require absence of pcm::AssemblyContext corresponding to javaField
-    }
-    action {
-        call {
-            val pcmAssemblyContextCandidate = composedProvidingRequiringEntity.assemblyContexts__ComposedStructure.findFirst[entityName === javaField.name]
-            if (pcmAssemblyContextCandidate === null) {
-                createAssemblyContext(classifier, javaField)
-            } else {
-                addAssemblyContextCorrespondence(pcmAssemblyContextCandidate, javaField)
-            }
-        }
-    }
-}
-
-routine createAssemblyContext(java::ConcreteClassifier classifier, java::Field javaField) {
-	match {
-		val composedProvidingRequiringEntity = retrieve pcm::ComposedProvidingRequiringEntity corresponding to classifier
-		val repositoryComponent = retrieve pcm::RepositoryComponent corresponding to getClassifierFromTypeReference(javaField.typeReference)
-	}
-	action {
-		val assemblyContext = create pcm::AssemblyContext and initialize {
-			assemblyContext.entityName = javaField.name
-			assemblyContext.encapsulatedComponent__AssemblyContext = repositoryComponent
-			assemblyContext.parentStructure__AssemblyContext = composedProvidingRequiringEntity	
-		}
-		add correspondence between assemblyContext and javaField
-	}
-}
-
-routine addAssemblyContextCorrespondence(pcm::AssemblyContext assemblyContext, java::Field javaField) {
-    action {
-        add correspondence between assemblyContext and javaField
-    }
-}
-
 routine fieldCreatedCorrespondingToOperationInterface(java::Classifier classifier, java::Field javaField) {
 	match {
 		val correspondingInterface = retrieve pcm::OperationInterface corresponding to classifier
+		val correspondingComponent = retrieve pcm::RepositoryComponent corresponding to classifier
 		val repositoryComponent = retrieve pcm::RepositoryComponent corresponding to javaField.containingConcreteClassifier
 	}
 	action {
 		call {
-			createOperationRequiredRoleCorrespondingToField(javaField, correspondingInterface, repositoryComponent)
-		}
-	}
-}
-routine fieldCreatedCorrespondingToRepositoryComponent(java::Classifier classifier, java::Field javaField) {
-	match {
-		val repositoryComponent = retrieve pcm::RepositoryComponent corresponding to classifier
-		val concreteRepositoryComponent = retrieve pcm::RepositoryComponent corresponding to javaField.containingConcreteClassifier
-	}
-	action {
-		call {
-			var operationProvidedRoles = repositoryComponent.providedRoles_InterfaceProvidingEntity.filter(OperationProvidedRole)
-			for (providedRole : operationProvidedRoles) {
-				createOperationRequiredRoleCorrespondingToField(javaField, providedRole.providedInterface__OperationProvidedRole, concreteRepositoryComponent)
+			if (correspondingComponent != repositoryComponent) {
+				createOperationRequiredRoleCorrespondingToField(javaField, correspondingInterface, repositoryComponent)
 			}
 		}
 	}
@@ -210,12 +155,6 @@ routine createOperationRequiredRoleCorrespondingToField(java::Field javaField, p
 		add correspondence between operationRequiredRole and javaField
 	}
 }
-/*see reaction ChangeFieldTypeEvent
-reaction FieldTypeChange {
-	after element replaced at java::Field[typeReference]
-	call changeInnerDeclarationType(newValue, affectedEObject)
-}
-*/
 
 routine changeInnerDeclarationType(java::TypeReference typeReference, java::Field javaField) {
 	match {
@@ -229,63 +168,50 @@ routine changeInnerDeclarationType(java::TypeReference typeReference, java::Fiel
 	}
 }
 
-
-
-//Langhammer's Level 3 integration change propagation rule for changing field type
-//start
 reaction ChangeFieldTypeEvent {
 	after element replaced at java::Field[typeReference]
-	call changedFieldTypeEvent(affectedEObject, oldValue, newValue)
+	call {
+		changeInnerDeclarationType(newValue, affectedEObject)
+		changedFieldTypeEvent(affectedEObject, oldValue, newValue)
+	}
 }
 
 routine changedFieldTypeEvent(java::Field field, java::TypeReference oldType, java::TypeReference newType) {
 	match {
-		//val oldCorrespondingOpInterface = retrieve optional pcm::OperationInterface corresponding to oldType
 		val oldCorrespondingOpInterface = retrieve optional pcm::OperationInterface corresponding to getNormalizedClassifierFromTypeReference(oldType)
-		//val opInterface = retrieve optional pcm::OperationInterface corresponding to newType
+		val oldCorrespondingCom = retrieve optional pcm::RepositoryComponent corresponding to getNormalizedClassifierFromTypeReference(oldType)
 		val opInterface = retrieve optional pcm::OperationInterface corresponding to getNormalizedClassifierFromTypeReference(newType)
+		val newCom = retrieve optional pcm::RepositoryComponent corresponding to getNormalizedClassifierFromTypeReference(newType)
 		val opRequiredRole = retrieve optional pcm::OperationRequiredRole corresponding to field
 		val basicComponent = retrieve pcm::BasicComponent corresponding to field.containingConcreteClassifier
 	}
 	action {
 		call {
-			if(oldCorrespondingOpInterface.present && opInterface.present && opRequiredRole.present){
-				// reset required role 
-				//userInteractor.notificationDialogBuilder.message("the operation required role has been changed").windowModality(WindowModality.MODAL).startInteraction;
+			if (opRequiredRole.present
+					&& oldCorrespondingOpInterface.present && opInterface.present
+					&& oldCorrespondingCom.present && newCom.present
+					&& newCom.get !== basicComponent) {
+				// Reset required role. 
 				opRequiredRole.get.requiredInterface__OperationRequiredRole = opInterface.get
 				return
 			}
-			if(!oldCorrespondingOpInterface.present && opInterface.present){
-				// new required role needs to be added 
-				//userInteractor.notificationDialogBuilder.message("Create OperationRequiredRole between Component " + 
-				//	basicComponent.entityName + " and Interface " + opInterface.get.entityName).windowModality(WindowModality.MODAL).startInteraction;
-				createRequiredRole(basicComponent, opInterface.get, field)
+			if (!oldCorrespondingOpInterface.present && opInterface.present
+					&& newCom.present && newCom.get !== basicComponent) {
+				// New required role needs to be added.
+				createOperationRequiredRoleCorrespondingToField(field, opInterface.get, basicComponent)
 				return
 			}
-			if(oldCorrespondingOpInterface.present && !opInterface.present && opRequiredRole.present){
-				// remove required role and correspondence
-				//userInteractor.notificationDialogBuilder.message("Remove OperationRequiredRole between Component " + 
-				//	basicComponent.entityName + " and Interface " + oldCorrespondingOpInterface.get.entityName).windowModality(WindowModality.MODAL).startInteraction;
+			if (opRequiredRole.present
+					&& (oldCorrespondingOpInterface.present && !opInterface.present
+					|| oldCorrespondingOpInterface.present && opInterface.present
+					&& oldCorrespondingCom.present && newCom.present
+					&& newCom.get === basicComponent)) {
+				// Remove required role and correspondence.
 				removeRequiredRoleAndCorrespondence(opRequiredRole.get, field)
 			}
 		}
 	}
 }
-	
-
-routine createRequiredRole(pcm::BasicComponent basicComponent, pcm::OperationInterface opInterface, java::Field field) {
-	action {
-		val opRequiredRole = create pcm::OperationRequiredRole
-		add correspondence between opRequiredRole and field
-		update opRequiredRole {
-			opRequiredRole.requiredInterface__OperationRequiredRole = opInterface
-			opRequiredRole.requiringEntity_RequiredRole = basicComponent
-			userInteractor.notificationDialogBuilder.message("Create OperationRequiredRole between Component " + 
-				basicComponent.entityName + " and Interface " + opInterface.entityName).windowModality(WindowModality.MODAL).startInteraction;
-		}
-	}
-}	
-
 
 routine removeRequiredRoleAndCorrespondence(pcm::OperationRequiredRole orr, java::Field field) {
 	action {
@@ -293,46 +219,19 @@ routine removeRequiredRoleAndCorrespondence(pcm::OperationRequiredRole orr, java
 	}
 }
 
-
 reaction RemoveFieldEvent {
 	after element java::Field removed from java::Class[members]
 	call removedFieldEvent(oldValue)
 }
 
 routine removedFieldEvent(java::Field field) {
-	match { 
+	match {
 		val namedElement = retrieve pcm::NamedElement corresponding to field
-	}	
+	}
 	action {
 		delete namedElement
 	}
 }
-
-//end
-/*
-//Langhammer's Level 3 integration change propagation rule for removing field
-reaction RemoveFieldEvent {
-	after element removed from java::ConcreteClassifier[members]
-		with oldValue instanceof java::Field // TODO replace with element filter in trigger
-	call removedFieldEvent(oldValue as Field)
-}
-	
-routine removedFieldEvent(java::Field field) {
-	match { 
-		val namedElement = retrieve pcm::NamedElement corresponding to field
-	}	
-	action {
-		remove correspondence between field and namedElement
-		update field {
-			userInteractor.notificationDialogBuilder.message("Removed " + namedElement + " because the corresponding field " + field + " has been removed").
-				windowModality(WindowModality.MODAL).startInteraction;
-			// TODO This is wrong, isnt't it? Should be "namedElement"!?
-			EcoreUtil.^remove(field)
-		}
-	}
-}
-*/
-
 
 reaction JavaReturnTypeChanged {
 	after element java::TypeReference replaced at java::Method[typeReference]
@@ -349,16 +248,4 @@ routine changeReturnType(java::Method javaMethod, java::TypeReference typeRefere
 			operationSignature.returnType__OperationSignature = getCorrespondingPCMDataTypeForTypeReference(typeReference, correspondenceModel, userInteractor, repository, javaMethod.arrayDimension)
 		 }
 	 }
-}
-
-
-// empty implementation for changeFieldModifier, because the change is not architectural relevant
-reaction ChangeFieldModifierEvent {
-	after element inserted in java::Field[annotationsAndModifiers]
-	call { }
-}
-
-reaction RemoveFieldModifierEvent {
-	after element removed from java::Field[annotationsAndModifiers]
-	call { }
 }
