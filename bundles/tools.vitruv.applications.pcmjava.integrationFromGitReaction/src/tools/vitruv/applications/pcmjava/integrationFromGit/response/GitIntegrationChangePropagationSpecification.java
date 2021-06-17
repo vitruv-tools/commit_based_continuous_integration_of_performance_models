@@ -2,6 +2,7 @@ package tools.vitruv.applications.pcmjava.integrationFromGit.response;
 
 import mir.reactions.allReactions.AllReactionsChangePropagationSpecification;
 import mir.reactions.classifierBody.ClassifierBodyChangePropagationSpecification;
+
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended.ExtendedJava2PcmMethodBodyChangePreprocessor;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.Java2PcmPackageMappingMethodBodyChangePreprocessor;
 
@@ -29,6 +30,6 @@ public class GitIntegrationChangePropagationSpecification extends AllReactionsCh
 	protected void setup() {
 		super.setup();
 		// Change propagation specification for changes on method bodies.
-		this.addChangePreprocessor(new ExtendedJava2PcmMethodBodyChangePreprocessor());
+		this.addChangeMainprocessor(new ExtendedJava2PcmMethodBodyChangePreprocessor());
 	}
 }
