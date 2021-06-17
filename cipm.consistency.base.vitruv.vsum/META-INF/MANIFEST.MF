@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests for the Git integration
+Bundle-SymbolicName: cipm.consistency.base.vitruv.vsum
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: cipm.consistency.base.vitruv.vsum
+Bundle-RequiredExecutionEnvironment: JavaSE-13
+Require-Bundle: tools.vitruv.applications.pcmjava.commitintegration,
+ tools.vitruv.applications.pcmjava.commitintegration.domains,
+ tools.vitruv.framework.vsum,
+ tools.vitruv.domains.java,
+ org.eclipse.jgit,
+ org.apache.commons.io,
+ org.apache.log4j,
+ tools.vitruv.framework.propagation,
+ tools.vitruv.domains.pcm,
+ tools.vitruv.extensions.dslsruntime.reactions,
+ jamopp.parser,
+ jamopp.parser.jdt.singlefile,
+ jamopp.resource,
+ tools.vitruv.applications.pcmjava.integrationFromGitReaction,
+ tools.vitruv.applications.pcmjava.seffstatements.extended,
+ cipm.consistency.base.shared,
+ cipm.consistency.base.models.instrumentation,
+ cipm.consistency.base.vitruv.domain.im,
+ tools.vitruv.applications.javaim
+Export-Package: cipm.consistency.base.vitruv.vsum
