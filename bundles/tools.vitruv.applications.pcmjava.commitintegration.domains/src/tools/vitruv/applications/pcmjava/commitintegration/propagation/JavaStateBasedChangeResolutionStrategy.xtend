@@ -27,7 +27,7 @@ import org.eclipse.emf.compare.postprocessor.PostProcessorDescriptorRegistryImpl
 import java.util.regex.Pattern
 
 /**
- * This default strategy for diff based state changes uses EMFCompare to resolve a 
+ * This strategy for diff based state changes of Java models uses EMFCompare to resolve a 
  * diff to a sequence of individual changes.
  * 
  * @author Timur Saglam
@@ -47,12 +47,12 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 		oldState.checkNoProxies("old state")
 		val monitoredResourceSet = new ResourceSetImpl()
 		val currentStateCopy = oldState.copyInto(monitoredResourceSet)
-		return currentStateCopy.record [
+		return currentStateCopy.record(monitoredResourceSet, [
 			if (oldState.URI != newState.URI) {
 				currentStateCopy.URI = newState.URI
 			}
 			compareStatesAndReplayChanges(newState, currentStateCopy)
-		]
+		])
 	}
 
 	override getChangeSequenceForCreated(Resource newState) {
@@ -68,9 +68,24 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 			val allCommentable = it.eAllContents.filter[it instanceof Commentable].map[it as Commentable].toSet
 			allCommentable.forEach[it.layoutInformations.clear]
 		]
-		return newResource.record [
+		return newResource.record(monitoredResourceSet, [
 			newResource.contents += contents
+		])
+	}
+	
+	/**
+	 * Creates a change sequence for all resources in a ResourceSet.
+	 * The resources and their content are not copied to preserve cross-references and to create correct sequences.
+	 */
+	def getChangeSequenceForResourceSet(ResourceSet set) {
+		checkArgument(set !== null, "There must be a ResourceSet!")
+		val targetSet = new ResourceSetImpl()
+		set.resources.forEach[
+			targetSet.createResource(it.URI)
 		]
+		return targetSet.record(targetSet, [
+			compareStatesAndReplayChanges(set, targetSet)
+		])
 	}
 
 	override getChangeSequenceForDeleted(Resource oldState) {
@@ -79,20 +94,20 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 		// Setup resolver and copy state:
 		val monitoredResourceSet = new ResourceSetImpl()
 		val currentStateCopy = oldState.copyInto(monitoredResourceSet)
-		return currentStateCopy.record [
+		return currentStateCopy.record(monitoredResourceSet, [
 			currentStateCopy.contents.clear()
-		]
+		])
 	}
 
-	private def <T extends Notifier> record(Resource resource, ()=>void function) {
-		try (val changeRecorder = new ChangeRecorder(resource.resourceSet)) {
+	private def <T extends Notifier> record(T resource, ResourceSet resourceSet, () => void function) {
+		try (val changeRecorder = new ChangeRecorder(resourceSet)) {
 			changeRecorder.beginRecording
 			changeRecorder.addToRecording(resource)
 			function.apply()
 			return changeRecorder.endRecording
 		}
 	}
-
+	
 	/**
 	 * Compares states using EMFCompare and replays the changes to the current state.
 	 */
