@@ -13,6 +13,7 @@ import tools.vitruv.framework.correspondence.CorrespondenceModelUtil
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel
 import cipm.consistency.base.models.inmodel.InstrumentationModelUtil
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage
 
 /**
  * Propagates changes in method bodies to the instrumentation model.
@@ -21,11 +22,9 @@ import cipm.consistency.base.models.inmodel.InstrumentationModelUtil
  * @author Martin Armbruster
  */
 class Java2ImChangePropagationSpecification extends AbstractChangePropagationSpecification {
-	InstrumentationModel internalIM;
 	
-	new(InstrumentationModel im) {
+	new() {
 		super(new AdjustedJavaDomainProvider().domain, new InstrumentationModelDomainProvider().domain)
-		internalIM = im;
 	}
 	
 	override propagateChange(EChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
@@ -48,16 +47,18 @@ class Java2ImChangePropagationSpecification extends AbstractChangePropagationSpe
 		
 		val newMethod = insertionChange.newValue as Method;
 		val correspondingSEFFs = CorrespondenceModelUtil.getCorrespondingEObjects(correspondenceModel, newMethod, ResourceDemandingSEFF)
+		val im = CorrespondenceModelUtil.getCorrespondingEObjects(correspondenceModel,
+			InstrumentationModelPackage.Literals.INSTRUMENTATION_MODEL, InstrumentationModel).last
 		
 		if (!correspondingSEFFs.empty) {
 			val seff = correspondingSEFFs.last
-			var sip = internalIM.points.filter[it.service == seff].last
+			var sip = im.points.filter[it.service == seff].last
 			if (sip !== null) {
 				sip.actionInstrumentationPoints.clear
 				InstrumentationModelUtil.recursiveBuildImm(seff, sip)
 			} else {
 				sip = InstrumentationModelUtil.recursiveBuildImm(seff)
-				internalIM.points.add(sip)
+				im.points.add(sip)
 			}
 		}
 	}
