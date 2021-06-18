@@ -15,7 +15,9 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import tools.vitruv.framework.vsum.VirtualModel;
+import tools.vitruv.applications.pcmjava.commitintegration.propagation.JavaStateBasedChangeResolutionStrategy;
+import tools.vitruv.framework.change.description.VitruviusChange;
+import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
 
 /**
  * This class propagates changes from Git commits to JaMoPP models within Vitruv by directly propagating the changes of a commit
@@ -27,11 +29,16 @@ import tools.vitruv.framework.vsum.VirtualModel;
 public class CommitChangePropagator {
 	private static final Logger logger = Logger.getLogger(CommitChangePropagator.class.getSimpleName());
 	private GitRepositoryWrapper repoWrapper;
-	private VirtualModel vsum;
+	private InternalVirtualModel vsum;
 	private File localRemoteRepository;
 	private String remoteRepository;
 	private boolean isCurrentStateIntegratedIntoVSUM = false;
 	private File workSpaceCopy;
+	
+	private static class URIURIMapping {
+		private URI oldURI;
+		private URI newURI;
+	}
 
 	/**
 	 * Creates a new instance.
@@ -41,7 +48,7 @@ public class CommitChangePropagator {
 	 *                     This includes the cloning of the Git repository.
 	 * @param vSUM the VSUM which is used to propagate the changes.
 	 */
-	public CommitChangePropagator(File repositoryPath, String javaCacheDir, VirtualModel vSUM) {
+	public CommitChangePropagator(File repositoryPath, String javaCacheDir, InternalVirtualModel vSUM) {
 		localRemoteRepository = repositoryPath;
 		vsum = vSUM;
 		prepareJavaCacheDir(javaCacheDir);
@@ -55,7 +62,7 @@ public class CommitChangePropagator {
 	 *                     This includes the cloning of the Git repository.
 	 * @param vSUM the VSUM which is used to propagate the changes.
 	 */
-	public CommitChangePropagator(String repositoryPath, String javaCacheDir, VirtualModel vSUM) {
+	public CommitChangePropagator(String repositoryPath, String javaCacheDir, InternalVirtualModel vSUM) {
 		remoteRepository = repositoryPath;
 		vsum = vSUM;
 		prepareJavaCacheDir(javaCacheDir);
@@ -129,12 +136,41 @@ public class CommitChangePropagator {
 		repoWrapper.checkout(commitId);
 		logger.debug("Obtaining the differences.");
 		List<DiffEntry> diffs = repoWrapper.computeDiffsBetweenTwoCommits(start, end, true, true);
-		logger.debug("Sorting the differences.");
-		diffs = sortDiffs(diffs);
+//		logger.debug("Sorting the differences.");
+//		diffs = sortDiffs(diffs);
 		logger.debug("Analyzing the differences.");
+		ArrayList<URIURIMapping> changed = new ArrayList<>();
 		for (DiffEntry diffEntry : diffs) {
-			processDiff(diffEntry);
+			changed.add(updateSources(diffEntry));
 		}
+		logger.debug("Loading the changed files.");
+		ResourceSetImpl set = new ResourceSetImpl();
+		changed.forEach(u -> {
+			if (u.newURI != null) {
+				set.getResource(u.newURI, true);
+			}
+		});
+		List<Resource> newResources = new ArrayList<>(set.getResources());
+		for (Resource r : newResources) {
+			EcoreUtil.resolveAll(r);
+		}
+		List<Resource> oldResources = new ArrayList<>();
+		changed.forEach(u -> {
+			if (u.oldURI != null) {
+				oldResources.add(vsum.getModelInstance(u.oldURI).getResource());
+			}
+		});
+		logger.debug("Calculating the change sequence for the changed files.");
+		var strategy = new JavaStateBasedChangeResolutionStrategy();
+		VitruviusChange changeSequence = null;
+		if (oldResources.size() == 0) {
+			changeSequence = strategy.getChangeSequenceForResourceSet(set, newResources);
+		} else {
+			changeSequence = strategy.getChangeSequenceBetweenResourceSet(set,
+					oldResources.get(0).getResourceSet(), newResources, oldResources);
+		}
+		logger.debug("Propagating the change sequence.");
+		vsum.propagateChange(changeSequence);
 		logger.debug("Finished the propagation of " + commitId);
 	}
 	
@@ -182,6 +218,41 @@ public class CommitChangePropagator {
 	public void shutdown() {
 		logger.debug("Shutting down.");
 		repoWrapper.closeRepository();
+	}
+	
+	private URIURIMapping updateSources(DiffEntry entry) {
+		String prefix = repoWrapper.getRootDirectory().getAbsolutePath() + File.separator;
+		String prefixInCopy = workSpaceCopy.getAbsolutePath() + File.separator;
+		String newFileInCopy = prefixInCopy + entry.getNewPath();
+		URIURIMapping u = new URIURIMapping();
+		// Perform file operations to transfer the changes in the local repository to the workspace copy.
+		switch (entry.getChangeType()) {
+			case COPY:
+			case MODIFY:
+				u.oldURI = URI.createFileURI(prefixInCopy + entry.getOldPath());
+			case RENAME:	
+			case ADD:
+				u.newURI = URI.createFileURI(newFileInCopy);
+				try {
+					FileUtils.copyFile(new File(prefix + entry.getNewPath()),
+							new File(newFileInCopy));
+				} catch (IOException e) {
+					logger.error(e);
+				}
+				break;
+			default:
+				break;
+		}
+		switch (entry.getChangeType()) {
+			case RENAME:
+			case DELETE:
+				u.oldURI = URI.createFileURI(prefixInCopy + entry.getOldPath());
+				new File(prefixInCopy + entry.getOldPath()).delete();
+				break;
+			default:
+				break;
+		}
+		return u;
 	}
 	
 	/**

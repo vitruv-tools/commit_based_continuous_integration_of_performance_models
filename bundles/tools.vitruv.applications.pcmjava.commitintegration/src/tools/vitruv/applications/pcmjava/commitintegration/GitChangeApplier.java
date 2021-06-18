@@ -49,7 +49,7 @@ import org.emftext.language.java.containers.JavaRoot;
 import org.emftext.language.java.containers.Package;
 
 import tools.vitruv.applications.pcmjava.tests.util.java2pcm.CompilationUnitManipulatorHelper;
-import tools.vitruv.framework.vsum.VirtualModel;
+import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
 
 /**
  * Class for applying changes contained in Git commits on a project. The commits must be contained in a {@link #gitRepository}. 
@@ -64,11 +64,11 @@ public class GitChangeApplier extends CommitChangePropagator {
 	private String lineDelimiter = System.lineSeparator();
 	private IProject currentProject;
 	
-	public GitChangeApplier(File repositoryPath, String localRepositoryPath, VirtualModel vsum) {
+	public GitChangeApplier(File repositoryPath, String localRepositoryPath, InternalVirtualModel vsum) {
 		super(repositoryPath, localRepositoryPath, vsum);
 	}
 	
-	public GitChangeApplier(String repositoryPath, String localRepositoryPath, VirtualModel vsum) {
+	public GitChangeApplier(String repositoryPath, String localRepositoryPath, InternalVirtualModel vsum) {
 		super(repositoryPath, localRepositoryPath, vsum);
 	}
 	
