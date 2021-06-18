@@ -12,6 +12,9 @@ Require-Bundle: org.apache.log4j,
  org.emftext.language.java,
  tools.vitruv.framework.vsum,
  org.apache.commons.io,
- tools.vitruv.domains.java
+ tools.vitruv.domains.java,
+ tools.vitruv.applications.pcmjava.commitintegration.domains,
+ jamopp.parser.jdt.singlefile,
+ jamopp.parser
 Automatic-Module-Name: tools.vitruv.applications.javapcm.commitintegration
 Bundle-RequiredExecutionEnvironment: JavaSE-11
