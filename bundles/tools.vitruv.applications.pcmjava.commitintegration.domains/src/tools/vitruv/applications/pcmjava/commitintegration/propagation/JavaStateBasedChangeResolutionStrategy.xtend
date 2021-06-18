@@ -25,6 +25,10 @@ import org.emftext.language.java.commons.Commentable
 import org.eclipse.emf.compare.postprocessor.BasicPostProcessorDescriptorImpl
 import org.eclipse.emf.compare.postprocessor.PostProcessorDescriptorRegistryImpl
 import java.util.regex.Pattern
+import java.util.List
+import java.util.ArrayList
+import org.eclipse.emf.ecore.EObject
+import java.util.Collection
 
 /**
  * This strategy for diff based state changes of Java models uses EMFCompare to resolve a 
@@ -51,7 +55,7 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 			if (oldState.URI != newState.URI) {
 				currentStateCopy.URI = newState.URI
 			}
-			compareStatesAndReplayChanges(newState, currentStateCopy)
+			compareStatesAndReplayChanges(newState, currentStateCopy, null, null)
 		])
 	}
 
@@ -62,29 +66,66 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 		// Thus, we create the resource and then monitor the re-insertion of the elements
 		val monitoredResourceSet = new ResourceSetImpl()
 		val newResource = monitoredResourceSet.createResource(newState.URI)
-		newResource.contents.clear()
-		val contents = EcoreUtil.copyAll(newState.contents)
-		contents.forEach[
-			val allCommentable = it.eAllContents.filter[it instanceof Commentable].map[it as Commentable].toSet
-			allCommentable.forEach[it.layoutInformations.clear]
+		val contents = newState.copyResourceContent [
+			EcoreUtil.copyAll(newState.contents)
 		]
 		return newResource.record(monitoredResourceSet, [
 			newResource.contents += contents
 		])
 	}
 	
+	private def copyResourceContent(Resource toCopy, (Collection<EObject>)=>Collection<EObject> copyFunction) {
+		val contents = copyFunction.apply(toCopy.contents)
+		contents.forEach[
+			val allCommentable = it.eAllContents.filter[it instanceof Commentable].map[it as Commentable].toSet
+			allCommentable.forEach[it.layoutInformations.clear]
+		]
+		return contents
+	}
+	
+	private def copyResource(Resource toCopy, ResourceSet targetSet,
+			(Collection<EObject>)=>Collection<EObject> copyFunction) {
+		val newResource = targetSet.createResource(toCopy.URI)
+		val contents = toCopy.copyResourceContent(copyFunction)
+		newResource.contents.addAll(contents)
+		return newResource
+	}
+	
 	/**
-	 * Creates a change sequence for all resources in a ResourceSet.
-	 * The resources and their content are not copied to preserve cross-references and to create correct sequences.
+	 * Creates a change sequence for resources in a ResourceSet.
+	 * The resources and their content are not copied.
 	 */
-	def getChangeSequenceForResourceSet(ResourceSet set) {
+	def getChangeSequenceForResourceSet(ResourceSet set, List<Resource> resources) {
 		checkArgument(set !== null, "There must be a ResourceSet!")
 		val targetSet = new ResourceSetImpl()
-		set.resources.forEach[
-			targetSet.createResource(it.URI)
+		val targetResources = new ArrayList
+		resources.forEach[
+			targetResources.add(targetSet.createResource(it.URI))
 		]
 		return targetSet.record(targetSet, [
-			compareStatesAndReplayChanges(set, targetSet)
+			compareStatesAndReplayChanges(set, targetSet, resources, targetResources)
+		])
+	}
+	
+	/**
+	 * Creates a change sequence between multiple resources.
+	 * The source resources contain the new state while the target resources represent the current state and are copied.
+	 */
+	def getChangeSequenceBetweenResourceSet(ResourceSet sourceSet, ResourceSet targetSet,
+			List<Resource> sourceResources, List<Resource> targetResources) {
+		checkArgument(sourceSet !== null, "There has to be a source set.")
+		checkArgument(targetSet !== null, "There has to be a target set.")
+		val monitoredResourceSet = new ResourceSetImpl()
+		val copier = new EcoreUtil.Copier
+		val copies = new ArrayList
+		targetResources.forEach[
+			copies.add(it.copyResource(monitoredResourceSet, [
+				copier.copyAll(it)
+			]))
+		]
+		copier.copyReferences
+		return monitoredResourceSet.record(monitoredResourceSet, [
+			compareStatesAndReplayChanges(sourceSet, monitoredResourceSet, sourceResources, copies)
 		])
 	}
 
@@ -111,8 +152,16 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 	/**
 	 * Compares states using EMFCompare and replays the changes to the current state.
 	 */
-	private def compareStatesAndReplayChanges(Notifier newState, Notifier currentState) {
+	private def compareStatesAndReplayChanges(Notifier newState, Notifier currentState,
+			List<Resource> newResources, List<Resource> currentResources) {
 		val scope = new DefaultComparisonScope(newState, currentState, null)
+		scope.resourceSetContentFilter = [
+			if (newResources !== null && currentResources !== null) {
+				it.resourceSet === newState && newResources.contains(it)
+					|| it.resourceSet === currentState && currentResources.contains(it)
+			}
+			true
+		]
 		val diffProcessor = new DiffBuilder()
 		val diffEngine = new DefaultDiffEngine(diffProcessor) {
 			override protected FeatureFilter createFeatureFilter() {
