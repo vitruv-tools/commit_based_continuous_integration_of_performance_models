@@ -108,11 +108,26 @@ public class CommitChangePropagator {
 	}
 	
 	/**
+	 * Propagates changes for a given list of commits.
+	 * 
+	 * @param ids ids of the commits.
+	 * @throws GitAPIException if there is an exception within the Git usage.
+	 * @throws IOException if the repository cannot be read.
+	 */
+	public void propagateChanges(String...ids) throws GitAPIException, IOException {
+		List<RevCommit> commits = new ArrayList<>();
+		for (String id : ids) {
+			commits.add(repoWrapper.getCommitForId(id));
+		}
+		propagateChanges(commits);
+	}
+	
+	/**
 	 * Propagates changes from a given list of commits to the VSUM.
 	 * 
 	 * @param commits the list of commits with changes to propagate.
-	 * @throws GitAPIException if something from the repositories cannot be read.
-	 * @throws IOException if there is an exception within the Git usage.
+	 * @throws GitAPIException if there is an exception within the Git usage.
+	 * @throws IOException if something from the repositories cannot be read.
 	 */
 	public void propagateChanges(List<RevCommit> commits) throws GitAPIException, IOException {
 		if (commits.size() > 0) {
@@ -128,6 +143,16 @@ public class CommitChangePropagator {
 		}
 	}
 	
+	/**
+	 * Propagates changes between an empty repository and a specific commit.
+	 * 
+	 * @param commitId id of the commit.
+	 * @throws GitAPIException if there is an exception within the Git usage.
+	 * @throws IOException if the repository cannot be read.
+	 */
+	public void propagateChanges(String commitId) throws GitAPIException, IOException {
+		propagateChanges(repoWrapper.getCommitForId(commitId));
+	}
 
 	/**
 	 * Propagates changes between an empty repository and a specific commit.
@@ -138,6 +163,20 @@ public class CommitChangePropagator {
 	 */
 	public void propagateChanges(RevCommit commit) throws GitAPIException, IOException {
 		propagateChanges(null, commit);
+	}
+	
+	/**
+	 * Propagates changes between two commits to the VSUM.
+	 * 
+	 * @param startId id of the first commit.
+	 * @param endId id of the second commit.
+	 * @return true if the changes are successfully propagated. false indicates that there are no changes for Java files
+	 *         or the pre-processing failed.
+	 * @throws GitAPIException if there is an exception within the Git usage.
+	 * @throws IOException it the repository cannot be read.
+	 */
+	public boolean propagateChanges(String startId, String endId) throws GitAPIException, IOException {
+		return propagateChanges(repoWrapper.getCommitForId(startId), repoWrapper.getCommitForId(endId));
 	}
 	
 	/**

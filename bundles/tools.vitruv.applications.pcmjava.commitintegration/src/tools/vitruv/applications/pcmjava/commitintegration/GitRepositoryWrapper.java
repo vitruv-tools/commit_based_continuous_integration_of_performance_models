@@ -135,6 +135,18 @@ public class GitRepositoryWrapper {
 	}
 	
 	/**
+	 * Returns the commit for a commit id.
+	 * 
+	 * @param commitId the commit id.
+	 * @return the commit.
+	 * @throws GitAPIException if the commit id is invalid.
+	 * @throws IOException if the repository cannot be read.
+	 */
+	public RevCommit getCommitForId(String commitId) throws GitAPIException, IOException {
+		return git.getRepository().parseCommit(git.getRepository().resolve(commitId));
+	}
+	
+	/**
 	 * Returns all commits in the Git repository.
 	 * 
 	 * @return all commits.
