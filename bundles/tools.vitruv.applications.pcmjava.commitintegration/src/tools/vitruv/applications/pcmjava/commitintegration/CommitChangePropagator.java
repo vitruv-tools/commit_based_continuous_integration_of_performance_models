@@ -2,6 +2,7 @@ package tools.vitruv.applications.pcmjava.commitintegration;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.emftext.language.java.LogicalJavaURIGenerator;
 
 import tools.vitruv.applications.pcmjava.commitintegration.propagation.JavaStateBasedChangeResolutionStrategy;
 import tools.vitruv.framework.change.description.VitruviusChange;
@@ -28,11 +30,14 @@ import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
  */
 public class CommitChangePropagator {
 	private static final Logger logger = Logger.getLogger(CommitChangePropagator.class.getSimpleName());
+	private static final String POM_FILE = "pom.xml";
+	private static final String GRADLE_BUILD_FILE = "";
 	private GitRepositoryWrapper repoWrapper;
 	private InternalVirtualModel vsum;
 	private File localRemoteRepository;
 	private String remoteRepository;
 	private File workSpaceCopy;
+	private File dependencyDir;
 	
 	private static class URIURIMapping {
 		private URI oldURI;
@@ -72,6 +77,7 @@ public class CommitChangePropagator {
 		File rootDir = new File(localCacheDir, "local-repo-clone");
 		repoWrapper = new GitRepositoryWrapper(rootDir);
 		workSpaceCopy = new File(localCacheDir, "vsum-variant");
+		dependencyDir = new File(workSpaceCopy, "dependencies");
 	}
 	
 	/**
@@ -113,8 +119,10 @@ public class CommitChangePropagator {
 			RevCommit first = commits.remove(0);
 			logger.debug("Propagating " + commits.size() + " commits.");
 			for (RevCommit next : commits) {
-				propagateChanges(first, next);
-				first = next;
+				boolean result = propagateChanges(first, next);
+				if (result) {
+					first = next;
+				}
 			}
 			logger.debug("Finished propagating the commits.");
 		}
@@ -137,15 +145,37 @@ public class CommitChangePropagator {
 	 * 
 	 * @param start the first commit.
 	 * @param end the second commit.
+	 * @return true if the changes are successfully propagated. false indicates that there are no changes for Java files
+	 *         or the pre-processing failed.
 	 * @throws GitAPIException if there is an exception within the Git usage.
 	 * @throws IOException if something from the repositories cannot be read.
 	 */
-	public void propagateChanges(RevCommit start, RevCommit end) throws GitAPIException, IOException {
+	public boolean propagateChanges(RevCommit start, RevCommit end) throws GitAPIException, IOException {
 		String commitId = end.getId().getName();
+		logger.debug("Obtaining all differences.");
+		List<DiffEntry> allDiffs = repoWrapper.computeDiffsBetweenTwoCommits(start, end, true, true);
+		List<DiffEntry> diffs = new ArrayList<>();
+		boolean needsPreprocessing = false;
+		for (DiffEntry diff : allDiffs) {
+			if (hasFileChange(diff, LogicalJavaURIGenerator.JAVA_FILE_EXTENSION)) {
+				diffs.add(diff);
+			} else if (hasFileChange(diff, POM_FILE) || hasFileChange(diff, GRADLE_BUILD_FILE)) {
+				needsPreprocessing = true;
+			}
+		}
+		if (diffs.size() == 0) {
+			logger.debug("No Java files changed for " + commitId + " so that no propagation is performed.");
+			return false;
+		}
 		logger.debug("Checkout of " + commitId);
 		repoWrapper.checkout(commitId);
-		logger.debug("Obtaining the differences.");
-		List<DiffEntry> diffs = repoWrapper.computeDiffsBetweenTwoCommits(start, end, true, true);
+		if (needsPreprocessing) {
+			boolean preprocessResult = preprocess();
+			if (!preprocessResult) {
+				logger.debug("The preprocessing failed. Aborting.");
+				return false;
+			}
+		}
 //		logger.debug("Sorting the differences.");
 //		diffs = sortDiffs(diffs);
 		logger.debug("Analyzing the differences.");
@@ -187,6 +217,59 @@ public class CommitChangePropagator {
 			vsum.propagateChange(changeSequence);
 		}
 		logger.debug("Finished the propagation of " + commitId);
+		return true;
+	}
+	
+	private boolean hasFileChange(DiffEntry diff, String end) {
+		return diff.getNewPath() != null && diff.getNewPath().endsWith(end)
+				|| diff.getOldPath() != null && diff.getOldPath().endsWith(end);
+	}
+	
+	private boolean preprocess() {
+		int result = -1;
+		File possibleFile = new File("preprocess.bat");
+		String absPath;
+		if (possibleFile.exists()) {
+			absPath = possibleFile.getAbsolutePath();
+			logger.debug("Executing " + absPath + " for the preprocessing.");
+			result = runPreprocessingScript("cmd.exe", "/c", "\"" + absPath + "\"");
+		} else {
+			possibleFile = new File("preprocess.sh");
+			if (possibleFile.exists()) {
+				absPath = possibleFile.getAbsolutePath();
+				logger.debug("Executing " + absPath + " for the preprocessing.");
+				result = runPreprocessingScript(absPath);
+			}
+		}
+		if (result != 0) {
+			return false;
+		}
+		FileUtils.deleteQuietly(dependencyDir);
+		logger.debug("Copying the dependencies.");
+		try {
+			Files.walk(localRemoteRepository.toPath())
+				.filter(p -> p.getFileName().toString().endsWith(".jar"))
+				.forEach(p -> {
+					try {
+						FileUtils.copyFileToDirectory(p.toFile(), dependencyDir);
+					} catch (IOException e) {
+						logger.error(e);
+					}
+				});
+		} catch (IOException e) {
+			logger.error(e);
+		}
+		return true;
+	}
+	
+	private int runPreprocessingScript(String... command) {
+		try {
+			Process process = new ProcessBuilder().directory(localRemoteRepository)
+					.command(command).start();
+			return process.waitFor();
+		} catch (IOException | InterruptedException e) {
+			return -1;
+		}
 	}
 	
 	/**
@@ -229,9 +312,9 @@ public class CommitChangePropagator {
 		URIURIMapping u = new URIURIMapping();
 		// Perform file operations to transfer the changes in the local repository to the workspace copy.
 		switch (entry.getChangeType()) {
-			case COPY:
 			case MODIFY:
 				u.oldURI = URI.createFileURI(prefixInCopy + entry.getOldPath());
+			case COPY:
 			case RENAME:	
 			case ADD:
 				u.newURI = URI.createFileURI(newFileInCopy);
