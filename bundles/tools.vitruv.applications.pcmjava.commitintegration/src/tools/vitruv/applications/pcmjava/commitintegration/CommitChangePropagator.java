@@ -32,7 +32,6 @@ public class CommitChangePropagator {
 	private InternalVirtualModel vsum;
 	private File localRemoteRepository;
 	private String remoteRepository;
-	private boolean isCurrentStateIntegratedIntoVSUM = false;
 	private File workSpaceCopy;
 	
 	private static class URIURIMapping {
@@ -70,29 +69,28 @@ public class CommitChangePropagator {
 	
 	private void prepareJavaCacheDir(String dir) {
 		File localCacheDir = new File(dir);
-		File rootDir = new File(localCacheDir, "repo-cache");
+		File rootDir = new File(localCacheDir, "local-repo-clone");
 		repoWrapper = new GitRepositoryWrapper(rootDir);
-		workSpaceCopy = new File(localCacheDir, "vsum-java-cache");
+		workSpaceCopy = new File(localCacheDir, "vsum-variant");
 	}
 	
 	/**
-	 * Indicates if the current state of the Git repository, i. e., the latest commit of the default branch,
-	 * is already integrated in the VSUM.
-	 * 
-	 * @param integrated true if the current state is integrated. false otherwise.
-	 */
-	public void setCurrentStateIntegratedIntoVSUM(boolean integrated) {
-		isCurrentStateIntegratedIntoVSUM = integrated;
-	}
-	
-	/**
-	 * Propagates changes of commits of a remote repository to the VSUM.
-	 * The changes are fetched from the remote repository and propagated to the VSUM.
+	 * Propagates the changes between an empty repository and the latest commit.
 	 * 
 	 * @throws IOException if something from the repositories cannot be read.
 	 * @throws GitAPIException if there is an exception within the Git usage.
 	 */
 	public void propagteChanges() throws IOException, GitAPIException {
+		propagateChanges(repoWrapper.getLatestCommit());
+	}
+	
+	/**
+	 * Fetches changes from the remote repository and propagates them to the VSUM.
+	 * 
+	 * @throws IOException if something from the repositories cannot be read.
+	 * @throws GitAPIException if there is an exception within the Git usage.
+	 */
+	public void fetchAndPropagateChanges() throws IOException, GitAPIException {
 		RevCommit lastCommit = repoWrapper.getLatestCommit();
 		logger.debug("Latest commit is " + lastCommit.getId().getName());
 		logger.debug("Fetching remote repository to get new commits.");
@@ -122,13 +120,25 @@ public class CommitChangePropagator {
 		}
 	}
 	
+
+	/**
+	 * Propagates changes between an empty repository and a specific commit.
+	 * 
+	 * @param commit the commit.
+	 * @throws GitAPIException if there is an exception within the Git usage.
+	 * @throws IOException if something from the repositories cannot be read.
+	 */
+	public void propagateChanges(RevCommit commit) throws GitAPIException, IOException {
+		propagateChanges(null, commit);
+	}
+	
 	/**
 	 * Propagates changes between two commits to the VSUM.
 	 * 
 	 * @param start the first commit.
 	 * @param end the second commit.
-	 * @throws GitAPIException if something from the repositories cannot be read.
-	 * @throws IOException if there is an exception within the Git usage.
+	 * @throws GitAPIException if there is an exception within the Git usage.
+	 * @throws IOException if something from the repositories cannot be read.
 	 */
 	public void propagateChanges(RevCommit start, RevCommit end) throws GitAPIException, IOException {
 		String commitId = end.getId().getName();
@@ -160,17 +170,22 @@ public class CommitChangePropagator {
 				oldResources.add(vsum.getModelInstance(u.oldURI).getResource());
 			}
 		});
-		logger.debug("Calculating the change sequence for the changed files.");
-		var strategy = new JavaStateBasedChangeResolutionStrategy();
-		VitruviusChange changeSequence = null;
-		if (oldResources.size() == 0) {
-			changeSequence = strategy.getChangeSequenceForResourceSet(set, newResources);
+		if (oldResources.size() == 0 && start == null) {
+			logger.debug("Integrating the code with the JavaIntegrationUtility.");
+			JavaIntegrationUtility.integrateJavaCode(workSpaceCopy.toPath(), vsum);
 		} else {
-			changeSequence = strategy.getChangeSequenceBetweenResourceSet(set,
-					oldResources.get(0).getResourceSet(), newResources, oldResources);
+			logger.debug("Calculating the change sequence for the changed files.");
+			var strategy = new JavaStateBasedChangeResolutionStrategy();
+			VitruviusChange changeSequence = null;
+			if (oldResources.size() == 0) {
+				changeSequence = strategy.getChangeSequenceForResourceSet(set, newResources);
+			} else {
+				changeSequence = strategy.getChangeSequenceBetweenResourceSet(set,
+						oldResources.get(0).getResourceSet(), newResources, oldResources);
+			}
+			logger.debug("Propagating the change sequence.");
+			vsum.propagateChange(changeSequence);
 		}
-		logger.debug("Propagating the change sequence.");
-		vsum.propagateChange(changeSequence);
 		logger.debug("Finished the propagation of " + commitId);
 	}
 	
@@ -178,15 +193,12 @@ public class CommitChangePropagator {
 	 * Initializes the propagator.
 	 * The remote repository is cloned into the local directory. If the repository was
 	 * already cloned beforehand, the Git repository is initialized from the local directory.
-	 * If the remote repository is cloned and the state is not integrated into the VSUM, all commits from
-	 * the start to the latest commit of the remote repository are integrated into the VSUM.
 	 * 
 	 * @throws IOException if something from the repositories cannot be read.
 	 * @throws GitAPIException if there is an exception within the Git usage.
 	 */
 	public void initialize() throws IOException, GitAPIException {
 		if (!repoWrapper.isInitialized()) {
-			boolean isInitializedFromRemoteRepository = false;
 			String[] files = repoWrapper.getRootDirectory().list();
 			if (files != null && files.length > 0) {
 				logger.debug("Initializing the git repository in " + repoWrapper.getRootDirectory().getAbsolutePath());
@@ -194,19 +206,9 @@ public class CommitChangePropagator {
 			} else if (localRemoteRepository != null) {
 				logger.debug("Initializing the git repository from " + localRemoteRepository.getAbsolutePath());
 				repoWrapper.initFromLocalRepository(localRemoteRepository);
-				isInitializedFromRemoteRepository = true;
 			} else {
 				logger.debug("Initializing the git repository from " + remoteRepository);
 				repoWrapper.initFromRemoteRepository(remoteRepository);
-				isInitializedFromRemoteRepository = true;
-			}
-			if (isInitializedFromRemoteRepository && !isCurrentStateIntegratedIntoVSUM) {
-				logger.debug("Obtaining all commits from the start to the latest commit " + repoWrapper.getLatestCommit().getId().getName());
-				List<RevCommit> commits = repoWrapper.getAllCommitsBetweenTwoCommits(null, repoWrapper.getLatestCommit().getId().getName());
-				logger.debug("Got " + commits.size() + " commits.");
-				commits.add(0, null);
-				propagateChanges(commits);
-				logger.debug("Finished integration.");
 			}
 			logger.debug("Finished initialization.");
 		}
