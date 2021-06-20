@@ -44,6 +44,7 @@ public abstract class AbstractInstrumenter {
 	protected final static Method enterInternalActionMethod;
 	protected final static Method exitInternalActionMethod;
 	protected final static Method setExternalCallIdMethod;
+	protected final static Method enterBranchMethod;
 	protected final static ConcreteClassifier serviceParametersClassifier;
 	protected LocalVariable threadMonitoringVariable;
 	
@@ -96,6 +97,14 @@ public abstract class AbstractInstrumenter {
 		setExternalCallIdMethod.setStatement(StatementsFactory.eINSTANCE.createBlock());
 		setExternalCallIdMethod.getParameters().add(createStringParameter("param1"));
 		threadMonitoringControllerClassifier.getMembers().add(setExternalCallIdMethod);
+		
+		enterBranchMethod = MembersFactory.eINSTANCE.createClassMethod();
+		enterBranchMethod.setName(ApplicationProjectInstrumenterNamespace.METHOD_ENTER_BRANCH);
+		enterBranchMethod.makePublic();
+		enterBranchMethod.setTypeReference(TypesFactory.eINSTANCE.createVoid());
+		enterBranchMethod.setStatement(StatementsFactory.eINSTANCE.createBlock());
+		enterBranchMethod.getParameters().add(createStringParameter("param1"));
+		threadMonitoringControllerClassifier.getMembers().add(enterBranchMethod);
 		
 		serviceParametersClassifier = ClassifiersFactory.eINSTANCE.createClass();
 		serviceParametersClassifier.setName(serviceParametersName);
