@@ -3,7 +3,6 @@ package tools.vitruv.applications.pcmjava.instrumentation.instrumenter;
 import org.emftext.language.java.references.IdentifierReference;
 import org.emftext.language.java.references.MethodCall;
 import org.emftext.language.java.references.ReferencesFactory;
-import org.emftext.language.java.references.StringReference;
 import org.emftext.language.java.statements.ExpressionStatement;
 import org.emftext.language.java.statements.Statement;
 import org.emftext.language.java.statements.StatementsFactory;
@@ -50,11 +49,7 @@ public class InternalActionInstrumenter extends AbstractInstrumenter {
 	}
 	
 	private void createArguments(MethodCall call, String correspondingInternalActionId) {
-		StringReference ref = ReferencesFactory.eINSTANCE.createStringReference();
-		ref.setValue(correspondingInternalActionId);
-		call.getArguments().add(ref);
-		ref = ReferencesFactory.eINSTANCE.createStringReference();
-		ref.setValue(ApplicationProjectInstrumenterNamespace.RESOURCE_ID_CPU);
-		call.getArguments().add(ref);
+		createAndAddStringArgument(call, correspondingInternalActionId);
+		createAndAddStringArgument(call, ApplicationProjectInstrumenterNamespace.RESOURCE_ID_CPU);
 	}
 }

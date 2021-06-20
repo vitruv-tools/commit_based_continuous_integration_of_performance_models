@@ -16,6 +16,9 @@ import org.emftext.language.java.members.Method;
 import org.emftext.language.java.modifiers.ModifiersFactory;
 import org.emftext.language.java.parameters.OrdinaryParameter;
 import org.emftext.language.java.parameters.ParametersFactory;
+import org.emftext.language.java.references.MethodCall;
+import org.emftext.language.java.references.ReferencesFactory;
+import org.emftext.language.java.references.StringReference;
 import org.emftext.language.java.statements.Block;
 import org.emftext.language.java.statements.Return;
 import org.emftext.language.java.statements.StatementsFactory;
@@ -40,6 +43,7 @@ public abstract class AbstractInstrumenter {
 	protected final static Method getInstanceMethod;
 	protected final static Method enterInternalActionMethod;
 	protected final static Method exitInternalActionMethod;
+	protected final static Method setExternalCallIdMethod;
 	protected final static ConcreteClassifier serviceParametersClassifier;
 	protected LocalVariable threadMonitoringVariable;
 	
@@ -85,6 +89,14 @@ public abstract class AbstractInstrumenter {
 		exitInternalActionMethod.getParameters().add(createStringParameter("param2"));
 		threadMonitoringControllerClassifier.getMembers().add(exitInternalActionMethod);
 		
+		setExternalCallIdMethod = MembersFactory.eINSTANCE.createClassMethod();
+		setExternalCallIdMethod.setName(ApplicationProjectInstrumenterNamespace.METHOD_BEFORE_EXTERNAL_CALL);
+		setExternalCallIdMethod.makePublic();
+		setExternalCallIdMethod.setTypeReference(TypesFactory.eINSTANCE.createVoid());
+		setExternalCallIdMethod.setStatement(StatementsFactory.eINSTANCE.createBlock());
+		setExternalCallIdMethod.getParameters().add(createStringParameter("param1"));
+		threadMonitoringControllerClassifier.getMembers().add(setExternalCallIdMethod);
+		
 		serviceParametersClassifier = ClassifiersFactory.eINSTANCE.createClass();
 		serviceParametersClassifier.setName(serviceParametersName);
 		cu.getClassifiers().add(serviceParametersClassifier);
@@ -105,5 +117,11 @@ public abstract class AbstractInstrumenter {
 		ref.setTarget(stringClassifier);
 		param.setTypeReference(ref);
 		return param;
+	}
+	
+	protected void createAndAddStringArgument(MethodCall call, String s) {
+		StringReference ref = ReferencesFactory.eINSTANCE.createStringReference();
+		ref.setValue(s);
+		call.getArguments().add(ref);
 	}
 }
