@@ -13,6 +13,7 @@ Require-Bundle: org.emftext.language.java,
  tools.vitruv.framework.change,
  org.eclipse.emf.compare,
  tools.vitruv.domains.java,
- org.eclipse.emf.common
+ org.eclipse.emf.common,
+ tools.vitruv.applications.pcmjava.commitintegration.diff.util
 Automatic-Module-Name: tools.vitruv.applications.javapcm.commitintegration.domains
 Bundle-RequiredExecutionEnvironment: JavaSE-11

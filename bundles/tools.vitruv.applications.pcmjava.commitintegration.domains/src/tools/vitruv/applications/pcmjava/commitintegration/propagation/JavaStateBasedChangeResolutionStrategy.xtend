@@ -5,7 +5,6 @@ import org.eclipse.emf.common.util.BasicMonitor
 import org.eclipse.emf.compare.EMFCompare
 import org.eclipse.emf.compare.merge.BatchMerger
 import org.eclipse.emf.compare.merge.IMerger
-import org.eclipse.emf.compare.scope.DefaultComparisonScope
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 import org.eclipse.emf.ecore.util.EcoreUtil
@@ -29,6 +28,7 @@ import java.util.List
 import java.util.ArrayList
 import org.eclipse.emf.ecore.EObject
 import java.util.Collection
+import tools.vitruv.applications.pcmjava.commitintegration.diff.util.JavaComparisonScope
 
 /**
  * This strategy for diff based state changes of Java models uses EMFCompare to resolve a 
@@ -154,14 +154,7 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 	 */
 	private def compareStatesAndReplayChanges(Notifier newState, Notifier currentState,
 			List<Resource> newResources, List<Resource> currentResources) {
-		val scope = new DefaultComparisonScope(newState, currentState, null)
-		scope.resourceSetContentFilter = [
-			if (newResources !== null && currentResources !== null) {
-				it.resourceSet === newState && newResources.contains(it)
-					|| it.resourceSet === currentState && currentResources.contains(it)
-			}
-			true
-		]
+		val scope = new JavaComparisonScope(newState, currentState, newResources, currentResources)
 		val diffProcessor = new DiffBuilder()
 		val diffEngine = new DefaultDiffEngine(diffProcessor) {
 			override protected FeatureFilter createFeatureFilter() {
