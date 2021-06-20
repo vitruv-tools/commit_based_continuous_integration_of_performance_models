@@ -172,7 +172,9 @@ reaction ChangeFieldTypeEvent {
 	after element replaced at java::Field[typeReference]
 	call {
 		changeInnerDeclarationType(newValue, affectedEObject)
-		changedFieldTypeEvent(affectedEObject, oldValue, newValue)
+		if (oldValue !== null) {
+			changedFieldTypeEvent(affectedEObject, oldValue, newValue)
+		}
 	}
 }
 
