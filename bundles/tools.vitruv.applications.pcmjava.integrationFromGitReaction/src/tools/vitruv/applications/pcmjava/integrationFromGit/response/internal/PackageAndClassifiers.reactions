@@ -39,6 +39,7 @@ import static tools.vitruv.applications.util.temporary.java.JavaTypeUtil.*
 import static tools.vitruv.applications.util.temporary.java.JavaContainerAndClassifierUtil.*
 import static tools.vitruv.domains.java.util.JavaPersistenceHelper.*
 import org.eclipse.jdt.internal.formatter.old.CodeFormatter
+import org.palladiosimulator.pcm.repository.OperationRequiredRole
 
 import "http://www.emftext.org/java" as java
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
@@ -49,16 +50,115 @@ in reaction to changes in AdjustedJava
 execute actions in PCM
 
 
-//empty implementation for add and remove imports
-//reaction AddImportReaction {
-//	after element java::Import inserted in java::JavaRoot[imports]
-//	call {}
-//}
-//
-//reaction RemoveImportReaction {
-//	after element java::Import removed from java::JavaRoot[imports]
-//	call {}
-//}
+reaction AddImportReaction {
+	after element java::Import inserted in java::JavaRoot[imports]
+	call {
+		checkImportForImportedRequiredRoles(newValue)
+	}
+}
+
+routine checkImportForImportedRequiredRoles(java::Import importSt) {
+	action {
+		call {
+			for (classifier : importSt.containingCompilationUnit.classifiers) {
+				createOrFindRequiredRole(importSt, classifier)
+			}
+		}
+	}
+}
+
+routine checkClassifierForImportedRequiredRoles(java::ConcreteClassifier classifier) {
+	action {
+		call {
+			for (importSt : classifier.containingCompilationUnit.imports) {
+				createOrFindRequiredRole(importSt, classifier)
+			}
+		}
+	}
+}
+
+routine createOrFindRequiredRole(java::Import importSt, java::ConcreteClassifier importingClassifier) {
+	match {
+		val opInterface = retrieve pcm::OperationInterface corresponding to importSt.classifier
+		val opInterfaceCom = retrieve pcm::RepositoryComponent corresponding to importSt.classifier
+		val containingCom = retrieve pcm::RepositoryComponent corresponding to importingClassifier
+	}
+	action {
+		call {
+			if (opInterfaceCom !== containingCom) {
+				for (reqRole : containingCom.requiredRoles_InterfaceRequiringEntity) {
+					if (reqRole instanceof OperationRequiredRole
+							&& reqRole.requiringEntity_RequiredRole === containingCom) {
+						addCorrespondenceForImportAndRequiredRole(importSt, reqRole as OperationRequiredRole)
+						return;
+					}
+				}
+				createRequiredRoleForImport(importSt, opInterface, containingCom)
+			}
+		}
+	}
+}
+
+routine createRequiredRoleForImport(java::Import importSt, pcm::OperationInterface opInterface,
+		pcm::RepositoryComponent requiringCom) {
+	match {
+		require absence of pcm::OperationRequiredRole corresponding to importSt
+	}
+	action {
+		val reqRole = create pcm::OperationRequiredRole and initialize {
+			reqRole.requiredInterface__OperationRequiredRole = opInterface
+			reqRole.requiringEntity_RequiredRole = requiringCom
+			reqRole.entityName = "Component_" + requiringCom.entityName + "_requires_"
+				+ opInterface.entityName
+		}
+		call {
+			addCorrespondenceForImportAndRequiredRole(importSt, reqRole)
+		}
+	}
+}
+
+routine addCorrespondenceForImportAndRequiredRole(java::Import importSt, pcm::OperationRequiredRole reqRole) {
+	action {
+		add correspondence between importSt and reqRole
+	}
+}
+
+reaction RemoveImportReaction {
+	after element java::Import removed from java::JavaRoot[imports]
+	call {
+		removeRequiredRoleForImport(oldValue)
+	}
+}
+
+routine removeRequiredRoleForImport(java::Import importSt) {
+	match {
+		val reqRole = retrieve pcm::OperationRequiredRole corresponding to importSt
+		val allImports = retrieve many java::Import corresponding to reqRole
+	}
+	action {
+		call {
+			if (allImports.size === 1) {
+				removeRequiredRole(reqRole)
+			} else {
+				removeCorrespondenceForImportAndRequiredRole(importSt, reqRole)
+			}
+		}
+	}
+}
+
+routine removeRequiredRole(pcm::OperationRequiredRole reqRole) {
+	action {
+		delete reqRole
+	}
+}
+
+routine removeCorrespondenceForImportAndRequiredRole(java::Import importSt, pcm::OperationRequiredRole reqRole) {
+	action {
+		remove correspondence between importSt and reqRole
+	}
+}
+
+
 
 //empty implementation for add and remove class annotation
 reaction AddClassAnnotationReaction {
@@ -220,6 +320,7 @@ reaction ClassCreated {
 		createOrFindArchitecturalElement(newValue)
 		decideInterfaceCreation(newValue)
 		createOrFindOperationProvidedRole(newValue, newValue)
+		checkClassifierForImportedRequiredRoles(newValue)
 	}
 }
 
@@ -261,6 +362,7 @@ reaction InterfaceCreated {
 	call {
 		createOrFindArchitecturalElement(newValue)
 		decideInterfaceCreation(newValue)
+		checkClassifierForImportedRequiredRoles(newValue)
 	}
 }
 
