@@ -23,6 +23,8 @@ import org.emftext.language.java.statements.Block;
 import org.emftext.language.java.statements.Return;
 import org.emftext.language.java.statements.StatementsFactory;
 import org.emftext.language.java.types.ClassifierReference;
+import org.emftext.language.java.types.NamespaceClassifierReference;
+import org.emftext.language.java.types.TypeReference;
 import org.emftext.language.java.types.TypesFactory;
 import org.emftext.language.java.variables.LocalVariable;
 
@@ -39,12 +41,15 @@ public abstract class AbstractInstrumenter {
 	protected final static String serviceParametersName = "ServiceParameters";
 	protected final static ConcreteClassifier stringClassifier;
 	protected final static ConcreteClassifier atomicIntegerClassifier;
+	protected final static Method getAndIncrementMethod;
+	protected final static Method getMethod;
 	protected final static ConcreteClassifier threadMonitoringControllerClassifier;
 	protected final static Method getInstanceMethod;
 	protected final static Method enterInternalActionMethod;
 	protected final static Method exitInternalActionMethod;
 	protected final static Method setExternalCallIdMethod;
 	protected final static Method enterBranchMethod;
+	protected final static Method exitLoopMethod;
 	protected final static ConcreteClassifier serviceParametersClassifier;
 	protected LocalVariable threadMonitoringVariable;
 	
@@ -52,6 +57,10 @@ public abstract class AbstractInstrumenter {
 		atomicIntegerClassifier = (ConcreteClassifier) EcoreUtil.resolve(
 				JavaClasspath.get().getConcreteClassifier(AtomicInteger.class.getCanonicalName()),
 				(EObject) null);
+		getAndIncrementMethod = findMethod(atomicIntegerClassifier,
+				ApplicationProjectInstrumenterNamespace.METHOD_ATOMIC_INTEGER_INCREMENT, 0);
+		getMethod = findMethod(atomicIntegerClassifier,
+				ApplicationProjectInstrumenterNamespace.METHOD_ATOMIC_INTEGER_GET, 0);
 		stringClassifier = (ConcreteClassifier) EcoreUtil.resolve(
 				JavaClasspath.get().getConcreteClassifier(String.class.getCanonicalName()),
 				(EObject) null);
@@ -106,9 +115,27 @@ public abstract class AbstractInstrumenter {
 		enterBranchMethod.getParameters().add(createStringParameter("param1"));
 		threadMonitoringControllerClassifier.getMembers().add(enterBranchMethod);
 		
+		exitLoopMethod = MembersFactory.eINSTANCE.createClassMethod();
+		exitLoopMethod.setName(ApplicationProjectInstrumenterNamespace.METHOD_EXIT_LOOP);
+		exitLoopMethod.makePublic();
+		exitLoopMethod.setTypeReference(TypesFactory.eINSTANCE.createVoid());
+		exitLoopMethod.setStatement(StatementsFactory.eINSTANCE.createBlock());
+		exitLoopMethod.getParameters().add(createStringParameter("param1"));
+		exitLoopMethod.getParameters().add(createOrdinaryParameter("param2", TypesFactory.eINSTANCE.createLong()));
+		threadMonitoringControllerClassifier.getMembers().add(exitLoopMethod);
+		
 		serviceParametersClassifier = ClassifiersFactory.eINSTANCE.createClass();
 		serviceParametersClassifier.setName(serviceParametersName);
 		cu.getClassifiers().add(serviceParametersClassifier);
+	}
+	
+	private static Method findMethod(ConcreteClassifier classifier, String methName, int paramNumber) {
+		return classifier.getMembers().stream()
+				.filter(m -> m instanceof Method
+						&& m.getName().equals(methName))
+				.map(m -> (Method) m)
+				.filter(m -> m.getParameters().size() == paramNumber)
+				.findFirst().get();
 	}
 	
 	private static Block createNullReturningBlock() {
@@ -120,11 +147,15 @@ public abstract class AbstractInstrumenter {
 	}
 	
 	private static OrdinaryParameter createStringParameter(String paramName) {
-		OrdinaryParameter param = ParametersFactory.eINSTANCE.createOrdinaryParameter();
-		param.setName(paramName);
 		ClassifierReference ref = TypesFactory.eINSTANCE.createClassifierReference();
 		ref.setTarget(stringClassifier);
-		param.setTypeReference(ref);
+		return createOrdinaryParameter(paramName, ref);
+	}
+	
+	private static OrdinaryParameter createOrdinaryParameter(String paramName, TypeReference type) {
+		OrdinaryParameter param = ParametersFactory.eINSTANCE.createOrdinaryParameter();
+		param.setName(paramName);
+		param.setTypeReference(type);
 		return param;
 	}
 	
@@ -132,5 +163,14 @@ public abstract class AbstractInstrumenter {
 		StringReference ref = ReferencesFactory.eINSTANCE.createStringReference();
 		ref.setValue(s);
 		call.getArguments().add(ref);
+	}
+	
+	protected NamespaceClassifierReference createTypeReference(ConcreteClassifier classifier) {
+		NamespaceClassifierReference result = TypesFactory.eINSTANCE.createNamespaceClassifierReference();
+		result.getNamespaces().addAll(classifier.getContainingCompilationUnit().getNamespaces());
+		ClassifierReference actualRef = TypesFactory.eINSTANCE.createClassifierReference();
+		actualRef.setTarget(classifier);
+		result.getClassifierReferences().add(actualRef);
+		return result;
 	}
 }
