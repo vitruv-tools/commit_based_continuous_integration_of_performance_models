@@ -29,7 +29,7 @@ public class InternalActionInstrumenter extends AbstractInstrumenter {
 		MethodCall entryCall = ReferencesFactory.eINSTANCE.createMethodCall();
 		objRef.setNext(entryCall);
 		createArguments(entryCall, correspondingInternalActionId);
-		entryCall.setTarget(enterInternalActionMethod);
+		entryCall.setTarget(environmentGen.enterInternalActionMethod);
 		
 		ExpressionStatement entryStatement = StatementsFactory.eINSTANCE.createExpressionStatement();
 		entryStatement.setExpression(objRef);
@@ -41,7 +41,7 @@ public class InternalActionInstrumenter extends AbstractInstrumenter {
 		MethodCall exitCall = ReferencesFactory.eINSTANCE.createMethodCall();
 		objRef.setNext(exitCall);
 		createArguments(exitCall, correspondingInternalActionId);
-		exitCall.setTarget(exitInternalActionMethod);
+		exitCall.setTarget(environmentGen.exitInternalActionMethod);
 		
 		ExpressionStatement exitStatement = StatementsFactory.eINSTANCE.createExpressionStatement();
 		exitStatement.setExpression(objRef);

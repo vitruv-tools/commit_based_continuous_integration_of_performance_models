@@ -24,7 +24,7 @@ public class ExternalCallActionInstrumenter extends AbstractInstrumenter {
 		IdentifierReference objRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
 		objRef.setTarget(this.threadMonitoringVariable);
 		MethodCall enterCall = ReferencesFactory.eINSTANCE.createMethodCall();
-		enterCall.setTarget(setExternalCallIdMethod);
+		enterCall.setTarget(environmentGen.setExternalCallIdMethod);
 		createAndAddStringArgument(enterCall, externalCallId);
 		
 		objRef.setNext(enterCall);

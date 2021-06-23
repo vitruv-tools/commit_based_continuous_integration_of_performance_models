@@ -28,7 +28,7 @@ public class BranchActionInstrumenter extends AbstractInstrumenter {
 			IdentifierReference idRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
 			idRef.setTarget(this.threadMonitoringVariable);
 			MethodCall enterCall = ReferencesFactory.eINSTANCE.createMethodCall();
-			enterCall.setTarget(enterBranchMethod);
+			enterCall.setTarget(environmentGen.enterBranchMethod);
 			this.createAndAddStringArgument(enterCall, transitionId);
 			
 			idRef.setNext(enterCall);

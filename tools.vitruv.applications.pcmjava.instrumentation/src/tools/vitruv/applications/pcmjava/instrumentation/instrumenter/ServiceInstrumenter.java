@@ -44,7 +44,7 @@ public class ServiceInstrumenter extends AbstractInstrumenter {
 			IdentifierReference serviceVarRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
 			serviceVarRef.setTarget(serviceParameterVar.getVariable());
 			MethodCall addParamCall = ReferencesFactory.eINSTANCE.createMethodCall();
-			addParamCall.setTarget(addParameterValueMethod);
+			addParamCall.setTarget(environmentGen.addParameterValueMethod);
 			this.createAndAddStringArgument(addParamCall, param.getName());
 			IdentifierReference paramRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
 			paramRef.setTarget(param);
@@ -77,9 +77,9 @@ public class ServiceInstrumenter extends AbstractInstrumenter {
 	private LocalVariableStatement createServiceParameterVariableCreationStatement() {
 		LocalVariable locVar = VariablesFactory.eINSTANCE.createLocalVariable();
 		locVar.setName(ApplicationProjectInstrumenterNamespace.SERVICE_PARAMETERS_VARIABLE);
-		locVar.setTypeReference(this.createTypeReference(serviceParametersClassifier));
+		locVar.setTypeReference(this.createTypeReference(environmentGen.serviceParametersClassifier));
 		NewConstructorCall init = InstantiationsFactory.eINSTANCE.createNewConstructorCall();
-		init.setTypeReference(this.createTypeReference(serviceParametersClassifier));
+		init.setTypeReference(this.createTypeReference(environmentGen.serviceParametersClassifier));
 		locVar.setInitialValue(init);
 		
 		LocalVariableStatement result = StatementsFactory.eINSTANCE.createLocalVariableStatement();
@@ -91,7 +91,7 @@ public class ServiceInstrumenter extends AbstractInstrumenter {
 		IdentifierReference rootRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
 		rootRef.setTarget(this.threadMonitoringVariable);
 		MethodCall enterCall = ReferencesFactory.eINSTANCE.createMethodCall();
-		enterCall.setTarget(enterServiceMethod);
+		enterCall.setTarget(environmentGen.enterServiceMethod);
 		this.createAndAddStringArgument(enterCall, seffId);
 		SelfReference selfRef = ReferencesFactory.eINSTANCE.createSelfReference();
 		selfRef.setSelf(LiteralsFactory.eINSTANCE.createThis());
@@ -110,7 +110,7 @@ public class ServiceInstrumenter extends AbstractInstrumenter {
 		IdentifierReference threadRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
 		threadRef.setTarget(this.threadMonitoringVariable);
 		MethodCall exitCall = ReferencesFactory.eINSTANCE.createMethodCall();
-		exitCall.setTarget(exitServiceMethod);
+		exitCall.setTarget(environmentGen.exitServiceMethod);
 		this.createAndAddStringArgument(exitCall, seffId);
 		threadRef.setNext(exitCall);
 		

@@ -55,7 +55,7 @@ public class LoopActionInstrumenter extends AbstractInstrumenter {
 			IdentifierReference counterRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
 			counterRef.setTarget(declStatement.getVariable());
 			MethodCall incrementCall = ReferencesFactory.eINSTANCE.createMethodCall();
-			incrementCall.setTarget(getAndIncrementMethod);
+			incrementCall.setTarget(environmentGen.getAndIncrementMethod);
 			counterRef.setNext(incrementCall);
 			
 			ExpressionStatement incSt = StatementsFactory.eINSTANCE.createExpressionStatement();
@@ -72,10 +72,10 @@ public class LoopActionInstrumenter extends AbstractInstrumenter {
 		LocalVariableStatement declStatement = StatementsFactory.eINSTANCE.createLocalVariableStatement();
 		LocalVariable locVar = VariablesFactory.eINSTANCE.createLocalVariable();
 		locVar.setName(counterName);
-		locVar.setTypeReference(this.createTypeReference(atomicIntegerClassifier));
+		locVar.setTypeReference(this.createTypeReference(environmentGen.atomicIntegerClassifier));
 		
 		NewConstructorCall locVarInit = InstantiationsFactory.eINSTANCE.createNewConstructorCall();
-		locVarInit.setTypeReference(this.createTypeReference(atomicIntegerClassifier));
+		locVarInit.setTypeReference(this.createTypeReference(environmentGen.atomicIntegerClassifier));
 		DecimalIntegerLiteral literal = LiteralsFactory.eINSTANCE.createDecimalIntegerLiteral();
 		literal.setDecimalValue(BigInteger.ZERO);
 		locVarInit.getArguments().add(literal);
@@ -97,13 +97,13 @@ public class LoopActionInstrumenter extends AbstractInstrumenter {
 		IdentifierReference threadRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
 		threadRef.setTarget(this.threadMonitoringVariable);
 		MethodCall threadCall = ReferencesFactory.eINSTANCE.createMethodCall();
-		threadCall.setTarget(exitLoopMethod);
+		threadCall.setTarget(environmentGen.exitLoopMethod);
 		this.createAndAddStringArgument(threadCall, loopId);
 		
 		IdentifierReference secArg = ReferencesFactory.eINSTANCE.createIdentifierReference();
 		secArg.setTarget(counterVar);
 		MethodCall callToGet = ReferencesFactory.eINSTANCE.createMethodCall();
-		callToGet.setTarget(getMethod);
+		callToGet.setTarget(environmentGen.getMethod);
 		secArg.setNext(callToGet);
 		
 		threadCall.getArguments().add(secArg);
