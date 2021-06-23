@@ -41,6 +41,7 @@ public abstract class AbstractInstrumenter {
 	protected final static String serviceParametersName = "ServiceParameters";
 	protected final static ConcreteClassifier stringClassifier;
 	protected final static ConcreteClassifier atomicIntegerClassifier;
+	protected final static ConcreteClassifier objectClassifier;
 	protected final static Method getAndIncrementMethod;
 	protected final static Method getMethod;
 	protected final static ConcreteClassifier threadMonitoringControllerClassifier;
@@ -50,7 +51,10 @@ public abstract class AbstractInstrumenter {
 	protected final static Method setExternalCallIdMethod;
 	protected final static Method enterBranchMethod;
 	protected final static Method exitLoopMethod;
+	protected final static Method enterServiceMethod;
+	protected final static Method exitServiceMethod;
 	protected final static ConcreteClassifier serviceParametersClassifier;
+	protected final static Method addParameterValueMethod;
 	protected LocalVariable threadMonitoringVariable;
 	
 	static {
@@ -64,12 +68,29 @@ public abstract class AbstractInstrumenter {
 		stringClassifier = (ConcreteClassifier) EcoreUtil.resolve(
 				JavaClasspath.get().getConcreteClassifier(String.class.getCanonicalName()),
 				(EObject) null);
+		objectClassifier = (ConcreteClassifier) EcoreUtil.resolve(
+				JavaClasspath.get().getConcreteClassifier(Object.class.getCanonicalName()),
+				(EObject) null);
 		
 		CompilationUnit cu = ContainersFactory.eINSTANCE.createCompilationUnit();
 		cu.getNamespaces().addAll(Arrays.asList(namespaces));
 		threadMonitoringControllerClassifier = ClassifiersFactory.eINSTANCE.createClass();
 		threadMonitoringControllerClassifier.setName(threadMonitoringControllerName);
 		cu.getClassifiers().add(threadMonitoringControllerClassifier);
+		
+		serviceParametersClassifier = ClassifiersFactory.eINSTANCE.createClass();
+		serviceParametersClassifier.setName(serviceParametersName);
+		cu.getClassifiers().add(serviceParametersClassifier);
+		
+		addParameterValueMethod = MembersFactory.eINSTANCE.createClassMethod();
+		addParameterValueMethod.setName(ApplicationProjectInstrumenterNamespace.METHOD_ADD_PARAMETER_VALUE);
+		addParameterValueMethod.makePublic();
+		addParameterValueMethod.setTypeReference(TypesFactory.eINSTANCE.createVoid());
+		addParameterValueMethod.setStatement(StatementsFactory.eINSTANCE.createBlock());
+		addParameterValueMethod.getParameters().add(createStringParameter("param1"));
+		addParameterValueMethod.getParameters().add(createOrdinaryParameter("param2",
+				createClassifierReference(objectClassifier)));
+		serviceParametersClassifier.getMembers().add(addParameterValueMethod);
 		
 		getInstanceMethod = MembersFactory.eINSTANCE.createClassMethod();
 		getInstanceMethod.setName(ApplicationProjectInstrumenterNamespace.METHOD_GET_INSTANCE);
@@ -124,9 +145,27 @@ public abstract class AbstractInstrumenter {
 		exitLoopMethod.getParameters().add(createOrdinaryParameter("param2", TypesFactory.eINSTANCE.createLong()));
 		threadMonitoringControllerClassifier.getMembers().add(exitLoopMethod);
 		
-		serviceParametersClassifier = ClassifiersFactory.eINSTANCE.createClass();
-		serviceParametersClassifier.setName(serviceParametersName);
-		cu.getClassifiers().add(serviceParametersClassifier);
+		enterServiceMethod = MembersFactory.eINSTANCE.createClassMethod();
+		enterServiceMethod.setName(ApplicationProjectInstrumenterNamespace.METHOD_ENTER_SERVICE);
+		enterServiceMethod.makePublic();
+		enterServiceMethod.getAnnotationsAndModifiers().add(ModifiersFactory.eINSTANCE.createSynchronized());
+		enterServiceMethod.setTypeReference(TypesFactory.eINSTANCE.createVoid());
+		enterServiceMethod.setStatement(StatementsFactory.eINSTANCE.createBlock());
+		enterServiceMethod.getParameters().add(createStringParameter("param1"));
+		enterServiceMethod.getParameters().add(createOrdinaryParameter("param2",
+				createClassifierReference(objectClassifier)));
+		enterServiceMethod.getParameters().add(createOrdinaryParameter("param3",
+				createClassifierReference(serviceParametersClassifier)));
+		threadMonitoringControllerClassifier.getMembers().add(enterServiceMethod);
+		
+		exitServiceMethod = MembersFactory.eINSTANCE.createClassMethod();
+		exitServiceMethod.setName(ApplicationProjectInstrumenterNamespace.METHOD_EXIT_SERVICE);
+		exitServiceMethod.makePublic();
+		exitServiceMethod.getAnnotationsAndModifiers().add(ModifiersFactory.eINSTANCE.createSynchronized());
+		exitServiceMethod.setTypeReference(TypesFactory.eINSTANCE.createVoid());
+		exitServiceMethod.setStatement(StatementsFactory.eINSTANCE.createBlock());
+		exitServiceMethod.getParameters().add(createStringParameter("param1"));
+		threadMonitoringControllerClassifier.getMembers().add(exitServiceMethod);
 	}
 	
 	private static Method findMethod(ConcreteClassifier classifier, String methName, int paramNumber) {
@@ -147,9 +186,7 @@ public abstract class AbstractInstrumenter {
 	}
 	
 	private static OrdinaryParameter createStringParameter(String paramName) {
-		ClassifierReference ref = TypesFactory.eINSTANCE.createClassifierReference();
-		ref.setTarget(stringClassifier);
-		return createOrdinaryParameter(paramName, ref);
+		return createOrdinaryParameter(paramName, createClassifierReference(stringClassifier));
 	}
 	
 	private static OrdinaryParameter createOrdinaryParameter(String paramName, TypeReference type) {
@@ -157,6 +194,12 @@ public abstract class AbstractInstrumenter {
 		param.setName(paramName);
 		param.setTypeReference(type);
 		return param;
+	}
+	
+	private static ClassifierReference createClassifierReference(ConcreteClassifier classifier) {
+		ClassifierReference ref = TypesFactory.eINSTANCE.createClassifierReference();
+		ref.setTarget(classifier);
+		return ref;
 	}
 	
 	protected void createAndAddStringArgument(MethodCall call, String s) {
