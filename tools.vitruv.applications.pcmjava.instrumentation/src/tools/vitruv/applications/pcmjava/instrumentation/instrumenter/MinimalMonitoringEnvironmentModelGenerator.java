@@ -30,7 +30,7 @@ import cipm.consistency.designtime.instrumentation.transformation.impl.Applicati
  * 
  * @author Martin Armbruster
  */
-final class MinimalMonitoringEnvironmentModelGenerator {
+public final class MinimalMonitoringEnvironmentModelGenerator {
 	final String[] namespaces = {"cipm", "consistency", "bridge", "monitoring", "controller"};
 	final String threadMonitoringControllerName = "ThreadMonitoringController";
 	final String serviceParametersName = "ServiceParameters";
@@ -51,7 +51,7 @@ final class MinimalMonitoringEnvironmentModelGenerator {
 	final ConcreteClassifier serviceParametersClassifier;
 	final Method addParameterValueMethod;
 	
-	MinimalMonitoringEnvironmentModelGenerator(EObject context) {
+	public MinimalMonitoringEnvironmentModelGenerator(EObject context) {
 		atomicIntegerClassifier = (ConcreteClassifier) EcoreUtil.resolve(
 				JavaClasspath.get().getConcreteClassifier(AtomicInteger.class.getCanonicalName()),
 				context);
