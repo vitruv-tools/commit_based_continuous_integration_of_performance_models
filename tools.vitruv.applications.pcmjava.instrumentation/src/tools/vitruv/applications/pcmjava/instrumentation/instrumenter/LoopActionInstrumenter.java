@@ -20,7 +20,9 @@ import org.emftext.language.java.statements.StatementsFactory;
 import org.emftext.language.java.variables.LocalVariable;
 import org.emftext.language.java.variables.VariablesFactory;
 
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
 import cipm.consistency.designtime.instrumentation.transformation.impl.ApplicationProjectInstrumenterNamespace;
+import tools.vitruv.applications.pcmjava.instrumentation.ActionStatementMapping;
 
 /**
  * An instrumenter for LoopActions.
@@ -28,15 +30,18 @@ import cipm.consistency.designtime.instrumentation.transformation.impl.Applicati
  * @author Martin Armbruster
  */
 public class LoopActionInstrumenter extends AbstractInstrumenter {
+	protected LoopActionInstrumenter(MinimalMonitoringEnvironmentModelGenerator gen) {
+		super(gen);
+	}
+
 	private HashMap<Method, Integer> introducedCounters = new HashMap<>();
 	
-	/**
-	 * Instruments a LoopAction.
-	 * 
-	 * @param loopSt the statement of the LoopAction.
-	 * @param loopId the id of the loop.
-	 */
-	public void instrumentLoopAction(Statement loopSt, String loopId) {
+	@Override
+	protected void instrument(ActionInstrumentationPoint aip, ActionStatementMapping statementMap) {
+		Statement loopSt = statementMap.get(aip.getAction());
+		String loopId = aip.getAction().getId();
+		
+		// Create counter name.
 		Method parent = loopSt.getParentByType(Method.class);
 		int currentCounterId = 1;
 		if (introducedCounters.containsKey(parent)) {

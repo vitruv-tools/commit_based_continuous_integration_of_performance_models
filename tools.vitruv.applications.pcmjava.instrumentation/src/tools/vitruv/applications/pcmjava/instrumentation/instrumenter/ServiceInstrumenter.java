@@ -17,7 +17,9 @@ import org.emftext.language.java.statements.TryBlock;
 import org.emftext.language.java.variables.LocalVariable;
 import org.emftext.language.java.variables.VariablesFactory;
 
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
 import cipm.consistency.designtime.instrumentation.transformation.impl.ApplicationProjectInstrumenterNamespace;
+import tools.vitruv.applications.pcmjava.instrumentation.ActionStatementMapping;
 
 /**
  * An instrumenter for Services.
@@ -25,13 +27,20 @@ import cipm.consistency.designtime.instrumentation.transformation.impl.Applicati
  * @author Martin Armbruster
  */
 public class ServiceInstrumenter extends AbstractInstrumenter {
-	/**
-	 * Instruments a service.
-	 * 
-	 * @param service the service.
-	 * @param correspondingSeffId the id of the corresponding SEFF.
-	 */
-	public void instrumentService(Method service, String correspondingSeffId) {
+	private Method service;
+	private String correspondingSeffId;
+	
+	protected ServiceInstrumenter(MinimalMonitoringEnvironmentModelGenerator gen) {
+		super(gen);
+	}
+	
+	protected void setService(Method m, String seffId) {
+		this.service = m;
+		this.correspondingSeffId = seffId;
+	}
+
+	@Override
+	protected void instrument(ActionInstrumentationPoint aip, ActionStatementMapping statementMap) {
 		// Create new body for the method.
 		Block newBody = StatementsFactory.eINSTANCE.createBlock();
 		

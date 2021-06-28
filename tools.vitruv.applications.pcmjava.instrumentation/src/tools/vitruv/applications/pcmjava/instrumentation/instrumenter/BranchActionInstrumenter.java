@@ -9,19 +9,23 @@ import org.emftext.language.java.statements.Statement;
 import org.emftext.language.java.statements.StatementContainer;
 import org.emftext.language.java.statements.StatementsFactory;
 
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
+import tools.vitruv.applications.pcmjava.instrumentation.ActionStatementMapping;
+
 /**
  * An instrumenter for BranchActions.
  * 
  * @author Martin Armbruster
  */
 public class BranchActionInstrumenter extends AbstractInstrumenter {
-	/**
-	 * Instruments a BranchAction.
-	 * 
-	 * @param branchSt the branch statement.
-	 * @param transitionId id for the transition.
-	 */
-	public void instrumentBranchAction(Statement branchSt, String transitionId) {
+	protected BranchActionInstrumenter(MinimalMonitoringEnvironmentModelGenerator gen) {
+		super(gen);
+	}
+	
+	@Override
+	protected void instrument(ActionInstrumentationPoint aip, ActionStatementMapping statementMapping) {
+		Statement branchSt = statementMapping.get(aip.getAction());
+		String transitionId = aip.getAction().getId();
 		if (branchSt instanceof StatementContainer
 				&& ((StatementContainer) branchSt).getStatement() instanceof Block) {
 			ExpressionStatement enterSt = StatementsFactory.eINSTANCE.createExpressionStatement();

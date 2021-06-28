@@ -9,6 +9,9 @@ import org.emftext.language.java.types.NamespaceClassifierReference;
 import org.emftext.language.java.types.TypesFactory;
 import org.emftext.language.java.variables.LocalVariable;
 
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
+import tools.vitruv.applications.pcmjava.instrumentation.ActionStatementMapping;
+
 /**
  * An abstract instrumenter.
  * 
@@ -17,6 +20,14 @@ import org.emftext.language.java.variables.LocalVariable;
 public abstract class AbstractInstrumenter {
 	protected MinimalMonitoringEnvironmentModelGenerator environmentGen;
 	protected LocalVariable threadMonitoringVariable;
+	
+	protected AbstractInstrumenter(MinimalMonitoringEnvironmentModelGenerator gen) {
+		this.environmentGen = gen;
+	}
+	
+	protected void setLocalThreadMonitoringVariable(LocalVariable monitorVar) {
+		this.threadMonitoringVariable = monitorVar;
+	}
 	
 	protected void createAndAddStringArgument(MethodCall call, String s) {
 		StringReference ref = ReferencesFactory.eINSTANCE.createStringReference();
@@ -32,4 +43,12 @@ public abstract class AbstractInstrumenter {
 		result.getClassifierReferences().add(actualRef);
 		return result;
 	}
+	
+	/**
+	 * Instruments an AbstractAction.
+	 * 
+	 * @param aip provides the AbstractAction for the instrumentation.
+	 * @param statementMapping a mapping to retrieve the corresponding statements of the AbstractAction. 
+	 */
+	protected abstract void instrument(ActionInstrumentationPoint aip, ActionStatementMapping statementMapping);
 }

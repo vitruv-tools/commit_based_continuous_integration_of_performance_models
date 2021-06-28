@@ -7,19 +7,23 @@ import org.emftext.language.java.statements.ExpressionStatement;
 import org.emftext.language.java.statements.Statement;
 import org.emftext.language.java.statements.StatementsFactory;
 
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
+import tools.vitruv.applications.pcmjava.instrumentation.ActionStatementMapping;
+
 /**
  * An instrumenter for ExternalCallActions.
  * 
  * @author Martin Armbruster
  */
 public class ExternalCallActionInstrumenter extends AbstractInstrumenter {
-	/**
-	 * Instruments an ExternalCallAction.
-	 * 
-	 * @param callStatement statement of the external call.
-	 * @param externalCallId id of the external call.
-	 */
-	public void instrumentExternalCallAction(Statement callStatement, String externalCallId) {
+	protected ExternalCallActionInstrumenter(MinimalMonitoringEnvironmentModelGenerator gen) {
+		super(gen);
+	}
+
+	@Override
+	protected void instrument(ActionInstrumentationPoint aip, ActionStatementMapping statementMap) {
+		Statement callStatement = statementMap.get(aip.getAction());
+		String externalCallId = aip.getAction().getId();
 		ExpressionStatement enterSt = StatementsFactory.eINSTANCE.createExpressionStatement();
 		IdentifierReference objRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
 		objRef.setTarget(this.threadMonitoringVariable);

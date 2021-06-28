@@ -7,7 +7,9 @@ import org.emftext.language.java.statements.ExpressionStatement;
 import org.emftext.language.java.statements.Statement;
 import org.emftext.language.java.statements.StatementsFactory;
 
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
 import cipm.consistency.designtime.instrumentation.transformation.impl.ApplicationProjectInstrumenterNamespace;
+import tools.vitruv.applications.pcmjava.instrumentation.ActionStatementMapping;
 
 /**
  * An instrumenter for InternalActions.
@@ -15,14 +17,16 @@ import cipm.consistency.designtime.instrumentation.transformation.impl.Applicati
  * @author Martin Armbruster
  */
 public class InternalActionInstrumenter extends AbstractInstrumenter {
-	/**
-	 * Instruments an InternalAction.
-	 * 
-	 * @param start the starting statement of the InternalAction.
-	 * @param end the ending statement of the InternalAction.
-	 * @param correspondingInternalActionId
-	 */
-	public void instrumentInternalAction(Statement start, Statement end, String correspondingInternalActionId) {
+	protected InternalActionInstrumenter(MinimalMonitoringEnvironmentModelGenerator gen) {
+		super(gen);
+	}
+
+	@Override
+	protected void instrument(ActionInstrumentationPoint aip, ActionStatementMapping statementMap) {
+		Statement start = statementMap.get(aip.getAction());
+		Statement end = statementMap.getAbstractActionToLastStatementMapping().get(aip.getAction());
+		String correspondingInternalActionId = aip.getAction().getId();
+		
 		// Entry.
 		IdentifierReference objRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
 		objRef.setTarget(this.threadMonitoringVariable);
