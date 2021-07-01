@@ -15,8 +15,6 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.Resource.Factory;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.emftext.language.java.JavaClasspath;
-import org.emftext.language.java.resource.JavaSourceOrClassFileResourceFactoryImpl;
-import org.emftext.language.java.resource.java.IJavaOptions;
 import org.splevo.commons.emf.FileResourceHandling.ResourceHandlingOptions;
 import org.splevo.commons.emf.SPLevoResourceSet;
 import org.splevo.extraction.SoftwareModelExtractionException;
@@ -25,6 +23,8 @@ import org.splevo.jamopp.extraction.cache.ReferenceCache;
 import org.splevo.jamopp.extraction.resource.JavaSourceOrClassFileResourceCachingFactoryImpl;
 
 import com.google.common.collect.Lists;
+
+import jamopp.resource.JavaResource2Factory;
 
 /**
  * Software Model Extractor for the Java technology based on the Java Model Parser and Printer
@@ -309,16 +309,13 @@ public class JaMoPPSoftwareModelExtractor implements SoftwareModelExtractor {
     private void initResourceSet(ResourceSet rs, List<String> sourceModelPaths, boolean loadLayoutInformation) {
         final Boolean disableLayoutOption = loadLayoutInformation ? Boolean.FALSE : Boolean.TRUE;
 
+        JavaClasspath.get().registerStdLib();
+        
         final Map<Object, Object> options = rs.getLoadOptions();
-        options.put(JavaClasspath.OPTION_USE_LOCAL_CLASSPATH, Boolean.TRUE);
-        options.put(JavaClasspath.OPTION_REGISTER_STD_LIB, Boolean.TRUE);
-        options.put(IJavaOptions.DISABLE_EMF_VALIDATION, Boolean.TRUE);
-        options.put(IJavaOptions.DISABLE_LAYOUT_INFORMATION_RECORDING, disableLayoutOption);
-        options.put(IJavaOptions.DISABLE_LOCATION_MAP, disableLayoutOption);
         options.put(ResourceHandlingOptions.USE_PLATFORM_RESOURCE,
                 ResourceHandlingOptions.USE_PLATFORM_RESOURCE.getDefault());
 
-        Factory originalFactory = new JavaSourceOrClassFileResourceFactoryImpl();
+        Factory originalFactory = new JavaResource2Factory();
         Factory cachedJaMoPPFactory = new JavaSourceOrClassFileResourceCachingFactoryImpl(originalFactory,
                 sourceModelPaths);
         

@@ -31,14 +31,14 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.emftext.language.java.commons.Commentable;
 import org.emftext.language.java.members.Constructor;
 import org.emftext.language.java.members.Method;
-import org.emftext.language.java.resource.java.mopp.JavaPrinter2;
-import org.emftext.language.java.resource.java.mopp.JavaResource;
 import org.emftext.language.java.statements.Statement;
 import org.splevo.jamopp.diffing.jamoppdiff.CompilationUnitChange;
 import org.splevo.jamopp.diffing.jamoppdiff.StatementChange;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+
+import jamopp.printer.JaMoPPPrinter;
 
 /**
  * Logger for statistics about the identified differences.
@@ -161,12 +161,7 @@ public class DifferenceStatisticLogger {
     private static String getStringRepresentation(Commentable element) {
         String printString = "";
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        JavaPrinter2 printer = new JavaPrinter2(stream, new JavaResource());
-        try {
-            printer.print(element);
-        } catch (IOException e) {
-            System.err.println("Failed to print element");
-        }
+        JaMoPPPrinter.print(element, stream);
         printString = stream.toString();
         return printString;
     }

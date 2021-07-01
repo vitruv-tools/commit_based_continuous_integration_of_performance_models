@@ -20,7 +20,6 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.emftext.commons.layout.LayoutPackage;
 import org.emftext.language.java.commons.CommonsPackage;
-import org.emftext.language.java.containers.ContainersPackage;
 import org.emftext.language.java.imports.ImportsPackage;
 import org.splevo.jamopp.diffing.scope.PackageIgnoreChecker;
 
@@ -92,7 +91,6 @@ public class JaMoPPFeatureFilter extends FeatureFilter {
 
 		switch (reference.getFeatureID()) {
 		case CommonsPackage.COMMENTABLE__LAYOUT_INFORMATIONS:
-		case ContainersPackage.PACKAGE__COMPILATION_UNITS:
 			return true;
 			// case JavaPackage.MODEL__NAME:
 			// case JavaPackage.ABSTRACT_TYPE_QUALIFIED_EXPRESSION__QUALIFIER:
