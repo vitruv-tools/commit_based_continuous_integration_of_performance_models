@@ -34,6 +34,7 @@ import org.emftext.language.java.commons.util.CommonsSwitch;
 import org.emftext.language.java.containers.CompilationUnit;
 import org.emftext.language.java.containers.Package;
 import org.emftext.language.java.containers.util.ContainersSwitch;
+import org.emftext.language.java.expressions.AdditiveExpression;
 import org.emftext.language.java.expressions.AndExpression;
 import org.emftext.language.java.expressions.AndExpressionChild;
 import org.emftext.language.java.expressions.AssignmentExpression;
@@ -520,6 +521,19 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             UnaryExpressionChild child2 = exp2.getChild();
             return similarityChecker.isSimilar(child1, child2);
         }
+        
+        @Override
+        public Boolean caseAdditiveExpression(AdditiveExpression exp1) {
+        	
+        	AdditiveExpression exp2 = (AdditiveExpression) compareElement;
+        	
+        	Boolean opSimilarity = similarityChecker.areSimilar(exp1.getAdditiveOperators(), exp2.getAdditiveOperators());
+        	if (opSimilarity == Boolean.FALSE) {
+        		return Boolean.FALSE;
+        	}
+        	
+        	return similarityChecker.areSimilar(exp1.getChildren(), exp2.getChildren());
+        }
 
         @Override
         public Boolean caseInstanceOfExpression(InstanceOfExpression exp1) {
@@ -880,7 +894,7 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             }
 
             logger.warn("MethodDeclaration in unknown container: " + method1.getName() + " : "
-                    + method1.eContainer().getClass().getSimpleName());
+                    + method1.eContainer());
             return super.caseMethod(method1);
         }
 
