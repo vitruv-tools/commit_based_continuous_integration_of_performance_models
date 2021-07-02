@@ -6,7 +6,7 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: .
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.apache.log4j,
  org.eclipse.emf.ecore.xmi,
  org.eclipse.emf.compare,
@@ -23,3 +23,4 @@ Export-Package: org.splevo.diffing,
  org.splevo.diffing.splevodiff.util
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.splevo.diffing.Activator
+Automatic-Module-Name: org.splevo.diffing

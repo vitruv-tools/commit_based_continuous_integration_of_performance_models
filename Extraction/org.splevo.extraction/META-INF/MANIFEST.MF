@@ -9,5 +9,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.log4j,
  com.google.guava;bundle-version="[27.0.0,28.0.0)"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: org.splevo.extraction
+Automatic-Module-Name: org.splevo.extraction

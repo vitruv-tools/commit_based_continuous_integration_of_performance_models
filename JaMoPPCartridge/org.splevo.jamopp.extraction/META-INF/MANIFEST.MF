@@ -4,7 +4,7 @@ Bundle-Name: SPLevo JaMoPP Extractor
 Bundle-SymbolicName: org.splevo.jamopp.extraction;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: www.splevo.org
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.splevo.extraction,
  org.emftext.language.java,
  jamopp.resource,
@@ -16,3 +16,4 @@ Require-Bundle: org.splevo.extraction,
  org.splevo.commons,
  org.eclipse.core.runtime
 Export-Package: org.splevo.jamopp.extraction
+Automatic-Module-Name: org.splevo.jamopp.extraction
