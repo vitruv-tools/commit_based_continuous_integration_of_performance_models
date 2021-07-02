@@ -6,8 +6,8 @@ import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.compare.scope.DefaultComparisonScope;
 import org.eclipse.emf.ecore.resource.Resource;
 
-public class JavaComparisonScope extends DefaultComparisonScope {
-	public JavaComparisonScope(Notifier left, Notifier right,
+public class ResourceListFilteringComparisonScope extends DefaultComparisonScope {
+	public ResourceListFilteringComparisonScope(Notifier left, Notifier right,
 			List<Resource> newResources, List<Resource> currentResources) {
 		super(left, right, null);
 		this.setResourceSetContentFilter(r -> {
