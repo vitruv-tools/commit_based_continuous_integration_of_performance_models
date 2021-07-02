@@ -704,14 +704,14 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
                 return Boolean.FALSE;
             }
 
-            EList<Type> types1 = call1.getArgumentTypes();
-            EList<Type> types2 = call2.getArgumentTypes();
+            EList<Expression> types1 = call1.getArguments();
+            EList<Expression> types2 = call2.getArguments();
             if (types1.size() != types2.size()) {
                 return Boolean.FALSE;
             }
             for (int i = 0; i < types1.size(); i++) {
-                Type argType1 = types1.get(i);
-                Type argType2 = types2.get(i);
+                Expression argType1 = types1.get(i);
+                Expression argType2 = types2.get(i);
                 Boolean similarity = similarityChecker.isSimilar(argType1, argType2);
                 if (similarity == Boolean.FALSE) {
                     return Boolean.FALSE;
