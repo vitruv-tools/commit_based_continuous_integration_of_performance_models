@@ -1616,7 +1616,7 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
      */
     @Override
     public Boolean defaultCase(EObject object) {
-        return Boolean.TRUE;
+        return null;
     }
 
 }
