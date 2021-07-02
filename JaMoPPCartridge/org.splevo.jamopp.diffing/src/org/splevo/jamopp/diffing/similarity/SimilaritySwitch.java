@@ -1070,7 +1070,8 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
                         ArraySelector.class);
                 EObject target1Container = target1.eContainer();
                 EObject target2Container = target2.eContainer();
-                if (target1Container != ref1Container && target2Container != ref2Container) {
+                if (target1Container != ref1Container && target2Container != ref2Container
+                		&& target1Container != ref1 && target2Container != ref2) {
                     Boolean containerSimilarity = similarityChecker.isSimilar(target1Container, target2Container);
                     if (containerSimilarity == Boolean.FALSE) {
                         return Boolean.FALSE;
