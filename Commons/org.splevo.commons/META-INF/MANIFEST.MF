@@ -4,11 +4,11 @@ Bundle-Name: SPLevo Common Utilities
 Bundle-SymbolicName: org.splevo.commons
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: com.google.guava,
+Require-Bundle: com.google.guava;bundle-version="[27.0.0,28.0.0)",
  org.apache.log4j,
  org.eclipse.equinox.registry,
  org.eclipse.osgi,
- org.eclipse.core.runtime;bundle-version="3.9.100",
+ org.eclipse.core.runtime,
  org.eclipse.emf.ecore,
  org.eclipse.core.resources
 Export-Package: org.splevo.commons.eclipse,
