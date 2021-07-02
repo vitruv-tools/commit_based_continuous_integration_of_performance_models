@@ -670,7 +670,7 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             ExplicitConstructorCall call2 = (ExplicitConstructorCall) compareElement;
 
             // check the class instance types
-            Boolean typeSimilarity = similarityChecker.isSimilar(call1.getType(), call2.getType());
+            Boolean typeSimilarity = similarityChecker.isSimilar(call1.getCallTarget(), call2.getCallTarget());
             if (typeSimilarity == Boolean.FALSE) {
                 return Boolean.FALSE;
             }
