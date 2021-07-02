@@ -183,6 +183,11 @@ public class HierarchicalMatchEngine implements IMatchEngine {
      */
     protected void match(Comparison comparison, final Resource leftRes, final Resource rightRes, Monitor monitor) {
 
+    	if (comparison.getMatchedResources().size() == 0) {
+    		resourceMatcher.createMappings(List.of(leftRes).iterator(), List.of(rightRes).iterator(), null)
+    			.forEach(match -> comparison.getMatchedResources().add(match));
+    	}
+    	
         List<EObject> leftElements = new ArrayList<EObject>();
         List<EObject> rightElements = new ArrayList<EObject>();
 
@@ -257,7 +262,7 @@ public class HierarchicalMatchEngine implements IMatchEngine {
             }
             
             if (match.getRight() == null) {
-            	match.getSubmatches().addAll(match(comparison, leftElement.eContents(), new BasicEList(), monitor));
+            	match.getSubmatches().addAll(match(comparison, leftElement.eContents(), new BasicEList<>(), monitor));
             }
 
             matches.add(match);
