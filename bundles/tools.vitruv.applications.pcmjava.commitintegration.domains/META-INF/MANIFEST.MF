@@ -14,6 +14,9 @@ Require-Bundle: org.emftext.language.java,
  org.eclipse.emf.compare,
  tools.vitruv.domains.java,
  org.eclipse.emf.common,
- tools.vitruv.applications.pcmjava.commitintegration.diff.util
+ tools.vitruv.applications.pcmjava.commitintegration.diff.util,
+ org.splevo.diffing,
+ org.splevo.jamopp.diffing,
+ org.eclipse.emf.compare.rcp
 Automatic-Module-Name: tools.vitruv.applications.javapcm.commitintegration.domains
 Bundle-RequiredExecutionEnvironment: JavaSE-11

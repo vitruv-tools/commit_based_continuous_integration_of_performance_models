@@ -28,7 +28,9 @@ import java.util.List
 import java.util.ArrayList
 import org.eclipse.emf.ecore.EObject
 import java.util.Collection
-import tools.vitruv.applications.pcmjava.commitintegration.diff.util.JavaComparisonScope
+import org.eclipse.emf.compare.rcp.EMFCompareRCPPlugin
+import tools.vitruv.applications.pcmjava.commitintegration.diff.util.ResourceListFilteringComparisonScope
+import tools.vitruv.applications.pcmjava.commitintegration.diff.util.JavaMatchEngineFactoryGenerator
 
 /**
  * This strategy for diff based state changes of Java models uses EMFCompare to resolve a 
@@ -115,6 +117,12 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 			List<Resource> sourceResources, List<Resource> targetResources) {
 		checkArgument(sourceSet !== null, "There has to be a source set.")
 		checkArgument(targetSet !== null, "There has to be a target set.")
+		sourceResources.forEach[
+			it.checkNoProxies("A new resource contains proxy objects.")
+		]
+		targetResources.forEach[
+			it.checkNoProxies("An old resource contains proxy objects.")
+		]
 		val monitoredResourceSet = new ResourceSetImpl()
 		val copier = new EcoreUtil.Copier
 		val copies = new ArrayList
@@ -154,7 +162,8 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 	 */
 	private def compareStatesAndReplayChanges(Notifier newState, Notifier currentState,
 			List<Resource> newResources, List<Resource> currentResources) {
-		val scope = new JavaComparisonScope(newState, currentState, newResources, currentResources)
+		val scope = new ResourceListFilteringComparisonScope(newState, currentState, newResources, currentResources)
+		
 		val diffProcessor = new DiffBuilder()
 		val diffEngine = new DefaultDiffEngine(diffProcessor) {
 			override protected FeatureFilter createFeatureFilter() {
@@ -168,11 +177,20 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 				}
 			}
 		}
+		
+		val matchEngineFactory = JavaMatchEngineFactoryGenerator.generateMatchEngineFactory
+		matchEngineFactory.ranking = 20
+		var engineRegistry = EMFCompareRCPPlugin.getDefault.getMatchEngineFactoryRegistry
+		engineRegistry.add(matchEngineFactory)
+		
 		val postProcessor =  new JavaPostProcessor()
 		val processorDescriptor = new BasicPostProcessorDescriptorImpl(postProcessor, Pattern.compile(".*"), null)
 		val processorRegistry = new PostProcessorDescriptorRegistryImpl()
-		processorRegistry.put("java", processorDescriptor)
-		val comparison = EMFCompare.builder.setDiffEngine(diffEngine)
+		processorRegistry.put("javaxmi", processorDescriptor)
+		
+		val comparison = EMFCompare.builder
+			.setMatchEngineFactoryRegistry(engineRegistry)
+			.setDiffEngine(diffEngine)
 			.setPostProcessorRegistry(processorRegistry).build.compare(scope)
 		val changes = comparison.differences
 		// Replay the EMF compare differences
