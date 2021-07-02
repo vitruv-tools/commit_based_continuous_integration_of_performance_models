@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.notify.Notifier;
+import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.Monitor;
 import org.eclipse.emf.compare.CompareFactory;
 import org.eclipse.emf.compare.Comparison;
@@ -151,7 +152,7 @@ public class HierarchicalMatchEngine implements IMatchEngine {
             Monitor monitor) {
         final Iterator<? extends Resource> leftChildren = scope.getCoveredResources(left);
         final Iterator<? extends Resource> rightChildren = scope.getCoveredResources(right);
-        final Iterator<? extends Resource> originChildren = Iterators.emptyIterator();
+        final Iterator<? extends Resource> originChildren = Iterators.cycle();
 
         final IResourceMatcher matcher = createResourceMatcher();
         final Iterable<MatchResource> mappings = matcher.createMappings(leftChildren, rightChildren, originChildren);
@@ -253,6 +254,10 @@ public class HierarchicalMatchEngine implements IMatchEngine {
                     match.getSubmatches().addAll(subMatches);
                     break;
                 }
+            }
+            
+            if (match.getRight() == null) {
+            	match.getSubmatches().addAll(match(comparison, leftElement.eContents(), new BasicEList(), monitor));
             }
 
             matches.add(match);
