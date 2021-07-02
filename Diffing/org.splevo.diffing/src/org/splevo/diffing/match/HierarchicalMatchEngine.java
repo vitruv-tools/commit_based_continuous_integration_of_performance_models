@@ -281,6 +281,7 @@ public class HierarchicalMatchEngine implements IMatchEngine {
         for (EObject element : elements) {
             Match match = CompareFactory.eINSTANCE.createMatch();
             match.setRight(element);
+            match.getSubmatches().addAll(createMatchesForRightElements(element.eContents()));
             rightMatches.add(match);
         }
         return rightMatches;
