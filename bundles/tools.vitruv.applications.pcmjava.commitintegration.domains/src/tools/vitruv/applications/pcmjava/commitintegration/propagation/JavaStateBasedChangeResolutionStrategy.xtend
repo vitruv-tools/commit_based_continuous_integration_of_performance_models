@@ -68,11 +68,8 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 		// Thus, we create the resource and then monitor the re-insertion of the elements
 		val monitoredResourceSet = new ResourceSetImpl()
 		val newResource = monitoredResourceSet.createResource(newState.URI)
-		val contents = newState.copyResourceContent [
-			EcoreUtil.copyAll(newState.contents)
-		]
 		return newResource.record(monitoredResourceSet, [
-			newResource.contents += contents
+			compareStatesAndReplayChanges(newState, newResource, null, null)
 		])
 	}
 	
@@ -142,9 +139,9 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 		oldState.checkNoProxies("old state")
 		// Setup resolver and copy state:
 		val monitoredResourceSet = new ResourceSetImpl()
-		val currentStateCopy = oldState.copyInto(monitoredResourceSet)
+		val currentStateCopy = monitoredResourceSet.createResource(oldState.URI)
 		return currentStateCopy.record(monitoredResourceSet, [
-			currentStateCopy.contents.clear()
+			compareStatesAndReplayChanges(currentStateCopy, oldState, null, null)
 		])
 	}
 
