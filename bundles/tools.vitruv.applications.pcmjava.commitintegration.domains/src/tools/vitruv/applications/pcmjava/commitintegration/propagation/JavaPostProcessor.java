@@ -1,17 +1,21 @@
 package tools.vitruv.applications.pcmjava.commitintegration.propagation;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.emf.common.util.Monitor;
-import org.eclipse.emf.compare.CompareFactory;
 import org.eclipse.emf.compare.Comparison;
-import org.eclipse.emf.compare.DifferenceKind;
-import org.eclipse.emf.compare.DifferenceSource;
-import org.eclipse.emf.compare.DifferenceState;
 import org.eclipse.emf.compare.Match;
-import org.eclipse.emf.compare.ReferenceChange;
 import org.eclipse.emf.compare.postprocessor.IPostProcessor;
 import org.emftext.language.java.members.Method;
 
 public class JavaPostProcessor implements IPostProcessor {
+	private Set<Method> changedMethods = new HashSet<>();
+	
+	public Set<Method> getChangedMethods() {
+		return changedMethods;
+	}
+	
 	@Override
 	public void postMatch(Comparison comparison, Monitor monitor) {
 	}
@@ -22,20 +26,9 @@ public class JavaPostProcessor implements IPostProcessor {
 	}
 	
 	private void checkForMethods(Match m) {
-		if (m.getLeft() instanceof Method || m.getRight() instanceof Method) {
+		if (m.getLeft() instanceof Method && m.getRight() instanceof Method) {
 			if (hasDifferences(m)) {
-				ReferenceChange methodDiff = CompareFactory.eINSTANCE.createReferenceChange();
-				if (m.getLeft() != null) {
-					methodDiff.setKind(DifferenceKind.ADD);
-					m.getLeft().eAdapters().add(new OldMethodAdapter((Method) m.getRight()));
-				} else {
-					methodDiff.setKind(DifferenceKind.DELETE);
-				}
-				methodDiff.setState(DifferenceState.UNRESOLVED);
-				methodDiff.setSource(DifferenceSource.LEFT);
-				methodDiff.setReference(m.getLeft().eContainmentFeature());
-				methodDiff.setValue(m.getLeft());
-				((Match) m.eContainer()).getDifferences().add(methodDiff);
+				changedMethods.add((Method) m.getRight());
 			}
 		} else {
 			m.getSubmatches().forEach(this::checkForMethods);
