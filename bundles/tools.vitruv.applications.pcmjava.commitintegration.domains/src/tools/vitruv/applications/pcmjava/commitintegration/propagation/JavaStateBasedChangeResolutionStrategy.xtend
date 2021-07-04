@@ -16,10 +16,6 @@ import tools.vitruv.framework.domains.StateBasedChangeResolutionStrategy
 import org.eclipse.emf.compare.diff.DiffBuilder
 import org.eclipse.emf.compare.diff.DefaultDiffEngine
 import org.eclipse.emf.compare.diff.FeatureFilter
-import org.eclipse.emf.compare.Match
-import org.eclipse.emf.ecore.EReference
-import org.emftext.language.java.commons.CommonsPackage
-import org.emftext.commons.layout.LayoutInformation
 import org.emftext.language.java.commons.Commentable
 import org.eclipse.emf.compare.postprocessor.BasicPostProcessorDescriptorImpl
 import org.eclipse.emf.compare.postprocessor.PostProcessorDescriptorRegistryImpl
@@ -32,6 +28,8 @@ import org.eclipse.emf.compare.rcp.EMFCompareRCPPlugin
 import tools.vitruv.applications.pcmjava.commitintegration.diff.util.ResourceListFilteringComparisonScope
 import tools.vitruv.applications.pcmjava.commitintegration.diff.util.JavaMatchEngineFactoryGenerator
 import org.emftext.language.java.JavaPackage
+import org.splevo.jamopp.diffing.scope.PackageIgnoreChecker
+import org.splevo.jamopp.diffing.diff.JaMoPPFeatureFilter
 
 /**
  * This strategy for diff based state changes of Java models uses EMFCompare to resolve a 
@@ -163,17 +161,11 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 		val scope = new ResourceListFilteringComparisonScope(newState, currentState, newResources, currentResources)
 		scope.nsURIs.add(JavaPackage.eNS_URI)
 		
+		val jamoppFeatureFilter = new JaMoPPFeatureFilter(new PackageIgnoreChecker(List.of()))
 		val diffProcessor = new DiffBuilder()
 		val diffEngine = new DefaultDiffEngine(diffProcessor) {
 			override protected FeatureFilter createFeatureFilter() {
-				return new FeatureFilter() {
-					override protected boolean isIgnoredReference(Match match, EReference reference) {
-						return match.left instanceof LayoutInformation
-							|| match.right instanceof LayoutInformation
-							|| reference == CommonsPackage.Literals.COMMENTABLE__LAYOUT_INFORMATIONS
-							|| super.isIgnoredReference(match, reference)
-					}
-				}
+				return jamoppFeatureFilter
 			}
 		}
 		
