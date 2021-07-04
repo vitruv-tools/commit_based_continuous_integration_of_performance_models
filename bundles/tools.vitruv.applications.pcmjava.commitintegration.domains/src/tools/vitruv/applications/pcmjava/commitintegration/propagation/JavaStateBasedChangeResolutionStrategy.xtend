@@ -31,6 +31,7 @@ import java.util.Collection
 import org.eclipse.emf.compare.rcp.EMFCompareRCPPlugin
 import tools.vitruv.applications.pcmjava.commitintegration.diff.util.ResourceListFilteringComparisonScope
 import tools.vitruv.applications.pcmjava.commitintegration.diff.util.JavaMatchEngineFactoryGenerator
+import org.emftext.language.java.JavaPackage
 
 /**
  * This strategy for diff based state changes of Java models uses EMFCompare to resolve a 
@@ -160,6 +161,7 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 	private def compareStatesAndReplayChanges(Notifier newState, Notifier currentState,
 			List<Resource> newResources, List<Resource> currentResources) {
 		val scope = new ResourceListFilteringComparisonScope(newState, currentState, newResources, currentResources)
+		scope.nsURIs.add(JavaPackage.eNS_URI)
 		
 		val diffProcessor = new DiffBuilder()
 		val diffEngine = new DefaultDiffEngine(diffProcessor) {
@@ -194,6 +196,11 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 		val mergerRegistry = IMerger.RegistryImpl.createStandaloneInstance()
 		val merger = new BatchMerger(mergerRegistry)
 		merger.copyAllLeftToRight(changes, new BasicMonitor)
+		postProcessor.changedMethods.forEach[
+			val oldName = it.name
+			it.name = ""
+			it.name = oldName
+		]
 	}
 
 	/**
