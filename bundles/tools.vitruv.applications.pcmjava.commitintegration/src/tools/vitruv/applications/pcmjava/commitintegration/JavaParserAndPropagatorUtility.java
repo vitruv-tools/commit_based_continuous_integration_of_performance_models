@@ -3,6 +3,7 @@ package tools.vitruv.applications.pcmjava.commitintegration;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -19,6 +20,8 @@ import tools.vitruv.framework.vsum.VirtualModel;
  * @author Martin Armbruster
  */
 public final class JavaParserAndPropagatorUtility {
+	private static final Logger logger = Logger.getLogger(JavaParserAndPropagatorUtility.class.getSimpleName());
+	
 	private JavaParserAndPropagatorUtility() {
 	}
 	
@@ -35,9 +38,12 @@ public final class JavaParserAndPropagatorUtility {
 		JaMoPPJDTSingleFileParser parser = new JaMoPPJDTSingleFileParser();
 		parser.setResourceSet(new ResourceSetImpl());
 		parser.setExclusionPatterns(".*?/src/test/java/.*?");
+		logger.debug("Parsing " + dir.toString());
 		ResourceSet resourceSet = parser.parseDirectory(dir);
+		logger.debug("Parsed " + resourceSet.getResources().size() + " files.");
 		
 		// 2. Resolve all references.
+		logger.debug("Resolving all references.");
 		int oldSize;
 		do {
 			oldSize = resourceSet.getResources().size();
@@ -50,6 +56,7 @@ public final class JavaParserAndPropagatorUtility {
 		} while (oldSize != resourceSet.getResources().size());
 		
 		// 3. Create one resource with all Java models.
+		logger.debug("Creating one resource with all Java models.");
 		ResourceSet next = new ResourceSetImpl();
 		Resource all = next.createResource(URI.createFileURI(target.toAbsolutePath().toString()));
 		for (Resource r : new ArrayList<>(resourceSet.getResources())) {
@@ -57,6 +64,7 @@ public final class JavaParserAndPropagatorUtility {
 		}
 		
 		// 4. Propagate the Java models.
+		logger.debug("Propagating the Java models.");
 		vsum.propagateChangedState(all);
 	}
 }
