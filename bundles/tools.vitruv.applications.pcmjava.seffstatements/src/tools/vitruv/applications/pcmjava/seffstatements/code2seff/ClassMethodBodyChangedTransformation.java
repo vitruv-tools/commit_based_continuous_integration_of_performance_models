@@ -11,6 +11,7 @@ import org.emftext.language.java.statements.StatementListContainer;
 import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
+import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import org.palladiosimulator.pcm.seff.SeffFactory;
 import org.palladiosimulator.pcm.seff.StartAction;
 import org.palladiosimulator.pcm.seff.StopAction;
@@ -144,6 +145,13 @@ public class ClassMethodBodyChangedTransformation {
 					(StatementListContainer) this.newMethod, sourceCodeDecorator, functionCallClassificationVisitor,
 					this.interfaceOfExternalCallFinderFactory, this.resourceDemandingBehaviourForClassMethodFinding,
 					methodCallFinder);
+			for (var rdiLink : sourceCodeDecorator.getMethodLevelResourceDemandingInternalBehaviorLink()) {
+				if (targetResourceDemandingBehaviour instanceof ResourceDemandingSEFF
+						&& rdiLink.getResourceDemandingInternalBehaviour().eContainer() == null) {
+					((ResourceDemandingSEFF) targetResourceDemandingBehaviour).getResourceDemandingInternalBehaviours()
+						.add(rdiLink.getResourceDemandingInternalBehaviour());
+				}
+			}
 		} else {
 			logger.info("No SEFF recreated for method " + this.newMethod.getName()
 					+ " because it is not a class method. Method " + this.newMethod);
