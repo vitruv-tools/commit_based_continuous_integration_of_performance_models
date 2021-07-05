@@ -15,7 +15,6 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.emftext.language.java.LogicalJavaURIGenerator;
 
 import tools.vitruv.applications.pcmjava.commitintegration.propagation.JavaStateBasedChangeResolutionStrategy;
 import tools.vitruv.framework.change.description.VitruviusChange;
@@ -30,8 +29,6 @@ import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
  */
 public class CommitChangePropagator {
 	private static final Logger logger = Logger.getLogger(CommitChangePropagator.class.getSimpleName());
-	private static final String POM_FILE = "pom.xml";
-	private static final String GRADLE_BUILD_FILE = "build.gradle";
 	private GitRepositoryWrapper repoWrapper;
 	private InternalVirtualModel vsum;
 	private File localRemoteRepository;
@@ -192,33 +189,18 @@ public class CommitChangePropagator {
 	public boolean propagateChanges(RevCommit start, RevCommit end) throws GitAPIException, IOException {
 		String commitId = end.getId().getName();
 		logger.debug("Obtaining all differences.");
-		List<DiffEntry> allDiffs = repoWrapper.computeDiffsBetweenTwoCommits(start, end, false, true);
-		List<DiffEntry> diffs = new ArrayList<>();
-		boolean needsPreprocessing = false;
-		for (DiffEntry diff : allDiffs) {
-			if (hasFileChange(diff, LogicalJavaURIGenerator.JAVA_FILE_EXTENSION)) {
-				diffs.add(diff);
-			} else if (hasFileChange(diff, POM_FILE) || hasFileChange(diff, GRADLE_BUILD_FILE)) {
-				needsPreprocessing = true;
-			}
-		}
+		List<DiffEntry> diffs = repoWrapper.computeDiffsBetweenTwoCommits(start, end, true, true);
 		if (diffs.size() == 0) {
 			logger.debug("No Java files changed for " + commitId + " so that no propagation is performed.");
 			return false;
 		}
 		logger.debug("Checkout of " + commitId);
 		repoWrapper.checkout(commitId);
-		if (needsPreprocessing) {
-			boolean preprocessResult = preprocess();
-			if (!preprocessResult) {
-				logger.debug("The preprocessing failed. Aborting.");
-				return false;
-			}
-		} else {
-			logger.debug("No preprocessing needed.");
+		boolean preprocessResult = preprocess();
+		if (!preprocessResult) {
+			logger.debug("The preprocessing failed. Aborting.");
+			return false;
 		}
-//		logger.debug("Sorting the differences.");
-//		diffs = sortDiffs(diffs);
 		logger.debug("Analyzing the differences.");
 		ArrayList<URIURIMapping> changed = new ArrayList<>();
 		for (DiffEntry diffEntry : diffs) {
@@ -261,13 +243,9 @@ public class CommitChangePropagator {
 		return true;
 	}
 	
-	private boolean hasFileChange(DiffEntry diff, String end) {
-		return diff.getNewPath() != null && diff.getNewPath().endsWith(end)
-				|| diff.getOldPath() != null && diff.getOldPath().endsWith(end);
-	}
-	
 	private boolean preprocess() {
 		int result = -1;
+		repoWrapper.performCompleteClean();
 		File possibleFile = new File("preprocess.bat");
 		String absPath = possibleFile.getAbsolutePath();
 		if (possibleFile.exists()) {
@@ -446,57 +424,6 @@ public class CommitChangePropagator {
 		logger.debug("Propagating the changes.");
 		vsum.propagateChangedState(newResource, oldURI);
 		logger.debug("Finished the propagation.");
-	}
-	
-	/**
-	 * Sorts changes in the form of <code>DiffEntry</code> in a particular order:
-	 * [COPY,...,RENAME,...,DELETE,...,ADD,...,MODIFY,...]
-	 * This is necessary to avoid certain problems.
-	 * For example, adding a reference in an existing class to a new class. 
-	 * In this case, the new class must be created before the reference is added.
-	 * Thus, ADD new class has to be done before MODIFY in the existing class.
-	 * 
-	 * @param diffs unsorted changes.
-	 * @return the sorted changes.
-	 */
-	private List<DiffEntry> sortDiffs(List<DiffEntry> diffs) {
-		
-		// Temporary lists for all diff types.
-		ArrayList<DiffEntry> copies = new ArrayList<DiffEntry>();
-		ArrayList<DiffEntry> renames = new ArrayList<DiffEntry>();
-		ArrayList<DiffEntry> deletes = new ArrayList<DiffEntry>();
-		ArrayList<DiffEntry> adds = new ArrayList<DiffEntry>();
-		ArrayList<DiffEntry> modifies = new ArrayList<DiffEntry>();
-		
-		for (DiffEntry diff : diffs) {
-			switch (diff.getChangeType()) {
-			case COPY:
-				copies.add(diff);
-				break;
-			case RENAME:
-				renames.add(diff);
-				break;
-			case DELETE:
-				deletes.add(diff);
-				break;
-			case ADD:
-				adds.add(diff);
-				break;
-			case MODIFY:
-				modifies.add(diff);
-				break;
-			}
-		}
-		
-		ArrayList<DiffEntry> result = new ArrayList<DiffEntry>();
-		
-		result.addAll(copies);
-		result.addAll(renames);
-		result.addAll(deletes);
-		result.addAll(adds);
-		result.addAll(modifies);
-		
-		return result;
 	}
 	
 	protected GitRepositoryWrapper getWrapper() {
