@@ -182,6 +182,7 @@ reaction InterfaceMethodCreated {
 routine createPCMSignature(java::Method interfaceMethod) {
 	match {
 		val pcmInterface = retrieve pcm::OperationInterface corresponding to interfaceMethod.containingConcreteClassifier
+		require absence of pcm::OperationSignature corresponding to interfaceMethod
 	}
 	action {
 		call {
@@ -234,6 +235,9 @@ routine createSeffFromClassInterface(java::ClassMethod method, java::Class javaC
 }
 
 routine createSeffFromImplementingInterfaces(java::ClassMethod classMethod, java::Class javaClass) {
+	match {
+		require absence of pcm::ResourceDemandingSEFF corresponding to classMethod
+	}
 	action {
 		call {
 			val implementingInterfaces = findImplementingInterfacesFromTypeRefs(javaClass.implements)
@@ -282,7 +286,7 @@ reaction RemoveInterfaceMethodEvent {
 	call removedInterfaceMethodEvent(oldValue)
 } 
 
-routine removedInterfaceMethodEvent(java::InterfaceMethod interfaceMethod) {
+routine removedInterfaceMethodEvent(java::Method interfaceMethod) {
 	match {
 		val operationSignature = retrieve pcm::OperationSignature corresponding to interfaceMethod
 		//val opSig = retrieve pcm::OperationSignature corresponding to interfaceMethod
@@ -299,7 +303,10 @@ routine removedInterfaceMethodEvent(java::InterfaceMethod interfaceMethod) {
 //Remove Class Method
 reaction RemoveClassMethodEvent {
 	after element java::ClassMethod removed from java::Class[members]
-	call removedClassMethodEvent(oldValue)
+	call {
+		removedClassMethodEvent(oldValue)
+		removedInterfaceMethodEvent(oldValue)
+	}
 } 
 
 routine removedClassMethodEvent(java::ClassMethod classMethod) {
@@ -386,6 +393,7 @@ routine decideInterfaceCreation(java::ConcreteClassifier javaInterface) {
 routine createInterface(java::ConcreteClassifier javaInterface) {
 	match {
 		val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
+		require absence of pcm::OperationInterface corresponding to javaInterface
 	}
 	action {
 		val pcmInterface = create pcm::OperationInterface and initialize {
@@ -402,16 +410,28 @@ routine createInterface(java::ConcreteClassifier javaInterface) {
 reaction RemoveClassEvent {
 	after element java::Class removed from java::CompilationUnit[classifiers]
 	call {
-//		removedClassEvent(oldValue)
+		removedClassEvent(oldValue)
 	}
 } 
 
-routine removedClassEvent(java::Class clazz) {
+routine removedClassEvent(java::ConcreteClassifier clazz) {
 	match {
 		val pcmComponent = retrieve pcm::RepositoryComponent corresponding to clazz
+		val otherClassifiers = retrieve many java::ConcreteClassifier corresponding to pcmComponent
 	}
 	action {
-		delete pcmComponent
+		remove correspondence between clazz and pcmComponent
+		call {
+			if (otherClassifiers.size == 1) {
+				removeComponent(pcmComponent)
+			}
+		}
+	}
+}
+
+routine removeComponent(pcm::RepositoryComponent com) {
+	action {
+		delete com
 	}
 }
 
@@ -420,6 +440,7 @@ reaction RemoveInterfaceEvent {
 	after element java::Interface removed from java::CompilationUnit[classifiers]
 	call {
 //		removedInterfaceEvent(oldValue)
+		removedClassEvent(oldValue)
 	}
 } 
 
