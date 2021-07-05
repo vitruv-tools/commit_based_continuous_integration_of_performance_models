@@ -11,11 +11,12 @@ import tools.vitruv.framework.userinteraction.UserInteractor
 import tools.vitruv.framework.propagation.impl.AbstractChangePropagationSpecification
 import tools.vitruv.framework.propagation.ResourceAccess
 import tools.vitruv.framework.change.echange.EChange
-import tools.vitruv.applications.pcmjava.commitintegration.propagation.OldMethodAdapter
 import org.somox.gast2seff.visitors.AbstractFunctionClassificationStrategy
 import tools.vitruv.domains.java.JavaDomain
 import tools.vitruv.domains.pcm.PcmDomain
 import tools.vitruv.domains.java.JavaDomainProvider
+import tools.vitruv.framework.change.echange.feature.attribute.ReplaceSingleValuedEAttribute
+import org.emftext.language.java.commons.CommonsPackage
 
 class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpecification {
 	val Code2SeffFactory code2SeffFactory;
@@ -31,26 +32,39 @@ class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpec
 
 	override propagateChange(EChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
 		if (doesHandleChange(change, correspondenceModel)) {
-			val insertionChange = change as InsertEReference<?, ?>;
-			executeClassMethodBodyChangeRefiner(correspondenceModel, userInteractor, insertionChange);
+			var Method meth;
+			if (change instanceof InsertEReference) {
+				val insertionChange = change as InsertEReference<?, ?>;
+				meth = insertionChange.newValue as Method;
+			}
+			if (change instanceof ReplaceSingleValuedEAttribute) {
+				val attrChange = change as ReplaceSingleValuedEAttribute<?, ?>;
+				meth = attrChange.affectedEObject as Method;
+			}
+			executeClassMethodBodyChangeRefiner(correspondenceModel, userInteractor, meth);
 		}
 	}
 
 	override doesHandleChange(EChange change, CorrespondenceModel correspondenceModel) {
-		if (!(change instanceof InsertEReference)) {
+		if (!(change instanceof InsertEReference) || !(change instanceof ReplaceSingleValuedEAttribute)) {
 			return false;
 		} 
-		
-		val insertionChange = change as InsertEReference<?, ?>;
-		return insertionChange.newValue instanceof Method
+		if (change instanceof InsertEReference) {		
+			val insertionChange = change as InsertEReference<?, ?>;
+			return insertionChange.newValue instanceof Method
+		}
+		if (change instanceof ReplaceSingleValuedEAttribute) {
+			val attrChange = change as ReplaceSingleValuedEAttribute<?, ?>;
+			return attrChange.affectedEObject instanceof Method
+				&& attrChange.affectedFeature == CommonsPackage.Literals.NAMED_ELEMENT__NAME
+				&& !attrChange.newValue.equals("")
+		}
+		return false;
 	}
 
 	private def void executeClassMethodBodyChangeRefiner(CorrespondenceModel correspondenceModel,
-		UserInteractor userInteracting, InsertEReference<?, ?> insertChange) {
-		val newMethod = insertChange.newValue as Method;
-		val oldAdapter = newMethod.eAdapters.filter(OldMethodAdapter).last
-		newMethod.eAdapters.remove(oldAdapter)
-		val oldMethod = oldAdapter?.oldMethod
+		UserInteractor userInteracting, Method newMethod) {
+		val oldMethod = null
 		val basicComponentFinding = code2SeffFactory.createBasicComponentFinding
 		val BasicComponent myBasicComponent = basicComponentFinding.findBasicComponentForMethod(newMethod,
 			correspondenceModel);
