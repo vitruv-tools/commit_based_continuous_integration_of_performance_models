@@ -28,7 +28,6 @@ import tools.vitruv.applications.pcmjava.integrationFromGit.response.GitIntegrat
 import tools.vitruv.domains.pcm.PcmDomainProvider;
 import tools.vitruv.extensions.dslsruntime.reactions.helper.ReactionsCorrespondenceHelper;
 import tools.vitruv.framework.userinteraction.UserInteractionFactory;
-import tools.vitruv.framework.vsum.VirtualModel;
 import tools.vitruv.framework.vsum.VirtualModelBuilder;
 import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
 
@@ -64,14 +63,14 @@ public class VSUMFacade {
 		if (isVSUMExistent) {
 			Resource resource = vsum.getModelInstance(files.getPcmRepositoryURI()).getResource();
 			pcm.setRepository((Repository) resource.getContents().get(0));
-			resource = vsum.getModelInstance(files.getPcmAllocationURI()).getResource();
-			pcm.setAllocationModel((Allocation) resource.getContents().get(0));
-			resource = vsum.getModelInstance(files.getPcmSystemURI()).getResource();
-			pcm.setSystem((org.palladiosimulator.pcm.system.System) resource.getContents().get(0));
-			resource = vsum.getModelInstance(files.getPcmResourceEnvironmentURI()).getResource();
-			pcm.setResourceEnvironmentModel((ResourceEnvironment) resource.getContents().get(0));
-			resource = vsum.getModelInstance(files.getPcmUsageModelURI()).getResource();
-			pcm.setUsageModel((UsageModel) resource.getContents().get(0));
+//			resource = vsum.getModelInstance(files.getPcmAllocationURI()).getResource();
+//			pcm.setAllocationModel((Allocation) resource.getContents().get(0));
+//			resource = vsum.getModelInstance(files.getPcmSystemURI()).getResource();
+//			pcm.setSystem((org.palladiosimulator.pcm.system.System) resource.getContents().get(0));
+//			resource = vsum.getModelInstance(files.getPcmResourceEnvironmentURI()).getResource();
+//			pcm.setResourceEnvironmentModel((ResourceEnvironment) resource.getContents().get(0));
+//			resource = vsum.getModelInstance(files.getPcmUsageModelURI()).getResource();
+//			pcm.setUsageModel((UsageModel) resource.getContents().get(0));
 			resource = vsum.getModelInstance(files.getImURI()).getResource();
 			imm = (InstrumentationModel) resource.getContents().get(0);
 		} else {
@@ -100,7 +99,11 @@ public class VSUMFacade {
 		}
 	}
 	
-	public VirtualModel getVSUM() {
+	public InternalVirtualModel getVSUM() {
 		return vsum;
+	}
+	
+	public FileLayout getFileLayout() {
+		return files;
 	}
 }
