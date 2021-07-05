@@ -2,22 +2,14 @@ package tools.vitruv.applications.pcmjava.commitintegration;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import tools.vitruv.applications.pcmjava.commitintegration.propagation.JavaStateBasedChangeResolutionStrategy;
-import tools.vitruv.framework.change.description.VitruviusChange;
 import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
 
 /**
@@ -34,12 +26,7 @@ public class CommitChangePropagator {
 	private File localRemoteRepository;
 	private String remoteRepository;
 	private File workSpaceCopy;
-	private File dependencyDir;
-	
-	private static class URIURIMapping {
-		private URI oldURI;
-		private URI newURI;
-	}
+	private File javaModelFile;
 
 	/**
 	 * Creates a new instance.
@@ -74,7 +61,7 @@ public class CommitChangePropagator {
 		File rootDir = new File(localCacheDir, "local-repo-clone");
 		repoWrapper = new GitRepositoryWrapper(rootDir);
 		workSpaceCopy = new File(localCacheDir, "vsum-variant");
-		dependencyDir = new File(workSpaceCopy, "dependencies");
+		javaModelFile = new File(workSpaceCopy, "Java.javaxmi");
 	}
 	
 	/**
@@ -201,44 +188,9 @@ public class CommitChangePropagator {
 			logger.debug("The preprocessing failed. Aborting.");
 			return false;
 		}
-		logger.debug("Analyzing the differences.");
-		ArrayList<URIURIMapping> changed = new ArrayList<>();
-		for (DiffEntry diffEntry : diffs) {
-			changed.add(updateSources(diffEntry));
-		}
-		logger.debug("Loading the changed files.");
-		ResourceSetImpl set = new ResourceSetImpl();
-		changed.forEach(u -> {
-			if (u.newURI != null) {
-				set.getResource(u.newURI, true);
-			}
-		});
-		List<Resource> newResources = new ArrayList<>(set.getResources());
-		for (Resource r : newResources) {
-			EcoreUtil.resolveAll(r);
-		}
-		List<Resource> oldResources = new ArrayList<>();
-		changed.forEach(u -> {
-			if (u.oldURI != null) {
-				oldResources.add(vsum.getModelInstance(u.oldURI).getResource());
-			}
-		});
-		if (oldResources.size() == 0 && start == null) {
-			logger.debug("Integrating the code with the JavaIntegrationUtility.");
-			JavaIntegrationUtility.integrateJavaCode(workSpaceCopy.toPath(), vsum);
-		} else {
-			logger.debug("Calculating the change sequence for the changed files.");
-			var strategy = new JavaStateBasedChangeResolutionStrategy();
-			VitruviusChange changeSequence = null;
-			if (oldResources.size() == 0) {
-				changeSequence = strategy.getChangeSequenceForResourceSet(set, newResources);
-			} else {
-				changeSequence = strategy.getChangeSequenceBetweenResourceSet(set,
-						oldResources.get(0).getResourceSet(), newResources, oldResources);
-			}
-			logger.debug("Propagating the change sequence.");
-			vsum.propagateChange(changeSequence);
-		}
+		logger.debug("Delegating the change propagation to the JavaParserAndPropagatorUtility.");
+		JavaParserAndPropagatorUtility.parseAndPropagateJavaCode(workSpaceCopy.toPath(),
+				javaModelFile.toPath(), vsum);
 		logger.debug("Finished the propagation of " + commitId);
 		return true;
 	}
@@ -264,21 +216,6 @@ public class CommitChangePropagator {
 		}
 		if (result != 0) {
 			return false;
-		}
-		FileUtils.deleteQuietly(dependencyDir);
-		logger.debug("Copying the dependencies.");
-		try {
-			Files.walk(repoWrapper.getRootDirectory().getParentFile().toPath())
-				.filter(p -> p.getFileName().toString().endsWith(".jar"))
-				.forEach(p -> {
-					try {
-						FileUtils.copyFileToDirectory(p.toFile(), dependencyDir);
-					} catch (IOException e) {
-						logger.error(e);
-					}
-				});
-		} catch (IOException e) {
-			logger.error(e);
 		}
 		return true;
 	}
@@ -324,106 +261,6 @@ public class CommitChangePropagator {
 	public void shutdown() {
 		logger.debug("Shutting down.");
 		repoWrapper.closeRepository();
-	}
-	
-	private URIURIMapping updateSources(DiffEntry entry) {
-		String prefix = repoWrapper.getRootDirectory().getAbsolutePath() + File.separator;
-		String prefixInCopy = workSpaceCopy.getAbsolutePath() + File.separator;
-		String newFileInCopy = prefixInCopy + entry.getNewPath();
-		URIURIMapping u = new URIURIMapping();
-		// Perform file operations to transfer the changes in the local repository to the workspace copy.
-		switch (entry.getChangeType()) {
-			case MODIFY:
-				u.oldURI = URI.createFileURI(prefixInCopy + entry.getOldPath());
-			case COPY:
-			case RENAME:	
-			case ADD:
-				u.newURI = URI.createFileURI(newFileInCopy);
-				try {
-					FileUtils.copyFile(new File(prefix + entry.getNewPath()),
-							new File(newFileInCopy));
-				} catch (IOException e) {
-					logger.error(e);
-				}
-				break;
-			default:
-				break;
-		}
-		switch (entry.getChangeType()) {
-			case RENAME:
-			case DELETE:
-				u.oldURI = URI.createFileURI(prefixInCopy + entry.getOldPath());
-				new File(prefixInCopy + entry.getOldPath()).delete();
-				break;
-			default:
-				break;
-		}
-		return u;
-	}
-	
-	/**
-	 * Processes a diff.
-	 * 
-	 * @param entry the diff.
-	 */
-	protected void processDiff(DiffEntry entry) {
-		String prefix = repoWrapper.getRootDirectory().getAbsolutePath() + File.separator;
-		String prefixInCopy = workSpaceCopy.getAbsolutePath() + File.separator;
-		String newFileInCopy = prefixInCopy + entry.getNewPath();
-		// Perform file operations to transfer the changes in the local repository to the workspace copy.
-		switch (entry.getChangeType()) {
-			case ADD:
-			case COPY:
-			case RENAME:
-			case MODIFY:
-				try {
-					FileUtils.copyFile(new File(prefix + entry.getNewPath()),
-							new File(newFileInCopy));
-				} catch (IOException e) {
-					logger.error(e);
-				}
-				break;
-			default:
-				break;
-		}
-		switch (entry.getChangeType()) {
-			case DELETE:
-			case RENAME:
-				new File(prefixInCopy + entry.getOldPath()).delete();
-				break;
-			default:
-				break;
-		}
-		// Propagate the changes.
-		switch (entry.getChangeType()) {
-			case ADD:
-			case COPY:
-				internalPropagateChanges(null, URI.createFileURI(newFileInCopy));
-				break;
-			case DELETE:
-				internalPropagateChanges(URI.createFileURI(prefixInCopy + entry.getOldPath()), null);
-				break;
-			case RENAME:
-			case MODIFY:
-				internalPropagateChanges(URI.createFileURI(prefixInCopy + entry.getOldPath()), URI.createFileURI(newFileInCopy));
-				break;
-			default:
-				break;
-		}
-	}
-	
-	private void internalPropagateChanges(URI oldURI, URI newURI) {
-		logger.debug("Starting to propagate the changes between " + oldURI + " and " + newURI);
-		Resource newResource = null;
-		if (newURI != null) {
-			logger.debug("Loading " + newURI);
-			newResource = new ResourceSetImpl().getResource(newURI, true);
-			logger.debug("Resolving the references for " + newURI);
-			EcoreUtil.resolveAll(newResource);
-		}
-		logger.debug("Propagating the changes.");
-		vsum.propagateChangedState(newResource, oldURI);
-		logger.debug("Finished the propagation.");
 	}
 	
 	protected GitRepositoryWrapper getWrapper() {
