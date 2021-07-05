@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRefNameException;
@@ -24,6 +25,7 @@ import org.eclipse.jgit.diff.RenameDetector;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
+import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
@@ -385,5 +387,17 @@ public class GitRepositoryWrapper {
 		}
 		Collections.reverse(result);
 		return result;
+	}
+	
+	/**
+	 * Performs a complete cleaning of the git repository, i. e., all untracked and ignored files are removed,
+	 * and all changes are reset to the last commit.
+	 */
+	public void performCompleteClean() {
+		try {
+			git.clean().setIgnore(true).setCleanDirectories(true).setForce(true).call();
+			git.reset().setMode(ResetType.HARD).call();
+		} catch (NoWorkTreeException | GitAPIException e) {
+		}
 	}
 }
