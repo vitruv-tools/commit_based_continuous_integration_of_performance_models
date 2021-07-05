@@ -31,7 +31,7 @@ import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
 public class CommitChangePropagator {
 	private static final Logger logger = Logger.getLogger(CommitChangePropagator.class.getSimpleName());
 	private static final String POM_FILE = "pom.xml";
-	private static final String GRADLE_BUILD_FILE = "";
+	private static final String GRADLE_BUILD_FILE = "build.gradle";
 	private GitRepositoryWrapper repoWrapper;
 	private InternalVirtualModel vsum;
 	private File localRemoteRepository;
@@ -192,7 +192,7 @@ public class CommitChangePropagator {
 	public boolean propagateChanges(RevCommit start, RevCommit end) throws GitAPIException, IOException {
 		String commitId = end.getId().getName();
 		logger.debug("Obtaining all differences.");
-		List<DiffEntry> allDiffs = repoWrapper.computeDiffsBetweenTwoCommits(start, end, true, true);
+		List<DiffEntry> allDiffs = repoWrapper.computeDiffsBetweenTwoCommits(start, end, false, true);
 		List<DiffEntry> diffs = new ArrayList<>();
 		boolean needsPreprocessing = false;
 		for (DiffEntry diff : allDiffs) {
@@ -214,6 +214,8 @@ public class CommitChangePropagator {
 				logger.debug("The preprocessing failed. Aborting.");
 				return false;
 			}
+		} else {
+			logger.debug("No preprocessing needed.");
 		}
 //		logger.debug("Sorting the differences.");
 //		diffs = sortDiffs(diffs);
@@ -267,17 +269,19 @@ public class CommitChangePropagator {
 	private boolean preprocess() {
 		int result = -1;
 		File possibleFile = new File("preprocess.bat");
-		String absPath;
+		String absPath = possibleFile.getAbsolutePath();
 		if (possibleFile.exists()) {
-			absPath = possibleFile.getAbsolutePath();
 			logger.debug("Executing " + absPath + " for the preprocessing.");
 			result = runPreprocessingScript("cmd.exe", "/c", "\"" + absPath + "\"");
 		} else {
+			logger.debug(absPath + " not found.");
 			possibleFile = new File("preprocess.sh");
+			absPath = possibleFile.getAbsolutePath();
 			if (possibleFile.exists()) {
-				absPath = possibleFile.getAbsolutePath();
 				logger.debug("Executing " + absPath + " for the preprocessing.");
 				result = runPreprocessingScript(absPath);
+			} else {
+				logger.debug(absPath + " not found.");
 			}
 		}
 		if (result != 0) {
@@ -286,7 +290,7 @@ public class CommitChangePropagator {
 		FileUtils.deleteQuietly(dependencyDir);
 		logger.debug("Copying the dependencies.");
 		try {
-			Files.walk(localRemoteRepository.toPath())
+			Files.walk(repoWrapper.getRootDirectory().getParentFile().toPath())
 				.filter(p -> p.getFileName().toString().endsWith(".jar"))
 				.forEach(p -> {
 					try {
@@ -303,7 +307,7 @@ public class CommitChangePropagator {
 	
 	private int runPreprocessingScript(String... command) {
 		try {
-			Process process = new ProcessBuilder().directory(localRemoteRepository)
+			Process process = new ProcessBuilder().directory(repoWrapper.getRootDirectory().getParentFile())
 					.command(command).start();
 			return process.waitFor();
 		} catch (IOException | InterruptedException e) {
