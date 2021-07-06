@@ -2,7 +2,6 @@ package tools.vitruv.applications.pcmjava.commitintegration.propagation
 
 import org.eclipse.emf.common.notify.Notifier
 import org.eclipse.emf.common.util.BasicMonitor
-import org.eclipse.emf.compare.EMFCompare
 import org.eclipse.emf.compare.merge.BatchMerger
 import org.eclipse.emf.compare.merge.IMerger
 import org.eclipse.emf.ecore.resource.Resource
@@ -13,23 +12,11 @@ import org.eclipse.emf.ecore.resource.ResourceSet
 import static com.google.common.base.Preconditions.checkArgument
 import static extension edu.kit.ipd.sdq.commons.util.org.eclipse.emf.ecore.resource.ResourceUtil.getReferencedProxies
 import tools.vitruv.framework.domains.StateBasedChangeResolutionStrategy
-import org.eclipse.emf.compare.diff.DiffBuilder
-import org.eclipse.emf.compare.diff.DefaultDiffEngine
-import org.eclipse.emf.compare.diff.FeatureFilter
 import org.emftext.language.java.commons.Commentable
-import org.eclipse.emf.compare.postprocessor.BasicPostProcessorDescriptorImpl
-import org.eclipse.emf.compare.postprocessor.PostProcessorDescriptorRegistryImpl
-import java.util.regex.Pattern
 import java.util.List
 import java.util.ArrayList
 import org.eclipse.emf.ecore.EObject
 import java.util.Collection
-import org.eclipse.emf.compare.rcp.EMFCompareRCPPlugin
-import tools.vitruv.applications.pcmjava.commitintegration.diff.util.ResourceListFilteringComparisonScope
-import tools.vitruv.applications.pcmjava.commitintegration.diff.util.JavaMatchEngineFactoryGenerator
-import org.emftext.language.java.JavaPackage
-import org.splevo.jamopp.diffing.scope.PackageIgnoreChecker
-import org.splevo.jamopp.diffing.diff.JaMoPPFeatureFilter
 
 /**
  * This strategy for diff based state changes of Java models uses EMFCompare to resolve a 
@@ -158,33 +145,10 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 	 */
 	private def compareStatesAndReplayChanges(Notifier newState, Notifier currentState,
 			List<Resource> newResources, List<Resource> currentResources) {
-		val scope = new ResourceListFilteringComparisonScope(newState, currentState, newResources, currentResources)
-		scope.nsURIs.add(JavaPackage.eNS_URI)
-		
-		val jamoppFeatureFilter = new JaMoPPFeatureFilter(new PackageIgnoreChecker(List.of()))
-		val diffProcessor = new DiffBuilder()
-		val diffEngine = new DefaultDiffEngine(diffProcessor) {
-			override protected FeatureFilter createFeatureFilter() {
-				return jamoppFeatureFilter
-			}
-		}
-		
-		val matchEngineFactory = JavaMatchEngineFactoryGenerator.generateMatchEngineFactory
-		matchEngineFactory.ranking = 20
-		var engineRegistry = EMFCompareRCPPlugin.getDefault.getMatchEngineFactoryRegistry
-		engineRegistry.add(matchEngineFactory)
-		
-		val postProcessor =  new JavaPostProcessor()
-		val processorDescriptor = new BasicPostProcessorDescriptorImpl(postProcessor, Pattern.compile(".*"), null)
-		val processorRegistry = new PostProcessorDescriptorRegistryImpl()
-		processorRegistry.put("javaxmi", processorDescriptor)
-		
-		val comparison = EMFCompare.builder
-			.setMatchEngineFactoryRegistry(engineRegistry)
-			.setDiffEngine(diffEngine)
-			.setPostProcessorRegistry(processorRegistry).build.compare(scope)
-		val changes = comparison.differences
-		// Replay the EMF compare differences
+		val postProcessor = new JavaPostProcessor()
+		val changes = JavaModelComparator.compareJavaModels(newState, currentState,
+				newResources, currentResources, postProcessor).differences
+		// Replay the EMF compare differences.
 		val mergerRegistry = IMerger.RegistryImpl.createStandaloneInstance()
 		val merger = new BatchMerger(mergerRegistry)
 		merger.copyAllLeftToRight(changes, new BasicMonitor)
