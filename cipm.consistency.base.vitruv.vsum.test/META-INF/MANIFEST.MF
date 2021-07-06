@@ -11,5 +11,10 @@ Require-Bundle: tools.vitruv.applications.pcmjava.commitintegration,
  org.junit.jupiter.engine,
  cipm.consistency.base.vitruv.vsum,
  org.eclipse.jgit,
- tools.vitruv.framework.vsum
+ tools.vitruv.framework.vsum,
+ tools.vitruv.applications.pcmjava.commitintegration.domains,
+ org.eclipse.emf.compare,
+ jamopp.resource,
+ org.emftext.language.java,
+ tools.vitruv.domains.java
 Export-Package: cipm.consistency.base.vitruv.vsum.test
