@@ -28,13 +28,13 @@ public final class JavaParserAndPropagatorUtility {
 	}
 	
 	/**
-	 * Performs an integration or change propagation of Java code into Vitruvius.
+	 * Parses all Java code and creates one Resource with all models.
 	 * 
-	 * @param dir the directory with the Java code.
-	 * @param target destination in which the complete Java model will be stored.
-	 * @param vsum the VSUM.
+	 * @param dir directory in which the Java code resides.
+	 * @param target target file of the Resource with all models.
+	 * @return the Resource with all models.
 	 */
-	public static void parseAndPropagateJavaCode(Path dir, Path target, VirtualModel vsum) {
+	public static Resource parseJavaCodeIntoOneModel(Path dir, Path target) {
 		// 1. Parse the code.
 		ParserOptions.CREATE_LAYOUT_INFORMATION.setValue(Boolean.FALSE);
 		JaMoPPJDTSingleFileParser parser = new JaMoPPJDTSingleFileParser();
@@ -43,7 +43,7 @@ public final class JavaParserAndPropagatorUtility {
 		logger.debug("Parsing " + dir.toString());
 		ResourceSet resourceSet = parser.parseDirectory(dir);
 		logger.debug("Parsed " + resourceSet.getResources().size() + " files.");
-		
+				
 		// 2. Resolve all references.
 		logger.debug("Resolving all references.");
 		int oldSize;
@@ -56,7 +56,7 @@ public final class JavaParserAndPropagatorUtility {
 				EcoreUtil.resolveAll(res);
 			}
 		} while (oldSize != resourceSet.getResources().size());
-		
+				
 		// 3. Create one resource with all Java models.
 		logger.debug("Creating one resource with all Java models.");
 		ResourceSet next = new ResourceSetImpl();
@@ -64,10 +64,23 @@ public final class JavaParserAndPropagatorUtility {
 		for (Resource r : new ArrayList<>(resourceSet.getResources())) {
 			all.getContents().addAll(r.getContents());
 		}
+		return all;
+	}
+	
+	/**
+	 * Performs an integration or change propagation of Java code into Vitruvius.
+	 * 
+	 * @param dir the directory with the Java code.
+	 * @param target destination in which the complete Java model will be stored.
+	 * @param vsum the VSUM.
+	 */
+	public static void parseAndPropagateJavaCode(Path dir, Path target, VirtualModel vsum) {
+		// 1. Parse the Java code and create one Resource with all models.
+		Resource all = parseJavaCodeIntoOneModel(dir, target);
 		all.getContents().forEach(content ->
 			JavaClasspath.get().registerJavaRoot((JavaRoot) content, all.getURI()));
 		
-		// 4. Propagate the Java models.
+		// 2. Propagate the Java models.
 		logger.debug("Propagating the Java models.");
 		vsum.propagateChangedState(all);
 	}
