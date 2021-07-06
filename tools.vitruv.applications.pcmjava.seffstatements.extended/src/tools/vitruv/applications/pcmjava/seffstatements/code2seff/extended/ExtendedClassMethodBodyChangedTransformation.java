@@ -65,15 +65,11 @@ public class ExtendedClassMethodBodyChangedTransformation extends ClassMethodBod
 	private void bindAbstractActionsAndStatements(SourceCodeDecoratorRepository sourceCodeDecorator,
 			CorrespondenceModel correspondenceModel) {
 		List<SeffElementSourceCodeLink> seffElementSourceCodeLinks =  sourceCodeDecorator.getSeffElementsSourceCodeLinks();
-		List<EObject> newMethodList = Lists.newArrayList(newMethod);
-		
+
         for (SeffElementSourceCodeLink seffElementSourceCodeLink : seffElementSourceCodeLinks) {
             if (seffElementSourceCodeLink.getSeffElement() instanceof AbstractAction) {
             	AbstractAction ab = (AbstractAction) seffElementSourceCodeLink.getSeffElement();
             	List<EObject> actionList = Lists.newArrayList(ab);
-            	
-            	correspondenceModel.createAndAddCorrespondence(actionList, newMethodList);
-            	
 	            for (Statement statement : seffElementSourceCodeLink.getStatement()) {
                     correspondenceModel.createAndAddCorrespondence(actionList, Lists.newArrayList(statement));
 	            }
@@ -82,9 +78,6 @@ public class ExtendedClassMethodBodyChangedTransformation extends ClassMethodBod
             	AbstractBranchTransition abstractBranchTr = seff.getAbstractBranchTransition_ResourceDemandingBehaviour();
             	BranchAction branchAction = abstractBranchTr.getBranchAction_AbstractBranchTransition();
             	List<EObject> actionList = Lists.newArrayList(branchAction);
-            	
-            	correspondenceModel.createAndAddCorrespondence(actionList, newMethodList);
-            	
             	for(Statement statement: seffElementSourceCodeLink.getStatement()) {
             		correspondenceModel.createAndAddCorrespondence(actionList, Lists.newArrayList(statement));
             	}
