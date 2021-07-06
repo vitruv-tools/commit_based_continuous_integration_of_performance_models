@@ -189,7 +189,7 @@ public class CommitChangePropagator {
 			return false;
 		}
 		logger.debug("Delegating the change propagation to the JavaParserAndPropagatorUtility.");
-		JavaParserAndPropagatorUtility.parseAndPropagateJavaCode(workSpaceCopy.toPath(),
+		JavaParserAndPropagatorUtility.parseAndPropagateJavaCode(repoWrapper.getRootDirectory().toPath(),
 				javaModelFile.toPath(), vsum);
 		logger.debug("Finished the propagation of " + commitId);
 		return true;
@@ -197,6 +197,7 @@ public class CommitChangePropagator {
 	
 	private boolean preprocess() {
 		int result = -1;
+		logger.debug("Cleaning the repository.");
 		repoWrapper.performCompleteClean();
 		File possibleFile = new File("preprocess.bat");
 		String absPath = possibleFile.getAbsolutePath();
@@ -222,8 +223,8 @@ public class CommitChangePropagator {
 	
 	private int runPreprocessingScript(String... command) {
 		try {
-			Process process = new ProcessBuilder().directory(repoWrapper.getRootDirectory().getParentFile())
-					.command(command).start();
+			Process process = new ProcessBuilder().directory(repoWrapper.getRootDirectory())
+					.inheritIO().command(command).start();
 			return process.waitFor();
 		} catch (IOException | InterruptedException e) {
 			return -1;
