@@ -5,7 +5,6 @@ import org.palladiosimulator.pcm.repository.BasicComponent
 import org.somox.gast2seff.visitors.InterfaceOfExternalCallFindingFactory
 import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding
 import tools.vitruv.domains.pcm.PcmDomainProvider
-import tools.vitruv.framework.change.echange.feature.reference.InsertEReference
 import tools.vitruv.framework.correspondence.CorrespondenceModel
 import tools.vitruv.framework.userinteraction.UserInteractor
 import tools.vitruv.framework.propagation.impl.AbstractChangePropagationSpecification
@@ -32,34 +31,20 @@ class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpec
 
 	override propagateChange(EChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
 		if (doesHandleChange(change, correspondenceModel)) {
-			var Method meth;
-			if (change instanceof InsertEReference) {
-				val insertionChange = change as InsertEReference<?, ?>;
-				meth = insertionChange.newValue as Method;
-			}
-			if (change instanceof ReplaceSingleValuedEAttribute) {
-				val attrChange = change as ReplaceSingleValuedEAttribute<?, ?>;
-				meth = attrChange.affectedEObject as Method;
-			}
+			val attrChange = change as ReplaceSingleValuedEAttribute<?, ?>;
+			val meth = attrChange.affectedEObject as Method;
 			executeClassMethodBodyChangeRefiner(correspondenceModel, userInteractor, meth);
 		}
 	}
 
 	override doesHandleChange(EChange change, CorrespondenceModel correspondenceModel) {
-		if (!(change instanceof InsertEReference) || !(change instanceof ReplaceSingleValuedEAttribute)) {
+		if (!(change instanceof ReplaceSingleValuedEAttribute)) {
 			return false;
-		} 
-		if (change instanceof InsertEReference) {		
-			val insertionChange = change as InsertEReference<?, ?>;
-			return insertionChange.newValue instanceof Method
 		}
-		if (change instanceof ReplaceSingleValuedEAttribute) {
-			val attrChange = change as ReplaceSingleValuedEAttribute<?, ?>;
-			return attrChange.affectedEObject instanceof Method
-				&& attrChange.affectedFeature == CommonsPackage.Literals.NAMED_ELEMENT__NAME
-				&& !attrChange.newValue.equals("")
-		}
-		return false;
+		val attrChange = change as ReplaceSingleValuedEAttribute<?, ?>;
+		return attrChange.affectedEObject instanceof Method
+			&& attrChange.affectedFeature == CommonsPackage.Literals.NAMED_ELEMENT__NAME
+			&& !attrChange.newValue.equals("")
 	}
 
 	private def void executeClassMethodBodyChangeRefiner(CorrespondenceModel correspondenceModel,
