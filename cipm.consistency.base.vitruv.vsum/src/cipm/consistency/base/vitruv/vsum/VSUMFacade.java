@@ -81,11 +81,9 @@ public class VSUMFacade {
 			pcm.getAllocationModel().setSystem_Allocation(pcm.getSystem());
 			pcm.getAllocationModel().setTargetResourceEnvironment_Allocation(pcm.getResourceEnvironmentModel());
 			pcm.setUsageModel(UsagemodelFactory.eINSTANCE.createUsageModel());
+			pcm.syncWithFilesystem(filePCM);
 			imm = InstrumentationModelFactory.eINSTANCE.createInstrumentationModel();
-		}
-		pcm.syncWithFilesystem(filePCM);
-		FileBackedModelUtil.synchronize(imm, files.getImPath().toFile(), InstrumentationModel.class);
-		if (!isVSUMExistent) {
+			FileBackedModelUtil.synchronize(imm, files.getImPath().toFile(), InstrumentationModel.class);
 			vsum.propagateChangedState(imm.eResource());
 			vsum.propagateChangedState(pcm.getRepository().eResource());
 //			vsum.propagateChangedState(pcm.getResourceEnvironmentModel().eResource());
