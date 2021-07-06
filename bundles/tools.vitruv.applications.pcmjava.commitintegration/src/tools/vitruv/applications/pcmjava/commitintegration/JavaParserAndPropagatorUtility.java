@@ -9,6 +9,8 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.emftext.language.java.JavaClasspath;
+import org.emftext.language.java.containers.JavaRoot;
 
 import jamopp.options.ParserOptions;
 import jamopp.parser.jdt.singlefile.JaMoPPJDTSingleFileParser;
@@ -62,6 +64,8 @@ public final class JavaParserAndPropagatorUtility {
 		for (Resource r : new ArrayList<>(resourceSet.getResources())) {
 			all.getContents().addAll(r.getContents());
 		}
+		all.getContents().forEach(content ->
+			JavaClasspath.get().registerJavaRoot((JavaRoot) content, all.getURI()));
 		
 		// 4. Propagate the Java models.
 		logger.debug("Propagating the Java models.");
