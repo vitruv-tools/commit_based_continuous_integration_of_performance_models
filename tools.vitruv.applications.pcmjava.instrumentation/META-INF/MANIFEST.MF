@@ -23,11 +23,6 @@ Require-Bundle: javax.inject,
  cipm.consistency.base.models.instrumentation
 Bundle-RequiredExecutionEnvironment: JavaSE-13
 Automatic-Module-Name: CodeInstrumentation
-Export-Package: tools.vitruv.applications.pcmjava.instrumentation,
- tools.vitruv.applications.pcmjava.instrumentation.instrumentationcodegenerator,
- tools.vitruv.applications.pcmjava.instrumentation.jamoppplaincodeparser,
- tools.vitruv.applications.pcmjava.instrumentation.probesprovider,
- tools.vitruv.applications.pcmjava.instrumentation.projectmanager,
- tools.vitruv.applications.pcmjava.instrumentation.util
+Export-Package: tools.vitruv.applications.pcmjava.instrumentation
 Import-Package: org.apache.log4j
 
