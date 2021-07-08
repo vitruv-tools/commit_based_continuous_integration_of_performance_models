@@ -16,5 +16,9 @@ Require-Bundle: tools.vitruv.applications.pcmjava.commitintegration,
  org.eclipse.emf.compare,
  jamopp.resource,
  org.emftext.language.java,
- tools.vitruv.domains.java
+ tools.vitruv.domains.java,
+ org.palladiosimulator.pcm,
+ cipm.consistency.base.models.instrumentation,
+ cipm.consistency.base.vitruv.domain.im,
+ tools.vitruv.domains.pcm
 Export-Package: cipm.consistency.base.vitruv.vsum.test
