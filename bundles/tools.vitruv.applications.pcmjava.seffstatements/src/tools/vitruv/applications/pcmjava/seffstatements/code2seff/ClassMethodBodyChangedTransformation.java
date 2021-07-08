@@ -43,7 +43,6 @@ public class ClassMethodBodyChangedTransformation {
 
 	private final static Logger logger = Logger.getLogger(ClassMethodBodyChangedTransformation.class.getSimpleName());
 
-	private final Method oldMethod;
 	private final Method newMethod;
 	private final BasicComponentFinding basicComponentFinder;
 	private final IFunctionClassificationStrategy iFunctionClassificationStrategy;
@@ -54,12 +53,11 @@ public class ClassMethodBodyChangedTransformation {
 	
 	private SourceCodeDecoratorRepository sourceCodeDecorator;
 
-	public ClassMethodBodyChangedTransformation(final Method oldMethod, final Method newMethod,
+	public ClassMethodBodyChangedTransformation(final Method newMethod,
 			final BasicComponentFinding basicComponentFinder,
 			final IFunctionClassificationStrategy iFunctionClassificationStrategy,
 			final InterfaceOfExternalCallFindingFactory InterfaceOfExternalCallFindingFactory,
 			final ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding) {
-		this.oldMethod = oldMethod;
 		this.newMethod = newMethod;
 		this.basicComponentFinder = basicComponentFinder;
 		this.iFunctionClassificationStrategy = iFunctionClassificationStrategy;
@@ -82,7 +80,7 @@ public class ClassMethodBodyChangedTransformation {
 	public void execute(final CorrespondenceModel correspondenceModel,
 			final UserInteractor userInteracting) {
 		if (!this.isArchitectureRelevantChange(correspondenceModel)) {
-			logger.debug("Change with oldMethod " + this.oldMethod + " and newMethod: " + this.newMethod
+			logger.debug("Change within the method: " + this.newMethod
 					+ " is not an architecture relevant change");
 			return;
 		}
@@ -114,8 +112,7 @@ public class ClassMethodBodyChangedTransformation {
 	 * @return
 	 */
 	private boolean isArchitectureRelevantChange(final CorrespondenceModel ci) {
-		return this.isMethodArchitectureRelevant(this.oldMethod, ci)
-				|| this.isMethodArchitectureRelevant(this.newMethod, ci);
+		return this.isMethodArchitectureRelevant(this.newMethod, ci);
 	}
 
 	private boolean isMethodArchitectureRelevant(final Method method, final CorrespondenceModel ci) {
@@ -185,8 +182,8 @@ public class ClassMethodBodyChangedTransformation {
 
 	private void removeCorrespondingAbstractActions(final CorrespondenceModel ci) {
 		final Set<AbstractAction> correspondingAbstractActions =
-				this.oldMethod == null ? null : CorrespondenceModelUtil
-				.getCorrespondingEObjects(ci, this.oldMethod, AbstractAction.class);
+				CorrespondenceModelUtil.getCorrespondingEObjects(
+						ci, this.newMethod, AbstractAction.class);
 		if (null == correspondingAbstractActions) {
 			return;
 		}
@@ -194,6 +191,9 @@ public class ClassMethodBodyChangedTransformation {
 				.getAndValidateResourceDemandingBehavior(correspondingAbstractActions);
 		if (null == resourceDemandingBehaviour) {
 			return;
+		}
+		if (resourceDemandingBehaviour instanceof ResourceDemandingSEFF) {
+			((ResourceDemandingSEFF) resourceDemandingBehaviour).getResourceDemandingInternalBehaviours().clear();
 		}
 		for (final AbstractAction correspondingAbstractAction : correspondingAbstractActions) {
 			ci.removeCorrespondencesFor(Lists.newArrayList(correspondingAbstractAction), null);
@@ -235,11 +235,10 @@ public class ClassMethodBodyChangedTransformation {
 
 	private ResourceDemandingBehaviour findRdBehaviorToInsertElements(final CorrespondenceModel ci) {
 		final Set<ResourceDemandingBehaviour> correspondingResourceDemandingBehaviours =
-				CorrespondenceModelUtil.getCorrespondingEObjects(ci,
-						this.oldMethod == null ? this.newMethod : this.oldMethod,
-						ResourceDemandingBehaviour.class);
+				CorrespondenceModelUtil.getCorrespondingEObjects(
+						ci, this.newMethod, ResourceDemandingBehaviour.class);
 		if (null == correspondingResourceDemandingBehaviours || correspondingResourceDemandingBehaviours.isEmpty()) {
-			logger.warn("No ResourceDemandingBehaviours found for method " + this.oldMethod
+			logger.warn("No ResourceDemandingBehaviours found for method " + this.newMethod
 					+ ". Could not create ResourceDemandingBehavoir to insert SEFF elements");
 			return null;
 		}

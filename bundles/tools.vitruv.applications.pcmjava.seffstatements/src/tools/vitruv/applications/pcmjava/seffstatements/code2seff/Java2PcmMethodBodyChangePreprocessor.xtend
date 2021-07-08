@@ -49,7 +49,6 @@ class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpec
 
 	private def void executeClassMethodBodyChangeRefiner(CorrespondenceModel correspondenceModel,
 		UserInteractor userInteracting, Method newMethod) {
-		val oldMethod = null
 		val basicComponentFinding = code2SeffFactory.createBasicComponentFinding
 		val BasicComponent myBasicComponent = basicComponentFinding.findBasicComponentForMethod(newMethod,
 			correspondenceModel);
@@ -60,16 +59,16 @@ class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpec
 		val ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding = code2SeffFactory.
 			createResourceDemandingBehaviourForClassMethodFinding(correspondenceModel);
 		val ClassMethodBodyChangedTransformation methodBodyChanged = createTransformation(
-			oldMethod, newMethod, basicComponentFinding, classification, interfaceOfExternalCallFinderFactory,
+			newMethod, basicComponentFinding, classification, interfaceOfExternalCallFinderFactory,
 			resourceDemandingBehaviourForClassMethodFinding);
 		methodBodyChanged.execute(correspondenceModel, userInteracting);
 	}
 	
-	protected def ClassMethodBodyChangedTransformation createTransformation(Method oldMethod, Method newMethod,
+	protected def ClassMethodBodyChangedTransformation createTransformation(Method newMethod,
 		BasicComponentFinding basicComponentFinding, AbstractFunctionClassificationStrategy classification,
 		InterfaceOfExternalCallFindingFactory interfaceOfExternalCallFinderFactory,
 		ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding) {
-		return new ClassMethodBodyChangedTransformation(oldMethod, newMethod, basicComponentFinding, classification,
+		return new ClassMethodBodyChangedTransformation(newMethod, basicComponentFinding, classification,
 			interfaceOfExternalCallFinderFactory, resourceDemandingBehaviourForClassMethodFinding)
 	}
 }
