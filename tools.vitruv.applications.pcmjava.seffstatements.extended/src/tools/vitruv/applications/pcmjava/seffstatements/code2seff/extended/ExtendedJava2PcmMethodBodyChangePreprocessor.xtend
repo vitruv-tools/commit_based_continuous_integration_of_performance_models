@@ -16,11 +16,11 @@ class ExtendedJava2PcmMethodBodyChangePreprocessor extends Java2PcmMethodBodyCha
 		super(new CommitIntegrationCodeToSeffFactory, new AdjustedJavaDomainProvider().domain, new PcmDomainProvider().domain)
 	}
 
-	override ClassMethodBodyChangedTransformation createTransformation(Method oldMethod, Method newMethod,
+	override ClassMethodBodyChangedTransformation createTransformation(Method newMethod,
 		BasicComponentFinding basicComponentFinding, AbstractFunctionClassificationStrategy classification,
 		InterfaceOfExternalCallFindingFactory interfaceOfExternalCallFinderFactory,
 		ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding) {
-		return new ExtendedClassMethodBodyChangedTransformation(oldMethod, newMethod, basicComponentFinding,
+		return new ExtendedClassMethodBodyChangedTransformation(newMethod, basicComponentFinding,
 			classification, interfaceOfExternalCallFinderFactory, resourceDemandingBehaviourForClassMethodFinding)
 	}
 }

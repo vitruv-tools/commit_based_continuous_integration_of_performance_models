@@ -36,12 +36,12 @@ public class ExtendedClassMethodBodyChangedTransformation extends ClassMethodBod
 	
 	private final Method newMethod;
 
-	public ExtendedClassMethodBodyChangedTransformation(final Method oldMethod, final Method newMethod,
+	public ExtendedClassMethodBodyChangedTransformation(final Method newMethod,
 			final BasicComponentFinding basicComponentFinder,
 			final IFunctionClassificationStrategy iFunctionClassificationStrategy,
 			final InterfaceOfExternalCallFindingFactory InterfaceOfExternalCallFindingFactory,
 			final ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding) {
-		super(oldMethod, newMethod, basicComponentFinder, iFunctionClassificationStrategy, InterfaceOfExternalCallFindingFactory,
+		super(newMethod, basicComponentFinder, iFunctionClassificationStrategy, InterfaceOfExternalCallFindingFactory,
 				resourceDemandingBehaviourForClassMethodFinding);
 		this.newMethod = newMethod;
 	}
