@@ -108,6 +108,7 @@ import org.emftext.language.java.statements.SynchronizedBlock;
 import org.emftext.language.java.statements.Throw;
 import org.emftext.language.java.statements.util.StatementsSwitch;
 import org.emftext.language.java.types.ClassifierReference;
+import org.emftext.language.java.types.InferableType;
 import org.emftext.language.java.types.NamespaceClassifierReference;
 import org.emftext.language.java.types.PrimitiveType;
 import org.emftext.language.java.types.Type;
@@ -285,6 +286,11 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             String name2 = Strings.nullToEmpty(classifier2.getName());
 
             return (name1.equals(name2));
+        }
+        
+        @Override
+        public Boolean caseAnonymousClass(AnonymousClass anon) {
+        	return Boolean.TRUE;
         }
 
     }
@@ -741,31 +747,35 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
         @Override
         public Boolean caseCharacterLiteral(CharacterLiteral char1) {
             CharacterLiteral char2 = (CharacterLiteral) compareElement;
-            return (char1.getValue() == char2.getValue());
+            return char1.getValue().equals(char2.getValue());
         }
 
         @Override
         public Boolean caseDecimalFloatLiteral(DecimalFloatLiteral float1) {
             DecimalFloatLiteral float2 = (DecimalFloatLiteral) compareElement;
-            return (float1.getDecimalValue() == float2.getDecimalValue());
+            return compareDouble(float1.getDecimalValue(), float2.getDecimalValue());
         }
 
         @Override
         public Boolean caseHexFloatLiteral(HexFloatLiteral float1) {
             HexFloatLiteral float2 = (HexFloatLiteral) compareElement;
-            return (float1.getHexValue() == float2.getHexValue());
+            return compareDouble(float1.getHexValue(), float2.getHexValue());
         }
 
         @Override
         public Boolean caseDecimalDoubleLiteral(DecimalDoubleLiteral double1) {
             DecimalDoubleLiteral double2 = (DecimalDoubleLiteral) compareElement;
-            return (double1.getDecimalValue() == double2.getDecimalValue());
+            return compareDouble(double1.getDecimalValue(), double2.getDecimalValue());
         }
 
         @Override
         public Boolean caseHexDoubleLiteral(HexDoubleLiteral double1) {
             HexDoubleLiteral double2 = (HexDoubleLiteral) compareElement;
-            return (double1.getHexValue() == double2.getHexValue());
+            return compareDouble(double1.getHexValue(), double2.getHexValue());
+        }
+        
+        private boolean compareDouble(double d1, double d2) {
+        	return d1 == d2 || Double.isNaN(d1) && Double.isNaN(d2);
         }
 
         @Override
@@ -1538,6 +1548,11 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
         @Override
         public Boolean casePrimitiveType(PrimitiveType type) {
             return Boolean.TRUE;
+        }
+        
+        @Override
+        public Boolean caseInferableType(InferableType type) {
+        	return Boolean.TRUE;
         }
 
         /**
