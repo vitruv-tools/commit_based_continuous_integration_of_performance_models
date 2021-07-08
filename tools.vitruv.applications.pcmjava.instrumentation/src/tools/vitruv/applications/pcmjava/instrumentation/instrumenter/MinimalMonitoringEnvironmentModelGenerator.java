@@ -4,8 +4,10 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.emftext.language.java.JavaClasspath;
+import org.emftext.language.java.LogicalJavaURIGenerator;
 import org.emftext.language.java.classifiers.ClassifiersFactory;
 import org.emftext.language.java.classifiers.ConcreteClassifier;
 import org.emftext.language.java.containers.CompilationUnit;
@@ -51,20 +53,24 @@ public final class MinimalMonitoringEnvironmentModelGenerator {
 	final ConcreteClassifier serviceParametersClassifier;
 	final Method addParameterValueMethod;
 	
-	public MinimalMonitoringEnvironmentModelGenerator(EObject context) {
-		atomicIntegerClassifier = (ConcreteClassifier) EcoreUtil.resolve(
+	public MinimalMonitoringEnvironmentModelGenerator(Resource context) {
+		ConcreteClassifier potAtomicIntegerClassifier = findClassifierInJavaModel(context,
+				AtomicInteger.class.getPackageName().split("\\"
+						+ LogicalJavaURIGenerator.PACKAGE_SEPARATOR),
+				AtomicInteger.class.getSimpleName());
+		if (potAtomicIntegerClassifier == null) {
+			potAtomicIntegerClassifier = (ConcreteClassifier) EcoreUtil.resolve(
 				JavaClasspath.get().getConcreteClassifier(AtomicInteger.class.getCanonicalName()),
 				context);
+		}
+		atomicIntegerClassifier = potAtomicIntegerClassifier;
 		getAndIncrementMethod = findMethod(atomicIntegerClassifier,
 				ApplicationProjectInstrumenterNamespace.METHOD_ATOMIC_INTEGER_INCREMENT, 0);
 		getMethod = findMethod(atomicIntegerClassifier,
 				ApplicationProjectInstrumenterNamespace.METHOD_ATOMIC_INTEGER_GET, 0);
-		stringClassifier = (ConcreteClassifier) EcoreUtil.resolve(
-				JavaClasspath.get().getConcreteClassifier(String.class.getCanonicalName()),
-				context);
-		objectClassifier = (ConcreteClassifier) EcoreUtil.resolve(
-				JavaClasspath.get().getConcreteClassifier(Object.class.getCanonicalName()),
-				context);
+		String[] javaLang = {"java", "lang"};
+		stringClassifier = findClassifierInJavaModel(context, javaLang, String.class.getSimpleName());
+		objectClassifier = findClassifierInJavaModel(context, javaLang, Object.class.getSimpleName());
 		
 		CompilationUnit cu = ContainersFactory.eINSTANCE.createCompilationUnit();
 		cu.getNamespaces().addAll(Arrays.asList(namespaces));
@@ -160,6 +166,23 @@ public final class MinimalMonitoringEnvironmentModelGenerator {
 		exitServiceMethod.setStatement(StatementsFactory.eINSTANCE.createBlock());
 		exitServiceMethod.getParameters().add(createStringParameter("param1"));
 		threadMonitoringControllerClassifier.getMembers().add(exitServiceMethod);
+	}
+	
+	private ConcreteClassifier findClassifierInJavaModel(Resource javaModel, String[] packageParts, String className) {
+		for (EObject c : javaModel.getContents()) {
+			if (c instanceof CompilationUnit) {
+				var cu = (CompilationUnit) c;
+				outerIf: if (cu.getName().equals(className) && cu.getNamespaces().size() == packageParts.length) {
+					for (int idx = 0; idx < packageParts.length; idx++) {
+						if (!packageParts[idx].equals(cu.getNamespaces().get(idx))) {
+							break outerIf;
+						}
+					}
+					return cu.getClassifiers().get(0);
+				}
+			}
+		}
+		return null;
 	}
 	
 	private Method findMethod(ConcreteClassifier classifier, String methName, int paramNumber) {
