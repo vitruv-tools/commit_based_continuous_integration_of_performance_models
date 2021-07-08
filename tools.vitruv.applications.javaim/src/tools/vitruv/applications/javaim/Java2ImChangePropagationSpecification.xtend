@@ -8,12 +8,13 @@ import tools.vitruv.applications.pcmjava.commitintegration.domains.java.Adjusted
 import tools.vitruv.framework.change.echange.EChange
 import tools.vitruv.framework.propagation.ResourceAccess
 import cipm.consistency.base.vsum.domains.InstrumentationModelDomainProvider
-import tools.vitruv.framework.change.echange.feature.reference.InsertEReference
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel
 import cipm.consistency.base.models.inmodel.InstrumentationModelUtil
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage
+import tools.vitruv.framework.change.echange.feature.attribute.ReplaceSingleValuedEAttribute
+import org.emftext.language.java.commons.CommonsPackage
 
 /**
  * Propagates changes in method bodies to the instrumentation model.
@@ -29,23 +30,25 @@ class Java2ImChangePropagationSpecification extends AbstractChangePropagationSpe
 	
 	override propagateChange(EChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
 		if (doesHandleChange(change, correspondenceModel)) {
-			val insertionChange = change as InsertEReference<?, ?>;
-			executeJava2ImTransformation(correspondenceModel, userInteractor, insertionChange)
+			val attrChange = change as ReplaceSingleValuedEAttribute<?, ?>;
+			val meth = attrChange.affectedEObject as Method;
+			executeJava2ImTransformation(correspondenceModel, userInteractor, meth)
 		}
 	}
 	
 	override doesHandleChange(EChange change, CorrespondenceModel correspondenceModel) {
-		if (!(change instanceof InsertEReference)) {
+		if (!(change instanceof ReplaceSingleValuedEAttribute)) {
 			return false;
 		}
-		val insertion = change as InsertEReference<?, ?>
-		return insertion.newValue instanceof Method
+		val attrChange = change as ReplaceSingleValuedEAttribute<?, ?>;
+		return attrChange.affectedEObject instanceof Method
+			&& attrChange.affectedFeature == CommonsPackage.Literals.NAMED_ELEMENT__NAME
+			&& !attrChange.newValue.equals("")
 	}
 	
 	private def executeJava2ImTransformation(CorrespondenceModel correspondenceModel,
-		UserInteractor userInteracting, InsertEReference<?, ?> insertionChange) {
+		UserInteractor userInteracting, Method newMethod) {
 		
-		val newMethod = insertionChange.newValue as Method;
 		val correspondingSEFFs = CorrespondenceModelUtil.getCorrespondingEObjects(correspondenceModel, newMethod, ResourceDemandingSEFF)
 		val im = CorrespondenceModelUtil.getCorrespondingEObjects(correspondenceModel,
 			InstrumentationModelPackage.Literals.INSTRUMENTATION_MODEL, InstrumentationModel).last
