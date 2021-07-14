@@ -181,6 +181,8 @@ public class CommitChangePropagator {
 			logger.debug("No Java files changed for " + commitId + " so that no propagation is performed.");
 			return false;
 		}
+		logger.debug("Cleaning the repository.");
+		repoWrapper.performCompleteClean();
 		logger.debug("Checkout of " + commitId);
 		repoWrapper.checkout(commitId);
 		boolean preprocessResult = preprocess();
@@ -197,8 +199,6 @@ public class CommitChangePropagator {
 	
 	private boolean preprocess() {
 		int result = -1;
-		logger.debug("Cleaning the repository.");
-		repoWrapper.performCompleteClean();
 		File possibleFile = new File("preprocess.bat");
 		String absPath = possibleFile.getAbsolutePath();
 		if (possibleFile.exists()) {
