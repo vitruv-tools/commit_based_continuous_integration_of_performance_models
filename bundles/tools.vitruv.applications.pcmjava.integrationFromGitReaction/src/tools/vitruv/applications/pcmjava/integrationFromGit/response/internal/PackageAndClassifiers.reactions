@@ -374,17 +374,17 @@ reaction InterfaceCreated {
 }
 
 routine decideInterfaceCreation(java::ConcreteClassifier javaInterface) {
+	match {
+		val com = retrieve pcm::RepositoryComponent corresponding to javaInterface
+	}
 	action {
 		call {
-			val String userMsg = "Should an architectural interface be created for the classifier " +
-					javaInterface.name + " ?"
-			val String[] selections = #[Java2PcmUserSelection.SELECT_CREATE_INTERFACE_NOT_IN_CONTRACTS.message,
-				Java2PcmUserSelection.SELECT_DONT_CREATE_INTERFACE_NOT_IN_CONTRACTS.message
-			]
-			val selected = userInteractor.singleSelectionDialogBuilder.message(userMsg).choices(selections)
-				.windowModality(WindowModality.MODAL).startInteraction()
-			if (selected == Java2PcmUserSelection.SELECT_CREATE_INTERFACE_NOT_IN_CONTRACTS.selection) {
-				createInterface(javaInterface)
+			for (annot : javaInterface.annotationInstances) {
+				val annotName = annot.annotation.name
+				if (annotName.equals("Path") || annotName.equals("ApplicationPath")) {
+					createInterface(javaInterface)
+					return
+				}
 			}
 		}
 	}
