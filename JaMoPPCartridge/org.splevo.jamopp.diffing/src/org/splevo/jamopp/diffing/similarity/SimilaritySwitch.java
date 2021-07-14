@@ -30,6 +30,7 @@ import org.emftext.language.java.classifiers.Classifier;
 import org.emftext.language.java.classifiers.ConcreteClassifier;
 import org.emftext.language.java.classifiers.util.ClassifiersSwitch;
 import org.emftext.language.java.commons.NamedElement;
+import org.emftext.language.java.commons.NamespaceAwareElement;
 import org.emftext.language.java.commons.util.CommonsSwitch;
 import org.emftext.language.java.containers.CompilationUnit;
 import org.emftext.language.java.containers.Package;
@@ -61,6 +62,8 @@ import org.emftext.language.java.imports.util.ImportsSwitch;
 import org.emftext.language.java.instantiations.ExplicitConstructorCall;
 import org.emftext.language.java.instantiations.NewConstructorCall;
 import org.emftext.language.java.instantiations.util.InstantiationsSwitch;
+import org.emftext.language.java.literals.BinaryIntegerLiteral;
+import org.emftext.language.java.literals.BinaryLongLiteral;
 import org.emftext.language.java.literals.BooleanLiteral;
 import org.emftext.language.java.literals.CharacterLiteral;
 import org.emftext.language.java.literals.DecimalDoubleLiteral;
@@ -80,6 +83,12 @@ import org.emftext.language.java.members.Member;
 import org.emftext.language.java.members.Method;
 import org.emftext.language.java.members.util.MembersSwitch;
 import org.emftext.language.java.modifiers.util.ModifiersSwitch;
+import org.emftext.language.java.modules.AccessProvidingModuleDirective;
+import org.emftext.language.java.modules.ModuleReference;
+import org.emftext.language.java.modules.ProvidesModuleDirective;
+import org.emftext.language.java.modules.RequiresModuleDirective;
+import org.emftext.language.java.modules.UsesModuleDirective;
+import org.emftext.language.java.modules.util.ModulesSwitch;
 import org.emftext.language.java.operators.AssignmentOperator;
 import org.emftext.language.java.operators.EqualityOperator;
 import org.emftext.language.java.operators.RelationOperator;
@@ -190,6 +199,7 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
         addSwitch(new TypesSimilaritySwitch());
         addSwitch(new VariablesSimilaritySwitch());
         addSwitch(new LayoutSimilaritySwitch());
+        addSwitch(new ModulesSimilaritySwitch());
     }
 
     /**
@@ -288,6 +298,12 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             return (name1.equals(name2));
         }
         
+        /**
+         * Anonymous classes are considered to be similar.
+         * 
+         * @param anon the anonymous class to compare with the compare element.
+         * @return true.
+         */
         @Override
         public Boolean caseAnonymousClass(AnonymousClass anon) {
         	return Boolean.TRUE;
@@ -404,6 +420,26 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             }
 
             return Boolean.TRUE;
+        }
+        
+        /**
+         * Check module similarity.<br>
+         * Similarity is checked by
+         * <ul>
+         * <li>module names</li>
+         * </ul>
+         * 
+         * @param module1 The module to compare with the compare element.
+         * @return True/False if the modules are similar or not.
+         */
+        @Override
+        public Boolean caseModule(org.emftext.language.java.containers.Module module1) {
+        	org.emftext.language.java.containers.Module module2 =
+        			(org.emftext.language.java.containers.Module) compareElement;
+        	if (!module1.getName().equals(module2.getName())) {
+        		return Boolean.FALSE;
+        	}
+        	return Boolean.TRUE;
         }
     }
 
@@ -812,6 +848,18 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
         public Boolean caseOctalLongLiteral(OctalLongLiteral long1) {
             OctalLongLiteral long2 = (OctalLongLiteral) compareElement;
             return (long1.getOctalValue().equals(long2.getOctalValue()));
+        }
+        
+        @Override
+        public Boolean caseBinaryLongLiteral(BinaryLongLiteral long1) {
+        	BinaryLongLiteral long2 = (BinaryLongLiteral) compareElement;
+        	return long1.getBinaryValue().equals(long2.getBinaryValue());
+        }
+        
+        @Override
+        public Boolean caseBinaryIntegerLiteral(BinaryIntegerLiteral int1) {
+        	BinaryIntegerLiteral int2 = (BinaryIntegerLiteral) compareElement;
+        	return int1.getBinaryValue().equals(int2.getBinaryValue());
         }
 
         /**
@@ -1550,6 +1598,12 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             return Boolean.TRUE;
         }
         
+        /**
+         * Inferable types are considered to be similar.
+         * 
+         * @param type The element to compare with the compare element.
+         * @return true.
+         */
         @Override
         public Boolean caseInferableType(InferableType type) {
         	return Boolean.TRUE;
@@ -1621,6 +1675,116 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             return Boolean.TRUE;
         }
     }
+    
+    /**
+     * Similarity Decisions for module elements.
+     */
+    private class ModulesSimilaritySwitch extends ModulesSwitch<Boolean> {
+    	/**
+         * Check ModuleReference similarity.<br>
+         * Similarity is checked by
+         * <ul>
+         * <li>module names</li>
+         * </ul>
+         * 
+         * @param modRef1 The module reference to compare with the compare element.
+         * @return True/False if the module references are similar or not.
+         */
+    	@Override
+    	public Boolean caseModuleReference(ModuleReference modRef1) {
+    		ModuleReference modRef2 = (ModuleReference) compareElement;
+    		if (compareNamespacesByPart(modRef1, modRef2)) {
+    			return Boolean.TRUE;
+    		}
+    		return Boolean.FALSE;
+    	}
+    	
+    	/**
+         * Check similarity for access providing module directives.<br>
+         * Similarity is checked by
+         * <ul>
+         * <li>the provided package</li>
+         * </ul>
+         * 
+         * @param dir1 The access providing module directive to compare with the compare element.
+         * @return True/False if the module directives are similar or not.
+         */
+    	@Override
+    	public Boolean caseAccessProvidingModuleDirective(AccessProvidingModuleDirective dir1) {
+    		AccessProvidingModuleDirective dir2 = (AccessProvidingModuleDirective) compareElement;
+    		if (!compareNamespacesByPart(dir1, dir2)) {
+    			return Boolean.FALSE;
+    		}
+    		return Boolean.TRUE;
+    	}
+    	
+    	/**
+         * Check similarity for require module directives.<br>
+         * Similarity is checked by
+         * <ul>
+         * <li>required modules</li>
+         * </ul>
+         * 
+         * @param dir1 The require module directive to compare with the compare element.
+         * @return True/False if the module directives are similar or not.
+         */
+    	@Override
+    	public Boolean caseRequiresModuleDirective(RequiresModuleDirective dir1) {
+    		RequiresModuleDirective dir2 = (RequiresModuleDirective) compareElement;
+    		return similarityChecker.isSimilar(dir1.getRequiredModule(), dir2.getRequiredModule());
+    	}
+    	
+    	/**
+         * Check similarity for provide module directives.<br>
+         * Similarity is checked by
+         * <ul>
+         * <li>provided types</li>
+         * </ul>
+         * 
+         * @param dir1 The provide module directive to compare with the compare element.
+         * @return True/False if the module directives are similar or not.
+         */
+    	@Override
+    	public Boolean caseProvidesModuleDirective(ProvidesModuleDirective dir1) {
+    		ProvidesModuleDirective dir2 = (ProvidesModuleDirective) compareElement;
+    		return similarityChecker.isSimilar(dir1.getTypeReference(), dir2.getTypeReference());
+    	}
+    	
+    	/**
+         * Check similarity for use module directives.<br>
+         * Similarity is checked by
+         * <ul>
+         * <li>used types</li>
+         * </ul>
+         * 
+         * @param dir1 The use module directive to compare with the compare element.
+         * @return True/False if the module directives are similar or not.
+         */
+    	@Override
+    	public Boolean caseUsesModuleDirective(UsesModuleDirective dir1) {
+    		UsesModuleDirective dir2 = (UsesModuleDirective) compareElement;
+    		return similarityChecker.isSimilar(dir1.getTypeReference(), dir2.getTypeReference());
+    	}
+    }
+    
+    /**
+     * Compares the namespaces of two elements by comparing each part of the namespaces.
+     * 
+     * @param ele1 the first element.
+     * @param ele2 the second element to compare to the first element.
+     * @return true if the number of parts of the namespaces and each part in both namespaces are equal. false otherwise.
+     */
+    private boolean compareNamespacesByPart(NamespaceAwareElement ele1, NamespaceAwareElement ele2) {
+    	if (ele1.getNamespaces().size() != ele2.getNamespaces().size()) {
+    		return false;
+    	}
+    	for (int idx = 0; idx < ele1.getNamespaces().size(); idx++) {
+    		if (!ele1.getNamespaces().get(idx).equals(ele2.getNamespaces().get(idx))) {
+    			return false;
+    		}
+    	}
+    	return true;
+    }
 
     /**
      * The default case for not explicitly handled elements always returns null to identify the open
@@ -1634,5 +1798,4 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
     public Boolean defaultCase(EObject object) {
         return null;
     }
-
 }
