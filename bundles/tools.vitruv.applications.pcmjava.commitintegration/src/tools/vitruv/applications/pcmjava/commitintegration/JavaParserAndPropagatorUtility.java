@@ -55,7 +55,7 @@ public final class JavaParserAndPropagatorUtility {
 		logger.debug("Parsed " + resourceSet.getResources().size() + " files.");
 		
 		// 2. Filter the resources and create modules for components.
-		filterResourcesForComponents(resourceSet, dir);
+		filterResourcesForComponents(resourceSet, dir.toAbsolutePath());
 		
 		// 3. Create one resource with all Java models.
 		logger.debug("Creating one resource with all Java models.");
@@ -115,8 +115,8 @@ public final class JavaParserAndPropagatorUtility {
 	private static String detectModule(Path file, Path container) {
 		Path parent = file.getParent();
 		while (container.compareTo(parent) != 0) {
-			boolean fileExistence = checkSiblingExistence(parent, POM_FILE_NAME)
-					&& checkSiblingExistence(parent, DOCKERFILE_FILE_NAME);
+			boolean fileExistence = checkSiblingExistence(parent, POM_FILE_NAME);
+//					&& checkSiblingExistence(parent, DOCKERFILE_FILE_NAME);
 			if (fileExistence) {
 				return parent.getParent().getFileName().toString();
 			}
