@@ -2,6 +2,7 @@ package tools.vitruv.applications.pcmjava.commitintegration;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +26,7 @@ public class CommitChangePropagator {
 	private InternalVirtualModel vsum;
 	private File localRemoteRepository;
 	private String remoteRepository;
-	private File workSpaceCopy;
-	private File javaModelFile;
+	private JavaFileSystemLayout fileLayout;
 
 	/**
 	 * Creates a new instance.
@@ -57,11 +57,8 @@ public class CommitChangePropagator {
 	}
 	
 	private void prepareJavaCacheDir(String dir) {
-		File localCacheDir = new File(dir);
-		File rootDir = new File(localCacheDir, "local-repo-clone");
-		repoWrapper = new GitRepositoryWrapper(rootDir);
-		workSpaceCopy = new File(localCacheDir, "vsum-variant");
-		javaModelFile = new File(workSpaceCopy, "Java.javaxmi");
+		fileLayout = new JavaFileSystemLayout(Paths.get(dir).toAbsolutePath());
+		repoWrapper = new GitRepositoryWrapper(fileLayout.getLocalJavaRepo().toFile());
 	}
 	
 	/**
@@ -192,7 +189,7 @@ public class CommitChangePropagator {
 		}
 		logger.debug("Delegating the change propagation to the JavaParserAndPropagatorUtility.");
 		JavaParserAndPropagatorUtility.parseAndPropagateJavaCode(repoWrapper.getRootDirectory().toPath(),
-				javaModelFile.toPath(), vsum);
+				fileLayout.getJavaModelFile(), vsum);
 		logger.debug("Finished the propagation of " + commitId);
 		return true;
 	}
