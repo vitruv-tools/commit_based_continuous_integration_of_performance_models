@@ -24,7 +24,6 @@ public class CommitChangePropagator {
 	private static final Logger logger = Logger.getLogger(CommitChangePropagator.class.getSimpleName());
 	private GitRepositoryWrapper repoWrapper;
 	private InternalVirtualModel vsum;
-	private File localRemoteRepository;
 	private String remoteRepository;
 	private JavaFileSystemLayout fileLayout;
 
@@ -37,9 +36,7 @@ public class CommitChangePropagator {
 	 * @param vSUM the VSUM which is used to propagate the changes.
 	 */
 	public CommitChangePropagator(File repositoryPath, String javaCacheDir, InternalVirtualModel vSUM) {
-		localRemoteRepository = repositoryPath;
-		vsum = vSUM;
-		prepareJavaCacheDir(javaCacheDir);
+		this(repositoryPath.getAbsolutePath(), javaCacheDir, vSUM);
 	}
 	
 	/**
@@ -53,11 +50,7 @@ public class CommitChangePropagator {
 	public CommitChangePropagator(String repositoryPath, String javaCacheDir, InternalVirtualModel vSUM) {
 		remoteRepository = repositoryPath;
 		vsum = vSUM;
-		prepareJavaCacheDir(javaCacheDir);
-	}
-	
-	private void prepareJavaCacheDir(String dir) {
-		fileLayout = new JavaFileSystemLayout(Paths.get(dir).toAbsolutePath());
+		fileLayout = new JavaFileSystemLayout(Paths.get(javaCacheDir).toAbsolutePath());
 		repoWrapper = new GitRepositoryWrapper(fileLayout.getLocalJavaRepo().toFile());
 	}
 	
@@ -242,9 +235,6 @@ public class CommitChangePropagator {
 			if (files != null && files.length > 0) {
 				logger.debug("Initializing the git repository in " + repoWrapper.getRootDirectory().getAbsolutePath());
 				repoWrapper.initFromRootDirectory();
-			} else if (localRemoteRepository != null) {
-				logger.debug("Initializing the git repository from " + localRemoteRepository.getAbsolutePath());
-				repoWrapper.initFromLocalRepository(localRemoteRepository);
 			} else {
 				logger.debug("Initializing the git repository from " + remoteRepository);
 				repoWrapper.initFromRemoteRepository(remoteRepository);
