@@ -1,8 +1,6 @@
 package tools.vitruv.applications.pcmjava.instrumentation;
 
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,9 +11,6 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.emftext.language.java.LogicalJavaURIGenerator;
-import org.emftext.language.java.containers.CompilationUnit;
-import org.emftext.language.java.containers.Origin;
 import org.emftext.language.java.members.Method;
 import org.emftext.language.java.statements.Statement;
 import org.emftext.language.java.statements.StatementListContainer;
@@ -53,7 +48,7 @@ public class CodeInstrumenter {
 			sipIns.instrument(copiedService, sip, statementMap);
 		}
 		
-		saveModels(targetSet, copy, output);
+		new ModelSaver().saveModels(targetSet, copy, output);
 	}
 	
 	private ActionStatementMapping createActionStatementMapping(ResourceSet copyContainer,
@@ -110,30 +105,5 @@ public class CodeInstrumenter {
 			}
 		}
 		return null;
-	}
-	
-	private void saveModels(ResourceSet copyContainer, Resource copiedResource, Path target) {
-		for (EObject root : new ArrayList<>(copiedResource.getContents())) {
-			if (root instanceof CompilationUnit) {
-				CompilationUnit cu = (CompilationUnit) root;
-				if (cu.getOrigin() == Origin.FILE) {
-					Resource newResource = copyContainer.createResource(createURI(cu, target));
-					newResource.getContents().add(cu);
-					try {
-						newResource.save(null);
-					} catch (IOException e) {
-					}
-				}
-			}
-		}
-	}
-	
-	private URI createURI(CompilationUnit cu, Path newContainer) {
-		Path resulting = newContainer;
-		for (String ns : cu.getNamespaces()) {
-			resulting = resulting.resolve(ns);
-		}
-		resulting = resulting.resolve(cu.getName() + LogicalJavaURIGenerator.JAVA_FILE_EXTENSION);
-		return URI.createFileURI(resulting.toAbsolutePath().toString());
 	}
 }
