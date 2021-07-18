@@ -30,7 +30,8 @@ import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
  * @author Martin Armbruster
  */
 public class CodeInstrumenter {
-	public void instrument(InstrumentationModel im, CorrespondenceModel cm, Resource javaModel, Path output) {
+	public void instrument(InstrumentationModel im, CorrespondenceModel cm, Resource javaModel,
+			Path output, Path input) {
 		ResourceSet targetSet = new ResourceSetImpl();
 		Resource copy = targetSet.createResource(javaModel.getURI());
 		copy.getContents().addAll(EcoreUtil.copyAll(javaModel.getContents()));
@@ -48,7 +49,7 @@ public class CodeInstrumenter {
 			sipIns.instrument(copiedService, sip, statementMap);
 		}
 		
-		new ModelSaver().saveModels(targetSet, copy, output);
+		new ModelSaver2().saveModels(targetSet, copy, output, input);
 	}
 	
 	private ActionStatementMapping createActionStatementMapping(ResourceSet copyContainer,

@@ -24,5 +24,6 @@ Require-Bundle: javax.inject,
 Bundle-RequiredExecutionEnvironment: JavaSE-13
 Automatic-Module-Name: CodeInstrumentation
 Export-Package: tools.vitruv.applications.pcmjava.instrumentation
-Import-Package: org.apache.log4j
+Import-Package: org.apache.commons.io,
+ org.apache.log4j
 
