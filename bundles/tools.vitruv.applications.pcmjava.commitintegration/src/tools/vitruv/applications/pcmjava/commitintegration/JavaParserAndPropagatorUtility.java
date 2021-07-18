@@ -6,6 +6,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
@@ -47,6 +49,7 @@ public final class JavaParserAndPropagatorUtility {
 		// 1. Parse the code.
 		ParserOptions.CREATE_LAYOUT_INFORMATION.setValue(Boolean.FALSE);
 		ParserOptions.RESOLVE_EVERYTHING.setValue(Boolean.TRUE);
+		ParserOptions.REGISTER_LOCAL.setValue(Boolean.TRUE);
 		JaMoPPJDTSingleFileParser parser = new JaMoPPJDTSingleFileParser();
 		parser.setResourceSet(new ResourceSetImpl());
 		parser.setExclusionPatterns(".*?/src/test/java/.*?");
@@ -146,5 +149,9 @@ public final class JavaParserAndPropagatorUtility {
 		// 2. Propagate the Java models.
 		logger.debug("Propagating the Java models.");
 		vsum.propagateChangedState(all);
+		JavaClasspath.get().getURIMap().entrySet().stream()
+			.filter(entry -> entry.getValue() == all.getURI())
+			.map(Map.Entry::getKey).collect(Collectors.toList())
+			.forEach(u -> JavaClasspath.get().getURIMap().remove(u));
 	}
 }
