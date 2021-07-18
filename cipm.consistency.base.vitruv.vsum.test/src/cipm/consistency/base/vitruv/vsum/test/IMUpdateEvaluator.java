@@ -40,19 +40,26 @@ public class IMUpdateEvaluator {
 						ResourceDemandingSEFF rdseff = (ResourceDemandingSEFF) seff;
 						var sip = findSIP(im, rdseff);
 						if (sip != null) {
-							currentEvalResult.numberMatchedIP++;
 							checkActionInstrumentationPoints(sip, rdseff);
 						}
 					}
 				}
 			}
 		}
+		
+		currentEvalResult.numberDeactivatedIP = currentEvalResult.numberAllIP - currentEvalResult.numberActivatedIP;
+		currentEvalResult.deactivatedIPAllIPRatio = (double) currentEvalResult.numberDeactivatedIP
+				/ currentEvalResult.numberAllIP;
 		return currentEvalResult;
 	}
 	
 	private ServiceInstrumentationPoint findSIP(InstrumentationModel im, ResourceDemandingSEFF seff) {
 		for (var sip : im.getPoints()) {
 			if (sip.getService() == seff) {
+				currentEvalResult.numberMatchedIP++;
+				if (sip.isActive()) {
+					currentEvalResult.numberActivatedIP++;
+				}
 				return sip;
 			}
 		}
@@ -72,9 +79,7 @@ public class IMUpdateEvaluator {
 			for (AbstractAction innerAA : loop.getBodyBehaviour_Loop().getSteps_Behaviour()) {
 				checkActionInstrumentationPoint(sip, innerAA);
 			}
-			if (findAIP(sip, loop)) {
-				currentEvalResult.numberMatchedIP++;
-			}
+			findAIP(sip, loop);
 		} else if (aa instanceof BranchAction) {
 			BranchAction branch = (BranchAction) aa;
 			for (var transition : branch.getBranches_Branch()) {
@@ -83,24 +88,23 @@ public class IMUpdateEvaluator {
 					checkActionInstrumentationPoint(sip, innerAA);
 				}
 			}
-			if (findAIP(sip, branch)) {
-				currentEvalResult.numberMatchedIP++;
-			}
+			findAIP(sip, branch);
 		} else if (aa instanceof InternalAction || aa instanceof ExternalCallAction
 				|| aa instanceof InternalCallAction) {
-			if (findAIP(sip, aa)) {
-				currentEvalResult.numberMatchedIP++;
-			}
+			findAIP(sip, aa);
 		}
 	}
 	
-	private boolean findAIP(ServiceInstrumentationPoint sip, AbstractAction aa) {
+	private void findAIP(ServiceInstrumentationPoint sip, AbstractAction aa) {
 		for (var aip : sip.getActionInstrumentationPoints()) {
 			if (aip.getAction() == aa) {
-				return true;
+				currentEvalResult.numberMatchedIP++;
+				if (aip.isActive()) {
+					currentEvalResult.numberActivatedIP++;
+				}
+				return;
 			}
 		}
 		currentEvalResult.unmatchedSEFFElements.add(aa.getId());
-		return false;
 	}
 }
