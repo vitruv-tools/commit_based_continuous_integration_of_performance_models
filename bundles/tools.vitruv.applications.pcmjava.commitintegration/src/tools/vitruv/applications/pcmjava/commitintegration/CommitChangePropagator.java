@@ -254,4 +254,8 @@ public class CommitChangePropagator {
 	protected GitRepositoryWrapper getWrapper() {
 		return repoWrapper;
 	}
+	
+	public JavaFileSystemLayout getJavaFileSystemLayout() {
+		return fileLayout;
+	}
 }
