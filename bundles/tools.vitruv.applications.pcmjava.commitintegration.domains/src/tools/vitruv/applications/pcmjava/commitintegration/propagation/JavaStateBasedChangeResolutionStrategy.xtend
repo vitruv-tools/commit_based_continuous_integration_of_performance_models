@@ -17,6 +17,7 @@ import java.util.List
 import java.util.ArrayList
 import org.eclipse.emf.ecore.EObject
 import java.util.Collection
+import org.apache.log4j.Logger
 
 /**
  * This strategy for diff based state changes of Java models uses EMFCompare to resolve a 
@@ -27,6 +28,8 @@ import java.util.Collection
  * @author Martin Armbruster
  */
 class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResolutionStrategy {
+	static final Logger logger = Logger.getLogger("ci." + JavaStateBasedChangeResolutionStrategy.simpleName)
+	
 	private def checkNoProxies(Resource resource, String stateNotice) {
 		val proxies = resource.referencedProxies
 		checkArgument(proxies.empty, "%s '%s' should not contain proxies, but contains the following: %s", stateNotice,
@@ -136,7 +139,9 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 			changeRecorder.beginRecording
 			changeRecorder.addToRecording(resource)
 			function.apply()
-			return changeRecorder.endRecording
+			val result = changeRecorder.endRecording
+			logger.debug("Recorded " + result.EChanges.size + " changes for " + resource)
+			return result
 		}
 	}
 	
