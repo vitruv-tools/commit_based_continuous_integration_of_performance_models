@@ -27,6 +27,9 @@ public abstract class AbstractCITest {
 		logger = Logger.getLogger(JavaParserAndPropagatorUtility.class.getSimpleName());
 		logger.addAppender(ap);
 		logger.setLevel(Level.ALL);
+		logger = Logger.getLogger("ci");
+		logger.addAppender(ap);
+		logger.setLevel(Level.ALL);
 		facade = new VSUMFacade(Paths.get(getTestPath()));
 		prop = new CommitChangePropagator(new File(getRepositoryPath())
 				.getAbsoluteFile(), facade.getFileLayout().getJavaPath().toString(), facade.getVSUM());

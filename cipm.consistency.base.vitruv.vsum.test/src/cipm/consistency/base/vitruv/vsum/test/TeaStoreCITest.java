@@ -1,9 +1,17 @@
 package cipm.consistency.base.vitruv.vsum.test;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 
+import org.apache.commons.io.FileUtils;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import cipm.consistency.base.vitruv.vsum.test.evaluation.EvaluationResult;
+import cipm.consistency.base.vitruv.vsum.test.evaluation.EvaluationResultReaderWriter;
 
 public class TeaStoreCITest extends AbstractCITest {
 	private static final String COMMIT_TAG_1_1 = "77733d9c6ab6680c6cc460c631cd408a588a595c";
@@ -45,7 +53,28 @@ public class TeaStoreCITest extends AbstractCITest {
 	@Test
 	public void testTeaStore1_2To_1_2_1Propagation() throws Exception {
 		// Propagation of changes between TeaStore version 1.2 and 1.2.1.
-		prop.propagateChanges(COMMIT_TAG_1_2, COMMIT_TAG_1_2_1);
+		executePropagationAndEvaluation(COMMIT_TAG_1_2, COMMIT_TAG_1_2_1);
+	}
+	
+	private void executePropagationAndEvaluation(String oldCommit, String newCommit) throws GitAPIException, IOException {
+		EvaluationResult evalResult = new EvaluationResult();
+		evalResult.evaluationTime = System.currentTimeMillis();
+		evalResult.oldCommit = oldCommit;
+		evalResult.newCommit = newCommit;
+		boolean result = prop.propagateChanges(evalResult.oldCommit, evalResult.newCommit);
+		if (result) {
+			Path root = this.facade.getFileLayout().getRootPath();
+			Path copy = root.resolveSibling(root.getFileName().toString() + "-" + evalResult.newCommit);
+			FileUtils.copyDirectory(root.toFile(), copy.toFile());
+			evalResult.javaComparisonResult =
+					new JavaModelEvaluator().evaluateJavaModels(this.facade.getVSUM().getModelInstance(
+					URI.createFileURI(prop.getJavaFileSystemLayout().getJavaModelFile().toString()))
+					.getResource(), prop.getJavaFileSystemLayout().getLocalJavaRepo());
+			evalResult.imEvalResult =
+					new IMUpdateEvaluator().evaluateIMUpdate(this.facade.getPCMWrapper().getRepository(),
+					this.facade.getInstrumentationModel());
+			EvaluationResultReaderWriter.write(evalResult, copy.resolve("EvaluationResult.json"));
+		}
 	}
 	
 //	@Disabled("Only one test case should run at once.")
