@@ -10,6 +10,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationPoint;
 import cipm.consistency.base.vitruv.vsum.test.evaluation.EvaluationResult;
 import cipm.consistency.base.vitruv.vsum.test.evaluation.EvaluationResultReaderWriter;
 
@@ -61,6 +62,11 @@ public class TeaStoreCITest extends AbstractCITest {
 		evalResult.evaluationTime = System.currentTimeMillis();
 		evalResult.oldCommit = oldCommit;
 		evalResult.newCommit = newCommit;
+		this.facade.getInstrumentationModel().eAllContents().forEachRemaining(ip -> {
+			if (ip instanceof InstrumentationPoint) {
+				((InstrumentationPoint) ip).setActive(false);
+			}
+		});
 		boolean result = prop.propagateChanges(evalResult.oldCommit, evalResult.newCommit);
 		if (result) {
 			Path root = this.facade.getFileLayout().getRootPath();
