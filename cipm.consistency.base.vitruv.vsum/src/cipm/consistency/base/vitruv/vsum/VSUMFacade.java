@@ -104,4 +104,12 @@ public class VSUMFacade {
 	public FileLayout getFileLayout() {
 		return files;
 	}
+	
+	public InstrumentationModel getInstrumentationModel() {
+		return imm;
+	}
+	
+	public InMemoryPCM getPCMWrapper() {
+		return pcm;
+	}
 }
