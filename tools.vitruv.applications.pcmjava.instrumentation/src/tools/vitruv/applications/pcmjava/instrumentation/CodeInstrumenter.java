@@ -31,7 +31,7 @@ import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
  */
 public class CodeInstrumenter {
 	public void instrument(InstrumentationModel im, CorrespondenceModel cm, Resource javaModel,
-			Path output, Path input) {
+			Path output, Path input, boolean adaptive) {
 		ResourceSet targetSet = new ResourceSetImpl();
 		Resource copy = targetSet.createResource(javaModel.getURI());
 		copy.getContents().addAll(EcoreUtil.copyAll(javaModel.getContents()));
@@ -46,7 +46,7 @@ public class CodeInstrumenter {
 					.getCorrespondingEObjects(cm, sip.getService(), Method.class).iterator().next();
 			Method copiedService = findCopiedEObject(targetSet, service);
 			ActionStatementMapping statementMap = createActionStatementMapping(targetSet, sip, cm);
-			sipIns.instrument(copiedService, sip, statementMap);
+			sipIns.instrument(copiedService, sip, statementMap, adaptive);
 		}
 		
 		new ModelSaver2().saveModels(targetSet, copy, output, input);

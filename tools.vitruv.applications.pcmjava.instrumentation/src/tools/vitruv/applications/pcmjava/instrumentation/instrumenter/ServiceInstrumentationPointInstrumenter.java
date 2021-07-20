@@ -46,8 +46,10 @@ public class ServiceInstrumentationPointInstrumenter extends AbstractInstrumente
 	 * @param sip the ServiceInstrumentationPoint.
 	 * @param statementMapping a mapping to retrieve statements corresponding to
 	 *                         AbstractActions within the ServiceInstrumentationPoint.
+	 * @param adaptive true if only active instrumentation points shall be instrumented. false otherwise.
 	 */
-	public void instrument(Method m, ServiceInstrumentationPoint sip, ActionStatementMapping statementMapping) {
+	public void instrument(Method m, ServiceInstrumentationPoint sip, ActionStatementMapping statementMapping,
+			boolean adaptive) {
 		prepareMethodBeforeInstrumentation(m);
 		
 		serviceIns.setLocalThreadMonitoringVariable(this.threadMonitoringVariable);
@@ -55,7 +57,9 @@ public class ServiceInstrumentationPointInstrumenter extends AbstractInstrumente
 		serviceIns.instrument(null, null);
 		
 		for (ActionInstrumentationPoint aip : sip.getActionInstrumentationPoints()) {
-			instrument(aip, statementMapping);
+			if (aip.isActive() || !adaptive) {
+				instrument(aip, statementMapping);
+			}
 		}
 		
 		prepareMethodAfterInstrumentation(m);
