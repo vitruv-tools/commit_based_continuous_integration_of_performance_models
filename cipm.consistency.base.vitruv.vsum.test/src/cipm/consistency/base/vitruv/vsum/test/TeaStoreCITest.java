@@ -11,7 +11,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import tools.vitruv.applications.pcmjava.instrumentation.CodeInstrumenter;
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationPoint;
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
 import cipm.consistency.base.vitruv.vsum.test.evaluation.EvaluationResult;
 import cipm.consistency.base.vitruv.vsum.test.evaluation.EvaluationResultReaderWriter;
 
@@ -64,8 +64,8 @@ public class TeaStoreCITest extends AbstractCITest {
 		evalResult.oldCommit = oldCommit;
 		evalResult.newCommit = newCommit;
 		this.facade.getInstrumentationModel().eAllContents().forEachRemaining(ip -> {
-			if (ip instanceof InstrumentationPoint) {
-				((InstrumentationPoint) ip).setActive(false);
+			if (ip instanceof ActionInstrumentationPoint) {
+				((ActionInstrumentationPoint) ip).setActive(false);
 			}
 		});
 		boolean result = prop.propagateChanges(evalResult.oldCommit, evalResult.newCommit);
