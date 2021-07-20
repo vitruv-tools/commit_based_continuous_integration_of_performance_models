@@ -7,9 +7,6 @@ import org.eclipse.emf.ecore.EObject;
 import org.emftext.language.java.members.Method;
 import org.emftext.language.java.statements.Statement;
 import org.palladiosimulator.pcm.seff.AbstractAction;
-import org.palladiosimulator.pcm.seff.AbstractBranchTransition;
-import org.palladiosimulator.pcm.seff.BranchAction;
-import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 import org.somox.gast2seff.visitors.IFunctionClassificationStrategy;
 import org.somox.gast2seff.visitors.InterfaceOfExternalCallFindingFactory;
 import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding;
@@ -73,14 +70,6 @@ public class ExtendedClassMethodBodyChangedTransformation extends ClassMethodBod
 	            for (Statement statement : seffElementSourceCodeLink.getStatement()) {
                     correspondenceModel.createAndAddCorrespondence(actionList, Lists.newArrayList(statement));
 	            }
-            } else if (seffElementSourceCodeLink.getSeffElement() instanceof ResourceDemandingBehaviour) {
-            	ResourceDemandingBehaviour seff = (ResourceDemandingBehaviour) seffElementSourceCodeLink.getSeffElement();
-            	AbstractBranchTransition abstractBranchTr = seff.getAbstractBranchTransition_ResourceDemandingBehaviour();
-            	BranchAction branchAction = abstractBranchTr.getBranchAction_AbstractBranchTransition();
-            	List<EObject> actionList = Lists.newArrayList(branchAction);
-            	for(Statement statement: seffElementSourceCodeLink.getStatement()) {
-            		correspondenceModel.createAndAddCorrespondence(actionList, Lists.newArrayList(statement));
-            	}
             }
         }
 	}
