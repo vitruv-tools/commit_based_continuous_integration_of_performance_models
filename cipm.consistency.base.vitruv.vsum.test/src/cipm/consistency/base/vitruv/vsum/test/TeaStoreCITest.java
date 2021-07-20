@@ -77,7 +77,12 @@ public class TeaStoreCITest extends AbstractCITest {
 					this.facade.getVSUM().getCorrespondenceModel(),
 					javaModel,
 					this.prop.getJavaFileSystemLayout().getInstrumentationCopy(),
-					this.prop.getJavaFileSystemLayout().getLocalJavaRepo());
+					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), false);
+			new CodeInstrumenter().instrument(this.facade.getInstrumentationModel(),
+					this.facade.getVSUM().getCorrespondenceModel(),
+					javaModel,
+					this.prop.getJavaFileSystemLayout().getInstrumentationCopy().resolveSibling("ins-all"),
+					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), true);
 			Path root = this.facade.getFileLayout().getRootPath();
 			Path copy = root.resolveSibling(root.getFileName().toString() + "-" + evalResult.newCommit);
 			FileUtils.copyDirectory(root.toFile(), copy.toFile());
