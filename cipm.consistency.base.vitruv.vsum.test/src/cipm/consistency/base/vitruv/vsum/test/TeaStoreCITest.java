@@ -6,10 +6,11 @@ import java.nio.file.Path;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
+import tools.vitruv.applications.pcmjava.instrumentation.CodeInstrumenter;
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationPoint;
 import cipm.consistency.base.vitruv.vsum.test.evaluation.EvaluationResult;
 import cipm.consistency.base.vitruv.vsum.test.evaluation.EvaluationResultReaderWriter;
@@ -69,13 +70,19 @@ public class TeaStoreCITest extends AbstractCITest {
 		});
 		boolean result = prop.propagateChanges(evalResult.oldCommit, evalResult.newCommit);
 		if (result) {
+			Resource javaModel = this.facade.getVSUM().getModelInstance(
+					URI.createFileURI(prop.getJavaFileSystemLayout().getJavaModelFile().toString()))
+					.getResource();
+			new CodeInstrumenter().instrument(this.facade.getInstrumentationModel(),
+					this.facade.getVSUM().getCorrespondenceModel(),
+					javaModel,
+					this.prop.getJavaFileSystemLayout().getInstrumentationCopy(),
+					this.prop.getJavaFileSystemLayout().getLocalJavaRepo());
 			Path root = this.facade.getFileLayout().getRootPath();
 			Path copy = root.resolveSibling(root.getFileName().toString() + "-" + evalResult.newCommit);
 			FileUtils.copyDirectory(root.toFile(), copy.toFile());
-			evalResult.javaComparisonResult =
-					new JavaModelEvaluator().evaluateJavaModels(this.facade.getVSUM().getModelInstance(
-					URI.createFileURI(prop.getJavaFileSystemLayout().getJavaModelFile().toString()))
-					.getResource(), prop.getJavaFileSystemLayout().getLocalJavaRepo());
+			evalResult.javaComparisonResult = new JavaModelEvaluator()
+					.evaluateJavaModels(javaModel, prop.getJavaFileSystemLayout().getLocalJavaRepo());
 			evalResult.imEvalResult =
 					new IMUpdateEvaluator().evaluateIMUpdate(this.facade.getPCMWrapper().getRepository(),
 					this.facade.getInstrumentationModel());

@@ -23,5 +23,8 @@ Require-Bundle: tools.vitruv.applications.pcmjava.commitintegration,
  tools.vitruv.domains.pcm,
  com.google.gson,
  org.apache.commons.io,
- cipm.consistency.base.shared
+ cipm.consistency.base.shared,
+ tools.vitruv.framework.correspondence,
+ org.eclipse.xtext.xbase.lib,
+ tools.vitruv.applications.pcmjava.instrumentation
 Export-Package: cipm.consistency.base.vitruv.vsum.test
