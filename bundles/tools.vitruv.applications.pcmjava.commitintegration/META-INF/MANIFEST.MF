@@ -18,6 +18,7 @@ Require-Bundle: org.apache.log4j,
  jamopp.parser,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtend.lib,
- org.eclipse.xtend.lib.macro
+ org.eclipse.xtend.lib.macro,
+ tools.vitruv.framework.userinteraction
 Automatic-Module-Name: tools.vitruv.applications.javapcm.commitintegration
 Bundle-RequiredExecutionEnvironment: JavaSE-11
