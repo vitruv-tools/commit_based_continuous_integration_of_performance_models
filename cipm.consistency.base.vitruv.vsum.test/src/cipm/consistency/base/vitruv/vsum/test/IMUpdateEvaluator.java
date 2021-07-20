@@ -47,9 +47,12 @@ public class IMUpdateEvaluator {
 			}
 		}
 		
-		currentEvalResult.numberDeactivatedIP = currentEvalResult.numberAllIP - currentEvalResult.numberActivatedIP;
-		currentEvalResult.deactivatedIPAllIPRatio = (double) currentEvalResult.numberDeactivatedIP
+		currentEvalResult.numberAIP = currentEvalResult.numberAllIP - currentEvalResult.numberSIP;
+		currentEvalResult.numberDeactivatedAIP = currentEvalResult.numberAIP - currentEvalResult.numberActivatedAIP;
+		currentEvalResult.deactivatedIPAllIPRatio = (double) currentEvalResult.numberDeactivatedAIP
 				/ currentEvalResult.numberAllIP;
+		currentEvalResult.deactivatedAIPAllAIPRatio = (double) currentEvalResult.numberDeactivatedAIP
+				/ currentEvalResult.numberAIP;
 		return currentEvalResult;
 	}
 	
@@ -57,9 +60,7 @@ public class IMUpdateEvaluator {
 		for (var sip : im.getPoints()) {
 			if (sip.getService() == seff) {
 				currentEvalResult.numberMatchedIP++;
-				if (sip.isActive()) {
-					currentEvalResult.numberActivatedIP++;
-				}
+				currentEvalResult.numberSIP++;
 				return sip;
 			}
 		}
@@ -100,7 +101,7 @@ public class IMUpdateEvaluator {
 			if (aip.getAction() == aa) {
 				currentEvalResult.numberMatchedIP++;
 				if (aip.isActive()) {
-					currentEvalResult.numberActivatedIP++;
+					currentEvalResult.numberActivatedAIP++;
 				}
 				return;
 			}
