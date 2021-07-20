@@ -355,6 +355,12 @@ routine decideInterfaceCreation(java::ConcreteClassifier javaInterface) {
 						return
 					}
 				}
+				for (cc : javaInterface.allSuperClassifiers) {
+					if (cc.name.equals("HttpServlet")) {
+						createInterface(javaInterface)
+						return
+					}
+				}
 			} else if (mod.origin == Origin.ARCHIVE) {
 				if (javaInterface.public) {
 					createInterface(javaInterface)
