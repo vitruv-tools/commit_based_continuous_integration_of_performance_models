@@ -50,6 +50,7 @@ public class ServiceInstrumentationPointInstrumenter extends AbstractInstrumente
 	public void instrument(Method m, ServiceInstrumentationPoint sip, ActionStatementMapping statementMapping) {
 		prepareMethodBeforeInstrumentation(m);
 		
+		serviceIns.setLocalThreadMonitoringVariable(this.threadMonitoringVariable);
 		serviceIns.setService(m, sip.getService().getId());
 		serviceIns.instrument(null, null);
 		

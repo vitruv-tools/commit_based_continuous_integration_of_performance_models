@@ -2,10 +2,10 @@ package tools.vitruv.applications.pcmjava.instrumentation;
 
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -65,7 +65,11 @@ public class CodeInstrumenter {
 						findCopiedEObject(copyContainer, lastStatement));
 				firstStatement = findFirstOrLastStatement(correspondingStatements, true);
 			} else {
-				firstStatement = correspondingStatements.iterator().next();
+				try {
+					firstStatement = correspondingStatements.iterator().next();
+				} catch (NoSuchElementException e) {
+					continue;
+				}
 			}
 			Statement copiedFirstStatement = findCopiedEObject(copyContainer, firstStatement);
 			statementMap.put(aip.getAction(), copiedFirstStatement);
@@ -75,8 +79,7 @@ public class CodeInstrumenter {
 	
 	@SuppressWarnings("unchecked")
 	private <T extends EObject> T findCopiedEObject(ResourceSet copyContainer, T original) {
-		EObject potResult = copyContainer.getEObject(
-				URI.createURI(EcoreUtil.getID(original)), false);
+		EObject potResult = copyContainer.getEObject(EcoreUtil.getURI(original), false);
 		if (potResult != null && original.eClass().isInstance(potResult)) {
 			return (T) potResult;
 		}

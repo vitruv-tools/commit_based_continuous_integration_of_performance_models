@@ -95,7 +95,7 @@ public final class MinimalMonitoringEnvironmentModelGenerator {
 		getInstanceMethod = MembersFactory.eINSTANCE.createClassMethod();
 		getInstanceMethod.setName(ApplicationProjectInstrumenterNamespace.METHOD_GET_INSTANCE);
 		getInstanceMethod.makePublic();
-		getInstanceMethod.getModifiers().add(ModifiersFactory.eINSTANCE.createStatic());
+		getInstanceMethod.getAnnotationsAndModifiers().add(ModifiersFactory.eINSTANCE.createStatic());
 		ClassifierReference ref = TypesFactory.eINSTANCE.createClassifierReference();
 		ref.setTarget(threadMonitoringControllerClassifier);
 		getInstanceMethod.setTypeReference(ref);
