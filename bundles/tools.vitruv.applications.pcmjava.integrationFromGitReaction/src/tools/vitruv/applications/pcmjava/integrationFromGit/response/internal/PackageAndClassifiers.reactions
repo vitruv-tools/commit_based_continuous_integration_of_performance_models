@@ -1,5 +1,4 @@
 import org.emftext.language.java.classifiers.Class
-import org.emftext.language.java.containers.ContainersPackage
 import org.emftext.language.java.types.ClassifierReference
 import org.emftext.language.java.types.NamespaceClassifierReference
 
@@ -351,21 +350,45 @@ routine decideInterfaceCreation(java::ConcreteClassifier javaInterface) {
 				for (annot : javaInterface.annotationInstances) {
 					val annotName = annot.annotation.name
 					if (annotName.equals("Path") || annotName.equals("ApplicationPath")) {
-						createInterface(javaInterface)
+						createOrFindInterface(javaInterface)
 						return
 					}
 				}
 				for (cc : javaInterface.allSuperClassifiers) {
 					if (cc.name.equals("HttpServlet")) {
-						createInterface(javaInterface)
+						createOrFindInterface(javaInterface)
 						return
 					}
 				}
 			} else if (mod.origin == Origin.ARCHIVE) {
 				if (javaInterface.public) {
-					createInterface(javaInterface)
+					createOrFindInterface(javaInterface)
 				}
 			}
+		}
+	}
+}
+
+routine createOrFindInterface(java::ConcreteClassifier classifier) {
+	match {
+		val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
+		require absence of pcm::OperationInterface corresponding to classifier
+	}
+	action {
+		call {
+			for (inter : pcmRepository.interfaces__Repository) {
+				if (inter.entityName.equals(classifier.name)) {
+					val userMessage = "There is already an PCM interface with the name " + inter.entityName
+						+ ". Shall the classifier " + classifier.qualifiedName
+						+ " be corresponding to the existing PCM interface?"
+					var selection = userInteractor.confirmationDialogBuilder.message(userMessage).startInteraction
+					if (selection) {
+						addCorrespondenceBetweenClassifierAndInterface(classifier, inter)
+						return	
+					}
+				}
+			}
+			createInterface(classifier)
 		}
 	}
 }
@@ -382,7 +405,15 @@ routine createInterface(java::ConcreteClassifier javaInterface) {
 		update pcmRepository {
 			pcmRepository.interfaces__Repository += pcmInterface
 		}
-		add correspondence between pcmInterface and javaInterface
+		call {
+			addCorrespondenceBetweenClassifierAndInterface(javaInterface, pcmInterface)
+		}
+	}
+}
+
+routine addCorrespondenceBetweenClassifierAndInterface(java::ConcreteClassifier javaClassifier, pcm::Interface pcmInterface) {
+	action {
+		add correspondence between javaClassifier and pcmInterface
 	}
 }
 
@@ -419,38 +450,9 @@ routine removeComponent(pcm::RepositoryComponent com) {
 reaction RemoveInterfaceEvent {
 	after element java::Interface removed from java::CompilationUnit[classifiers]
 	call {
-//		removedInterfaceEvent(oldValue)
 		removedClassEvent(oldValue)
 	}
 } 
-
-routine removedInterfaceEvent(java::Interface interfaze) {
-	match {
-		val pcmComponent = retrieve pcm::RepositoryComponent corresponding to interfaze
-	}
-	action {
-		delete pcmComponent
-	}
-}
-
-routine createOrFindArchitecturalElementInPackage(java::Package javaPackage, java::Package containingPackage, String rootPackageName) {
-	match {
-		require absence of pcm::RepositoryComponent corresponding to javaPackage
-		val pcmRepository = retrieve pcm::Repository corresponding to ContainersPackage.Literals.PACKAGE
-	}
-	action {
-		
-		call {
-//			val pcmRepository = correspondenceModel.getAllEObjectsOfTypeInCorrespondences(typeof(Repository)).toList.get(0)
-			val pcmComponentCandidate = pcmRepository.components__Repository.findFirst[entityName == javaPackage.name.toFirstUpper]
-			if (pcmComponentCandidate === null) {
-//				createArchitecturalElement(javaPackage, containingPackage.name, rootPackageName)
-			} else {
-//				addCorrespondenceAndUpdateRepository(pcmComponentCandidate, javaPackage, pcmRepository)
-			}
-		}
-	}
-}
 
 //Add implements
 reaction TypeReferenceCreated {
