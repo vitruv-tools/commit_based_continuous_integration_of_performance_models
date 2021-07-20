@@ -162,16 +162,6 @@ routine createPCMSignature(java::Method interfaceMethod) {
 		require absence of pcm::OperationSignature corresponding to interfaceMethod
 	}
 	action {
-		call {
-			if (!interfaceMethod.static) {
-				internalCreatePCMSignature(interfaceMethod, pcmInterface)
-			}
-		}
-	}
-}
-
-routine internalCreatePCMSignature(java::Method interfaceMethod, pcm::OperationInterface pcmInterface) {
-	action {
 		val operationSignature = create pcm::OperationSignature and initialize {
 			operationSignature.entityName = interfaceMethod.name
 			operationSignature.interface__OperationSignature = pcmInterface
