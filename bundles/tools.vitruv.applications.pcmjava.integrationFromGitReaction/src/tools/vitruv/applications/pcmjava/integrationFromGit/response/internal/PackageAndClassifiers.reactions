@@ -151,7 +151,25 @@ reaction RemoveClassAnnotationReaction {
 reaction InterfaceMethodCreated {
 	after element java::InterfaceMethod inserted in java::Interface[members] 
 	call {
-		createPCMSignature(newValue)
+		createOrFindPCMSignature(newValue)
+	}
+}
+
+routine createOrFindPCMSignature(java::Method interfaceMethod) {
+	match {
+		val pcmInterface = retrieve pcm::OperationInterface corresponding to interfaceMethod.containingConcreteClassifier
+		require absence of pcm::OperationSignature corresponding to interfaceMethod
+	}
+	action {
+		call {
+			for (sign : pcmInterface.signatures__OperationInterface) {
+				if (sign.entityName.equals(interfaceMethod.name)) {
+					addCorrespondenceBetweenMethodAndOperationSignature(interfaceMethod, sign)
+					return;
+				}
+			}
+			createPCMSignature(interfaceMethod)
+		}
 	}
 }
 
@@ -170,7 +188,15 @@ routine createPCMSignature(java::Method interfaceMethod) {
 			pcmInterface.signatures__OperationInterface += operationSignature
 		}
 		
-		add correspondence between operationSignature and interfaceMethod
+		call {
+			addCorrespondenceBetweenMethodAndOperationSignature(interfaceMethod, operationSignature)
+		}
+	}
+}
+
+routine addCorrespondenceBetweenMethodAndOperationSignature(java::Method method, pcm::OperationSignature sign) {
+	action {
+		add correspondence between sign and method
 	}
 }
 
@@ -179,7 +205,7 @@ reaction ClassMethodCreated {
 	after element java::ClassMethod inserted in java::Class[members]
 	call {
 		if (newValue.public) {
-			createPCMSignature(newValue)
+			createOrFindPCMSignature(newValue)
 		}
 		createSeffFromImplementingInterfaces(newValue, affectedEObject)
 		createSeffFromClassInterface(newValue, affectedEObject)
@@ -255,16 +281,32 @@ reaction RemoveInterfaceMethodEvent {
 routine removedInterfaceMethodEvent(java::Method interfaceMethod) {
 	match {
 		val operationSignature = retrieve pcm::OperationSignature corresponding to interfaceMethod
-		//val opSig = retrieve pcm::OperationSignature corresponding to interfaceMethod
+		val classifiers = retrieve many java::ConcreteClassifier corresponding to operationSignature
 	}
 	action {
-		//'remove correspondence between' is not needed, because 'delete' automatically removes the object and its correspondences 	
-		//Should the correspoding SEFFs still exist?
-		//Should the references to the removed OperationSignature in all rdseff.describedService__SEFF also be removed?
-		delete operationSignature
+		call {
+			if (classifiers.size == 1) {
+				deleteSignature(operationSignature);
+			} else {
+				removeCorrespondenceBetweenMethodAndSignature(interfaceMethod, operationSignature)
+			}
+		}
 	}
 }
 
+routine deleteSignature(pcm::OperationSignature sign) {
+	action {
+		// Should the correspoding SEFFs still exist?
+		// Should the references to the removed OperationSignature in all rdseff.describedService__SEFF also be removed?
+		delete sign
+	}
+}
+
+routine removeCorrespondenceBetweenMethodAndSignature(java::Method method, pcm::OperationSignature sign) {
+	action {
+		remove correspondence between method and sign
+	}
+}
 
 //Remove Class Method
 reaction RemoveClassMethodEvent {
@@ -379,8 +421,8 @@ routine createOrFindInterface(java::ConcreteClassifier classifier) {
 			for (inter : pcmRepository.interfaces__Repository) {
 				if (inter.entityName.equals(classifier.name)) {
 					val userMessage = "There is already an PCM interface with the name " + inter.entityName
-						+ ". Shall the classifier " + classifier.qualifiedName
-						+ " be corresponding to the existing PCM interface?"
+						+ ". Is the classifier " + classifier.qualifiedName
+						+ " a duplication of the classifier corresponding to the existing PCM interface?"
 					var selection = userInteractor.confirmationDialogBuilder.message(userMessage).startInteraction
 					if (selection) {
 						addCorrespondenceBetweenClassifierAndInterface(classifier, inter)
