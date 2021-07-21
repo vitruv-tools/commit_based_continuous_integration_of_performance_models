@@ -145,6 +145,9 @@ public class GitRepositoryWrapper {
 	 * @throws IOException if the repository cannot be read.
 	 */
 	public RevCommit getCommitForId(String commitId) throws GitAPIException, IOException {
+		if (commitId == null) {
+			return null;
+		}
 		return git.getRepository().parseCommit(git.getRepository().resolve(commitId));
 	}
 	
