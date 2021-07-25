@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="ASCII"?>
-<allocation:Allocation xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:allocation="http://palladiosimulator.org/PalladioComponentModel/Allocation/5.2" id="_pfz1AIn2EeqxMoqbH8nCNw" entityName="SoMoX Reverse Engineered Allocation Model">
-  <targetResourceEnvironment_Allocation href="internal_architecture_model.resourceenvironment#/"/>
-  <system_Allocation href="internal_architecture_model.system#_pfxYwIn2EeqxMoqbH8nCNw"/>
-  <allocationContexts_Allocation id="_phPYYIn2EeqxMoqbH8nCNw" entityName="CC No. 1 (dir: mediaStore.MediaStore.) &lt;...Store.MediaStore.MediaStoreImpl.java.MediaStoreImpl>>">
-    <resourceContainer_AllocationContext href="internal_architecture_model.resourceenvironment#_phFnYIn2EeqxMoqbH8nCNw"/>
-    <assemblyContext_AllocationContext href="internal_architecture_model.system#_phOxUIn2EeqxMoqbH8nCNw"/>
-  </allocationContexts_Allocation>
-</allocation:Allocation>

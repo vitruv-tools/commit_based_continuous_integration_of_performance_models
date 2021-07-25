@@ -1,1 +1,0 @@
-package org.apache.any23.vocab;
