@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Tests for the SPLevo Commons
-Bundle-SymbolicName: org.splevo.commons.test
-Bundle-Version: 1.0.0.qualifier
-Fragment-Host: org.splevo.commons
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Require-Bundle: org.junit,
- org.eclipse.emf.ecore.xmi
