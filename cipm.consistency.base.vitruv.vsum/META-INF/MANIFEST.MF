@@ -5,8 +5,8 @@ Bundle-SymbolicName: cipm.consistency.base.vitruv.vsum
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: cipm.consistency.base.vitruv.vsum
 Bundle-RequiredExecutionEnvironment: JavaSE-13
-Require-Bundle: tools.vitruv.applications.pcmjava.commitintegration,
- tools.vitruv.applications.pcmjava.commitintegration.domains,
+Require-Bundle: cipm.consistency.commitintegration,
+ cipm.consistency.domains.java,
  tools.vitruv.framework.vsum,
  tools.vitruv.domains.java,
  org.eclipse.jgit,

@@ -8,8 +8,8 @@ import org.eclipse.emf.compare.Match;
 import org.eclipse.emf.ecore.resource.Resource;
 
 import cipm.consistency.base.vitruv.vsum.test.evaluation.JavaEvaluationResult;
-import tools.vitruv.applications.pcmjava.commitintegration.JavaParserAndPropagatorUtility;
-import tools.vitruv.applications.pcmjava.commitintegration.propagation.JavaModelComparator;
+import cipm.consistency.commitintegration.JavaParserAndPropagatorUtility;
+import cipm.consistency.commitintegration.diff.util.JavaModelComparator;
 
 public class JavaModelEvaluator {
 	private JavaEvaluationResult currentEvalResult;

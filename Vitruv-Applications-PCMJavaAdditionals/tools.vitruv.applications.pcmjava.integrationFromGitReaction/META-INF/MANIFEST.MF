@@ -33,6 +33,6 @@ Require-Bundle: org.apache.log4j,
  tools.vitruv.domains.pcm,
  edu.kit.ipd.sdq.commons.util.pcm,
  tools.vitruv.applications.pcmjava.seffstatements.extended,
- tools.vitruv.applications.pcmjava.commitintegration.domains
+ cipm.consistency.domains.java
 Automatic-Module-Name: tools.vitruv.applications.javapcm.integrationFromGitReaction
 Bundle-RequiredExecutionEnvironment: JavaSE-12

@@ -4,7 +4,6 @@ import org.emftext.language.java.members.Method
 import tools.vitruv.framework.correspondence.CorrespondenceModel
 import tools.vitruv.framework.userinteraction.UserInteractor
 import tools.vitruv.framework.propagation.impl.AbstractChangePropagationSpecification
-import tools.vitruv.applications.pcmjava.commitintegration.domains.java.AdjustedJavaDomainProvider
 import tools.vitruv.framework.change.echange.EChange
 import tools.vitruv.framework.propagation.ResourceAccess
 import cipm.consistency.base.vsum.domains.InstrumentationModelDomainProvider
@@ -15,6 +14,7 @@ import cipm.consistency.base.models.inmodel.InstrumentationModelUtil
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage
 import tools.vitruv.framework.change.echange.feature.attribute.ReplaceSingleValuedEAttribute
 import org.emftext.language.java.commons.CommonsPackage
+import cipm.consistency.domains.java.AdjustedJavaDomainProvider
 
 /**
  * Propagates changes in method bodies to the instrumentation model.

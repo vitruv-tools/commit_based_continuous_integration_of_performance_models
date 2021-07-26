@@ -31,7 +31,7 @@ Require-Bundle: javax.inject,
  tools.vitruv.applications.pcmjava.seffstatements,
  cipm.consistency.base.models.instrumentation,
  cipm.consistency.base.vitruv.domain.im,
- tools.vitruv.applications.pcmjava.commitintegration.domains,
+ cipm.consistency.domains.java,
  tools.vitruv.framework.domains,
  tools.vitruv.domains.java
 Bundle-RequiredExecutionEnvironment: JavaSE-13

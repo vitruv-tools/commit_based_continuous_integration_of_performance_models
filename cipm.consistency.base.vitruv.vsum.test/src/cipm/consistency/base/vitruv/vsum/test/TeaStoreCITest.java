@@ -48,7 +48,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	@Test
 	public void testTeaStore1_2Integration() throws Exception {
 		// Integrates TeaStore version 1.2.
-		prop.propagateChanges(COMMIT_TAG_1_2);
+		executePropagationAndEvaluation(null, COMMIT_TAG_1_2);
 	}
 	
 	@Disabled("Only one test case should run at once.")

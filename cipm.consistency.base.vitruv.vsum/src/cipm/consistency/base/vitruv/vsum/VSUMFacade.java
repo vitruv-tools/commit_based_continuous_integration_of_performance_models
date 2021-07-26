@@ -23,7 +23,7 @@ import cipm.consistency.base.shared.pcm.InMemoryPCM;
 import cipm.consistency.base.shared.pcm.LocalFilesystemPCM;
 import cipm.consistency.base.vsum.domains.InstrumentationModelDomainProvider;
 import tools.vitruv.applications.javaim.Java2ImChangePropagationSpecification;
-import tools.vitruv.applications.pcmjava.commitintegration.domains.java.AdjustedJavaDomainProvider;
+import cipm.consistency.domains.java.AdjustedJavaDomainProvider;
 import tools.vitruv.applications.pcmjava.integrationFromGit.response.GitIntegrationChangePropagationSpecification;
 import tools.vitruv.domains.pcm.PcmDomainProvider;
 import tools.vitruv.extensions.dslsruntime.reactions.helper.ReactionsCorrespondenceHelper;

@@ -26,6 +26,6 @@ Require-Bundle: com.google.guava,
  tools.vitruv.applications.pcmjava.seffstatements,
  tools.vitruv.framework.propagation,
  tools.vitruv.applications.pcmjava.seffstatements.pojotransformations,
- tools.vitruv.applications.pcmjava.commitintegration.domains
+ cipm.consistency.domains.java
 Export-Package: tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended
 Automatic-Module-Name: tools.vitruv.applications.pcmjava.seffstatements.extended

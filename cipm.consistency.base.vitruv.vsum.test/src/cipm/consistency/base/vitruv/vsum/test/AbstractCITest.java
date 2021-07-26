@@ -10,8 +10,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 import cipm.consistency.base.vitruv.vsum.VSUMFacade;
-import tools.vitruv.applications.pcmjava.commitintegration.CommitChangePropagator;
-import tools.vitruv.applications.pcmjava.commitintegration.JavaParserAndPropagatorUtility;
+import cipm.consistency.commitintegration.CommitChangePropagator;
+import cipm.consistency.commitintegration.JavaParserAndPropagatorUtility;
 
 public abstract class AbstractCITest {
 	protected VSUMFacade facade;
