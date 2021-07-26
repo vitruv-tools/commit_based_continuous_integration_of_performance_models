@@ -1,4 +1,4 @@
-package tools.vitruv.applications.pcmjava.commitintegration;
+package cipm.consistency.commitintegration;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +11,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import cipm.consistency.commitintegration.JavaFileSystemLayout;
 import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
 
 /**

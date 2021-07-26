@@ -1,4 +1,4 @@
-package tools.vitruv.applications.pcmjava.commitintegration.diff.util;
+package cipm.consistency.commitintegration.diff.util;
 
 import java.util.List;
 

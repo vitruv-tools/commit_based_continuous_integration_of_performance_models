@@ -1,4 +1,4 @@
-package tools.vitruv.applications.pcmjava.commitintegration
+package cipm.consistency.commitintegration
 
 import java.nio.file.Path
 import org.eclipse.xtend.lib.annotations.Accessors

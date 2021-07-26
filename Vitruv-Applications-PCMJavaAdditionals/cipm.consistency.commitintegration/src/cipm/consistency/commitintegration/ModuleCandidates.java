@@ -1,4 +1,4 @@
-package tools.vitruv.applications.pcmjava.commitintegration;
+package cipm.consistency.commitintegration;
 
 import java.util.EnumMap;
 import java.util.HashMap;

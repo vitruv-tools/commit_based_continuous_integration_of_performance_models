@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: IntegrationFromGit
-Bundle-SymbolicName: tools.vitruv.applications.pcmjava.commitintegration.diff.util;singleton:=true
+Bundle-Name: Utilities for diffing Java models
+Bundle-SymbolicName: cipm.consistency.commitintegration.diff.util;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Export-Package: tools.vitruv.applications.pcmjava.commitintegration.diff.util
+Export-Package: cipm.consistency.commitintegration.diff.util
 Require-Bundle: org.eclipse.emf.ecore,
  org.eclipse.emf.compare,
  org.eclipse.emf.common,
@@ -14,5 +14,5 @@ Require-Bundle: org.eclipse.emf.ecore,
  org.splevo.jamopp.diffing,
  org.splevo.jamopp.extraction,
  org.splevo.jamopp.util
-Automatic-Module-Name: tools.vitruv.applications.javapcm.commitintegration.diff.util
+Automatic-Module-Name: cipm.consistency.commitintegration.diff.util
 Bundle-RequiredExecutionEnvironment: JavaSE-11

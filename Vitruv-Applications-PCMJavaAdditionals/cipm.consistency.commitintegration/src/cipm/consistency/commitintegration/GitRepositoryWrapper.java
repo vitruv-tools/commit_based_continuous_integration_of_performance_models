@@ -1,4 +1,4 @@
-package tools.vitruv.applications.pcmjava.commitintegration;
+package cipm.consistency.commitintegration;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
