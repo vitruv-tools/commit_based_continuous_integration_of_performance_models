@@ -1,4 +1,4 @@
-package tools.vitruv.applications.pcmjava.commitintegration.domains.java;
+package cipm.consistency.domains.java;
 
 import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.framework.domains.VitruvDomainProvider;

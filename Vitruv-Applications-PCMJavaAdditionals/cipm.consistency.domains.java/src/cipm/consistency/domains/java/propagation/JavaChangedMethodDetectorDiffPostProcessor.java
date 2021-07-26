@@ -1,4 +1,4 @@
-package tools.vitruv.applications.pcmjava.commitintegration.propagation;
+package cipm.consistency.domains.java.propagation;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -9,7 +9,7 @@ import org.eclipse.emf.compare.Match;
 import org.eclipse.emf.compare.postprocessor.IPostProcessor;
 import org.emftext.language.java.members.Method;
 
-public class JavaPostProcessor implements IPostProcessor {
+public class JavaChangedMethodDetectorDiffPostProcessor implements IPostProcessor {
 	private Set<Method> changedMethods = new HashSet<>();
 	
 	public Set<Method> getChangedMethods() {

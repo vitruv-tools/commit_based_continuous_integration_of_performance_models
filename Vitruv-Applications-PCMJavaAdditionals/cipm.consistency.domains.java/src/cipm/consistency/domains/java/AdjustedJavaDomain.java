@@ -1,6 +1,6 @@
-package tools.vitruv.applications.pcmjava.commitintegration.domains.java;
+package cipm.consistency.domains.java;
 
-import tools.vitruv.applications.pcmjava.commitintegration.propagation.JavaStateBasedChangeResolutionStrategy;
+import cipm.consistency.domains.java.propagation.JavaStateBasedChangeResolutionStrategy;
 import tools.vitruv.domains.java.JavaDomain;
 import tools.vitruv.framework.domains.StateBasedChangeResolutionStrategy;
 

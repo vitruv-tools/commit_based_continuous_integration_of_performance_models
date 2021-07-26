@@ -6,6 +6,6 @@
          name="Vitruv Java Domain Provider"
          point="tools.vitruv.framework.domains.provider">
       <domainProvider
-            class="tools.vitruv.applications.pcmjava.commitintegration.domains.java.AdjustedJavaDomainProvider"></domainProvider>
+            class="cipm.consistency.domains.java.AdjustedJavaDomainProvider"></domainProvider>
    </extension>
 </plugin>

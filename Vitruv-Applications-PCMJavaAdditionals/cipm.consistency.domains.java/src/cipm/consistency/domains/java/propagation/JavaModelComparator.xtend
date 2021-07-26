@@ -1,4 +1,4 @@
-package tools.vitruv.applications.pcmjava.commitintegration.propagation
+package cipm.consistency.domains.java.propagation
 
 import org.eclipse.emf.common.notify.Notifier
 import org.eclipse.emf.compare.EMFCompare
@@ -11,8 +11,8 @@ import org.eclipse.emf.compare.postprocessor.PostProcessorDescriptorRegistryImpl
 import java.util.regex.Pattern
 import java.util.List
 import org.eclipse.emf.compare.rcp.EMFCompareRCPPlugin
-import tools.vitruv.applications.pcmjava.commitintegration.diff.util.ResourceListFilteringComparisonScope
-import tools.vitruv.applications.pcmjava.commitintegration.diff.util.JavaMatchEngineFactoryGenerator
+import cipm.consistency.commitintegration.diff.util.ResourceListFilteringComparisonScope
+import cipm.consistency.commitintegration.diff.util.JavaMatchEngineFactoryGenerator
 import org.emftext.language.java.JavaPackage
 import org.splevo.jamopp.diffing.scope.PackageIgnoreChecker
 import org.splevo.jamopp.diffing.diff.JaMoPPFeatureFilter

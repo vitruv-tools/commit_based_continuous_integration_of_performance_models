@@ -1,4 +1,4 @@
-package tools.vitruv.applications.pcmjava.commitintegration.propagation
+package cipm.consistency.domains.java.propagation
 
 import org.eclipse.emf.common.notify.Notifier
 import org.eclipse.emf.common.util.BasicMonitor
@@ -150,14 +150,14 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 	 */
 	private def compareStatesAndReplayChanges(Notifier newState, Notifier currentState,
 			List<Resource> newResources, List<Resource> currentResources) {
-		val postProcessor = new JavaPostProcessor()
+		val postProcessor = new JavaChangedMethodDetectorDiffPostProcessor()
 		val changes = JavaModelComparator.compareJavaModels(newState, currentState,
 				newResources, currentResources, postProcessor).differences
 		// Replay the EMF compare differences.
 		val mergerRegistry = IMerger.RegistryImpl.createStandaloneInstance()
 		val merger = new BatchMerger(mergerRegistry)
 		merger.copyAllLeftToRight(changes, new BasicMonitor)
-		postProcessor.changedMethods.forEach[
+		postProcessor.getChangedMethods.forEach[
 			val oldName = it.name
 			it.name = ""
 			it.name = oldName
