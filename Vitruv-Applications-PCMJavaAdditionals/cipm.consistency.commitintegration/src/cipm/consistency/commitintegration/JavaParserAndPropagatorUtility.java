@@ -205,5 +205,7 @@ public final class JavaParserAndPropagatorUtility {
 			.filter(entry -> entry.getValue() == all.getURI())
 			.map(Map.Entry::getKey).collect(Collectors.toList())
 			.forEach(u -> JavaClasspath.get().getURIMap().remove(u));
+		all.unload();
+		JavaClasspath.remove(all);
 	}
 }
