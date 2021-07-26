@@ -1,4 +1,4 @@
-package cipm.consistency.domains.java.propagation;
+package cipm.consistency.commitintegration.diff.util;
 
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.compare.Comparison;
@@ -12,8 +12,6 @@ import org.eclipse.emf.compare.postprocessor.PostProcessorDescriptorRegistryImpl
 import java.util.regex.Pattern;
 import java.util.List;
 import org.eclipse.emf.compare.rcp.EMFCompareRCPPlugin;
-import cipm.consistency.commitintegration.diff.util.ResourceListFilteringComparisonScope;
-import cipm.consistency.commitintegration.diff.util.JavaMatchEngineFactoryGenerator;
 import org.emftext.language.java.JavaPackage;
 import org.splevo.jamopp.diffing.scope.PackageIgnoreChecker;
 import org.splevo.jamopp.diffing.diff.JaMoPPFeatureFilter;

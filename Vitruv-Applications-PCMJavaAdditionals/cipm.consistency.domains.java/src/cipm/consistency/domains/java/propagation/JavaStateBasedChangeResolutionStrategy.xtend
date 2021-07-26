@@ -18,6 +18,7 @@ import java.util.ArrayList
 import org.eclipse.emf.ecore.EObject
 import java.util.Collection
 import org.apache.log4j.Logger
+import cipm.consistency.commitintegration.diff.util.JavaModelComparator
 
 /**
  * This strategy for diff based state changes of Java models uses EMFCompare to resolve a 

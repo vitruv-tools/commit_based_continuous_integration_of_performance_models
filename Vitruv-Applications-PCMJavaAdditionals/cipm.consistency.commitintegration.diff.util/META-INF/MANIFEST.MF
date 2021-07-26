@@ -13,6 +13,8 @@ Require-Bundle: org.eclipse.emf.ecore,
  org.splevo.extraction,
  org.splevo.jamopp.diffing,
  org.splevo.jamopp.extraction,
- org.splevo.jamopp.util
+ org.splevo.jamopp.util,
+ org.eclipse.emf.compare.rcp,
+ org.emftext.language.java
 Automatic-Module-Name: cipm.consistency.commitintegration.diff.util
 Bundle-RequiredExecutionEnvironment: JavaSE-11
