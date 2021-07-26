@@ -1,4 +1,4 @@
-package tools.vitruv.applications.pcmjava.integrationFromGit.response.internal;
+package cipm.consistency.cpr.javapcm.internal;
 
 import org.emftext.language.java.classifiers.ConcreteClassifier;
 

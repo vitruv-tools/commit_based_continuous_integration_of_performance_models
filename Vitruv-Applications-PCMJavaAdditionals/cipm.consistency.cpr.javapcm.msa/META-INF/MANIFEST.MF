@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: IntegrationFromGitReaction
-Bundle-SymbolicName: tools.vitruv.applications.pcmjava.integrationFromGitReaction
+Bundle-Name: Consistency Preservation Rules for Java to PCM and Microservice-based Applications
+Bundle-SymbolicName: cipm.consistency.cpr.javapcm.msa
 Bundle-Version: 1.0.0.qualifier
-Export-Package: tools.vitruv.applications.pcmjava.integrationFromGit.response
+Export-Package: cipm.consistency.cpr.javapcm
 Require-Bundle: org.apache.log4j,
  org.eclipse.core.resources,
  org.eclipse.equinox.registry,
@@ -34,5 +34,5 @@ Require-Bundle: org.apache.log4j,
  edu.kit.ipd.sdq.commons.util.pcm,
  tools.vitruv.applications.pcmjava.seffstatements.extended,
  cipm.consistency.domains.java
-Automatic-Module-Name: tools.vitruv.applications.javapcm.integrationFromGitReaction
+Automatic-Module-Name: cipm.consistency.cpr.javapcm.msa
 Bundle-RequiredExecutionEnvironment: JavaSE-12

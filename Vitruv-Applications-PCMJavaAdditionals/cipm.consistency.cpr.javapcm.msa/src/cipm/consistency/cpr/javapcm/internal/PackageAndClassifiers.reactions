@@ -14,7 +14,7 @@ import static extension tools.vitruv.applications.util.temporary.java.JavaMember
 import static extension edu.kit.ipd.sdq.commons.util.java.lang.IterableUtil.claimNotMany
 import static tools.vitruv.applications.util.temporary.java.JavaTypeUtil.*
 import org.palladiosimulator.pcm.repository.OperationRequiredRole
-import tools.vitruv.applications.pcmjava.integrationFromGit.response.internal.InternalUtility
+import cipm.consistency.cpr.javapcm.internal.InternalUtility
 import org.emftext.language.java.containers.Origin
 
 import "http://www.emftext.org/java" as java

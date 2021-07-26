@@ -22,9 +22,9 @@ import cipm.consistency.base.shared.FileBackedModelUtil;
 import cipm.consistency.base.shared.pcm.InMemoryPCM;
 import cipm.consistency.base.shared.pcm.LocalFilesystemPCM;
 import cipm.consistency.base.vsum.domains.InstrumentationModelDomainProvider;
+import cipm.consistency.cpr.javapcm.CommitIntegrationJavaPCMChangePropagationSpecification;
 import tools.vitruv.applications.javaim.Java2ImChangePropagationSpecification;
 import cipm.consistency.domains.java.AdjustedJavaDomainProvider;
-import tools.vitruv.applications.pcmjava.integrationFromGit.response.GitIntegrationChangePropagationSpecification;
 import tools.vitruv.domains.pcm.PcmDomainProvider;
 import tools.vitruv.extensions.dslsruntime.reactions.helper.ReactionsCorrespondenceHelper;
 import tools.vitruv.framework.userinteraction.UserInteractionFactory;
@@ -50,7 +50,7 @@ public class VSUMFacade {
 				.withDomain(new InstrumentationModelDomainProvider().getDomain())
 				.withStorageFolder(files.getVsumPath())
 				.withUserInteractor(UserInteractionFactory.instance.createDialogUserInteractor())
-				.withChangePropagationSpecification(new GitIntegrationChangePropagationSpecification())
+				.withChangePropagationSpecification(new CommitIntegrationJavaPCMChangePropagationSpecification())
 				.withChangePropagationSpecification(new Java2ImChangePropagationSpecification())
 				.buildAndInitialize();
 		filePCM = new LocalFilesystemPCM();
