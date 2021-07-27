@@ -23,7 +23,7 @@ Require-Bundle: cipm.consistency.commitintegration,
  cipm.consistency.base.shared,
  cipm.consistency.base.models.instrumentation,
  cipm.consistency.base.vitruv.domain.im,
- tools.vitruv.applications.javaim,
+ cipm.consistency.cpr.javaim,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtend.lib,
  org.eclipse.xtend.lib.macro

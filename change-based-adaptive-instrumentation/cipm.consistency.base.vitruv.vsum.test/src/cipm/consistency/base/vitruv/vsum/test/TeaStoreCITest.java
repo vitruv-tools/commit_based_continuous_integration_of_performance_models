@@ -10,10 +10,11 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import tools.vitruv.applications.pcmjava.instrumentation.CodeInstrumenter;
+
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
 import cipm.consistency.base.vitruv.vsum.test.evaluation.EvaluationResult;
 import cipm.consistency.base.vitruv.vsum.test.evaluation.EvaluationResultReaderWriter;
+import cipm.consistency.designtime.instrumentation2.CodeInstrumenter;
 
 public class TeaStoreCITest extends AbstractCITest {
 	private static final String COMMIT_TAG_1_1 = "77733d9c6ab6680c6cc460c631cd408a588a595c";
