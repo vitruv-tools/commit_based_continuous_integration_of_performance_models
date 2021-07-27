@@ -1,3 +1,3 @@
 [submodule "cipm.consistency.base.vitruv.vsum.test/TeaStore"]
-	path = cipm.consistency.base.vitruv.vsum.test/TeaStore
+	path = change-based-adaptive-instrumentation/cipm.consistency.base.vitruv.vsum.test/TeaStore
 	url = https://github.com/DescartesResearch/TeaStore
