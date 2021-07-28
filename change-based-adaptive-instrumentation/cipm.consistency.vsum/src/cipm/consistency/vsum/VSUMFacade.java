@@ -21,9 +21,9 @@ import cipm.consistency.base.models.instrumentation.InstrumentationModel.Instrum
 import cipm.consistency.base.shared.FileBackedModelUtil;
 import cipm.consistency.base.shared.pcm.InMemoryPCM;
 import cipm.consistency.base.shared.pcm.LocalFilesystemPCM;
-import cipm.consistency.base.vsum.domains.InstrumentationModelDomainProvider;
+import cipm.consistency.cpr.javaim.Java2ImChangePropagationSpecification;
 import cipm.consistency.cpr.javapcm.CommitIntegrationJavaPCMChangePropagationSpecification;
-import tools.vitruv.applications.javaim.Java2ImChangePropagationSpecification;
+import cipm.consistency.domains.im.InstrumentationModelDomainProvider;
 import cipm.consistency.domains.java.AdjustedJavaDomainProvider;
 import tools.vitruv.domains.pcm.PcmDomainProvider;
 import tools.vitruv.extensions.dslsruntime.reactions.helper.ReactionsCorrespondenceHelper;

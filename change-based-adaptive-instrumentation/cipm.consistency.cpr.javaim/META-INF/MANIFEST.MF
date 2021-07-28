@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Consistency Preservation Rules from Java to the Instrumentation Model
 Bundle-SymbolicName: cipm.consistency.cpr.javaim;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Export-Package: tools.vitruv.applications.javaim
+Export-Package: cipm.consistency.cpr.javaim
 Require-Bundle: javax.inject,
  org.eclipse.osgi,
  org.eclipse.jface,
@@ -29,8 +29,8 @@ Require-Bundle: javax.inject,
  org.somox.sourcecodedecorator,
  org.somox.gast2seff,
  tools.vitruv.applications.pcmjava.seffstatements,
- cipm.consistency.base.models.instrumentation,
- cipm.consistency.base.vitruv.domain.im,
+ cipm.consistency.models.instrumentation,
+ cipm.consistency.domains.im,
  cipm.consistency.domains.java,
  tools.vitruv.framework.domains,
  tools.vitruv.domains.java

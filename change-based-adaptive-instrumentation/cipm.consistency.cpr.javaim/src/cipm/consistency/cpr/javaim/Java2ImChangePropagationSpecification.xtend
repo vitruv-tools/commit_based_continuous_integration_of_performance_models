@@ -6,15 +6,15 @@ import tools.vitruv.framework.userinteraction.UserInteractor
 import tools.vitruv.framework.propagation.impl.AbstractChangePropagationSpecification
 import tools.vitruv.framework.change.echange.EChange
 import tools.vitruv.framework.propagation.ResourceAccess
-import cipm.consistency.base.vsum.domains.InstrumentationModelDomainProvider
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel
-import cipm.consistency.base.models.inmodel.InstrumentationModelUtil
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage
 import tools.vitruv.framework.change.echange.feature.attribute.ReplaceSingleValuedEAttribute
 import org.emftext.language.java.commons.CommonsPackage
 import cipm.consistency.domains.java.AdjustedJavaDomainProvider
+import cipm.consistency.domains.im.InstrumentationModelDomainProvider
+import cipm.consistency.models.instrumentation.InstrumentationModelUtil
 
 /**
  * Propagates changes in method bodies to the instrumentation model.
