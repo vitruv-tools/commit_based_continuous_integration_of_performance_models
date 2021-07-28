@@ -1,4 +1,4 @@
-package cipm.consistency.base.vitruv.vsum.test;
+package cipm.consistency.vsum.test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -7,9 +7,9 @@ import java.util.List;
 import org.eclipse.emf.compare.Match;
 import org.eclipse.emf.ecore.resource.Resource;
 
-import cipm.consistency.base.vitruv.vsum.test.evaluation.JavaEvaluationResult;
 import cipm.consistency.commitintegration.JavaParserAndPropagatorUtility;
 import cipm.consistency.commitintegration.diff.util.JavaModelComparator;
+import cipm.consistency.test.evaluation.JavaEvaluationResult;
 
 public class JavaModelEvaluator {
 	private JavaEvaluationResult currentEvalResult;

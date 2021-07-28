@@ -1,4 +1,4 @@
-package cipm.consistency.base.vitruv.vsum
+package cipm.consistency.vsum
 
 import org.eclipse.emf.common.util.URI
 import java.nio.file.Path

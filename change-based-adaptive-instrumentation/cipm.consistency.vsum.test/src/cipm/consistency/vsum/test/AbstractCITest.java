@@ -1,4 +1,4 @@
-package cipm.consistency.base.vitruv.vsum.test;
+package cipm.consistency.vsum.test;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -9,9 +9,9 @@ import org.apache.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import cipm.consistency.base.vitruv.vsum.VSUMFacade;
 import cipm.consistency.commitintegration.CommitChangePropagator;
 import cipm.consistency.commitintegration.JavaParserAndPropagatorUtility;
+import cipm.consistency.vsum.VSUMFacade;
 
 public abstract class AbstractCITest {
 	protected VSUMFacade facade;

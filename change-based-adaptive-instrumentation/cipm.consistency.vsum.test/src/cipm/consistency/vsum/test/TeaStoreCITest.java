@@ -1,4 +1,4 @@
-package cipm.consistency.base.vitruv.vsum.test;
+package cipm.consistency.vsum.test;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,9 +12,9 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
-import cipm.consistency.base.vitruv.vsum.test.evaluation.EvaluationResult;
-import cipm.consistency.base.vitruv.vsum.test.evaluation.EvaluationResultReaderWriter;
 import cipm.consistency.designtime.instrumentation2.CodeInstrumenter;
+import cipm.consistency.test.evaluation.EvaluationResult;
+import cipm.consistency.test.evaluation.EvaluationResultReaderWriter;
 
 public class TeaStoreCITest extends AbstractCITest {
 	private static final String COMMIT_TAG_1_1 = "77733d9c6ab6680c6cc460c631cd408a588a595c";

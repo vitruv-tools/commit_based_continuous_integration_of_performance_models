@@ -1,4 +1,4 @@
-package cipm.consistency.base.vitruv.vsum.test;
+package cipm.consistency.vsum.test;
 
 import java.util.ArrayList;
 
@@ -18,7 +18,7 @@ import org.palladiosimulator.pcm.seff.ServiceEffectSpecification;
 
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint;
-import cipm.consistency.base.vitruv.vsum.test.evaluation.IMEvaluationResult;
+import cipm.consistency.test.evaluation.IMEvaluationResult;
 
 public class IMUpdateEvaluator {
 	private IMEvaluationResult currentEvalResult;

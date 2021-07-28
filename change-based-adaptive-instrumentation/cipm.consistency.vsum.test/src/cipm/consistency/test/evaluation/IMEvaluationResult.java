@@ -1,4 +1,4 @@
-package cipm.consistency.base.vitruv.vsum.test.evaluation;
+package cipm.consistency.test.evaluation;
 
 import java.util.List;
 

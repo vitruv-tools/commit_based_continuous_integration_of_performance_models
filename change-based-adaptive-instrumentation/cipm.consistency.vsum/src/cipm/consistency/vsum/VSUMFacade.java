@@ -1,4 +1,4 @@
-package cipm.consistency.base.vitruv.vsum;
+package cipm.consistency.vsum;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

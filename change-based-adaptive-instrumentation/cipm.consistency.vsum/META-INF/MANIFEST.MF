@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Tests for the Git integration
-Bundle-SymbolicName: cipm.consistency.base.vitruv.vsum
+Bundle-Name: VSUM for CIPM
+Bundle-SymbolicName: cipm.consistency.vsum
 Bundle-Version: 1.0.0.qualifier
-Automatic-Module-Name: cipm.consistency.base.vitruv.vsum
+Automatic-Module-Name: cipm.consistency.vsum
 Bundle-RequiredExecutionEnvironment: JavaSE-13
 Require-Bundle: cipm.consistency.commitintegration,
  cipm.consistency.domains.java,
@@ -27,4 +27,4 @@ Require-Bundle: cipm.consistency.commitintegration,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtend.lib,
  org.eclipse.xtend.lib.macro
-Export-Package: cipm.consistency.base.vitruv.vsum
+Export-Package: cipm.consistency.vsum
