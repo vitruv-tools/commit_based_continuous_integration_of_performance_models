@@ -1,4 +1,4 @@
-package cipm.consistency.test.evaluation;
+package cipm.consistency.tools.evaluation.data;
 
 public class EvaluationResult {
 	public long evaluationTime;

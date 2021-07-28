@@ -9,7 +9,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 
 import cipm.consistency.commitintegration.JavaParserAndPropagatorUtility;
 import cipm.consistency.commitintegration.diff.util.JavaModelComparator;
-import cipm.consistency.test.evaluation.JavaEvaluationResult;
+import cipm.consistency.tools.evaluation.data.JavaEvaluationResult;
 
 public class JavaModelEvaluator {
 	private JavaEvaluationResult currentEvalResult;

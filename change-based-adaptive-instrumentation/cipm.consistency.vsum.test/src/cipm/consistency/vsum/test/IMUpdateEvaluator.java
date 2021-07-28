@@ -18,7 +18,7 @@ import org.palladiosimulator.pcm.seff.ServiceEffectSpecification;
 
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint;
-import cipm.consistency.test.evaluation.IMEvaluationResult;
+import cipm.consistency.tools.evaluation.data.IMEvaluationResult;
 
 public class IMUpdateEvaluator {
 	private IMEvaluationResult currentEvalResult;

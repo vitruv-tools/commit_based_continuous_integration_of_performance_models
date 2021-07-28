@@ -1,4 +1,4 @@
-package cipm.consistency.test.evaluation;
+package cipm.consistency.tools.evaluation.data;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

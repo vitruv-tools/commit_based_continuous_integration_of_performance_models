@@ -27,5 +27,6 @@ Require-Bundle: cipm.consistency.commitintegration,
  tools.vitruv.framework.correspondence,
  org.eclipse.xtext.xbase.lib,
  cipm.consistency.designtime.instrumentation2,
- cipm.consistency.commitintegration.diff.util
+ cipm.consistency.commitintegration.diff.util,
+ cipm.consistency.tools.evaluation.data
 Export-Package: cipm.consistency.vsum.test
