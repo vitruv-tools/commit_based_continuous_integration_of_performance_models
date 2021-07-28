@@ -1,6 +1,6 @@
 package cipm.consistency.tools.evaluation.data;
 
-public final class JavaEvaluationResult {
+public final class JavaEvaluationData {
 	public int oldElementsCount;
 	public int newElementsCount;
 	public int intersectionCardinality;

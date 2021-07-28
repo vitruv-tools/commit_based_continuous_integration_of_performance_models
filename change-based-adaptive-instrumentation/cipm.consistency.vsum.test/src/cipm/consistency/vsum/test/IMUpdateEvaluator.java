@@ -18,13 +18,13 @@ import org.palladiosimulator.pcm.seff.ServiceEffectSpecification;
 
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint;
-import cipm.consistency.tools.evaluation.data.IMEvaluationResult;
+import cipm.consistency.tools.evaluation.data.IMEvaluationData;
 
 public class IMUpdateEvaluator {
-	private IMEvaluationResult currentEvalResult;
+	private IMEvaluationData currentEvalResult;
 	
-	public IMEvaluationResult evaluateIMUpdate(Repository repo, InstrumentationModel im) {
-		currentEvalResult = new IMEvaluationResult();
+	public IMEvaluationData evaluateIMUpdate(Repository repo, InstrumentationModel im) {
+		currentEvalResult = new IMEvaluationData();
 		currentEvalResult.unmatchedSEFFElements = new ArrayList<>();
 		
 		for (TreeIterator<EObject> iter = im.eAllContents(); iter.hasNext(); iter.next()) {

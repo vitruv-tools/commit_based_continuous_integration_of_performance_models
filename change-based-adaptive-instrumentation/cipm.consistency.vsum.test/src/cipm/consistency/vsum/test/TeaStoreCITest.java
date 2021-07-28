@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Test;
 
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
 import cipm.consistency.designtime.instrumentation2.CodeInstrumenter;
-import cipm.consistency.tools.evaluation.data.EvaluationResult;
-import cipm.consistency.tools.evaluation.data.EvaluationResultReaderWriter;
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
 
 public class TeaStoreCITest extends AbstractCITest {
 	private static final String COMMIT_TAG_1_1 = "77733d9c6ab6680c6cc460c631cd408a588a595c";
@@ -60,7 +60,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	}
 	
 	private void executePropagationAndEvaluation(String oldCommit, String newCommit) throws GitAPIException, IOException {
-		EvaluationResult evalResult = new EvaluationResult();
+		EvaluationDataContainer evalResult = new EvaluationDataContainer();
 		evalResult.evaluationTime = System.currentTimeMillis();
 		evalResult.oldCommit = oldCommit;
 		evalResult.newCommit = newCommit;
@@ -92,7 +92,7 @@ public class TeaStoreCITest extends AbstractCITest {
 			evalResult.imEvalResult =
 					new IMUpdateEvaluator().evaluateIMUpdate(this.facade.getPCMWrapper().getRepository(),
 					this.facade.getInstrumentationModel());
-			EvaluationResultReaderWriter.write(evalResult, copy.resolve("EvaluationResult.json"));
+			EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("EvaluationResult.json"));
 		}
 	}
 	

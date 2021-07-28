@@ -9,13 +9,13 @@ import org.eclipse.emf.ecore.resource.Resource;
 
 import cipm.consistency.commitintegration.JavaParserAndPropagatorUtility;
 import cipm.consistency.commitintegration.diff.util.JavaModelComparator;
-import cipm.consistency.tools.evaluation.data.JavaEvaluationResult;
+import cipm.consistency.tools.evaluation.data.JavaEvaluationData;
 
 public class JavaModelEvaluator {
-	private JavaEvaluationResult currentEvalResult;
+	private JavaEvaluationData currentEvalResult;
 	
-	public JavaEvaluationResult evaluateJavaModels(Resource javaModel, Path srcDir) {
-		currentEvalResult = new JavaEvaluationResult();
+	public JavaEvaluationData evaluateJavaModels(Resource javaModel, Path srcDir) {
+		currentEvalResult = new JavaEvaluationData();
 		Path referenceModelPath = Paths.get(javaModel.getURI().toFileString());
 		Resource parsed = JavaParserAndPropagatorUtility
 				.parseJavaCodeIntoOneModel(srcDir, referenceModelPath);

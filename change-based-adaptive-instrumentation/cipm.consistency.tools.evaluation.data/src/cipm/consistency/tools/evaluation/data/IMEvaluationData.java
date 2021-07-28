@@ -2,7 +2,7 @@ package cipm.consistency.tools.evaluation.data;
 
 import java.util.List;
 
-public class IMEvaluationResult {
+public class IMEvaluationData {
 	public int numberMatchedIP;
 	public int numberAllIP;
 	public int numberSIP;

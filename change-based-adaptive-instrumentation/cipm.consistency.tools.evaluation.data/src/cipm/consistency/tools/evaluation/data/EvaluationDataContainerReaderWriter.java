@@ -8,19 +8,19 @@ import java.nio.file.Path;
 
 import com.google.gson.Gson;
 
-public class EvaluationResultReaderWriter {
-	public static EvaluationResult read(Path file) {
+public class EvaluationDataContainerReaderWriter {
+	public static EvaluationDataContainer read(Path file) {
 		try (BufferedReader reader = Files.newBufferedReader(file)) {
-			return new Gson().fromJson(reader, EvaluationResult.class);
+			return new Gson().fromJson(reader, EvaluationDataContainer.class);
 		} catch (IOException e) {
 			return null;
 		}
 	}
 	
-	public static void write(EvaluationResult result, Path file) {
+	public static void write(EvaluationDataContainer result, Path file) {
 		Gson gson = new Gson();
 		try (BufferedWriter writer = Files.newBufferedWriter(file)) {
-			gson.toJson(result, EvaluationResult.class, gson.newJsonWriter(writer));
+			gson.toJson(result, EvaluationDataContainer.class, gson.newJsonWriter(writer));
 		} catch (IOException e) {
 		}
 	}
