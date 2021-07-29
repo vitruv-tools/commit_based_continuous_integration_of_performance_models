@@ -15,6 +15,7 @@ Require-Bundle: org.emftext.language.java,
  tools.vitruv.domains.java,
  org.eclipse.emf.common,
  cipm.consistency.commitintegration.diff.util,
- org.apache.log4j
+ org.apache.log4j,
+ cipm.consistency.tools.evaluation.data
 Automatic-Module-Name: cipm.consistency.domains.java
 Bundle-RequiredExecutionEnvironment: JavaSE-11

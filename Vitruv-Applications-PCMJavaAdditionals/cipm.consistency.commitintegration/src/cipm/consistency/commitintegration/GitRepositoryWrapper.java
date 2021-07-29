@@ -21,6 +21,7 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.EditList;
+import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.diff.RenameDetector;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
@@ -38,6 +39,8 @@ import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.io.NullOutputStream;
+
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 
 /**
  * Wraps and represents a Git repository.
@@ -237,7 +240,19 @@ public class GitRepositoryWrapper {
 		newTreeParser.reset(treeReader, newTreeId);
 
 		OutputStream outputStream = NullOutputStream.INSTANCE;
-		DiffFormatter df = new DiffFormatter(outputStream);
+		DiffFormatter df = new DiffFormatter(outputStream) {
+			@Override
+			protected void writeAddedLine(RawText text, int line) {
+				var cs = EvaluationDataContainer.getGlobalContainer().getChangeStatistic();
+				cs.setNumberAddedLines(cs.getNumberAddedLines()+1);
+			}
+			
+			@Override
+			protected void writeRemovedLine(RawText text, int line) {
+				var cs = EvaluationDataContainer.getGlobalContainer().getChangeStatistic();
+				cs.setNumberRemovedLines(cs.getNumberRemovedLines()+1);
+			}
+		};
 		df.setRepository(git.getRepository());
 		
 		// Set filter to detect only changes on Java files if necessary. 
@@ -255,6 +270,8 @@ public class GitRepositoryWrapper {
 			 diffs = rd.compute();
 		}
 		df.close();
+		
+		EvaluationDataContainer.getGlobalContainer().getChangeStatistic().setNumberChangedJavaFiles(diffs.size());
 		
 		return diffs;
 	}

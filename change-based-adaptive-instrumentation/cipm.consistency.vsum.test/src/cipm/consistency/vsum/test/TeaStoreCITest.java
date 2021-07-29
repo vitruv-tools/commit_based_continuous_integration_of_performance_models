@@ -62,14 +62,12 @@ public class TeaStoreCITest extends AbstractCITest {
 	private void executePropagationAndEvaluation(String oldCommit, String newCommit) throws GitAPIException, IOException {
 		EvaluationDataContainer evalResult = new EvaluationDataContainer();
 		EvaluationDataContainer.setGlobalContainer(evalResult);
-		evalResult.setOldCommit(oldCommit);
-		evalResult.setNewCommit(newCommit);
 		this.facade.getInstrumentationModel().eAllContents().forEachRemaining(ip -> {
 			if (ip instanceof ActionInstrumentationPoint) {
 				((ActionInstrumentationPoint) ip).setActive(false);
 			}
 		});
-		boolean result = prop.propagateChanges(evalResult.getOldCommit(), evalResult.getNewCommit());
+		boolean result = prop.propagateChanges(oldCommit, newCommit);
 		if (result) {
 			Resource javaModel = this.facade.getVSUM().getModelInstance(
 					URI.createFileURI(prop.getJavaFileSystemLayout().getJavaModelFile().toString()))
@@ -85,7 +83,7 @@ public class TeaStoreCITest extends AbstractCITest {
 					this.prop.getJavaFileSystemLayout().getInstrumentationCopy().resolveSibling("ins-all"),
 					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), true);
 			Path root = this.facade.getFileLayout().getRootPath();
-			Path copy = root.resolveSibling(root.getFileName().toString() + "-" + evalResult.getNewCommit());
+			Path copy = root.resolveSibling(root.getFileName().toString() + "-" + newCommit);
 			FileUtils.copyDirectory(root.toFile(), copy.toFile());
 			new JavaModelEvaluator().evaluateJavaModels(javaModel,
 					prop.getJavaFileSystemLayout().getLocalJavaRepo(), evalResult.getJavaComparisonResult());

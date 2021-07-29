@@ -11,7 +11,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.revwalk.RevCommit;
 
-import cipm.consistency.commitintegration.JavaFileSystemLayout;
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
 
 /**
@@ -172,6 +172,11 @@ public class CommitChangePropagator {
 			logger.debug("No Java files changed for " + commitId + " so that no propagation is performed.");
 			return false;
 		}
+		var cs = EvaluationDataContainer.getGlobalContainer().getChangeStatistic();
+		cs.setOldCommit(start != null ? start.getId().getName() : "");
+		cs.setNewCommit(commitId);
+		cs.setNumberChangedJavaFiles(repoWrapper.getAllCommitsBetweenTwoCommits(cs.getOldCommit(),
+				commitId).size() - 1);
 		logger.debug("Cleaning the repository.");
 		repoWrapper.performCompleteClean();
 		logger.debug("Checkout of " + commitId);

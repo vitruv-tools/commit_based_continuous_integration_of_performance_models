@@ -19,6 +19,7 @@ Require-Bundle: org.apache.log4j,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtend.lib,
  org.eclipse.xtend.lib.macro,
- tools.vitruv.framework.userinteraction
+ tools.vitruv.framework.userinteraction,
+ cipm.consistency.tools.evaluation.data
 Automatic-Module-Name: cipm.consistency.commitintegration
 Bundle-RequiredExecutionEnvironment: JavaSE-11

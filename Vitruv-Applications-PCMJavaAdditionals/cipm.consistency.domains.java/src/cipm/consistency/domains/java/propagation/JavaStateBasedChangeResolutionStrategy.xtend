@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.EObject
 import java.util.Collection
 import org.apache.log4j.Logger
 import cipm.consistency.commitintegration.diff.util.JavaModelComparator
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainer
 
 /**
  * This strategy for diff based state changes of Java models uses EMFCompare to resolve a 
@@ -142,6 +143,7 @@ class JavaStateBasedChangeResolutionStrategy implements StateBasedChangeResoluti
 			function.apply()
 			val result = changeRecorder.endRecording
 			logger.debug("Recorded " + result.EChanges.size + " changes for " + resource)
+			EvaluationDataContainer.globalContainer.changeStatistic.numberVitruvChanges = result.EChanges.size
 			return result
 		}
 	}
