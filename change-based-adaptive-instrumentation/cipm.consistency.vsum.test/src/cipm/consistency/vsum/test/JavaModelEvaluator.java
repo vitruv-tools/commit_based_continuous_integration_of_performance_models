@@ -14,28 +14,27 @@ import cipm.consistency.tools.evaluation.data.JavaEvaluationData;
 public class JavaModelEvaluator {
 	private JavaEvaluationData currentEvalResult;
 	
-	public JavaEvaluationData evaluateJavaModels(Resource javaModel, Path srcDir) {
-		currentEvalResult = new JavaEvaluationData();
+	public void evaluateJavaModels(Resource javaModel, Path srcDir, JavaEvaluationData evalData) {
+		currentEvalResult = evalData;
 		Path referenceModelPath = Paths.get(javaModel.getURI().toFileString());
 		Resource parsed = JavaParserAndPropagatorUtility
 				.parseJavaCodeIntoOneModel(srcDir, referenceModelPath);
-		parsed.getAllContents().forEachRemaining(o -> currentEvalResult.newElementsCount++);
-		javaModel.getAllContents().forEachRemaining(o -> currentEvalResult.oldElementsCount++);
+		parsed.getAllContents().forEachRemaining(o -> currentEvalResult.setNewElementsCount(currentEvalResult.getNewElementsCount()+1));
+		javaModel.getAllContents().forEachRemaining(o -> currentEvalResult.setOldElementsCount(currentEvalResult.getOldElementsCount()+1));
 		calculateJC(parsed, javaModel);
-		return currentEvalResult;
 	}
 	
 	private void calculateJC(Resource parsed, Resource loaded) {
 		var result = JavaModelComparator.compareJavaModels(parsed, loaded,
 				List.of(parsed), List.of(loaded), null);
 		double unionCardinality = calculateUnionCardinality(result.getMatches());
-		currentEvalResult.unionCardinality = (int) unionCardinality;
+		currentEvalResult.setUnionCardinality((int) unionCardinality);
 		double intersectionCardinality = calculateIntersectionCardinality(result.getMatches());
-		currentEvalResult.intersectionCardinality = (int) intersectionCardinality;
+		currentEvalResult.setIntersectionCardinality((int) intersectionCardinality);
 		if (unionCardinality == 0) {
-			currentEvalResult.jc = -1;
+			currentEvalResult.setJc(-1);
 		} else {
-			currentEvalResult.jc = intersectionCardinality / unionCardinality;
+			currentEvalResult.setJc(intersectionCardinality / unionCardinality);
 		}
 	}
 	

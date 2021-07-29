@@ -1,7 +1,5 @@
 package cipm.consistency.vsum.test;
 
-import java.util.ArrayList;
-
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.ecore.EObject;
 import org.palladiosimulator.pcm.repository.BasicComponent;
@@ -23,12 +21,11 @@ import cipm.consistency.tools.evaluation.data.IMEvaluationData;
 public class IMUpdateEvaluator {
 	private IMEvaluationData currentEvalResult;
 	
-	public IMEvaluationData evaluateIMUpdate(Repository repo, InstrumentationModel im) {
-		currentEvalResult = new IMEvaluationData();
-		currentEvalResult.unmatchedSEFFElements = new ArrayList<>();
+	public void evaluateIMUpdate(Repository repo, InstrumentationModel im, IMEvaluationData evalData) {
+		currentEvalResult = evalData;
 		
 		for (TreeIterator<EObject> iter = im.eAllContents(); iter.hasNext(); iter.next()) {
-			currentEvalResult.numberAllIP++;
+			currentEvalResult.setNumberAllIP(currentEvalResult.getNumberAllIP()+1);
 		}
 		
 		for (RepositoryComponent com : repo.getComponents__Repository()) {
@@ -47,24 +44,24 @@ public class IMUpdateEvaluator {
 			}
 		}
 		
-		currentEvalResult.numberAIP = currentEvalResult.numberAllIP - currentEvalResult.numberSIP;
-		currentEvalResult.numberDeactivatedAIP = currentEvalResult.numberAIP - currentEvalResult.numberActivatedAIP;
-		currentEvalResult.deactivatedIPAllIPRatio = (double) currentEvalResult.numberDeactivatedAIP
-				/ currentEvalResult.numberAllIP;
-		currentEvalResult.deactivatedAIPAllAIPRatio = (double) currentEvalResult.numberDeactivatedAIP
-				/ currentEvalResult.numberAIP;
-		return currentEvalResult;
+		currentEvalResult.setNumberAIP(currentEvalResult.getNumberAllIP() - currentEvalResult.getNumberSIP());
+		currentEvalResult.setNumberDeactivatedAIP(currentEvalResult.getNumberAIP()
+				- currentEvalResult.getNumberActivatedAIP());
+		currentEvalResult.setDeactivatedIPAllIPRatio((double) currentEvalResult.getNumberDeactivatedAIP()
+				/ currentEvalResult.getNumberAllIP());
+		currentEvalResult.setDeactivatedAIPAllAIPRatio((double) currentEvalResult.getNumberDeactivatedAIP()
+				/ currentEvalResult.getNumberAIP());
 	}
 	
 	private ServiceInstrumentationPoint findSIP(InstrumentationModel im, ResourceDemandingSEFF seff) {
 		for (var sip : im.getPoints()) {
 			if (sip.getService() == seff) {
-				currentEvalResult.numberMatchedIP++;
-				currentEvalResult.numberSIP++;
+				currentEvalResult.setNumberMatchedIP(currentEvalResult.getNumberMatchedIP()+1);
+				currentEvalResult.setNumberSIP(currentEvalResult.getNumberSIP()+1);
 				return sip;
 			}
 		}
-		currentEvalResult.unmatchedSEFFElements.add(seff.getId());
+		currentEvalResult.getUnmatchedSEFFElements().add(seff.getId());
 		return null;
 	}
 	
@@ -99,13 +96,13 @@ public class IMUpdateEvaluator {
 	private void findAIP(ServiceInstrumentationPoint sip, AbstractAction aa) {
 		for (var aip : sip.getActionInstrumentationPoints()) {
 			if (aip.getAction() == aa) {
-				currentEvalResult.numberMatchedIP++;
+				currentEvalResult.setNumberMatchedIP(currentEvalResult.getNumberMatchedIP()+1);
 				if (aip.isActive()) {
-					currentEvalResult.numberActivatedAIP++;
+					currentEvalResult.setNumberActivatedAIP(currentEvalResult.getNumberActivatedAIP()+1);
 				}
 				return;
 			}
 		}
-		currentEvalResult.unmatchedSEFFElements.add(aa.getId());
+		currentEvalResult.getUnmatchedSEFFElements().add(aa.getId());
 	}
 }

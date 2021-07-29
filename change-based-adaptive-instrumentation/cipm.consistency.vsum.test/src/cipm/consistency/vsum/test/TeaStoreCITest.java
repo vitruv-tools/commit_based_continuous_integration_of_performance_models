@@ -61,15 +61,14 @@ public class TeaStoreCITest extends AbstractCITest {
 	
 	private void executePropagationAndEvaluation(String oldCommit, String newCommit) throws GitAPIException, IOException {
 		EvaluationDataContainer evalResult = new EvaluationDataContainer();
-		evalResult.evaluationTime = System.currentTimeMillis();
-		evalResult.oldCommit = oldCommit;
-		evalResult.newCommit = newCommit;
+		evalResult.setOldCommit(oldCommit);
+		evalResult.setNewCommit(newCommit);
 		this.facade.getInstrumentationModel().eAllContents().forEachRemaining(ip -> {
 			if (ip instanceof ActionInstrumentationPoint) {
 				((ActionInstrumentationPoint) ip).setActive(false);
 			}
 		});
-		boolean result = prop.propagateChanges(evalResult.oldCommit, evalResult.newCommit);
+		boolean result = prop.propagateChanges(evalResult.getOldCommit(), evalResult.getNewCommit());
 		if (result) {
 			Resource javaModel = this.facade.getVSUM().getModelInstance(
 					URI.createFileURI(prop.getJavaFileSystemLayout().getJavaModelFile().toString()))
@@ -85,13 +84,12 @@ public class TeaStoreCITest extends AbstractCITest {
 					this.prop.getJavaFileSystemLayout().getInstrumentationCopy().resolveSibling("ins-all"),
 					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), true);
 			Path root = this.facade.getFileLayout().getRootPath();
-			Path copy = root.resolveSibling(root.getFileName().toString() + "-" + evalResult.newCommit);
+			Path copy = root.resolveSibling(root.getFileName().toString() + "-" + evalResult.getNewCommit());
 			FileUtils.copyDirectory(root.toFile(), copy.toFile());
-			evalResult.javaComparisonResult = new JavaModelEvaluator()
-					.evaluateJavaModels(javaModel, prop.getJavaFileSystemLayout().getLocalJavaRepo());
-			evalResult.imEvalResult =
-					new IMUpdateEvaluator().evaluateIMUpdate(this.facade.getPCMWrapper().getRepository(),
-					this.facade.getInstrumentationModel());
+			new JavaModelEvaluator().evaluateJavaModels(javaModel,
+					prop.getJavaFileSystemLayout().getLocalJavaRepo(), evalResult.getJavaComparisonResult());
+			new IMUpdateEvaluator().evaluateIMUpdate(this.facade.getPCMWrapper().getRepository(),
+					this.facade.getInstrumentationModel(), evalResult.getImEvalResult());
 			EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("EvaluationResult.json"));
 		}
 	}

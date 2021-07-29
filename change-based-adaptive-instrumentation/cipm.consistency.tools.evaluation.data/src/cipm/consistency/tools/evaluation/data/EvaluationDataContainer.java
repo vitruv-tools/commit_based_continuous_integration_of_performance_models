@@ -1,9 +1,37 @@
 package cipm.consistency.tools.evaluation.data;
 
 public class EvaluationDataContainer {
-	public long evaluationTime;
-	public String oldCommit;
-	public String newCommit;
-	public JavaEvaluationData javaComparisonResult;
-	public IMEvaluationData imEvalResult;
+	private long evaluationTime = System.currentTimeMillis();
+	private String oldCommit;
+	private String newCommit;
+	private JavaEvaluationData javaComparisonResult = new JavaEvaluationData();
+	private IMEvaluationData imEvalResult = new IMEvaluationData();
+	
+	public long getEvaluationTime() {
+		return evaluationTime;
+	}
+	
+	public String getOldCommit() {
+		return oldCommit;
+	}
+	
+	public void setOldCommit(String oldCommit) {
+		this.oldCommit = oldCommit;
+	}
+	
+	public String getNewCommit() {
+		return newCommit;
+	}
+	
+	public void setNewCommit(String newCommit) {
+		this.newCommit = newCommit;
+	}
+	
+	public JavaEvaluationData getJavaComparisonResult() {
+		return javaComparisonResult;
+	}
+	
+	public IMEvaluationData getImEvalResult() {
+		return imEvalResult;
+	}
 }
