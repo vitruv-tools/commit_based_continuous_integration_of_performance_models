@@ -1,11 +1,19 @@
 package cipm.consistency.designtime.instrumentation2.instrumenter;
 
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.emftext.language.java.members.Method;
 import org.emftext.language.java.references.IdentifierReference;
 import org.emftext.language.java.references.MethodCall;
 import org.emftext.language.java.references.ReferencesFactory;
 import org.emftext.language.java.statements.ExpressionStatement;
+import org.emftext.language.java.statements.LocalVariableStatement;
+import org.emftext.language.java.statements.Return;
 import org.emftext.language.java.statements.Statement;
 import org.emftext.language.java.statements.StatementsFactory;
+import org.emftext.language.java.types.TypesFactory;
+import org.emftext.language.java.variables.LocalVariable;
+import org.emftext.language.java.variables.VariablesFactory;
 
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
 import cipm.consistency.designtime.instrumentation.transformation.impl.ApplicationProjectInstrumenterNamespace;
@@ -49,11 +57,40 @@ public class InternalActionInstrumenter extends AbstractInstrumenter {
 		
 		ExpressionStatement exitStatement = StatementsFactory.eINSTANCE.createExpressionStatement();
 		exitStatement.setExpression(objRef);
-		end.addAfterContainingStatement(exitStatement);
+		
+		// Check if last statement is return statement.
+		if (end instanceof Return) {
+			Return ret = (Return) end;
+			
+			LocalVariable returnVariable = VariablesFactory.eINSTANCE.createLocalVariable();
+			returnVariable.setTypeReference(EcoreUtil.copy(findMethod(ret).getTypeReference()));
+			returnVariable.setName("longAndUniqueNameToAvoidDuplicationsAndCompilationErrors"
+					+ System.currentTimeMillis());
+			returnVariable.setInitialValue(ret.getReturnValue());
+			LocalVariableStatement retVarStat = StatementsFactory.eINSTANCE.createLocalVariableStatement();
+			retVarStat.setVariable(returnVariable);
+			
+			IdentifierReference idRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
+			idRef.setTarget(returnVariable);
+			ret.setReturnValue(idRef);
+			
+			ret.addBeforeContainingStatement(retVarStat);
+			retVarStat.addAfterContainingStatement(exitStatement);
+		} else {
+			end.addAfterContainingStatement(exitStatement);
+		}
 	}
 	
 	private void createArguments(MethodCall call, String correspondingInternalActionId) {
 		createAndAddStringArgument(call, correspondingInternalActionId);
 		createAndAddStringArgument(call, ApplicationProjectInstrumenterNamespace.RESOURCE_ID_CPU);
+	}
+	
+	private Method findMethod(EObject start) {
+		EObject parent = start.eContainer();
+		while (!(parent instanceof Method)) {
+			parent = parent.eContainer();
+		}
+		return (Method) parent;
 	}
 }
