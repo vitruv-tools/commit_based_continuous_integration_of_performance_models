@@ -1,6 +1,19 @@
 package cipm.consistency.tools.evaluation.data;
 
 public class EvaluationDataContainer {
+	private static EvaluationDataContainer globalContainer;
+	
+	public static EvaluationDataContainer getGlobalContainer() {
+		if (globalContainer == null) {
+			globalContainer = new EvaluationDataContainer();
+		}
+		return globalContainer;
+	}
+	
+	public static void setGlobalContainer(EvaluationDataContainer newContainer) {
+		globalContainer = newContainer;
+	}
+	
 	private long evaluationTime = System.currentTimeMillis();
 	private String oldCommit;
 	private String newCommit;

@@ -61,6 +61,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	
 	private void executePropagationAndEvaluation(String oldCommit, String newCommit) throws GitAPIException, IOException {
 		EvaluationDataContainer evalResult = new EvaluationDataContainer();
+		EvaluationDataContainer.setGlobalContainer(evalResult);
 		evalResult.setOldCommit(oldCommit);
 		evalResult.setNewCommit(newCommit);
 		this.facade.getInstrumentationModel().eAllContents().forEachRemaining(ip -> {
