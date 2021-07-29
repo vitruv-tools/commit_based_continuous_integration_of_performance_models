@@ -35,6 +35,8 @@ public class ServiceInstrumentationPointInstrumenter extends AbstractInstrumente
 				new ExternalCallActionInstrumenter(this.environmentGen));
 		aipTypeToInstrumenter.put(InstrumentationType.INTERNAL,
 				new InternalActionInstrumenter(this.environmentGen));
+		aipTypeToInstrumenter.put(InstrumentationType.INTERNAL_CALL,
+				aipTypeToInstrumenter.get(InstrumentationType.INTERNAL));
 		aipTypeToInstrumenter.put(InstrumentationType.LOOP,
 				new LoopActionInstrumenter(this.environmentGen));
 	}

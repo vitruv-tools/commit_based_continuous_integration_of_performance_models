@@ -59,7 +59,8 @@ public class CodeInstrumenter {
 			Set<Statement> correspondingStatements = CorrespondenceModelUtil
 					.getCorrespondingEObjects(cm, aip.getAction(), Statement.class);
 			Statement firstStatement;
-			if (aip.getType() == InstrumentationType.INTERNAL) {
+			if (aip.getType() == InstrumentationType.INTERNAL
+					|| aip.getType() == InstrumentationType.INTERNAL_CALL) {
 				Statement lastStatement = findFirstOrLastStatement(correspondingStatements, false);
 				statementMap.getAbstractActionToLastStatementMapping().put(aip.getAction(),
 						findCopiedEObject(copyContainer, lastStatement));
