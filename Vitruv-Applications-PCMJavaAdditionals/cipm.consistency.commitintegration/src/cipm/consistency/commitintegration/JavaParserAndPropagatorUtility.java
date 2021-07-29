@@ -64,7 +64,7 @@ public final class JavaParserAndPropagatorUtility {
 		logger.debug("Parsed " + resourceSet.getResources().size() + " files.");
 		
 		// 2. Filter the resources and create modules for components.
-		filterResourcesForComponents(resourceSet, dir.toAbsolutePath());
+		filterResourcesForComponents(resourceSet, dir.toAbsolutePath(), modConfig);
 		
 		// 3. Create one resource with all Java models.
 		logger.debug("Creating one resource with all Java models.");
@@ -76,7 +76,8 @@ public final class JavaParserAndPropagatorUtility {
 		return all;
 	}
 	
-	private static void filterResourcesForComponents(ResourceSet resourceSet, Path dir) {
+	private static void filterResourcesForComponents(ResourceSet resourceSet, Path dir, Path configPath) {
+		ModuleConfiguration config = new ModuleConfiguration(configPath);
 		ModuleCandidates candidate = new ModuleCandidates();
 		for (Resource resource : resourceSet.getResources()) {
 			if (resource.getContents().isEmpty()) {
@@ -97,6 +98,28 @@ public final class JavaParserAndPropagatorUtility {
 		InternalUserInteractor userInteractor = UserInteractionFactory.instance.createDialogUserInteractor();
 		var modCandidates = new HashMap<>(candidate.getModulesInState(ModuleCandidates.ModuleState.COMPONENT_CANDIDATE));
 		modCandidates.forEach((k, v) -> {
+			if (config.getModuleClassification().containsKey(k)) {
+				candidate.updateState(ModuleCandidates.ModuleState.COMPONENT_CANDIDATE,
+						config.getModuleClassification().get(k), k);
+			}
+		});
+		modCandidates = new HashMap<>(candidate.getModulesInState(ModuleCandidates.ModuleState.PART_OF_COMPONENT));
+		modCandidates.forEach((k, v) -> {
+			if (config.getSubModuleMapping().containsKey(k)) {
+				candidate.removeModule(ModuleCandidates.ModuleState.PART_OF_COMPONENT, k);
+				String otherMod = config.getSubModuleMapping().get(k);
+				candidate.getModulesInState(candidate.getStateOfModule(otherMod)).get(otherMod).addAll(v);
+			}
+		});
+		config.clear();
+		modCandidates = new HashMap<>(candidate.getModulesInState(ModuleCandidates.ModuleState.MICROSERVICE_COMPONENT));
+		modCandidates.forEach((k, v) ->
+			config.getModuleClassification().put(k, ModuleCandidates.ModuleState.MICROSERVICE_COMPONENT));
+		modCandidates = new HashMap<>(candidate.getModulesInState(ModuleCandidates.ModuleState.REGULAR_COMPONENT));
+		modCandidates.forEach((k, v) ->
+			config.getModuleClassification().put(k, ModuleCandidates.ModuleState.REGULAR_COMPONENT));
+		modCandidates = new HashMap<>(candidate.getModulesInState(ModuleCandidates.ModuleState.COMPONENT_CANDIDATE));
+		modCandidates.forEach((k, v) -> {
 			int r = userInteractor.getSingleSelectionDialogBuilder().message("Detected the potential component / module"
 				+ k + ". Which type of a component is it?").choices(List.of("Microservice component",
 				"Regular component", "Part of another component", "No component")).startInteraction();
@@ -112,6 +135,7 @@ public final class JavaParserAndPropagatorUtility {
 					newState = ModuleCandidates.ModuleState.PART_OF_COMPONENT;
 				}
 				candidate.updateState(ModuleCandidates.ModuleState.COMPONENT_CANDIDATE, newState, k);
+				config.getModuleClassification().put(k, newState);
 			}
 		});
 		modCandidates = new HashMap<>(candidate.getModulesInState(ModuleCandidates.ModuleState.PART_OF_COMPONENT));
@@ -133,7 +157,9 @@ public final class JavaParserAndPropagatorUtility {
 				stateToUse = ModuleCandidates.ModuleState.REGULAR_COMPONENT;
 			}
 			candidate.getModulesInState(stateToUse).get(newMod).addAll(v);
+			config.getSubModuleMapping().put(k, newMod);
 		});
+		config.save();
 		createModules(candidate.getModulesInState(ModuleCandidates.ModuleState.MICROSERVICE_COMPONENT),
 				resourceSet, Origin.FILE);
 		createModules(candidate.getModulesInState(ModuleCandidates.ModuleState.REGULAR_COMPONENT),

@@ -52,4 +52,15 @@ public class ModuleCandidates {
 		Map<String, Set<Resource>> map = getModulesInState(state);
 		map.remove(moduleName);
 	}
+	
+	public ModuleState getStateOfModule(String modName) {
+		for (var entry : candidates.entrySet()) {
+			for (var subEntry : entry.getValue().entrySet()) {
+				if (subEntry.getKey().equals(modName)) {
+					return entry.getKey();
+				}
+			}
+		}
+		return null;
+	}
 }
