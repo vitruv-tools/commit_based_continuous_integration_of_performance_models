@@ -15,8 +15,7 @@ public class EvaluationDataContainer {
 	}
 	
 	private long evaluationTime = System.currentTimeMillis();
-	private String oldCommit;
-	private String newCommit;
+	private ChangeStatistic changeStatistic = new ChangeStatistic();
 	private JavaEvaluationData javaComparisonResult = new JavaEvaluationData();
 	private IMEvaluationData imEvalResult = new IMEvaluationData();
 	
@@ -24,20 +23,8 @@ public class EvaluationDataContainer {
 		return evaluationTime;
 	}
 	
-	public String getOldCommit() {
-		return oldCommit;
-	}
-	
-	public void setOldCommit(String oldCommit) {
-		this.oldCommit = oldCommit;
-	}
-	
-	public String getNewCommit() {
-		return newCommit;
-	}
-	
-	public void setNewCommit(String newCommit) {
-		this.newCommit = newCommit;
+	public ChangeStatistic getChangeStatistic() {
+		return changeStatistic;
 	}
 	
 	public JavaEvaluationData getJavaComparisonResult() {
