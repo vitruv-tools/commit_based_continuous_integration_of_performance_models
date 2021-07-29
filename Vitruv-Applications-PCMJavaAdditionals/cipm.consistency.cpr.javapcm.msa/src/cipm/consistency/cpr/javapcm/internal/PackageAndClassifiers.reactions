@@ -162,12 +162,12 @@ routine createOrFindPCMSignature(java::Method interfaceMethod) {
 	}
 	action {
 		call {
-			for (sign : pcmInterface.signatures__OperationInterface) {
-				if (sign.entityName.equals(interfaceMethod.name)) {
-					addCorrespondenceBetweenMethodAndOperationSignature(interfaceMethod, sign)
-					return;
-				}
-			}
+//			for (sign : pcmInterface.signatures__OperationInterface) {
+//				if (sign.entityName.equals(interfaceMethod.name)) {
+//					addCorrespondenceBetweenMethodAndOperationSignature(interfaceMethod, sign)
+//					return;
+//				}
+//			}
 			createPCMSignature(interfaceMethod)
 		}
 	}
@@ -418,18 +418,18 @@ routine createOrFindInterface(java::ConcreteClassifier classifier) {
 	}
 	action {
 		call {
-			for (inter : pcmRepository.interfaces__Repository) {
-				if (inter.entityName.equals(classifier.name)) {
-					val userMessage = "There is already an PCM interface with the name " + inter.entityName
-						+ ". Is the classifier " + classifier.qualifiedName
-						+ " a duplication of the classifier corresponding to the existing PCM interface?"
-					var selection = userInteractor.confirmationDialogBuilder.message(userMessage).startInteraction
-					if (selection) {
-						addCorrespondenceBetweenClassifierAndInterface(classifier, inter)
-						return	
-					}
-				}
-			}
+//			for (inter : pcmRepository.interfaces__Repository) {
+//				if (inter.entityName.equals(classifier.name)) {
+//					val userMessage = "There is already an PCM interface with the name " + inter.entityName
+//						+ ". Is the classifier " + classifier.qualifiedName
+//						+ " a duplication of the classifier corresponding to the existing PCM interface?"
+//					var selection = userInteractor.confirmationDialogBuilder.message(userMessage).startInteraction
+//					if (selection) {
+//						addCorrespondenceBetweenClassifierAndInterface(classifier, inter)
+//						return	
+//					}
+//				}
+//			}
 			createInterface(classifier)
 		}
 	}
