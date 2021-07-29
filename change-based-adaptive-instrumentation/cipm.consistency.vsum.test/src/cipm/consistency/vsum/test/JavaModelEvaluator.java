@@ -14,11 +14,12 @@ import cipm.consistency.tools.evaluation.data.JavaEvaluationData;
 public class JavaModelEvaluator {
 	private JavaEvaluationData currentEvalResult;
 	
-	public void evaluateJavaModels(Resource javaModel, Path srcDir, JavaEvaluationData evalData) {
+	public void evaluateJavaModels(Resource javaModel, Path srcDir, JavaEvaluationData evalData,
+			Path configPath) {
 		currentEvalResult = evalData;
 		Path referenceModelPath = Paths.get(javaModel.getURI().toFileString());
 		Resource parsed = JavaParserAndPropagatorUtility
-				.parseJavaCodeIntoOneModel(srcDir, referenceModelPath);
+				.parseJavaCodeIntoOneModel(srcDir, referenceModelPath, configPath);
 		parsed.getAllContents().forEachRemaining(o -> currentEvalResult.setNewElementsCount(currentEvalResult.getNewElementsCount()+1));
 		javaModel.getAllContents().forEachRemaining(o -> currentEvalResult.setOldElementsCount(currentEvalResult.getOldElementsCount()+1));
 		calculateJC(parsed, javaModel);

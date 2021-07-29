@@ -188,7 +188,7 @@ public class CommitChangePropagator {
 		}
 		logger.debug("Delegating the change propagation to the JavaParserAndPropagatorUtility.");
 		JavaParserAndPropagatorUtility.parseAndPropagateJavaCode(repoWrapper.getRootDirectory().toPath(),
-				fileLayout.getJavaModelFile(), vsum);
+				fileLayout.getJavaModelFile(), vsum, fileLayout.getModuleConfiguration());
 		logger.debug("Finished the propagation of " + commitId);
 		return true;
 	}

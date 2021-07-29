@@ -48,9 +48,10 @@ public final class JavaParserAndPropagatorUtility {
 	 * 
 	 * @param dir directory in which the Java code resides.
 	 * @param target target file of the Resource with all models.
+	 * @param modConfig file which contains the stored module configuration.
 	 * @return the Resource with all models.
 	 */
-	public static Resource parseJavaCodeIntoOneModel(Path dir, Path target) {
+	public static Resource parseJavaCodeIntoOneModel(Path dir, Path target, Path modConfig) {
 		// 1. Parse the code.
 		ParserOptions.CREATE_LAYOUT_INFORMATION.setValue(Boolean.FALSE);
 		ParserOptions.RESOLVE_EVERYTHING.setValue(Boolean.TRUE);
@@ -191,10 +192,12 @@ public final class JavaParserAndPropagatorUtility {
 	 * @param dir the directory with the Java code.
 	 * @param target destination in which the complete Java model will be stored.
 	 * @param vsum the VSUM.
+	 * @param configPath file path to the module configuration.
 	 */
-	public static void parseAndPropagateJavaCode(Path dir, Path target, VirtualModel vsum) {
+	public static void parseAndPropagateJavaCode(Path dir, Path target, VirtualModel vsum,
+			Path configPath) {
 		// 1. Parse the Java code and create one Resource with all models.
-		Resource all = parseJavaCodeIntoOneModel(dir, target);
+		Resource all = parseJavaCodeIntoOneModel(dir, target, configPath);
 		all.getContents().forEach(content ->
 			JavaClasspath.get().registerJavaRoot((JavaRoot) content, all.getURI()));
 		

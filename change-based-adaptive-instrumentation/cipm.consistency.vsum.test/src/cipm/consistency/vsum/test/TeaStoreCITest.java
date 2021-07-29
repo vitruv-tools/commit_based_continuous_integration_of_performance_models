@@ -86,7 +86,8 @@ public class TeaStoreCITest extends AbstractCITest {
 			Path copy = root.resolveSibling(root.getFileName().toString() + "-" + newCommit);
 			FileUtils.copyDirectory(root.toFile(), copy.toFile());
 			new JavaModelEvaluator().evaluateJavaModels(javaModel,
-					prop.getJavaFileSystemLayout().getLocalJavaRepo(), evalResult.getJavaComparisonResult());
+					prop.getJavaFileSystemLayout().getLocalJavaRepo(), evalResult.getJavaComparisonResult(),
+					prop.getJavaFileSystemLayout().getModuleConfiguration());
 			new IMUpdateEvaluator().evaluateIMUpdate(this.facade.getPCMWrapper().getRepository(),
 					this.facade.getInstrumentationModel(), evalResult.getImEvalResult());
 			EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("EvaluationResult.json"));
