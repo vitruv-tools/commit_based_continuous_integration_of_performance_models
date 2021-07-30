@@ -18,6 +18,7 @@ public class EvaluationDataContainer {
 	private ChangeStatistic changeStatistic = new ChangeStatistic();
 	private JavaEvaluationData javaComparisonResult = new JavaEvaluationData();
 	private IMEvaluationData imEvalResult = new IMEvaluationData();
+	private InstrumentationEvaluationData instrumentationData = new InstrumentationEvaluationData();
 	
 	public long getEvaluationTime() {
 		return evaluationTime;
@@ -33,5 +34,9 @@ public class EvaluationDataContainer {
 	
 	public IMEvaluationData getImEvalResult() {
 		return imEvalResult;
+	}
+	
+	public InstrumentationEvaluationData getInstrumentationData() {
+		return instrumentationData;
 	}
 }
