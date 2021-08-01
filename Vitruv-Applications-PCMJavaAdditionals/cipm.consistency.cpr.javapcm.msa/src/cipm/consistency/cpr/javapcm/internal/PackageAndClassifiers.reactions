@@ -7,9 +7,6 @@ import org.palladiosimulator.pcm.repository.CompositeDataType
 import org.palladiosimulator.pcm.repository.CollectionDataType
 import org.palladiosimulator.pcm.core.entity.Entity
 
-import tools.vitruv.applications.pcmjava.pojotransformations.java2pcm.Java2PcmUserSelection
-import tools.vitruv.framework.userinteraction.UserInteractionOptions.WindowModality
-
 import static extension tools.vitruv.applications.util.temporary.java.JavaMemberAndParameterUtil.hasSameSignature
 import static extension edu.kit.ipd.sdq.commons.util.java.lang.IterableUtil.claimNotMany
 import static tools.vitruv.applications.util.temporary.java.JavaTypeUtil.*
@@ -572,16 +569,30 @@ reaction TypeReferenceRemoved {
 	after element java::TypeReference removed from java::Class[implements]
 		with oldValue instanceof NamespaceClassifierReference || oldValue instanceof ClassifierReference
 	call {
-//		removeOperationProvidedRole(oldValue)	
+		checkRemovalOfOperationProvidedRole(affectedEObject, getNormalizedClassifierFromTypeReference(oldValue))
 	}
 }
 
-routine removeOperationProvidedRole(java::TypeReference typeReference) {
+routine checkRemovalOfOperationProvidedRole(java::Class clazz, java::Classifier classifierRef) {
 	match {
-		val operationProvidedRole = retrieve pcm::OperationProvidedRole corresponding to typeReference
+		val interfaze = retrieve pcm::OperationInterface corresponding to classifierRef
+		val basicCom = retrieve pcm::BasicComponent corresponding to clazz
+		val opRoles = retrieve many pcm::OperationProvidedRole corresponding to clazz
 	}
 	action {
-		delete operationProvidedRole
+		call {
+			val role = opRoles.findFirst[it.providedInterface__OperationProvidedRole == interfaze
+				&& it.providingEntity_ProvidedRole == basicCom]
+			if (role !== null) {
+				removeOperationProvidedRole(role)
+			}
+		}
+	}
+}
+
+routine removeOperationProvidedRole(pcm::OperationProvidedRole role) {
+	action {
+		delete role
 	}
 }
 
@@ -600,37 +611,12 @@ routine createBasicComponent(java::Module module) {
 	}
 }
 
-routine createCompositeComponent(java::Package javaPackage, String name, String rootPackageName) {
-	match {
-		val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
-	}
-	action {
-		val pcmCompositeComponent = create pcm::CompositeComponent and initialize {
-			pcmCompositeComponent.entityName = name
-		}		
-		call {
-//			addCorrespondenceAndUpdateRepository(pcmCompositeComponent, javaPackage, pcmRepository)
-		}
-	}
-}
-
 routine addCorrespondenceForPcmComponentAndClassifierBasedOnModule(java::ConcreteClassifier classifier, java::Module module) {
 	match {
 		val pcmComponent = retrieve pcm::RepositoryComponent corresponding to module
 	}
 	action {
 		add correspondence between pcmComponent and classifier
-	}
-}
-
-routine renameComponent(java::Package javaPackage) {
-	match {
-		val pcmComponent = retrieve pcm::RepositoryComponent corresponding to javaPackage
-	}
-	action {
-		update pcmComponent {
-			pcmComponent.entityName = javaPackage.name.toFirstUpper;
-		}
 	}
 }
 
@@ -661,27 +647,14 @@ reaction JavaClassRenamed {
 	}
 }
 
-routine renameComponentFromClass(java::Class javaClass) {
-	match {
-		val pcmComponent = retrieve pcm::RepositoryComponent corresponding to javaClass
-	}
-	action {
-		update pcmComponent {
-			var newName = javaClass.name.toFirstUpper
-			if (newName.endsWith("Impl")) newName = newName.substring(0, newName.length - "Impl".length)
-			pcmComponent.entityName = newName
-		}
-	}
-}
-
 routine renameDataTypeFromClass(java::Class javaClass) {
 	match {
 		val dataType = retrieve pcm::DataType corresponding to javaClass
 	}
 	action {
 		update dataType {
-			if(dataType instanceof Entity) { // primitive data types don't have names
-				dataType.entityName = javaClass.name.toFirstUpper
+			if(dataType instanceof Entity) { // PrimitiveDataTypes do not have names.
+				dataType.entityName = javaClass.name
 			}
 		}
 	}
