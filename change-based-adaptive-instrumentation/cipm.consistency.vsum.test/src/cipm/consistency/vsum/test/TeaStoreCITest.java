@@ -72,16 +72,17 @@ public class TeaStoreCITest extends AbstractCITest {
 			Resource javaModel = this.facade.getVSUM().getModelInstance(
 					URI.createFileURI(prop.getJavaFileSystemLayout().getJavaModelFile().toString()))
 					.getResource();
-			new CodeInstrumenter().instrument(this.facade.getInstrumentationModel(),
+			Resource instrumentedModel = new CodeInstrumenter().instrument(
+					this.facade.getInstrumentationModel(),
 					this.facade.getVSUM().getCorrespondenceModel(),
 					javaModel,
 					this.prop.getJavaFileSystemLayout().getInstrumentationCopy(),
 					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), false);
-			new CodeInstrumenter().instrument(this.facade.getInstrumentationModel(),
-					this.facade.getVSUM().getCorrespondenceModel(),
-					javaModel,
-					this.prop.getJavaFileSystemLayout().getInstrumentationCopy().resolveSibling("ins-all"),
-					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), true);
+//			new CodeInstrumenter().instrument(this.facade.getInstrumentationModel(),
+//					this.facade.getVSUM().getCorrespondenceModel(),
+//					javaModel,
+//					this.prop.getJavaFileSystemLayout().getInstrumentationCopy().resolveSibling("ins-all"),
+//					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), true);
 			Path root = this.facade.getFileLayout().getRootPath();
 			Path copy = root.resolveSibling(root.getFileName().toString() + "-" + newCommit);
 			FileUtils.copyDirectory(root.toFile(), copy.toFile());
@@ -90,6 +91,9 @@ public class TeaStoreCITest extends AbstractCITest {
 					prop.getJavaFileSystemLayout().getModuleConfiguration());
 			new IMUpdateEvaluator().evaluateIMUpdate(this.facade.getPCMWrapper().getRepository(),
 					this.facade.getInstrumentationModel(), evalResult.getImEvalResult());
+			new InstrumentationEvaluator().evaluateInstrumentation(this.facade.getInstrumentationModel(),
+					javaModel, instrumentedModel, this.prop.getJavaFileSystemLayout(),
+					this.facade.getVSUM().getCorrespondenceModel());
 			EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("EvaluationResult.json"));
 		}
 	}
