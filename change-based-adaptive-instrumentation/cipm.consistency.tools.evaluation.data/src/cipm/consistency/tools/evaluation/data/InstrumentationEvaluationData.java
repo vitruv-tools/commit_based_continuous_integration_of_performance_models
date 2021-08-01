@@ -7,6 +7,7 @@ public class InstrumentationEvaluationData {
 	private int lowerStatementDifferenceCount;
 	private int upperStatementDifferenceCount;
 	private int statementDifferenceCount;
+	private int reloadedStatementDifferenceCount;
 	private boolean compiles;
 	private int numberChangedMethods;
 	private List<String> unmatchedChangedMethods = new ArrayList<>();
@@ -34,6 +35,14 @@ public class InstrumentationEvaluationData {
 	
 	public void setStatementDifferenceCount(int statementDifferenceCount) {
 		this.statementDifferenceCount = statementDifferenceCount;
+	}
+	
+	public int getReloadedStatementDifferenceCount() {
+		return reloadedStatementDifferenceCount;
+	}
+	
+	public void setReloadedStatementDifferenceCount(int reloadedStatementDifferenceCount) {
+		this.reloadedStatementDifferenceCount = reloadedStatementDifferenceCount;
 	}
 	
 	public boolean isCompiles() {
