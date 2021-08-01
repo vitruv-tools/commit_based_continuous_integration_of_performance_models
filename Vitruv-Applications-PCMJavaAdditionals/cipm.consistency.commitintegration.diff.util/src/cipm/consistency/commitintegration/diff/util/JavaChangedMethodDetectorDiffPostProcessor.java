@@ -1,4 +1,4 @@
-package cipm.consistency.domains.java.propagation;
+package cipm.consistency.commitintegration.diff.util;
 
 import java.util.HashSet;
 import java.util.Set;

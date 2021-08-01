@@ -20,6 +20,7 @@ import java.util.Collection
 import org.apache.log4j.Logger
 import cipm.consistency.commitintegration.diff.util.JavaModelComparator
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer
+import cipm.consistency.commitintegration.diff.util.JavaChangedMethodDetectorDiffPostProcessor
 
 /**
  * This strategy for diff based state changes of Java models uses EMFCompare to resolve a 
