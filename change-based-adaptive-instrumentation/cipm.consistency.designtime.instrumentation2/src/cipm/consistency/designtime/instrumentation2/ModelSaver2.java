@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
@@ -24,26 +26,36 @@ import org.emftext.language.java.containers.Origin;
  * @author Martin Armbruster
  */
 public class ModelSaver2 {
-	void saveModels(ResourceSet copyContainer, Resource copiedResource, Path target, Path source) {
+	void saveModels(ResourceSet copyContainer, Resource copiedResource, Path target, Path source,
+			CompilationUnit monitoringEnv) {
 		try {
 			FileUtils.copyDirectory(source.toFile(), target.toFile());
 			var origJavaFiles = Files.walk(target).filter(Files::isRegularFile).map(Path::toAbsolutePath)
 				.filter(p -> p.getFileName().toString().endsWith(LogicalJavaURIGenerator.JAVA_FILE_EXTENSION))
 				.collect(Collectors.toList());
+			Resource monRes = copyContainer.createResource(URI.createURI(""));
+			monRes.getContents().add(monitoringEnv);
+			Set<String> injectedProjects = new HashSet<>();
 			for (EObject root : new ArrayList<>(copiedResource.getContents())) {
 				JavaRoot cu = (JavaRoot) root;
 				if (cu.getOrigin() == Origin.FILE) {
 					String lastPart = createLastPathPart(cu);
 					for (Path path : origJavaFiles) {
-						if (path.toString().endsWith(lastPart)) {
+						String absPath = path.toString();
+						if (absPath.endsWith(lastPart)) {
 							Resource newResource = copyContainer.createResource(
 									URI.createFileURI(path.toString()));
 							newResource.getContents().add(cu);
 							newResource.save(null);
+							copiedResource.getContents().add(cu);
+							checkMonitoringEnvironmentPrinting(injectedProjects,
+									absPath.substring(0, absPath.length() - lastPart.length()),
+									monRes, monitoringEnv);
 						}
 					}
 				}
 			}
+			copiedResource.getContents().add(monitoringEnv);
 		} catch (IOException e) {
 		}
 	}
@@ -66,5 +78,14 @@ public class ModelSaver2 {
 			builder.append(LogicalJavaURIGenerator.JAVA_MODULE_FILE_NAME);
 		}
 		return builder.toString();
+	}
+	
+	private void checkMonitoringEnvironmentPrinting(Set<String> injectedProjects, String project,
+			Resource monitoringRes, CompilationUnit monitoringCU) throws IOException {
+		if (!injectedProjects.contains(project)) {
+			monitoringRes.setURI(URI.createFileURI(project + createLastPathPart(monitoringCU)));
+			monitoringRes.save(null);
+			injectedProjects.add(project);
+		}
 	}
 }

@@ -12,6 +12,7 @@ import org.emftext.language.java.classifiers.ClassifiersFactory;
 import org.emftext.language.java.classifiers.ConcreteClassifier;
 import org.emftext.language.java.containers.CompilationUnit;
 import org.emftext.language.java.containers.ContainersFactory;
+import org.emftext.language.java.containers.Origin;
 import org.emftext.language.java.literals.LiteralsFactory;
 import org.emftext.language.java.members.MembersFactory;
 import org.emftext.language.java.members.Method;
@@ -41,6 +42,7 @@ public final class MinimalMonitoringEnvironmentModelGenerator {
 	final ConcreteClassifier objectClassifier;
 	final Method getAndIncrementMethod;
 	final Method getMethod;
+	public final CompilationUnit monitoringCU;
 	final ConcreteClassifier threadMonitoringControllerClassifier;
 	final Method getInstanceMethod;
 	final Method enterInternalActionMethod;
@@ -72,15 +74,17 @@ public final class MinimalMonitoringEnvironmentModelGenerator {
 		stringClassifier = findClassifierInJavaModel(context, javaLang, String.class.getSimpleName());
 		objectClassifier = findClassifierInJavaModel(context, javaLang, Object.class.getSimpleName());
 		
-		CompilationUnit cu = ContainersFactory.eINSTANCE.createCompilationUnit();
-		cu.getNamespaces().addAll(Arrays.asList(namespaces));
+		monitoringCU = ContainersFactory.eINSTANCE.createCompilationUnit();
+		monitoringCU.getNamespaces().addAll(Arrays.asList(namespaces));
+		monitoringCU.setName(threadMonitoringControllerName);
+		monitoringCU.setOrigin(Origin.BINDING);
 		threadMonitoringControllerClassifier = ClassifiersFactory.eINSTANCE.createClass();
 		threadMonitoringControllerClassifier.setName(threadMonitoringControllerName);
-		cu.getClassifiers().add(threadMonitoringControllerClassifier);
+		monitoringCU.getClassifiers().add(threadMonitoringControllerClassifier);
 		
 		serviceParametersClassifier = ClassifiersFactory.eINSTANCE.createClass();
 		serviceParametersClassifier.setName(serviceParametersName);
-		cu.getClassifiers().add(serviceParametersClassifier);
+		monitoringCU.getClassifiers().add(serviceParametersClassifier);
 		
 		addParameterValueMethod = MembersFactory.eINSTANCE.createClassMethod();
 		addParameterValueMethod.setName(ApplicationProjectInstrumenterNamespace.METHOD_ADD_PARAMETER_VALUE);

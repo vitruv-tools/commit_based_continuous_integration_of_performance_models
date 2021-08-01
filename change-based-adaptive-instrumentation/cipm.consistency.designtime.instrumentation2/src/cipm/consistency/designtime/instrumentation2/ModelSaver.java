@@ -19,7 +19,9 @@ import org.emftext.language.java.containers.JavaRoot;
  * @author Martin Armbruster
  */
 public class ModelSaver {
-	void saveModels(ResourceSet copyContainer, Resource copiedResource, Path target) {
+	void saveModels(ResourceSet copyContainer, Resource copiedResource, Path target,
+			CompilationUnit monitoringEnv) {
+		copiedResource.getContents().add(monitoringEnv);
 		for (EObject root : new ArrayList<>(copiedResource.getContents())) {
 			if (root instanceof CompilationUnit || root instanceof org.emftext.language.java.containers.Package) {
 				JavaRoot cu = (JavaRoot) root;
@@ -29,6 +31,7 @@ public class ModelSaver {
 					newResource.save(null);
 				} catch (IOException e) {
 				}
+				copiedResource.getContents().add(cu);
 			}
 		}
 	}
