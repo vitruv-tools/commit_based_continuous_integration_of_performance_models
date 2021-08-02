@@ -5,6 +5,6 @@ reactions: allReactions
 in reaction to changes in AdjustedJava
 execute actions in PCM
 
-import packageAndClassifiers
+//import packageAndClassifiers
 import classifierBody
 import methodBody
