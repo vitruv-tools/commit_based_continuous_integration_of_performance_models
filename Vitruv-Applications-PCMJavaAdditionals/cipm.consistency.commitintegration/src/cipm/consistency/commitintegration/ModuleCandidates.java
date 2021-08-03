@@ -13,7 +13,8 @@ public class ModuleCandidates {
 		MICROSERVICE_COMPONENT,
 		REGULAR_COMPONENT,
 		COMPONENT_CANDIDATE,
-		PART_OF_COMPONENT
+		PART_OF_COMPONENT,
+		NO_COMPONENT
 	}
 	
 	private EnumMap<ModuleState, Map<String, Set<Resource>>> candidates;

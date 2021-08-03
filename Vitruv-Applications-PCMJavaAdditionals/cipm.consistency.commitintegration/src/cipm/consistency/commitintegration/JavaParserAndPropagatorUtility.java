@@ -112,31 +112,26 @@ public final class JavaParserAndPropagatorUtility {
 			}
 		});
 		config.clear();
-		modCandidates = new HashMap<>(candidate.getModulesInState(ModuleCandidates.ModuleState.MICROSERVICE_COMPONENT));
-		modCandidates.forEach((k, v) ->
-			config.getModuleClassification().put(k, ModuleCandidates.ModuleState.MICROSERVICE_COMPONENT));
-		modCandidates = new HashMap<>(candidate.getModulesInState(ModuleCandidates.ModuleState.REGULAR_COMPONENT));
-		modCandidates.forEach((k, v) ->
-			config.getModuleClassification().put(k, ModuleCandidates.ModuleState.REGULAR_COMPONENT));
+		updateConfig(config, candidate, ModuleCandidates.ModuleState.MICROSERVICE_COMPONENT);
+		updateConfig(config, candidate, ModuleCandidates.ModuleState.REGULAR_COMPONENT);
+		updateConfig(config, candidate, ModuleCandidates.ModuleState.NO_COMPONENT);
 		modCandidates = new HashMap<>(candidate.getModulesInState(ModuleCandidates.ModuleState.COMPONENT_CANDIDATE));
 		modCandidates.forEach((k, v) -> {
 			int r = userInteractor.getSingleSelectionDialogBuilder().message("Detected the potential component / module"
 				+ k + ". Which type of a component is it?").choices(List.of("Microservice component",
 				"Regular component", "Part of another component", "No component")).startInteraction();
-			if (r == 3) {
-				candidate.removeModule(ModuleCandidates.ModuleState.COMPONENT_CANDIDATE, k);
+			ModuleCandidates.ModuleState newState;
+			if (r == 0) {
+				newState = ModuleCandidates.ModuleState.MICROSERVICE_COMPONENT;
+			} else if (r == 1) {
+				newState = ModuleCandidates.ModuleState.REGULAR_COMPONENT;
+			} else if (r == 2) {
+				newState = ModuleCandidates.ModuleState.PART_OF_COMPONENT;
 			} else {
-				ModuleCandidates.ModuleState newState;
-				if (r == 0) {
-					newState = ModuleCandidates.ModuleState.MICROSERVICE_COMPONENT;
-				} else if (r == 1) {
-					newState = ModuleCandidates.ModuleState.REGULAR_COMPONENT;
-				} else {
-					newState = ModuleCandidates.ModuleState.PART_OF_COMPONENT;
-				}
-				candidate.updateState(ModuleCandidates.ModuleState.COMPONENT_CANDIDATE, newState, k);
-				config.getModuleClassification().put(k, newState);
+				newState = ModuleCandidates.ModuleState.NO_COMPONENT;
 			}
+			candidate.updateState(ModuleCandidates.ModuleState.COMPONENT_CANDIDATE, newState, k);
+			config.getModuleClassification().put(k, newState);
 		});
 		modCandidates = new HashMap<>(candidate.getModulesInState(ModuleCandidates.ModuleState.PART_OF_COMPONENT));
 		modCandidates.forEach((k, v) -> {
@@ -164,6 +159,11 @@ public final class JavaParserAndPropagatorUtility {
 				resourceSet, Origin.FILE);
 		createModules(candidate.getModulesInState(ModuleCandidates.ModuleState.REGULAR_COMPONENT),
 				resourceSet, Origin.ARCHIVE);
+	}
+	
+	private static void updateConfig(ModuleConfiguration config, ModuleCandidates candidates, ModuleCandidates.ModuleState state) {
+		var candidateMap = new HashMap<>(candidates.getModulesInState(state));
+		candidateMap.forEach((k, v) -> config.getModuleClassification().put(k, state));
 	}
 	
 	private static void createModules(Map<String, Set<Resource>> map, ResourceSet resourceSet,
