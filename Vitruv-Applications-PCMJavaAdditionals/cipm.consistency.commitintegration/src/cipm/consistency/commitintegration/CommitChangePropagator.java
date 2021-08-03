@@ -173,19 +173,20 @@ public class CommitChangePropagator {
 			return false;
 		}
 		var cs = EvaluationDataContainer.getGlobalContainer().getChangeStatistic();
-		cs.setOldCommit(start != null ? start.getId().getName() : "");
+		String oldId = start != null ? start.getId().getName() : null;
+		cs.setOldCommit(oldId != null ? oldId : "");
 		cs.setNewCommit(commitId);
-		cs.setNumberChangedJavaFiles(repoWrapper.getAllCommitsBetweenTwoCommits(cs.getOldCommit(),
+		cs.setNumberChangedJavaFiles(repoWrapper.getAllCommitsBetweenTwoCommits(oldId,
 				commitId).size() - 1);
 		logger.debug("Cleaning the repository.");
 		repoWrapper.performCompleteClean();
 		logger.debug("Checkout of " + commitId);
 		repoWrapper.checkout(commitId);
-		boolean preprocessResult = preprocess();
-		if (!preprocessResult) {
-			logger.debug("The preprocessing failed. Aborting.");
-			return false;
-		}
+//		boolean preprocessResult = preprocess();
+//		if (!preprocessResult) {
+//			logger.debug("The preprocessing failed. Aborting.");
+//			return false;
+//		}
 		logger.debug("Delegating the change propagation to the JavaParserAndPropagatorUtility.");
 		JavaParserAndPropagatorUtility.parseAndPropagateJavaCode(repoWrapper.getRootDirectory().toPath(),
 				fileLayout.getJavaModelFile(), vsum, fileLayout.getModuleConfiguration());
