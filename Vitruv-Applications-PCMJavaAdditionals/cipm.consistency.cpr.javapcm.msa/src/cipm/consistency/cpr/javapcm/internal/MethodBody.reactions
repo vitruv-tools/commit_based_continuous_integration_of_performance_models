@@ -7,11 +7,13 @@ import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
 reactions: methodBody
 in reaction to changes in AdjustedJava
 execute actions in PCM
-//The currently used change propagation rules for the changes on method bodies are defined 
-//in Java2PcmPackageMappingMethodBodyChangePreprocessor. See GitIntegrationChangePropagationSpecification.setup().
-//Otherwise you can define change propagation rules for changes on method bodies here.
 
-import packageAndClassifiers
+
+// The currently used change propagation rules for the changes on method bodies are defined 
+// in the ExtendedJava2PcmMethodBodyChangePreprocessor.
+// Otherwise, you can define change propagation rules for changes on method bodies here.
+
+import classifierBody
 
 reaction AddedMethodCall {
 	after element java::Method inserted in java::MethodCall[target]
@@ -32,7 +34,7 @@ routine createOrFindCallTarget(java::MethodCall methCall, java::Method method) {
 			val classifier = method.containingConcreteClassifier
 			if (callCom !== com && InternalUtility.isExternalCall(
 					method, correspondenceModel, com)) {
-				createOrFindInterface(classifier)
+				createInterface(classifier)
 				createOrFindPCMSignature(method)
 				if (classifier instanceof org.emftext.language.java.classifiers.Class) {
 					createOrFindOperationProvidedRole(classifier, classifier)

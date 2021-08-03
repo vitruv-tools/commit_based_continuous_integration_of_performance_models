@@ -1,0 +1,97 @@
+import cipm.consistency.cpr.javapcm.internal.InternalUtility
+import org.emftext.language.java.containers.Origin
+
+import "http://www.emftext.org/java" as java
+import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
+
+
+reactions: classifier
+in reaction to changes in AdjustedJava
+execute actions in PCM
+
+
+import Servlet
+import component
+
+// Created Class.
+reaction AddedClass {
+	after element java::Class inserted in java::CompilationUnit[classifiers]
+	call {
+		createOrFindArchitecturalElement(newValue)
+		decideInterfaceCreation(newValue)
+		createOrFindOperationProvidedRole(newValue, newValue)
+		checkClassifierForImportedRequiredRoles(newValue)
+	}
+}
+
+// Created Interface.
+reaction AddedInterface {
+	after element java::Interface inserted in java::CompilationUnit[classifiers]
+	call {
+		createOrFindArchitecturalElement(newValue)
+		decideInterfaceCreation(newValue)
+		checkClassifierForImportedRequiredRoles(newValue)
+	}
+}
+
+routine decideInterfaceCreation(java::ConcreteClassifier javaInterface) {
+	match {
+		val com = retrieve pcm::RepositoryComponent corresponding to javaInterface
+	}
+	action {
+		call {
+			var mod = InternalUtility.getModule(javaInterface)
+			if (mod === null) {
+				return
+			}
+			if (mod.origin == Origin.FILE) {
+				checkJaxRSInterfaceCreation(javaInterface)
+				checkServletInterfaceCreation(javaInterface)
+			} else if (mod.origin == Origin.ARCHIVE) {
+				if (javaInterface.public) {
+					createInterface(javaInterface)
+				}
+			}
+		}
+	}
+}
+
+// Removed Class.
+reaction RemovedClass {
+	after element java::Class removed from java::CompilationUnit[classifiers]
+	call {
+		checkBasicComponentRemovalForClassifier(oldValue)
+		checkDataTypeRemoval(oldValue)
+	}
+} 
+
+// Removed Interface.
+reaction RemovedInterface {
+	after element java::Interface removed from java::CompilationUnit[classifiers]
+	call {
+		checkBasicComponentRemovalForClassifier(oldValue)
+		checkDataTypeRemoval(oldValue)
+	}
+}
+
+reaction RemovedModule {
+	after element java::Module removed from java::Package[module]
+	call {
+		checkBasicComponentRemovalForModule(oldValue)
+	}
+}
+
+reaction RenamedJavaInterface {
+	after attribute replaced at java::Interface[name]
+	call {
+		renameInterface(affectedEObject)
+	}
+}
+
+reaction RenamedJavaClass {
+	after attribute replaced at java::Class[name]
+	call {
+		renameDataType(affectedEObject)
+		renameInterface(affectedEObject)
+	}
+}

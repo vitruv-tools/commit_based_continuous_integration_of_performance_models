@@ -1,6 +1,6 @@
 package cipm.consistency.cpr.javapcm;
 
-import mir.reactions.allReactions.AllReactionsChangePropagationSpecification;
+import mir.reactions.all.AllChangePropagationSpecification;
 import mir.reactions.classifierBody.ClassifierBodyChangePropagationSpecification;
 
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended.ExtendedJava2PcmMethodBodyChangePreprocessor;
@@ -25,7 +25,7 @@ import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.Java
  * @author Martin Armbruster
  */
 @SuppressWarnings("all")
-public class CommitIntegrationJavaPCMChangePropagationSpecification extends AllReactionsChangePropagationSpecification {
+public class CommitIntegrationJavaPCMChangePropagationSpecification extends AllChangePropagationSpecification {
 	@Override
 	protected void setup() {
 		super.setup();
