@@ -50,6 +50,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	public void testTeaStore1_2Integration() throws Exception {
 		// Integrates TeaStore version 1.2.
 		executePropagationAndEvaluation(null, COMMIT_TAG_1_2);
+//		performIndependentEvaluation(null, COMMIT_TAG_1_2);
 	}
 	
 	@Disabled("Only one test case should run at once.")
@@ -69,9 +70,7 @@ public class TeaStoreCITest extends AbstractCITest {
 		});
 		boolean result = prop.propagateChanges(oldCommit, newCommit);
 		if (result) {
-			Resource javaModel = this.facade.getVSUM().getModelInstance(
-					URI.createFileURI(prop.getJavaFileSystemLayout().getJavaModelFile().toString()))
-					.getResource();
+			Resource javaModel = getJavaModel();
 			Resource instrumentedModel = new CodeInstrumenter().instrument(
 					this.facade.getInstrumentationModel(),
 					this.facade.getVSUM().getCorrespondenceModel(),
@@ -86,16 +85,34 @@ public class TeaStoreCITest extends AbstractCITest {
 			Path root = this.facade.getFileLayout().getRootPath();
 			Path copy = root.resolveSibling(root.getFileName().toString() + "-" + newCommit);
 			FileUtils.copyDirectory(root.toFile(), copy.toFile());
-			new JavaModelEvaluator().evaluateJavaModels(javaModel,
-					prop.getJavaFileSystemLayout().getLocalJavaRepo(), evalResult.getJavaComparisonResult(),
-					prop.getJavaFileSystemLayout().getModuleConfiguration());
-			new IMUpdateEvaluator().evaluateIMUpdate(this.facade.getPCMWrapper().getRepository(),
-					this.facade.getInstrumentationModel(), evalResult.getImEvalResult());
-			new InstrumentationEvaluator().evaluateInstrumentation(this.facade.getInstrumentationModel(),
-					javaModel, instrumentedModel, this.prop.getJavaFileSystemLayout(),
-					this.facade.getVSUM().getCorrespondenceModel());
-			EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("EvaluationResult.json"));
+			new InstrumentationEvaluator().evaluateInstrumentationDependently(this.facade.getInstrumentationModel(),
+					javaModel, instrumentedModel);
+			EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("DependentEvaluationResult.json"));
 		}
+	}
+	
+	private Resource getJavaModel() {
+		return this.facade.getVSUM().getModelInstance(
+				URI.createFileURI(prop.getJavaFileSystemLayout().getJavaModelFile().toString()))
+				.getResource();
+	}
+	
+	private void performIndependentEvaluation(String oldCommit, String newCommit) throws IOException {
+		EvaluationDataContainer evalResult = EvaluationDataContainer.getGlobalContainer();
+		evalResult.getChangeStatistic().setOldCommit(oldCommit);
+		evalResult.getChangeStatistic().setNewCommit(newCommit);
+		Resource javaModel = getJavaModel();
+		new JavaModelEvaluator().evaluateJavaModels(javaModel,
+				prop.getJavaFileSystemLayout().getLocalJavaRepo(), evalResult.getJavaComparisonResult(),
+				prop.getJavaFileSystemLayout().getModuleConfiguration());
+		new IMUpdateEvaluator().evaluateIMUpdate(this.facade.getPCMWrapper().getRepository(),
+				this.facade.getInstrumentationModel(), evalResult.getImEvalResult());
+		new InstrumentationEvaluator().evaluateInstrumentationIndependently(this.facade.getInstrumentationModel(),
+				javaModel, this.prop.getJavaFileSystemLayout(),
+				this.facade.getVSUM().getCorrespondenceModel());
+		Path root = this.facade.getFileLayout().getRootPath();
+		EvaluationDataContainerReaderWriter.write(evalResult, root.resolveSibling("EvaluationResult-"
+				+ newCommit + "-" + evalResult.getEvaluationTime() + ".json"));
 	}
 	
 //	@Disabled("Only one test case should run at once.")

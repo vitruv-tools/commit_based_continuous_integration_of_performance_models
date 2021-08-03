@@ -16,6 +16,7 @@ import cipm.consistency.commitintegration.diff.util.JavaChangedMethodDetectorDif
 import cipm.consistency.commitintegration.diff.util.JavaModelComparator;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.InstrumentationEvaluationData;
+import tools.vitruv.domains.java.tuid.JamoppStringOperations;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
 
@@ -29,8 +30,8 @@ public class InstrumentationEvaluator {
 	private final int lowerNumberInternalActionStatements = 2;
 	private final int upperNumberInternalActionStatements = lowerNumberInternalActionStatements + 1;
 	
-	public void evaluateInstrumentation(InstrumentationModel im, Resource javaModel,
-			Resource instrumentedModel, JavaFileSystemLayout fileLayout, CorrespondenceModel cm) {
+	public void evaluateInstrumentationDependently(InstrumentationModel im, Resource javaModel,
+			Resource instrumentedModel) {
 		InstrumentationEvaluationData insEvalData = EvaluationDataContainer
 				.getGlobalContainer().getInstrumentationData();
 		int javaStatements = countStatements(javaModel);
@@ -38,11 +39,20 @@ public class InstrumentationEvaluator {
 		insEvalData.setLowerStatementDifferenceCount(countExpectedStatements(im, true));
 		insEvalData.setUpperStatementDifferenceCount(countExpectedStatements(im, false));
 		insEvalData.setStatementDifferenceCount(instrumStatements - javaStatements);
+	}
+	
+	public void evaluateInstrumentationIndependently(InstrumentationModel im, Resource javaModel,
+			JavaFileSystemLayout fileLayout, CorrespondenceModel cm) {
+		InstrumentationEvaluationData insEvalData = EvaluationDataContainer
+				.getGlobalContainer().getInstrumentationData();
+		insEvalData.setLowerStatementDifferenceCount(countExpectedStatements(im, true));
+		insEvalData.setUpperStatementDifferenceCount(countExpectedStatements(im, false));
 		Resource reloadedModel = JavaParserAndPropagatorUtility.parseJavaCodeIntoOneModel(
 				fileLayout.getInstrumentationCopy(),
 				fileLayout.getJavaModelFile().resolveSibling("ins.javaxmi"),
 				fileLayout.getModuleConfiguration());
-		instrumStatements = countStatements(reloadedModel);
+		int javaStatements = countStatements(javaModel);
+		int instrumStatements = countStatements(reloadedModel);
 		insEvalData.setReloadedStatementDifferenceCount(instrumStatements - javaStatements);
 		var postProcessor = new JavaChangedMethodDetectorDiffPostProcessor();
 		JavaModelComparator.compareJavaModels(reloadedModel, javaModel,
@@ -57,7 +67,7 @@ public class InstrumentationEvaluator {
 			}
 		}
 		for (Method m : changed) {
-			insEvalData.getUnmatchedChangedMethods().add(convertToLongName(m));
+			insEvalData.getUnmatchedChangedMethods().add(JamoppStringOperations.getStringRepresentation(m));
 		}
 	}
 	
@@ -102,19 +112,5 @@ public class InstrumentationEvaluator {
 			}
 		}
 		return statements;
-	}
-	
-	private String convertToLongName(Method m) {
-		StringBuilder builder = new StringBuilder();
-		builder.append(m.getContainingConcreteClassifier().getQualifiedName());
-		builder.append("::");
-		builder.append(m.getName());
-		builder.append("(");
-		for (var param : m.getParameters()) {
-			builder.append(param.getName());
-			builder.append(",");
-		}
-		builder.append(")");
-		return builder.toString();
 	}
 }
