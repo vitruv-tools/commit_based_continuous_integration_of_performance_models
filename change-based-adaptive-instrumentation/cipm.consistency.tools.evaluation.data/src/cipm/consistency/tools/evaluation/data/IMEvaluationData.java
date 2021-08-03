@@ -67,7 +67,11 @@ public class IMEvaluationData {
 	}
 	
 	public void setDeactivatedIPAllIPRatio(double deactivatedIPAllIPRatio) {
-		this.deactivatedIPAllIPRatio = deactivatedIPAllIPRatio;
+		if (deactivatedIPAllIPRatio == Double.NaN) {
+			this.deactivatedAIPAllAIPRatio = -1;
+		} else {
+			this.deactivatedIPAllIPRatio = deactivatedIPAllIPRatio;
+		}
 	}
 	
 	public double getDeactivatedAIPAllAIPRatio() {
@@ -75,7 +79,11 @@ public class IMEvaluationData {
 	}
 	
 	public void setDeactivatedAIPAllAIPRatio(double deactivatedAIPAllAIPRatio) {
-		this.deactivatedAIPAllAIPRatio = deactivatedAIPAllAIPRatio;
+		if (deactivatedAIPAllAIPRatio == Double.NaN) {
+			this.deactivatedAIPAllAIPRatio = -1;
+		} else {
+			this.deactivatedAIPAllAIPRatio = deactivatedAIPAllAIPRatio;
+		}
 	}
 	
 	public List<String> getUnmatchedSEFFElements() {
