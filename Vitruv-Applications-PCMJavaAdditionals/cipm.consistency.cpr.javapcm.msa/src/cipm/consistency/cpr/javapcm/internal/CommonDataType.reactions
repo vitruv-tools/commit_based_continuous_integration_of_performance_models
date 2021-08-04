@@ -18,10 +18,11 @@ execute actions in PCM
 routine checkInnerDeclarationsCreation(pcm::DataType type, java::TypeReference typeRef) {
 	action {
 		call {
-			if (type instanceof CompositeDataType) {
-				for (mem : (typeRef.target as ConcreteClassifier).members) {
+			val refTarget = typeRef.target
+			if (type instanceof CompositeDataType && refTarget instanceof ConcreteClassifier) {
+				for (mem : (refTarget as ConcreteClassifier).members) {
 					if (mem instanceof Field) {
-						createInnerDeclaration(type, mem)
+						createInnerDeclaration(type as CompositeDataType, mem)
 					}
 				}
 			}
