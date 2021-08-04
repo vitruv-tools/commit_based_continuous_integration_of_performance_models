@@ -1,5 +1,6 @@
 package cipm.consistency.vsum;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -91,9 +92,13 @@ public class VSUMFacade {
 //			vsum.propagateChangedState(pcm.getAllocationModel().eResource());
 //			vsum.propagateChangedState(pcm.getUsageModel().eResource());
 			ReactionsCorrespondenceHelper.addCorrespondence(vsum.getCorrespondenceModel(), pcm.getRepository(),
-					RepositoryPackage.Literals.REPOSITORY, "");
-			ReactionsCorrespondenceHelper.addCorrespondence(vsum.getCorrespondenceModel(), imm,
-					InstrumentationModelPackage.Literals.INSTRUMENTATION_MODEL, "");
+					RepositoryPackage.Literals.REPOSITORY, null);
+			var correspondence = ReactionsCorrespondenceHelper.addCorrespondence(vsum.getCorrespondenceModel(), imm,
+					InstrumentationModelPackage.Literals.INSTRUMENTATION_MODEL, null);
+			try {
+				correspondence.eResource().save(null);
+			} catch (IOException e) {
+			}
 		}
 	}
 	
