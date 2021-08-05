@@ -182,11 +182,11 @@ public class CommitChangePropagator {
 		repoWrapper.performCompleteClean();
 		logger.debug("Checkout of " + commitId);
 		repoWrapper.checkout(commitId);
-//		boolean preprocessResult = preprocess();
-//		if (!preprocessResult) {
-//			logger.debug("The preprocessing failed. Aborting.");
-//			return false;
-//		}
+		boolean preprocessResult = preprocess();
+		if (!preprocessResult) {
+			logger.debug("The preprocessing failed. Aborting.");
+			return false;
+		}
 		logger.debug("Delegating the change propagation to the JavaParserAndPropagatorUtility.");
 		JavaParserAndPropagatorUtility.parseAndPropagateJavaCode(repoWrapper.getRootDirectory().toPath(),
 				fileLayout.getJavaModelFile(), vsum, fileLayout.getModuleConfiguration());
