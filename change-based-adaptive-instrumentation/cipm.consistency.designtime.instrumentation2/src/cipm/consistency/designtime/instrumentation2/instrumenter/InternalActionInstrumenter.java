@@ -6,12 +6,13 @@ import org.emftext.language.java.members.Method;
 import org.emftext.language.java.references.IdentifierReference;
 import org.emftext.language.java.references.MethodCall;
 import org.emftext.language.java.references.ReferencesFactory;
+import org.emftext.language.java.statements.Block;
+import org.emftext.language.java.statements.Condition;
 import org.emftext.language.java.statements.ExpressionStatement;
 import org.emftext.language.java.statements.LocalVariableStatement;
 import org.emftext.language.java.statements.Return;
 import org.emftext.language.java.statements.Statement;
 import org.emftext.language.java.statements.StatementsFactory;
-import org.emftext.language.java.types.TypesFactory;
 import org.emftext.language.java.variables.LocalVariable;
 import org.emftext.language.java.variables.VariablesFactory;
 
@@ -58,26 +59,32 @@ public class InternalActionInstrumenter extends AbstractInstrumenter {
 		ExpressionStatement exitStatement = StatementsFactory.eINSTANCE.createExpressionStatement();
 		exitStatement.setExpression(objRef);
 		
-		// Check if last statement is return statement.
+		// Check if last statement is or contains return statement.
 		if (end instanceof Return) {
 			Return ret = (Return) end;
-			
-			LocalVariable returnVariable = VariablesFactory.eINSTANCE.createLocalVariable();
-			returnVariable.setTypeReference(EcoreUtil.copy(findMethod(ret).getTypeReference()));
-			returnVariable.setName("longAndUniqueNameToAvoidDuplicationsAndCompilationErrors"
-					+ System.currentTimeMillis());
-			returnVariable.setInitialValue(ret.getReturnValue());
-			LocalVariableStatement retVarStat = StatementsFactory.eINSTANCE.createLocalVariableStatement();
-			retVarStat.setVariable(returnVariable);
-			
-			IdentifierReference idRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
-			idRef.setTarget(returnVariable);
-			ret.setReturnValue(idRef);
-			
-			ret.addBeforeContainingStatement(retVarStat);
-			retVarStat.addAfterContainingStatement(exitStatement);
+			addExitStatementOnReturn(ret, exitStatement);
 		} else {
-			end.addAfterContainingStatement(exitStatement);
+			var retList = end.getChildrenByType(Return.class);
+			if (retList.size() != 0) {
+				for (Return ret : retList) {
+					// Case: if (condition) return -1;
+					// Needs refactoring to: if (condition) { return -1; }
+					if (ret.eContainer() instanceof Condition) {
+						Condition parent = (Condition) ret.eContainer();
+						Block newParent = StatementsFactory.eINSTANCE.createBlock();
+						newParent.setName("");
+						newParent.getStatements().add(ret);
+						if (parent.getStatement() == null) {
+							parent.setStatement(newParent);
+						} else {
+							parent.setElseStatement(newParent);
+						}
+					}
+					addExitStatementOnReturn(ret, EcoreUtil.copy(exitStatement));
+				}
+			} else {
+				end.addAfterContainingStatement(exitStatement);
+			}
 		}
 	}
 	
@@ -92,5 +99,22 @@ public class InternalActionInstrumenter extends AbstractInstrumenter {
 			parent = parent.eContainer();
 		}
 		return (Method) parent;
+	}
+	
+	private void addExitStatementOnReturn(Return ret, Statement exitStatement) {
+		LocalVariable returnVariable = VariablesFactory.eINSTANCE.createLocalVariable();
+		returnVariable.setTypeReference(EcoreUtil.copy(findMethod(ret).getTypeReference()));
+		returnVariable.setName("longAndUniqueNameToAvoidDuplicationsAndCompilationErrors"
+				+ System.currentTimeMillis() + Double.toString(Math.random()).replace('.', '-'));
+		returnVariable.setInitialValue(ret.getReturnValue());
+		LocalVariableStatement retVarStat = StatementsFactory.eINSTANCE.createLocalVariableStatement();
+		retVarStat.setVariable(returnVariable);
+		
+		IdentifierReference idRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
+		idRef.setTarget(returnVariable);
+		ret.setReturnValue(idRef);
+		
+		ret.addBeforeContainingStatement(retVarStat);
+		retVarStat.addAfterContainingStatement(exitStatement);
 	}
 }
