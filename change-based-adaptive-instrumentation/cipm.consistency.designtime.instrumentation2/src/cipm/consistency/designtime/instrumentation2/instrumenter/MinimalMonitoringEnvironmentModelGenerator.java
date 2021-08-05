@@ -42,7 +42,7 @@ public final class MinimalMonitoringEnvironmentModelGenerator {
 	final ConcreteClassifier objectClassifier;
 	final Method getAndIncrementMethod;
 	final Method getMethod;
-	public final CompilationUnit monitoringCU;
+	public final CompilationUnit threadMonitoringControllerCU;
 	final ConcreteClassifier threadMonitoringControllerClassifier;
 	final Method getInstanceMethod;
 	final Method enterInternalActionMethod;
@@ -52,6 +52,7 @@ public final class MinimalMonitoringEnvironmentModelGenerator {
 	final Method exitLoopMethod;
 	final Method enterServiceMethod;
 	final Method exitServiceMethod;
+	public final CompilationUnit serviceParametersCU;
 	final ConcreteClassifier serviceParametersClassifier;
 	final Method addParameterValueMethod;
 	
@@ -74,17 +75,23 @@ public final class MinimalMonitoringEnvironmentModelGenerator {
 		stringClassifier = findClassifierInJavaModel(context, javaLang, String.class.getSimpleName());
 		objectClassifier = findClassifierInJavaModel(context, javaLang, Object.class.getSimpleName());
 		
-		monitoringCU = ContainersFactory.eINSTANCE.createCompilationUnit();
-		monitoringCU.getNamespaces().addAll(Arrays.asList(namespaces));
-		monitoringCU.setName(threadMonitoringControllerName);
-		monitoringCU.setOrigin(Origin.BINDING);
+		threadMonitoringControllerCU = ContainersFactory.eINSTANCE.createCompilationUnit();
+		threadMonitoringControllerCU.getNamespaces().addAll(Arrays.asList(namespaces));
+		threadMonitoringControllerCU.setName(threadMonitoringControllerName);
+		threadMonitoringControllerCU.setOrigin(Origin.BINDING);
 		threadMonitoringControllerClassifier = ClassifiersFactory.eINSTANCE.createClass();
 		threadMonitoringControllerClassifier.setName(threadMonitoringControllerName);
-		monitoringCU.getClassifiers().add(threadMonitoringControllerClassifier);
+		threadMonitoringControllerClassifier.makePublic();
+		threadMonitoringControllerCU.getClassifiers().add(threadMonitoringControllerClassifier);
 		
+		serviceParametersCU = ContainersFactory.eINSTANCE.createCompilationUnit();
+		serviceParametersCU.getNamespaces().addAll(Arrays.asList(namespaces));
+		serviceParametersCU.setName(serviceParametersName);
+		serviceParametersCU.setOrigin(Origin.BINDING);
 		serviceParametersClassifier = ClassifiersFactory.eINSTANCE.createClass();
 		serviceParametersClassifier.setName(serviceParametersName);
-		monitoringCU.getClassifiers().add(serviceParametersClassifier);
+		serviceParametersClassifier.makePublic();
+		serviceParametersCU.getClassifiers().add(serviceParametersClassifier);
 		
 		addParameterValueMethod = MembersFactory.eINSTANCE.createClassMethod();
 		addParameterValueMethod.setName(ApplicationProjectInstrumenterNamespace.METHOD_ADD_PARAMETER_VALUE);

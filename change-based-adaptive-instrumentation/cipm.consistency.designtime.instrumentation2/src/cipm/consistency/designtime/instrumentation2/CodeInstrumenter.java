@@ -49,7 +49,7 @@ public class CodeInstrumenter {
 			sipIns.instrument(copiedService, sip, statementMap, adaptive);
 		}
 		
-		new ModelSaver2().saveModels(targetSet, copy, output, input, gen.monitoringCU);
+		new ModelSaver2().saveModels(targetSet, copy, output, input, gen);
 		
 		return copy;
 	}

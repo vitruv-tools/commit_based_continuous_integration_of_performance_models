@@ -13,6 +13,8 @@ import org.emftext.language.java.commons.NamespaceAwareElement;
 import org.emftext.language.java.containers.CompilationUnit;
 import org.emftext.language.java.containers.JavaRoot;
 
+import cipm.consistency.designtime.instrumentation2.instrumenter.MinimalMonitoringEnvironmentModelGenerator;
+
 /**
  * Saves the instrumented model.
  * 
@@ -20,8 +22,9 @@ import org.emftext.language.java.containers.JavaRoot;
  */
 public class ModelSaver {
 	void saveModels(ResourceSet copyContainer, Resource copiedResource, Path target,
-			CompilationUnit monitoringEnv) {
-		copiedResource.getContents().add(monitoringEnv);
+			MinimalMonitoringEnvironmentModelGenerator monitoringEnv) {
+		copiedResource.getContents().add(monitoringEnv.threadMonitoringControllerCU);
+		copiedResource.getContents().add(monitoringEnv.serviceParametersCU);
 		for (EObject root : new ArrayList<>(copiedResource.getContents())) {
 			if (root instanceof CompilationUnit || root instanceof org.emftext.language.java.containers.Package) {
 				JavaRoot cu = (JavaRoot) root;

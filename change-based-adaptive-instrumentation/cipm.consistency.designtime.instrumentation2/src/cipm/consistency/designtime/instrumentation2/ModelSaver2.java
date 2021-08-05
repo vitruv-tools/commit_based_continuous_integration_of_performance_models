@@ -20,6 +20,8 @@ import org.emftext.language.java.containers.CompilationUnit;
 import org.emftext.language.java.containers.JavaRoot;
 import org.emftext.language.java.containers.Origin;
 
+import cipm.consistency.designtime.instrumentation2.instrumenter.MinimalMonitoringEnvironmentModelGenerator;
+
 /**
  * Saves the instrumented model by merging it with the original sources.
  * 
@@ -27,14 +29,16 @@ import org.emftext.language.java.containers.Origin;
  */
 public class ModelSaver2 {
 	void saveModels(ResourceSet copyContainer, Resource copiedResource, Path target, Path source,
-			CompilationUnit monitoringEnv) {
+			MinimalMonitoringEnvironmentModelGenerator monitoringEnv) {
 		try {
 			FileUtils.copyDirectory(source.toFile(), target.toFile());
 			var origJavaFiles = Files.walk(target).filter(Files::isRegularFile).map(Path::toAbsolutePath)
 				.filter(p -> p.getFileName().toString().endsWith(LogicalJavaURIGenerator.JAVA_FILE_EXTENSION))
 				.collect(Collectors.toList());
-			Resource monRes = copyContainer.createResource(URI.createURI(""));
-			monRes.getContents().add(monitoringEnv);
+			Resource monRes = copyContainer.createResource(URI.createURI("empty:/ThreadMonitoringController.java"));
+			monRes.getContents().add(monitoringEnv.threadMonitoringControllerCU);
+			Resource serviceRes = copyContainer.createResource(URI.createURI("empty:/ServiceParameters.java"));
+			serviceRes.getContents().add(monitoringEnv.serviceParametersCU);
 			Set<String> injectedProjects = new HashSet<>();
 			for (EObject root : new ArrayList<>(copiedResource.getContents())) {
 				JavaRoot cu = (JavaRoot) root;
@@ -50,12 +54,14 @@ public class ModelSaver2 {
 							copiedResource.getContents().add(cu);
 							checkMonitoringEnvironmentPrinting(injectedProjects,
 									absPath.substring(0, absPath.length() - lastPart.length()),
-									monRes, monitoringEnv);
+									monRes, monitoringEnv.threadMonitoringControllerCU,
+									serviceRes, monitoringEnv.serviceParametersCU);
 						}
 					}
 				}
 			}
-			copiedResource.getContents().add(monitoringEnv);
+			copiedResource.getContents().add(monitoringEnv.threadMonitoringControllerCU);
+			copiedResource.getContents().add(monitoringEnv.serviceParametersCU);
 		} catch (IOException e) {
 		}
 	}
@@ -81,10 +87,13 @@ public class ModelSaver2 {
 	}
 	
 	private void checkMonitoringEnvironmentPrinting(Set<String> injectedProjects, String project,
-			Resource monitoringRes, CompilationUnit monitoringCU) throws IOException {
+			Resource monitoringRes, CompilationUnit monitoringCU,
+			Resource serviceRes, CompilationUnit serviceCU) throws IOException {
 		if (!injectedProjects.contains(project)) {
 			monitoringRes.setURI(URI.createFileURI(project + createLastPathPart(monitoringCU)));
 			monitoringRes.save(null);
+			serviceRes.setURI(URI.createFileURI(project + createLastPathPart(serviceCU)));
+			serviceRes.save(null);
 			injectedProjects.add(project);
 		}
 	}
