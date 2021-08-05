@@ -269,6 +269,10 @@ public class GitRepositoryWrapper {
 			 rd.addAll(diffs);
 			 diffs = rd.compute();
 		}
+		
+		for (DiffEntry diff : diffs) {
+			df.format(diff);
+		}
 		df.close();
 		
 		EvaluationDataContainer.getGlobalContainer().getChangeStatistic().setNumberChangedJavaFiles(diffs.size());
