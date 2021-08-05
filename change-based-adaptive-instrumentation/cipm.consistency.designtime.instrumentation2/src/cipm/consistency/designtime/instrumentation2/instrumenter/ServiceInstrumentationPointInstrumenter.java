@@ -5,6 +5,7 @@ import java.util.EnumMap;
 import org.emftext.language.java.members.Method;
 import org.emftext.language.java.references.IdentifierReference;
 import org.emftext.language.java.references.MethodCall;
+import org.emftext.language.java.references.PackageReference;
 import org.emftext.language.java.references.ReferencesFactory;
 import org.emftext.language.java.statements.LocalVariableStatement;
 import org.emftext.language.java.statements.StatementsFactory;
@@ -69,10 +70,23 @@ public class ServiceInstrumentationPointInstrumenter extends AbstractInstrumente
 	
 	private void prepareMethodBeforeInstrumentation(Method m) {
 		IdentifierReference init = ReferencesFactory.eINSTANCE.createIdentifierReference();
-		init.setTarget(environmentGen.threadMonitoringControllerClassifier);
+		IdentifierReference currentRef = init;
+		for (int idx = 0; idx < this.environmentGen.namespaces.length; idx++) {
+			PackageReference packRef = ReferencesFactory.eINSTANCE.createPackageReference();
+			for (int j = 0; j < idx; j++) {
+				packRef.getNamespaces().add(this.environmentGen.namespaces[j]);
+			}
+			packRef.setName(this.environmentGen.namespaces[idx]);
+			currentRef.setContainedTarget(packRef);
+			currentRef.setTarget(packRef);
+			IdentifierReference next = ReferencesFactory.eINSTANCE.createIdentifierReference();
+			currentRef.setNext(next);
+			currentRef = next;
+		}
+		currentRef.setTarget(environmentGen.threadMonitoringControllerClassifier);
 		MethodCall initCall = ReferencesFactory.eINSTANCE.createMethodCall();
 		initCall.setTarget(environmentGen.getInstanceMethod);
-		init.setNext(initCall);
+		currentRef.setNext(initCall);
 		
 		threadMonitoringVariable = VariablesFactory.eINSTANCE.createLocalVariable();
 		threadMonitoringVariable.setTypeReference(this.createTypeReference(environmentGen.threadMonitoringControllerClassifier));
