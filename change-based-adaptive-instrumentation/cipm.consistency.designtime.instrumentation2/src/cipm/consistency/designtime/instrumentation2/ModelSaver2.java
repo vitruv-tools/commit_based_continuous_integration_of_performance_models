@@ -33,7 +33,12 @@ public class ModelSaver2 {
 		try {
 			FileUtils.copyDirectory(source.toFile(), target.toFile());
 			var origJavaFiles = Files.walk(target).filter(Files::isRegularFile).map(Path::toAbsolutePath)
-				.filter(p -> p.getFileName().toString().endsWith(LogicalJavaURIGenerator.JAVA_FILE_EXTENSION))
+				.filter(p -> {
+					String abs = p.toString();
+					return abs.endsWith(LogicalJavaURIGenerator.JAVA_FILE_EXTENSION)
+							&& !(abs.matches(".*?/src/test/java/.*?"))
+							&& !(abs.matches(".*?/utilities/tools.descartes.teastore.kieker/.*?"));
+				})
 				.collect(Collectors.toList());
 			Resource monRes = copyContainer.createResource(URI.createURI("empty:/ThreadMonitoringController.java"));
 			monRes.getContents().add(monitoringEnv.threadMonitoringControllerCU);
