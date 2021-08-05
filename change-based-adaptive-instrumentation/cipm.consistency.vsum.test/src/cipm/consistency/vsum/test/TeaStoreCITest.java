@@ -86,7 +86,7 @@ public class TeaStoreCITest extends AbstractCITest {
 			Path copy = root.resolveSibling(root.getFileName().toString() + "-" + newCommit);
 			FileUtils.copyDirectory(root.toFile(), copy.toFile());
 			new InstrumentationEvaluator().evaluateInstrumentationDependently(this.facade.getInstrumentationModel(),
-					javaModel, instrumentedModel);
+					javaModel, instrumentedModel, this.facade.getVSUM().getCorrespondenceModel());
 			EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("DependentEvaluationResult.json"));
 		}
 	}

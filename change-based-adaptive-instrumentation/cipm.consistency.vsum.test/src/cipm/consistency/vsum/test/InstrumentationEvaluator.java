@@ -6,6 +6,7 @@ import java.util.Set;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.emftext.language.java.members.Method;
+import org.emftext.language.java.statements.Return;
 import org.emftext.language.java.statements.Statement;
 import org.palladiosimulator.pcm.repository.OperationSignature;
 
@@ -27,17 +28,16 @@ public class InstrumentationEvaluator {
 	private final int numberExternalCallStatements = 1;
 	private final int numberBranchStatements = 1;
 	private final int numberLoopStatements = 3;
-	private final int lowerNumberInternalActionStatements = 2;
-	private final int upperNumberInternalActionStatements = lowerNumberInternalActionStatements + 1;
+	private final int numberInternalActionStatements = 2;
+	private final int numberInternalActionStatementsPerReturnStatement = 2;
 	
 	public void evaluateInstrumentationDependently(InstrumentationModel im, Resource javaModel,
-			Resource instrumentedModel) {
+			Resource instrumentedModel, CorrespondenceModel cm) {
 		InstrumentationEvaluationData insEvalData = EvaluationDataContainer
 				.getGlobalContainer().getInstrumentationData();
 		int javaStatements = countStatements(javaModel);
 		int instrumStatements = countStatements(instrumentedModel);
-		insEvalData.setLowerStatementDifferenceCount(countExpectedStatements(im, true));
-		insEvalData.setUpperStatementDifferenceCount(countExpectedStatements(im, false));
+		insEvalData.setExpectedStatementDifferenceCount(countExpectedStatements(im, cm));
 		insEvalData.setStatementDifferenceCount(instrumStatements - javaStatements);
 	}
 	
@@ -45,8 +45,7 @@ public class InstrumentationEvaluator {
 			JavaFileSystemLayout fileLayout, CorrespondenceModel cm) {
 		InstrumentationEvaluationData insEvalData = EvaluationDataContainer
 				.getGlobalContainer().getInstrumentationData();
-		insEvalData.setLowerStatementDifferenceCount(countExpectedStatements(im, true));
-		insEvalData.setUpperStatementDifferenceCount(countExpectedStatements(im, false));
+		insEvalData.setExpectedStatementDifferenceCount(countExpectedStatements(im, cm));
 		Resource reloadedModel = JavaParserAndPropagatorUtility.parseJavaCodeIntoOneModel(
 				fileLayout.getInstrumentationCopy(),
 				fileLayout.getJavaModelFile().resolveSibling("ins.javaxmi"),
@@ -82,7 +81,7 @@ public class InstrumentationEvaluator {
 		return statements;
 	}
 	
-	private int countExpectedStatements(InstrumentationModel im, boolean calcLowerBound) {
+	private int countExpectedStatements(InstrumentationModel im, CorrespondenceModel cm) {
 		int statements = numberAdditionalStatements;
 		for (var sip : im.getPoints()) {
 			statements += numberServiceStatements;
@@ -98,8 +97,16 @@ public class InstrumentationEvaluator {
 						break;
 					case INTERNAL:
 					case INTERNAL_CALL:
-						statements += calcLowerBound ? lowerNumberInternalActionStatements
-								: upperNumberInternalActionStatements;
+						statements += numberInternalActionStatements;
+						var stats = CorrespondenceModelUtil.getCorrespondingEObjects(cm,
+								aip.getAction(), Statement.class);
+						for (Statement s : stats) {
+							if (s instanceof Return) {
+								statements += numberInternalActionStatementsPerReturnStatement;
+							}
+							statements += numberInternalActionStatementsPerReturnStatement
+									* s.getChildrenByType(Return.class).size();
+						}
 						break;
 					case EXTERNAL_CALL:
 						statements += numberExternalCallStatements;
