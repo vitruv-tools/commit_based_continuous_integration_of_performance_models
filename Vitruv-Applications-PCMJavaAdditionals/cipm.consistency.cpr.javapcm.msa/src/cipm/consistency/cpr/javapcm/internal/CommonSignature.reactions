@@ -119,6 +119,9 @@ routine createParameter(java::OrdinaryParameter javaParameter, java::Parametriza
 		val operationSignature = retrieve pcm::OperationSignature corresponding to javaMethod
 	}
 	action {
+		call {
+			checkCollectionDataTypeCreation(javaParameter.typeReference)
+		}
 		val pcmParameter = create pcm::Parameter and initialize {
 			pcmParameter.operationSignature__Parameter = operationSignature
 			pcmParameter.dataType__Parameter = TypeReferenceCorrespondenceHelper.

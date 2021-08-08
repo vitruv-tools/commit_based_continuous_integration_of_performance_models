@@ -32,14 +32,3 @@ routine addCorrespondenceBetweenClassifierAndInterface(java::ConcreteClassifier 
 		add correspondence between javaClassifier and pcmInterface
 	}
 }
-
-routine renameInterface(java::ConcreteClassifier javaInterface) {
-	match {
-		val pcmInterface = retrieve pcm::OperationInterface corresponding to javaInterface
-	}
-	action {
-		update pcmInterface {
-			pcmInterface.entityName = javaInterface.name
-		}
-	}
-}

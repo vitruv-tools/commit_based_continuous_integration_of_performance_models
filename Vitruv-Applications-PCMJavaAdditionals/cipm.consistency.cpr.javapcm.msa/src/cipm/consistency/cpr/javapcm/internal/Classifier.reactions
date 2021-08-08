@@ -80,18 +80,3 @@ reaction RemovedModule {
 		checkBasicComponentRemovalForModule(oldValue)
 	}
 }
-
-reaction RenamedJavaInterface {
-	after attribute replaced at java::Interface[name]
-	call {
-		renameInterface(affectedEObject)
-	}
-}
-
-reaction RenamedJavaClass {
-	after attribute replaced at java::Class[name]
-	call {
-		renameDataType(affectedEObject)
-		renameInterface(affectedEObject)
-	}
-}
