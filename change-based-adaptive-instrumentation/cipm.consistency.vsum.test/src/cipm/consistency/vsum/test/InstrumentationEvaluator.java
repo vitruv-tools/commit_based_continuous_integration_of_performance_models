@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.emftext.language.java.members.Method;
 import org.emftext.language.java.statements.Return;
 import org.emftext.language.java.statements.Statement;
@@ -37,7 +38,8 @@ public class InstrumentationEvaluator {
 				.getGlobalContainer().getInstrumentationData();
 		int javaStatements = countStatements(javaModel);
 		int instrumStatements = countStatements(instrumentedModel);
-		insEvalData.setExpectedStatementDifferenceCount(countExpectedStatements(im, cm));
+		insEvalData.setExpectedLowerStatementDifferenceCount(countExpectedStatements(im, cm, true));
+		insEvalData.setExpectedUpperStatementDifferenceCount(countExpectedStatements(im, cm, false));
 		insEvalData.setStatementDifferenceCount(instrumStatements - javaStatements);
 	}
 	
@@ -45,14 +47,21 @@ public class InstrumentationEvaluator {
 			JavaFileSystemLayout fileLayout, CorrespondenceModel cm) {
 		InstrumentationEvaluationData insEvalData = EvaluationDataContainer
 				.getGlobalContainer().getInstrumentationData();
-		insEvalData.setExpectedStatementDifferenceCount(countExpectedStatements(im, cm));
+		insEvalData.setExpectedLowerStatementDifferenceCount(countExpectedStatements(im, cm, true));
+		insEvalData.setExpectedUpperStatementDifferenceCount(countExpectedStatements(im, cm, false));
 		Resource reloadedModel = JavaParserAndPropagatorUtility.parseJavaCodeIntoOneModel(
 				fileLayout.getInstrumentationCopy(),
 				fileLayout.getJavaModelFile().resolveSibling("ins.javaxmi"),
 				fileLayout.getModuleConfiguration());
+		var potentialProxies = EcoreUtil.ProxyCrossReferencer.find(reloadedModel);
+		
 		int javaStatements = countStatements(javaModel);
 		int instrumStatements = countStatements(reloadedModel);
 		insEvalData.setReloadedStatementDifferenceCount(instrumStatements - javaStatements);
+		if (!potentialProxies.isEmpty()) {
+			insEvalData.getUnmatchedChangedMethods().add("Reloaded model contains proxy objects.");
+			return;
+		}
 		var postProcessor = new JavaChangedMethodDetectorDiffPostProcessor();
 		JavaModelComparator.compareJavaModels(reloadedModel, javaModel,
 				null, null, postProcessor);
@@ -81,7 +90,7 @@ public class InstrumentationEvaluator {
 		return statements;
 	}
 	
-	private int countExpectedStatements(InstrumentationModel im, CorrespondenceModel cm) {
+	private int countExpectedStatements(InstrumentationModel im, CorrespondenceModel cm, boolean lowerCount) {
 		int statements = numberAdditionalStatements;
 		for (var sip : im.getPoints()) {
 			statements += numberServiceStatements;
@@ -98,14 +107,16 @@ public class InstrumentationEvaluator {
 					case INTERNAL:
 					case INTERNAL_CALL:
 						statements += numberInternalActionStatements;
-						var stats = CorrespondenceModelUtil.getCorrespondingEObjects(cm,
-								aip.getAction(), Statement.class);
-						for (Statement s : stats) {
-							if (s instanceof Return) {
-								statements += numberInternalActionStatementsPerReturnStatement;
+						if (!lowerCount) {
+							var stats = CorrespondenceModelUtil.getCorrespondingEObjects(cm,
+									aip.getAction(), Statement.class);
+							for (Statement s : stats) {
+								if (s instanceof Return) {
+									statements += numberInternalActionStatementsPerReturnStatement;
+								}
+								statements += numberInternalActionStatementsPerReturnStatement
+										* s.getChildrenByType(Return.class).size();
 							}
-							statements += numberInternalActionStatementsPerReturnStatement
-									* s.getChildrenByType(Return.class).size();
 						}
 						break;
 					case EXTERNAL_CALL:

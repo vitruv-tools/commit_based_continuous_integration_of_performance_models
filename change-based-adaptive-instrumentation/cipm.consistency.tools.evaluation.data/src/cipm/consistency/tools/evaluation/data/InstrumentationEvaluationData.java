@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InstrumentationEvaluationData {
-	private int expectedStatementDifferenceCount;
+	private int expectedLowerStatementDifferenceCount;
+	private int expectedUpperStatementDifferenceCount;
 	private int statementDifferenceCount;
 	private int reloadedStatementDifferenceCount;
 	private boolean compiles;
@@ -12,12 +13,20 @@ public class InstrumentationEvaluationData {
 	private List<String> unmatchedChangedMethods = new ArrayList<>();
 	private List<String> unmatchedIPs = new ArrayList<>();
 	
-	public int getExpectedStatementDifferenceCount() {
-		return expectedStatementDifferenceCount;
+	public int getExpectedLowerStatementDifferenceCount() {
+		return expectedLowerStatementDifferenceCount;
 	}
 	
-	public void setExpectedStatementDifferenceCount(int expectedStatementDifferenceCount) {
-		this.expectedStatementDifferenceCount = expectedStatementDifferenceCount;
+	public void setExpectedLowerStatementDifferenceCount(int expectedStatementDifferenceCount) {
+		this.expectedLowerStatementDifferenceCount = expectedStatementDifferenceCount;
+	}
+	
+	public int getExpectedUpperStatementDifferenceCount() {
+		return expectedUpperStatementDifferenceCount;
+	}
+	
+	public void setExpectedUpperStatementDifferenceCount(int expectedStatementDifferenceCount) {
+		this.expectedUpperStatementDifferenceCount = expectedStatementDifferenceCount;
 	}
 	
 	public int getStatementDifferenceCount() {
