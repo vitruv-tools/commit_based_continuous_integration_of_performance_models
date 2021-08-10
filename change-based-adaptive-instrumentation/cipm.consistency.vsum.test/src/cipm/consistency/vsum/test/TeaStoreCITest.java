@@ -3,11 +3,15 @@ package cipm.consistency.vsum.test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.emftext.language.java.commons.NamedElement;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -49,7 +53,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	@Test
 	public void testTeaStore1_2Integration() throws Exception {
 		// Integrates TeaStore version 1.2.
-		executePropagationAndEvaluation(null, COMMIT_TAG_1_2);
+		executePropagationAndEvaluation(null, COMMIT_TAG_1_2, 0);
 //		performIndependentEvaluation(null, COMMIT_TAG_1_2);
 	}
 	
@@ -57,10 +61,42 @@ public class TeaStoreCITest extends AbstractCITest {
 	@Test
 	public void testTeaStore1_2To_1_2_1Propagation() throws Exception {
 		// Propagation of changes between TeaStore version 1.2 and 1.2.1.
-		executePropagationAndEvaluation(COMMIT_TAG_1_2, COMMIT_TAG_1_2_1);
+		executePropagationAndEvaluation(COMMIT_TAG_1_2, COMMIT_TAG_1_2_1, 1);
+//		performIndependentEvaluation(COMMIT_TAG_1_2, COMMIT_TAG_1_2_1);
 	}
 	
-	private void executePropagationAndEvaluation(String oldCommit, String newCommit) throws GitAPIException, IOException {
+	@Disabled("Only one test case should run at once.")
+	@Test
+	public void testTeaStoreWithMultipleCommits1_2To1_2_1() throws GitAPIException, IOException, InterruptedException {
+		List<String> successfulCommits = new ArrayList<>();
+		var commits = convertToStringList(this.prop.getWrapper()
+				.getAllCommitsBetweenTwoCommits(COMMIT_TAG_1_2, COMMIT_TAG_1_2_1));
+		var oldCommit = commits.get(0);
+		successfulCommits.add(oldCommit);
+		for (int idx = 1; idx < commits.size(); idx++) {
+			var newCommit = commits.get(idx);
+			boolean result = executePropagationAndEvaluation(oldCommit, newCommit, idx);
+			if (result) {
+				oldCommit = newCommit;
+				successfulCommits.add(oldCommit);
+			}
+			Thread.sleep(1000);
+		}
+		for (String c : successfulCommits) {
+			System.out.println(c);
+		}
+	}
+	
+	private List<String> convertToStringList(List<RevCommit> commits) {
+		List<String> result = new ArrayList<>();
+		for (RevCommit com : commits) {
+			result.add(com.getId().getName());
+		}
+		return result;
+	}
+	
+	private boolean executePropagationAndEvaluation(String oldCommit, String newCommit, int num)
+			throws GitAPIException, IOException {
 		EvaluationDataContainer evalResult = new EvaluationDataContainer();
 		EvaluationDataContainer.setGlobalContainer(evalResult);
 		this.facade.getInstrumentationModel().eAllContents().forEachRemaining(ip -> {
@@ -68,27 +104,30 @@ public class TeaStoreCITest extends AbstractCITest {
 				((ActionInstrumentationPoint) ip).setActive(false);
 			}
 		});
+		this.facade.getInstrumentationModel().eResource().save(null);
 		boolean result = prop.propagateChanges(oldCommit, newCommit);
 		if (result) {
+			FileUtils.deleteDirectory(this.prop.getJavaFileSystemLayout().getInstrumentationCopy().toFile());
 			Resource javaModel = getJavaModel();
 			Resource instrumentedModel = new CodeInstrumenter().instrument(
 					this.facade.getInstrumentationModel(),
 					this.facade.getVSUM().getCorrespondenceModel(),
 					javaModel,
 					this.prop.getJavaFileSystemLayout().getInstrumentationCopy(),
-					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), false);
+					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), true);
 //			new CodeInstrumenter().instrument(this.facade.getInstrumentationModel(),
 //					this.facade.getVSUM().getCorrespondenceModel(),
 //					javaModel,
 //					this.prop.getJavaFileSystemLayout().getInstrumentationCopy().resolveSibling("ins-all"),
-//					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), true);
+//					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), false);
 			Path root = this.facade.getFileLayout().getRootPath();
-			Path copy = root.resolveSibling(root.getFileName().toString() + "-" + newCommit);
+			Path copy = root.resolveSibling(root.getFileName().toString() + "-" + num + "-" + newCommit);
 			FileUtils.copyDirectory(root.toFile(), copy.toFile());
 			new InstrumentationEvaluator().evaluateInstrumentationDependently(this.facade.getInstrumentationModel(),
 					javaModel, instrumentedModel, this.facade.getVSUM().getCorrespondenceModel());
 			EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("DependentEvaluationResult.json"));
 		}
+		return result;
 	}
 	
 	private Resource getJavaModel() {

@@ -75,7 +75,7 @@ public class InstrumentationEvaluator {
 			}
 		}
 		for (Method m : changed) {
-			insEvalData.getUnmatchedChangedMethods().add(JamoppStringOperations.getStringRepresentation(m));
+			insEvalData.getUnmatchedChangedMethods().add(convertToString(m));
 		}
 	}
 	
@@ -130,5 +130,21 @@ public class InstrumentationEvaluator {
 			}
 		}
 		return statements;
+	}
+	
+	private String convertToString(Method method) {
+		StringBuilder builder = new StringBuilder();
+		builder.append(method.getContainingConcreteClassifier().getQualifiedName());
+		builder.append("::");
+		builder.append(method.getName());
+		builder.append("(");
+		for (var param : method.getParameters()) {
+			builder.append(JamoppStringOperations.getStringRepresentation(param));
+			builder.append(",");
+		}
+		builder.append(")");
+		builder.append(JamoppStringOperations.getStringRepresentation(method.getTypeReference().getTarget(),
+				method.getTypeReference().getArrayDimension()));
+		return builder.toString();
 	}
 }

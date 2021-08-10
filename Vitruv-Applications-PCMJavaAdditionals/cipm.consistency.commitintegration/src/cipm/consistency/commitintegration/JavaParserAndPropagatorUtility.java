@@ -59,7 +59,9 @@ public final class JavaParserAndPropagatorUtility {
 		JaMoPPJDTSingleFileParser parser = new JaMoPPJDTSingleFileParser();
 		parser.setResourceSet(new ResourceSetImpl());
 		parser.setExclusionPatterns(".*?/src/test/java/.*?",
-				".*?/utilities/tools.descartes.teastore.kieker/.*?");
+				".*?/utilities/tools.descartes.teastore.kieker/.*?",
+				".*?/utilities/.*?/cipm/consistency/.*?",
+				".*?/services/.*?/cipm/consistency/.*?");
 		logger.debug("Parsing " + dir.toString());
 		ResourceSet resourceSet = parser.parseDirectory(dir);
 		logger.debug("Parsed " + resourceSet.getResources().size() + " files.");

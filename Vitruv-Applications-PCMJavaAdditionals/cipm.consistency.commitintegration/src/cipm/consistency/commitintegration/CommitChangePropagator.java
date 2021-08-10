@@ -258,7 +258,7 @@ public class CommitChangePropagator {
 		repoWrapper.closeRepository();
 	}
 	
-	protected GitRepositoryWrapper getWrapper() {
+	public GitRepositoryWrapper getWrapper() {
 		return repoWrapper;
 	}
 	
