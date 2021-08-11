@@ -1,4 +1,4 @@
-package cipm.consistency.commitintegration;
+package cipm.consistency.commitintegration.detection;
 
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -9,14 +9,6 @@ import java.util.Set;
 import org.eclipse.emf.ecore.resource.Resource;
 
 public class ModuleCandidates {
-	public enum ModuleState {
-		MICROSERVICE_COMPONENT,
-		REGULAR_COMPONENT,
-		COMPONENT_CANDIDATE,
-		PART_OF_COMPONENT,
-		NO_COMPONENT
-	}
-	
 	private EnumMap<ModuleState, Map<String, Set<Resource>>> candidates;
 	
 	public ModuleCandidates() {

@@ -1,4 +1,4 @@
-package cipm.consistency.commitintegration;
+package cipm.consistency.commitintegration.detection;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -12,7 +12,7 @@ import java.util.Properties;
 public class ModuleConfiguration {
 	private final static String SEPARATOR = "/";
 	private Path configPath;
-	private HashMap<String, ModuleCandidates.ModuleState> moduleClassification = new HashMap<>();
+	private HashMap<String, ModuleState> moduleClassification = new HashMap<>();
 	private HashMap<String, String> subModuleMapping = new HashMap<>();
 	
 	public ModuleConfiguration(Path configPath) {
@@ -29,10 +29,10 @@ public class ModuleConfiguration {
 					String key = (String) k;
 					String val = p.getProperty(key);
 					if (val.contains(SEPARATOR)) {
-						moduleClassification.put(key, ModuleCandidates.ModuleState.PART_OF_COMPONENT);
+						moduleClassification.put(key, ModuleState.PART_OF_COMPONENT);
 						subModuleMapping.put(key, val.split(SEPARATOR)[1]);
 					} else {
-						moduleClassification.put(key, ModuleCandidates.ModuleState.valueOf(val));
+						moduleClassification.put(key, ModuleState.valueOf(val));
 					}
 				});
 			} catch (IOException e) {
@@ -45,7 +45,7 @@ public class ModuleConfiguration {
 		subModuleMapping.clear();
 	}
 	
-	public Map<String, ModuleCandidates.ModuleState> getModuleClassification() {
+	public Map<String, ModuleState> getModuleClassification() {
 		return moduleClassification;
 	}
 	
@@ -56,7 +56,7 @@ public class ModuleConfiguration {
 	public void save() {
 		Properties p = new Properties();
 		moduleClassification.forEach((k, v) -> {
-			if (v == ModuleCandidates.ModuleState.PART_OF_COMPONENT) {
+			if (v == ModuleState.PART_OF_COMPONENT) {
 				p.setProperty(k, v.name() + SEPARATOR + subModuleMapping.get(k));
 			} else {
 				p.setProperty(k, v.name());
