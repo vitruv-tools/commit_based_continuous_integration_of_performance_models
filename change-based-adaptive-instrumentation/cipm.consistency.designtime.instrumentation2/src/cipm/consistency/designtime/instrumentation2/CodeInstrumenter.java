@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -30,18 +31,24 @@ import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
  * @author Martin Armbruster
  */
 public class CodeInstrumenter {
+	private final static Logger logger = Logger.getLogger("cipm." + CodeInstrumenter.class.getSimpleName());
+	
 	public Resource instrument(InstrumentationModel im, CorrespondenceModel cm, Resource javaModel,
 			Path output, Path input, boolean adaptive) {
+		logger.debug("Executing the " + (adaptive ? "adaptive" : "full") + " instrumentation.");
+		logger.debug("Copying the Java model.");
 		ResourceSet targetSet = new ResourceSetImpl();
 		Resource copy = targetSet.createResource(javaModel.getURI());
 		copy.getContents().addAll(EcoreUtil.copyAll(javaModel.getContents()));
 		
+		logger.debug("Generating the minimal monitoring environment.");
 		MinimalMonitoringEnvironmentModelGenerator gen =
 				new MinimalMonitoringEnvironmentModelGenerator(copy);
 		ServiceInstrumentationPointInstrumenter sipIns =
 				new ServiceInstrumentationPointInstrumenter(gen);
 		
 		for (ServiceInstrumentationPoint sip : im.getPoints()) {
+			logger.debug("Instrumenting the service " + sip.getService().getDescribedService__SEFF().getEntityName());
 			Method service = CorrespondenceModelUtil
 					.getCorrespondingEObjects(cm, sip.getService(), Method.class).iterator().next();
 			Method copiedService = findCopiedEObject(targetSet, service);
@@ -49,7 +56,9 @@ public class CodeInstrumenter {
 			sipIns.instrument(copiedService, sip, statementMap, adaptive);
 		}
 		
+		logger.debug("Saving the instrumented code.");
 		new ModelSaver2().saveModels(targetSet, copy, output, input, gen);
+		logger.debug("Finished the instrumentation.");
 		
 		return copy;
 	}

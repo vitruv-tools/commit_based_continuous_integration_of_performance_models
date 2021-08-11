@@ -6,11 +6,11 @@ import java.nio.file.Paths;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 import cipm.consistency.commitintegration.CommitChangePropagator;
-import cipm.consistency.commitintegration.JavaParserAndPropagatorUtility;
 import cipm.consistency.vsum.VSUMFacade;
 
 public abstract class AbstractCITest {
@@ -19,17 +19,11 @@ public abstract class AbstractCITest {
 	
 	@BeforeEach
 	public void setUp() throws Exception {
-		Logger logger = Logger.getLogger(CommitChangePropagator.class.getSimpleName());
-		ConsoleAppender ap = new ConsoleAppender();
-		ap.setTarget(ConsoleAppender.SYSTEM_OUT);
-		logger.addAppender(ap);
+		Logger logger = Logger.getLogger("cipm");
 		logger.setLevel(Level.ALL);
-		logger = Logger.getLogger(JavaParserAndPropagatorUtility.class.getSimpleName());
+		ConsoleAppender ap = new ConsoleAppender(new PatternLayout("[%d{DATE}] %-5p: %c - %m%n"),
+				ConsoleAppender.SYSTEM_OUT);
 		logger.addAppender(ap);
-		logger.setLevel(Level.ALL);
-		logger = Logger.getLogger("ci");
-		logger.addAppender(ap);
-		logger.setLevel(Level.ALL);
 		facade = new VSUMFacade(Paths.get(getTestPath()));
 		prop = new CommitChangePropagator(new File(getRepositoryPath())
 				.getAbsoluteFile(), facade.getFileLayout().getJavaPath().toString(), facade.getVSUM());

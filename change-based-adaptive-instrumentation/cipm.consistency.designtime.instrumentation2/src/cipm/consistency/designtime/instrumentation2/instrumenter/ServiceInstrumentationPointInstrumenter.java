@@ -2,6 +2,7 @@ package cipm.consistency.designtime.instrumentation2.instrumenter;
 
 import java.util.EnumMap;
 
+import org.apache.log4j.Logger;
 import org.emftext.language.java.members.Method;
 import org.emftext.language.java.references.IdentifierReference;
 import org.emftext.language.java.references.MethodCall;
@@ -23,6 +24,8 @@ import cipm.consistency.designtime.instrumentation2.ActionStatementMapping;
  * @author Martin Armbruster
  */
 public class ServiceInstrumentationPointInstrumenter extends AbstractInstrumenter {
+	private final static Logger logger = Logger.getLogger("cipm."
+			+ ServiceInstrumentationPointInstrumenter.class.getSimpleName());
 	private ServiceInstrumenter serviceIns;
 	private EnumMap<InstrumentationType, AbstractInstrumenter> aipTypeToInstrumenter;
 	
@@ -104,6 +107,7 @@ public class ServiceInstrumentationPointInstrumenter extends AbstractInstrumente
 	protected void instrument(ActionInstrumentationPoint aip, ActionStatementMapping statementMapping) {
 		AbstractInstrumenter actionInstrumenter = aipTypeToInstrumenter.get(aip.getType());
 		if (actionInstrumenter != null) {
+			logger.debug("Instrumenting the action " + aip.getAction().getEntityName());
 			actionInstrumenter.setLocalThreadMonitoringVariable(this.threadMonitoringVariable);
 			actionInstrumenter.instrument(aip, statementMapping);
 		}

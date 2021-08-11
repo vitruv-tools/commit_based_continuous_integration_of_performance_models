@@ -35,7 +35,7 @@ import tools.vitruv.framework.vsum.VirtualModel;
  * @author Martin Armbruster
  */
 public final class JavaParserAndPropagatorUtility {
-	private static final Logger logger = Logger.getLogger(JavaParserAndPropagatorUtility.class.getSimpleName());
+	private static final Logger logger = Logger.getLogger("cipm." + JavaParserAndPropagatorUtility.class.getSimpleName());
 	private static final String MAVEN_POM_FILE_NAME = "pom.xml";
 	private static final String GRADLE_BUILD_FILE_NAME = "build.gradle";
 	private static final String DOCKERFILE_FILE_NAME = "Dockerfile";

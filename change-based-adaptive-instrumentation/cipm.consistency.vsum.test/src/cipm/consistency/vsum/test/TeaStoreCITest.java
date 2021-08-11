@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.emftext.language.java.commons.NamedElement;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +21,7 @@ import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
 
 public class TeaStoreCITest extends AbstractCITest {
+	private static final Logger logger = Logger.getLogger("cipm." + TeaStoreCITest.class.getSimpleName());
 	private static final String COMMIT_TAG_1_1 = "77733d9c6ab6680c6cc460c631cd408a588a595c";
 	private static final String COMMIT_TAG_1_2 = "53c6efa1dca64a87e536d8c5a3dcc3c12ad933b5";
 	private static final String COMMIT_TAG_1_2_1 = "f8f13f4390f80d3dc8adb0a6167938a688ddb45e";
@@ -83,7 +84,7 @@ public class TeaStoreCITest extends AbstractCITest {
 			Thread.sleep(1000);
 		}
 		for (String c : successfulCommits) {
-			System.out.println(c);
+			logger.debug("Successful propagated: " + c);
 		}
 	}
 	
@@ -122,10 +123,13 @@ public class TeaStoreCITest extends AbstractCITest {
 //					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), false);
 			Path root = this.facade.getFileLayout().getRootPath();
 			Path copy = root.resolveSibling(root.getFileName().toString() + "-" + num + "-" + newCommit);
+			logger.debug("Copying the propagated state.");
 			FileUtils.copyDirectory(root.toFile(), copy.toFile());
+			logger.debug("Evaluating the instrumentation.");
 			new InstrumentationEvaluator().evaluateInstrumentationDependently(this.facade.getInstrumentationModel(),
 					javaModel, instrumentedModel, this.facade.getVSUM().getCorrespondenceModel());
 			EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("DependentEvaluationResult.json"));
+			logger.debug("Finished the evaluation.");
 		}
 		return result;
 	}
@@ -137,21 +141,26 @@ public class TeaStoreCITest extends AbstractCITest {
 	}
 	
 	private void performIndependentEvaluation(String oldCommit, String newCommit) throws IOException {
+		logger.debug("Evaluating the propagation " + oldCommit + "->" + newCommit);
 		EvaluationDataContainer evalResult = EvaluationDataContainer.getGlobalContainer();
 		evalResult.getChangeStatistic().setOldCommit(oldCommit);
 		evalResult.getChangeStatistic().setNewCommit(newCommit);
 		Resource javaModel = getJavaModel();
+		logger.debug("Evaluating the Java model.");
 		new JavaModelEvaluator().evaluateJavaModels(javaModel,
 				prop.getJavaFileSystemLayout().getLocalJavaRepo(), evalResult.getJavaComparisonResult(),
 				prop.getJavaFileSystemLayout().getModuleConfiguration());
+		logger.debug("Evaluating the instrumentation model.");
 		new IMUpdateEvaluator().evaluateIMUpdate(this.facade.getPCMWrapper().getRepository(),
 				this.facade.getInstrumentationModel(), evalResult.getImEvalResult());
+		logger.debug("Evaluating the instrumentation.");
 		new InstrumentationEvaluator().evaluateInstrumentationIndependently(this.facade.getInstrumentationModel(),
 				javaModel, this.prop.getJavaFileSystemLayout(),
 				this.facade.getVSUM().getCorrespondenceModel());
 		Path root = this.facade.getFileLayout().getRootPath();
 		EvaluationDataContainerReaderWriter.write(evalResult, root.resolveSibling("EvaluationResult-"
 				+ newCommit + "-" + evalResult.getEvaluationTime() + ".json"));
+		logger.debug("Finished the evaluation.");
 	}
 	
 //	@Disabled("Only one test case should run at once.")

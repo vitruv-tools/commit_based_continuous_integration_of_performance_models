@@ -22,7 +22,7 @@ import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
  * @author Ilia Chupakhin
  */
 public class CommitChangePropagator {
-	private static final Logger logger = Logger.getLogger(CommitChangePropagator.class.getSimpleName());
+	private static final Logger logger = Logger.getLogger("cipm." + CommitChangePropagator.class.getSimpleName());
 	private GitRepositoryWrapper repoWrapper;
 	private InternalVirtualModel vsum;
 	private String remoteRepository;
