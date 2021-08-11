@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Consistency Preservation Rules from the PCM to the Instrumentation Model
+Bundle-SymbolicName: cipm.consistency.cpr.pcmim;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Export-Package: cipm.consistency.cpr.pcmim
+Require-Bundle: tools.vitruv.framework.change,
+ org.palladiosimulator.pcm,
+ org.apache.log4j,
+ org.eclipse.emf.ecore,
+ org.eclipse.core.resources,
+ tools.vitruv.framework.util,
+ tools.vitruv.framework.correspondence,
+ tools.vitruv.framework.userinteraction,
+ tools.vitruv.extensions.dslsruntime.reactions;visibility:=reexport,
+ cipm.consistency.models.instrumentation,
+ cipm.consistency.domains.im,
+ tools.vitruv.framework.domains,
+ tools.vitruv.domains.pcm
+Bundle-RequiredExecutionEnvironment: JavaSE-13
+Automatic-Module-Name: cipm.consistency.cpr.pcmim
