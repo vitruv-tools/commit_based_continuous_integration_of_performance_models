@@ -3,7 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Consistency Preservation Rules from the PCM to the Instrumentation Model
 Bundle-SymbolicName: cipm.consistency.cpr.pcmim;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Export-Package: cipm.consistency.cpr.pcmim
+Export-Package: cipm.consistency.cpr.pcmim,
+ mir.reactions.imUpdate,
+ mir.routines.imUpdate
 Require-Bundle: tools.vitruv.framework.change,
  org.palladiosimulator.pcm,
  org.apache.log4j,
