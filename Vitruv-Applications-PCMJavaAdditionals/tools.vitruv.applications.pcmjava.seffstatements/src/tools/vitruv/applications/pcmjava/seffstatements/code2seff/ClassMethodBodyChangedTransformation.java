@@ -111,7 +111,7 @@ public class ClassMethodBodyChangedTransformation {
 	 * @param ci
 	 * @return
 	 */
-	private boolean isArchitectureRelevantChange(final CorrespondenceModel ci) {
+	protected boolean isArchitectureRelevantChange(final CorrespondenceModel ci) {
 		return this.isMethodArchitectureRelevant(this.newMethod, ci);
 	}
 
@@ -126,7 +126,7 @@ public class ClassMethodBodyChangedTransformation {
 		return false;
 	}
 
-	private void executeSoMoXForMethod(final BasicComponent basicComponent,
+	protected void executeSoMoXForMethod(final BasicComponent basicComponent,
 			final ResourceDemandingBehaviour targetResourceDemandingBehaviour) {
 		sourceCodeDecorator = SourcecodedecoratorFactory.eINSTANCE.createSourceCodeDecoratorRepository();
 		final MethodCallFinder methodCallFinder = new MethodCallFinder();
@@ -233,7 +233,7 @@ public class ClassMethodBodyChangedTransformation {
 		return resourceDemandingBehaviour;
 	}
 
-	private ResourceDemandingBehaviour findRdBehaviorToInsertElements(final CorrespondenceModel ci) {
+	protected ResourceDemandingBehaviour findRdBehaviorToInsertElements(final CorrespondenceModel ci) {
 		final Set<ResourceDemandingBehaviour> correspondingResourceDemandingBehaviours =
 				CorrespondenceModelUtil.getCorrespondingEObjects(
 						ci, this.newMethod, ResourceDemandingBehaviour.class);

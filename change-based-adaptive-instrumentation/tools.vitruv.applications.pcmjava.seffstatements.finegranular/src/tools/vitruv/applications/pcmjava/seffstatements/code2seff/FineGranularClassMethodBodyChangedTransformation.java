@@ -7,11 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.emftext.language.java.members.ClassMethod;
 import org.emftext.language.java.members.Method;
 import org.emftext.language.java.statements.Statement;
-import org.emftext.language.java.statements.StatementListContainer;
 import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.AbstractBranchTransition;
@@ -24,15 +21,12 @@ import org.palladiosimulator.pcm.seff.SeffFactory;
 import org.palladiosimulator.pcm.seff.StartAction;
 import org.palladiosimulator.pcm.seff.StopAction;
 import org.annotationsmox.inspectit2pcm.util.PCMHelper;
-import org.somox.gast2seff.visitors.FunctionCallClassificationVisitor;
 import org.somox.gast2seff.visitors.IFunctionClassificationStrategy;
 import org.somox.gast2seff.visitors.InterfaceOfExternalCallFindingFactory;
-import org.somox.gast2seff.visitors.MethodCallFinder;
 import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding;
 import org.somox.gast2seff.visitors.VisitorUtils;
 import org.somox.sourcecodedecorator.SeffElementSourceCodeLink;
 import org.somox.sourcecodedecorator.SourceCodeDecoratorRepository;
-import org.somox.sourcecodedecorator.SourcecodedecoratorFactory;
 import org.splevo.jamopp.diffing.similarity.SimilarityChecker;
 
 import com.google.common.collect.Lists;
@@ -40,52 +34,31 @@ import com.google.common.collect.Lists;
 import de.uka.ipd.sdq.identifier.Identifier;
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.ResourceDemandingBehaviourMatching.MatchinType;
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.ResourceDemandingBehaviourMatching.Matching;
+import tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended.ExtendedClassMethodBodyChangedTransformation;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
 import tools.vitruv.framework.userinteraction.UserInteractor;
 
-
-
-
-
 /**
- * Class that keeps changes within a class method body consistent with the
- * architecture. Has dependencies to SoMoX as well as to Vitruvius. This is the 
- * reason that the class is in its own plugin. The class is written in Java and
- * not in Xtend (we do not need the cool features of Xtend within the class).
- *
  * @author langhamm
- *
  */
-public class ClassMethodBodyChangedTransformation {
-
-	private final static Logger logger = Logger.getLogger(ClassMethodBodyChangedTransformation.class.getSimpleName());
-
+public class FineGranularClassMethodBodyChangedTransformation extends ExtendedClassMethodBodyChangedTransformation {
+	private final static Logger logger = Logger.getLogger(FineGranularClassMethodBodyChangedTransformation.class.getSimpleName());
+	private final Method newMethod;
 	private SourceCodeDecoratorRepository sourceCodeDecorator;
 	private SimilarityChecker similarityChecker;
-	
-	private final Method oldMethod;
-	private final Method newMethod;
 	private final BasicComponentFinding basicComponentFinder;
-	private final IFunctionClassificationStrategy iFunctionClassificationStrategy;
-
-	private final InterfaceOfExternalCallFindingFactory interfaceOfExternalCallFinderFactory;
-
-	private final ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding;
-
-	public ClassMethodBodyChangedTransformation(final Method oldMethod, final Method newMethod,
+	
+	public FineGranularClassMethodBodyChangedTransformation(final Method oldMethod, final Method newMethod,
 			final BasicComponentFinding basicComponentFinder,
 			final IFunctionClassificationStrategy iFunctionClassificationStrategy,
 			final InterfaceOfExternalCallFindingFactory InterfaceOfExternalCallFindingFactory,
 			final ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding) {
-		this.oldMethod = oldMethod;
+		super(newMethod, basicComponentFinder, iFunctionClassificationStrategy, InterfaceOfExternalCallFindingFactory,
+				resourceDemandingBehaviourForClassMethodFinding);
 		this.newMethod = newMethod;
 		this.basicComponentFinder = basicComponentFinder;
-		this.iFunctionClassificationStrategy = iFunctionClassificationStrategy;
-		this.interfaceOfExternalCallFinderFactory = InterfaceOfExternalCallFindingFactory;
-		this.resourceDemandingBehaviourForClassMethodFinding = resourceDemandingBehaviourForClassMethodFinding;
-		
-		similarityChecker = new SimilarityChecker();
+		this.similarityChecker = new SimilarityChecker();
 	}
 
 	/**
@@ -103,26 +76,17 @@ public class ClassMethodBodyChangedTransformation {
 	 */
 	public void execute(final CorrespondenceModel correspondenceModel,
 			final UserInteractor userInteracting) {
-		
 		if (!this.isArchitectureRelevantChange(correspondenceModel)) {			
-			logger.debug("Change with oldMethod " + this.oldMethod + " and newMethod: " + this.newMethod
-					+ " is not an architecture relevant change");
+			logger.debug("Change within the method " + this.newMethod
+					+ " is not an architecture-relevant change.");
 			return;
 		}
-			
-		// 1)
-		//this.removeCorrespondingAbstractActions(correspondenceModel);
 
-		System.out.println("\n\n------------------ iteration------------------");
+		// 1) Get old ResourceDemandingBehaviour.
+		final ResourceDemandingBehaviour oldSEFF = this.findRdBehaviorToInsertElements(correspondenceModel);
 		
-		// 2) get old Resource Demanding Behaviour
-		final ResourceDemandingBehaviour oldSEFF = this
-				.findRdBehaviorToInsertElements(correspondenceModel);
-		
-		// 3) get the new Resource Demanding Behaviour
-		final ResourceDemandingBehaviour newSEFF = 
-				this.getNewResourceDemandingBehaviour(correspondenceModel);
-		
+		// 2) Create the new ResourceDemandingBehaviour.
+		final ResourceDemandingBehaviour newSEFF = this.createNewResourceDemandingBehaviour(correspondenceModel);
 		
 		// 4) get Matching of olfSEFF and newSEFF
 		ResourceDemandingBehaviourMatching rsdMatching = 
@@ -143,10 +107,8 @@ public class ClassMethodBodyChangedTransformation {
 		// 7) create correspondence between Seff elements and statements
 		this.bindAbstractActionsAndStatements(seffDiff, correspondenceModel);
 		
-		
 		return;
 	}
-	
 	
 	private void updateOldResourceDemandingBehaviour(ResourceDemandingBehaviourDiff seffDiff,
 			ResourceDemandingBehaviour rdBehavior, ResourceDemandingBehaviour newSeff,
@@ -273,23 +235,16 @@ public class ClassMethodBodyChangedTransformation {
 		}
 		return null;
 	}
-	
 
-	private ResourceDemandingBehaviour getNewResourceDemandingBehaviour(final CorrespondenceModel correspondenceModel) {
+	private ResourceDemandingBehaviour createNewResourceDemandingBehaviour(final CorrespondenceModel correspondenceModel) {
 		ResourceDemandingBehaviour newSEFF = SeffFactory.eINSTANCE.createResourceDemandingBehaviour();
 		final BasicComponent basicComponent = this.basicComponentFinder.findBasicComponentForMethod(this.newMethod,
 				correspondenceModel);
-		
-		// run SoMoX
-		SourceCodeDecoratorRepository sourceCodeDecorator =
-				this.executeSoMoXForMethod(basicComponent, newSEFF);
-		
-		//
-		this.sourceCodeDecorator = sourceCodeDecorator;
-		
+
+		this.executeSoMoXForMethod(basicComponent, newSEFF);
+
 		return newSEFF;
 	}
-	
 	
 	private ResourceDemandingBehaviourMatching getNewOldSeffMatching(ResourceDemandingBehaviour oldSEFF,
 			ResourceDemandingBehaviour newSEFF, CorrespondenceModel ci) {
@@ -451,59 +406,6 @@ public class ClassMethodBodyChangedTransformation {
         }
         
 	}
-	
-	
-	/**
-	 * checks whether the change is considered architecture relevant. This is
-	 * the case if either the new or the old method does have a corresponding
-	 * ResourceDemandingBehaviour
-	 *
-	 * @param ci
-	 * @return
-	 */
-	private boolean isArchitectureRelevantChange(final CorrespondenceModel ci) {
-		return this.isMethodArchitectureRelevant(this.oldMethod, ci)
-				|| this.isMethodArchitectureRelevant(this.newMethod, ci);
-	}
-
-	private boolean isMethodArchitectureRelevant(final Method method, final CorrespondenceModel ci) {
-		if (null != method) {
-			final Set<ResourceDemandingBehaviour> correspondingEObjectsByType = CorrespondenceModelUtil
-					.getCorrespondingEObjects(ci, method, ResourceDemandingBehaviour.class);
-			if (null != correspondingEObjectsByType && !correspondingEObjectsByType.isEmpty()) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private SourceCodeDecoratorRepository executeSoMoXForMethod(final BasicComponent basicComponent,
-			final ResourceDemandingBehaviour targetResourceDemandingBehaviour) {
-		
-		SourceCodeDecoratorRepository sourceCodeDecorator =
-				SourcecodedecoratorFactory.eINSTANCE.createSourceCodeDecoratorRepository();
-		
-		final MethodCallFinder methodCallFinder = new MethodCallFinder();
-		final FunctionCallClassificationVisitor functionCallClassificationVisitor = new FunctionCallClassificationVisitor(
-				this.iFunctionClassificationStrategy, methodCallFinder);
-		if (this.newMethod instanceof ClassMethod) {
-			// check whether the newMethod is a class method is done here. Could
-			// be done eariler,
-			// i.e. the class could only deal with ClassMethods, but this caused
-			// problems when
-			// changing an abstract method to a ClassMethod
-			VisitorUtils.visitJaMoPPMethod(targetResourceDemandingBehaviour, basicComponent,
-					(StatementListContainer) this.newMethod, sourceCodeDecorator, functionCallClassificationVisitor,
-					this.interfaceOfExternalCallFinderFactory, this.resourceDemandingBehaviourForClassMethodFinding,
-					methodCallFinder);
-		} else {
-			logger.info("No SEFF recreated for method " + this.newMethod.getName()
-					+ " because it is not a class method. Method " + this.newMethod);
-		}
-		
-		return sourceCodeDecorator;
-
-	}
 
 	private void createNewCorrespondences(final CorrespondenceModel ci,
 			final ResourceDemandingBehaviour newResourceDemandingBehaviourElements) {
@@ -513,66 +415,5 @@ public class ClassMethodBodyChangedTransformation {
 		
 		//
 		ci.createAndAddCorrespondence(List.of(newResourceDemandingBehaviourElements), List.of(this.newMethod));
-	}
-
-	
-	private void removeCorrespondingAbstractActions(final CorrespondenceModel ci) {
-		final Set<AbstractAction> correspondingAbstractActions = CorrespondenceModelUtil
-				.getCorrespondingEObjects(ci, this.oldMethod, AbstractAction.class);
-		if (null == correspondingAbstractActions) {
-			return;
-		}
-		final ResourceDemandingBehaviour resourceDemandingBehaviour = this
-				.getAndValidateResourceDemandingBehavior(correspondingAbstractActions);
-		if (null == resourceDemandingBehaviour) {
-			return;
-		}
-		for (final AbstractAction correspondingAbstractAction : correspondingAbstractActions) {
-			ci.removeCorrespondencesFor(List.of(correspondingAbstractAction), null);
-			EcoreUtil.remove(correspondingAbstractAction);
-		}
-
-		for (final AbstractAction abstractAction : resourceDemandingBehaviour.getSteps_Behaviour()) {
-			if (!(abstractAction instanceof StartAction || abstractAction instanceof StopAction)) {
-				logger.warn(
-						"The resource demanding behavior should be empty, but it contains at least following AbstractAction "
-								+ abstractAction);
-			}
-		}
-	}
-
-	private ResourceDemandingBehaviour getAndValidateResourceDemandingBehavior(
-			final Set<AbstractAction> correspondingAbstractActions) {
-		ResourceDemandingBehaviour resourceDemandingBehaviour = null;
-		for (final AbstractAction abstractAction : correspondingAbstractActions) {
-			if (null == abstractAction.getResourceDemandingBehaviour_AbstractAction()) {
-				logger.warn("AbstractAction " + abstractAction
-						+ " does not have a parent ResourceDemandingBehaviour - this should not happen.");
-				continue;
-			}
-			if (null == resourceDemandingBehaviour) {
-				// set resourceDemandingBehaviour in first cycle
-				resourceDemandingBehaviour = abstractAction.getResourceDemandingBehaviour_AbstractAction();
-				continue;
-			}
-			if (resourceDemandingBehaviour != abstractAction.getResourceDemandingBehaviour_AbstractAction()) {
-				logger.warn("resourceDemandingBehaviour " + resourceDemandingBehaviour
-						+ " is different that current resourceDemandingBehaviour: "
-						+ abstractAction.getResourceDemandingBehaviour_AbstractAction());
-			}
-
-		}
-		return resourceDemandingBehaviour;
-	}
-
-	private ResourceDemandingBehaviour findRdBehaviorToInsertElements(final CorrespondenceModel ci) {
-		final Set<ResourceDemandingBehaviour> correspondingResourceDemandingBehaviours = CorrespondenceModelUtil
-				.getCorrespondingEObjects(ci, this.oldMethod, ResourceDemandingBehaviour.class);
-		if (null == correspondingResourceDemandingBehaviours || correspondingResourceDemandingBehaviours.isEmpty()) {
-			logger.warn("No ResourceDemandingBehaviours found for method " + this.oldMethod
-					+ ". Could not create ResourceDemandingBehavoir to insert SEFF elements");
-			return null;
-		}
-		return correspondingResourceDemandingBehaviours.iterator().next();
 	}
 }
