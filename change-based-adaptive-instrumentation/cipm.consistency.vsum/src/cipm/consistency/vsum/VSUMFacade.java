@@ -26,6 +26,8 @@ import cipm.consistency.cpr.javaim.Java2ImChangePropagationSpecification;
 import cipm.consistency.cpr.javapcm.CommitIntegrationJavaPCMChangePropagationSpecification;
 import cipm.consistency.domains.im.InstrumentationModelDomainProvider;
 import cipm.consistency.domains.java.AdjustedJavaDomainProvider;
+import mir.reactions.imUpdate.ImUpdateChangePropagationSpecification;
+import tools.vitruv.domains.pcm.PcmDomain;
 import tools.vitruv.domains.pcm.PcmDomainProvider;
 import tools.vitruv.extensions.dslsruntime.reactions.helper.ReactionsCorrespondenceHelper;
 import tools.vitruv.framework.userinteraction.UserInteractionFactory;
@@ -46,13 +48,16 @@ public class VSUMFacade {
 	
 	private void setUp() {
 		boolean isVSUMExistent = Files.exists(files.getVsumPath());
+		PcmDomain pcmDomain = new PcmDomainProvider().getDomain();
+		pcmDomain.enableTransitiveChangePropagation();
 		vsum = new VirtualModelBuilder().withDomain(new AdjustedJavaDomainProvider().getDomain())
-				.withDomain(new PcmDomainProvider().getDomain())
+				.withDomain(pcmDomain)
 				.withDomain(new InstrumentationModelDomainProvider().getDomain())
 				.withStorageFolder(files.getVsumPath())
 				.withUserInteractor(UserInteractionFactory.instance.createDialogUserInteractor())
 				.withChangePropagationSpecification(new CommitIntegrationJavaPCMChangePropagationSpecification())
-				.withChangePropagationSpecification(new Java2ImChangePropagationSpecification())
+//				.withChangePropagationSpecification(new Java2ImChangePropagationSpecification())
+				.withChangePropagationSpecification(new ImUpdateChangePropagationSpecification())
 				.buildAndInitialize();
 		filePCM = new LocalFilesystemPCM();
 		filePCM.setRepositoryFile(files.getPcmRepositoryPath().toFile());
@@ -97,8 +102,10 @@ public class VSUMFacade {
 					InstrumentationModelPackage.Literals.INSTRUMENTATION_MODEL, null);
 			try {
 				correspondence.eResource().save(null);
+				vsum.dispose();
 			} catch (IOException e) {
 			}
+			setUp();
 		}
 	}
 	

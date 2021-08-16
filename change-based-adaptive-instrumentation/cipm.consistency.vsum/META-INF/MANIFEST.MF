@@ -26,5 +26,6 @@ Require-Bundle: cipm.consistency.commitintegration,
  cipm.consistency.cpr.javaim,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtend.lib,
- org.eclipse.xtend.lib.macro
+ org.eclipse.xtend.lib.macro,
+ cipm.consistency.cpr.pcmim
 Export-Package: cipm.consistency.vsum
