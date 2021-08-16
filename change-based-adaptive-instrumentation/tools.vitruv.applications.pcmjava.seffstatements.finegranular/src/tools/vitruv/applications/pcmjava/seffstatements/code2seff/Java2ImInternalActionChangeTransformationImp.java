@@ -30,7 +30,6 @@ import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponent
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.Code2SeffFactory;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
-import tools.vitruv.framework.util.bridges.CollectionBridge;
 
 public class Java2ImInternalActionChangeTransformationImp implements Java2ImInternalActionChangeTranformation{
 	private SourceCodeDecoratorRepository sourceCodeDecorator;
@@ -71,16 +70,16 @@ public class Java2ImInternalActionChangeTransformationImp implements Java2ImInte
 	
 	private void bindNewStatements(AbstractAction aa, List<Statement> statements) {
 		for(Statement statement: statements) {
-			CorrespondenceModelUtil.createAndAddCorrespondence(this.correspondenceModel, aa, statement);
+			this.correspondenceModel.createAndAddCorrespondence(List.of(aa), List.of(statement));
 		}
 	}
 	
 	
 	private void removeAbstractActionsOldStatements(AbstractAction aa) {
 		final Set<Statement> oldStatements = CorrespondenceModelUtil
-				.getCorrespondingEObjectsByType(this.correspondenceModel, aa, Statement.class);
+				.getCorrespondingEObjects(this.correspondenceModel, aa, Statement.class);
 		for(Statement statement: oldStatements) {
-			this.correspondenceModel.removeCorrespondencesThatInvolveAtLeastAndDependend(CollectionBridge.toSet(statement));
+			this.correspondenceModel.removeCorrespondencesFor(List.of(statement), null);
 			EcoreUtil.remove(statement);
 		}
 	}
@@ -88,7 +87,7 @@ public class Java2ImInternalActionChangeTransformationImp implements Java2ImInte
 	
 	private List<AbstractAction> getMethodAbstractActions(){
 		final Set<AbstractAction> correspondingAbstractActions = CorrespondenceModelUtil
-				.getCorrespondingEObjectsByType(this.correspondenceModel, this.oldMethod, AbstractAction.class);
+				.getCorrespondingEObjects(this.correspondenceModel, this.oldMethod, AbstractAction.class);
 		List<AbstractAction> oldAbstractActions = new ArrayList<AbstractAction>(correspondingAbstractActions);
 		List<AbstractAction> bindingAbstractActions = new ArrayList<AbstractAction>(); 
 		
