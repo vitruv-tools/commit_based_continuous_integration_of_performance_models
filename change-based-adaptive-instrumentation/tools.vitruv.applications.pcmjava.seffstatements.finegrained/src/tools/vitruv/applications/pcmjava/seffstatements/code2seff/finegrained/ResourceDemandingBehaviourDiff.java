@@ -1,4 +1,4 @@
-package tools.vitruv.applications.pcmjava.seffstatements.code2seff;
+package tools.vitruv.applications.pcmjava.seffstatements.code2seff.finegrained;
 
 import java.util.ArrayList;
 import java.util.List;

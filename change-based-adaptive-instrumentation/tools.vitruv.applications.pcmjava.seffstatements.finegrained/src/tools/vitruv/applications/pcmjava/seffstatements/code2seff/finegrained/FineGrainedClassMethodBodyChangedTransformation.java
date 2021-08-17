@@ -1,4 +1,4 @@
-package tools.vitruv.applications.pcmjava.seffstatements.code2seff;
+package tools.vitruv.applications.pcmjava.seffstatements.code2seff.finegrained;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +23,7 @@ import org.somox.sourcecodedecorator.SeffElementSourceCodeLink;
 import org.splevo.jamopp.diffing.similarity.SimilarityChecker;
 
 import de.uka.ipd.sdq.identifier.Identifier;
+import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended.ExtendedClassMethodBodyChangedTransformation;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;

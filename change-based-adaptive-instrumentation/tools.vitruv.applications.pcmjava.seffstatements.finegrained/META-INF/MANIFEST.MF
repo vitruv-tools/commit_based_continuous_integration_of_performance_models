@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Vitruvius PCM-Java Seffstatements Processing Fine-Granular
-Bundle-SymbolicName: tools.vitruv.applications.pcmjava.seffstatements.finegranular
+Bundle-Name: Vitruvius PCM-Java Seffstatements Processing Fine-Grained
+Bundle-SymbolicName: tools.vitruv.applications.pcmjava.seffstatements.finegrained
 Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: com.google.guava,
@@ -26,5 +26,5 @@ Require-Bundle: com.google.guava,
  org.splevo.jamopp.diffing,
  tools.vitruv.applications.pcmjava.seffstatements,
  tools.vitruv.applications.pcmjava.seffstatements.extended
-Export-Package: tools.vitruv.applications.pcmjava.seffstatements.code2seff
-Automatic-Module-Name: tools.vitruv.applications.pcmjava.seffstatements.finegranular
+Export-Package: tools.vitruv.applications.pcmjava.seffstatements.code2seff.finegrained
+Automatic-Module-Name: tools.vitruv.applications.pcmjava.seffstatements.finegrained
