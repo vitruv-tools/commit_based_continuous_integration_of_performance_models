@@ -5,41 +5,38 @@ import java.util.List;
 
 import org.palladiosimulator.pcm.seff.AbstractAction;
 
+/**
+ * Describes the difference of two ResourceDemandingBehaviours regarding their contained actions.
+ * 
+ * @author Noureddine Dahmane
+ * @author Martin Armbruster
+ */
 public class ResourceDemandingBehaviourDiff {
-
-	List<AbstractAction> deletedAbstractActions;
-	List<AbstractAction> addedAbstractActions;
-	List<AbstractAction> modifiedAbstractActions;
+	private List<AbstractAction> deletedAbstractActions;
+	private List<AbstractAction> addedAbstractActions;
+	private List<AbstractActionMatching> modifiedAbstractActions;
+	private List<AbstractActionMatching> unmodifiedAbstractActions;
 	
 	public ResourceDemandingBehaviourDiff() {
-		deletedAbstractActions =  new ArrayList<AbstractAction>();
-		addedAbstractActions = new ArrayList<AbstractAction>();
-		modifiedAbstractActions = new ArrayList<AbstractAction>();
+		deletedAbstractActions =  new ArrayList<>();
+		addedAbstractActions = new ArrayList<>();
+		modifiedAbstractActions = new ArrayList<>();
+		unmodifiedAbstractActions = new ArrayList<>();
 	}
 
 	public List<AbstractAction> getDeletedAbstractActions() {
 		return deletedAbstractActions;
 	}
 
-	public void setDeletedAbstractActions(List<AbstractAction> deletedAbstractActions) {
-		this.deletedAbstractActions = deletedAbstractActions;
-	}
-
 	public List<AbstractAction> getAddedAbstractActions() {
 		return addedAbstractActions;
 	}
 
-	public void setAddedAbstractActions(List<AbstractAction> addedAbstractActions) {
-		this.addedAbstractActions = addedAbstractActions;
-	}
-
-	public List<AbstractAction> getModifiedAbstractActions() {
+	public List<AbstractActionMatching> getModifiedAbstractActions() {
 		return modifiedAbstractActions;
 	}
-
-	public void setModifiedAbstractActions(List<AbstractAction> modifiedAbstractActions) {
-		this.modifiedAbstractActions = modifiedAbstractActions;
+	
+	public List<AbstractActionMatching> getUnmodifiedAbstractActions() {
+		return unmodifiedAbstractActions;
 	}
-	
-	
 }

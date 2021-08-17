@@ -32,8 +32,6 @@ import org.splevo.jamopp.diffing.similarity.SimilarityChecker;
 import com.google.common.collect.Lists;
 
 import de.uka.ipd.sdq.identifier.Identifier;
-import tools.vitruv.applications.pcmjava.seffstatements.code2seff.ResourceDemandingBehaviourMatching.MatchinType;
-import tools.vitruv.applications.pcmjava.seffstatements.code2seff.ResourceDemandingBehaviourMatching.Matching;
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended.ExtendedClassMethodBodyChangedTransformation;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
@@ -45,9 +43,10 @@ import tools.vitruv.framework.userinteraction.UserInteractor;
 public class FineGranularClassMethodBodyChangedTransformation extends ExtendedClassMethodBodyChangedTransformation {
 	private final static Logger logger = Logger.getLogger(FineGranularClassMethodBodyChangedTransformation.class.getSimpleName());
 	private final Method newMethod;
-	private SourceCodeDecoratorRepository sourceCodeDecorator;
-	private SimilarityChecker similarityChecker;
 	private final BasicComponentFinding basicComponentFinder;
+	private ResourceDemandingBehaviourDiff rdbDifference;
+	private SourceCodeDecoratorRepository sourceCodeDecorator;
+	private final SimilarityChecker similarityChecker;
 	
 	public FineGranularClassMethodBodyChangedTransformation(final Method oldMethod, final Method newMethod,
 			final BasicComponentFinding basicComponentFinder,
@@ -88,31 +87,23 @@ public class FineGranularClassMethodBodyChangedTransformation extends ExtendedCl
 		// 2) Create the new ResourceDemandingBehaviour.
 		final ResourceDemandingBehaviour newSEFF = this.createNewResourceDemandingBehaviour(correspondenceModel);
 		
-		// 4) get Matching of olfSEFF and newSEFF
-		ResourceDemandingBehaviourMatching rsdMatching = 
-				getNewOldSeffMatching(oldSEFF, newSEFF, correspondenceModel);
-		
-
-		// 5) get oldSEFF newSEFF DIFF
-		ResourceDemandingBehaviourDiff seffDiff = 
-				this.getResourceDemandingBehaviourDiff(rsdMatching, oldSEFF, newSEFF);
-		
+		// 3) Calculate the difference between the old and new SEFF.
+		this.calculateResourceDemandingBehaviourDiff(oldSEFF, newSEFF);
 		
 		// 6) update old resource Demanding Behaviour
-		this.updateOldResourceDemandingBehaviour(seffDiff, oldSEFF, newSEFF, rsdMatching);
+		this.updateOldResourceDemandingBehaviour(oldSEFF, newSEFF);
 		
 		// 6) create new correspondences
 		this.createNewCorrespondences(correspondenceModel, oldSEFF);
 		
 		// 7) create correspondence between Seff elements and statements
-		this.bindAbstractActionsAndStatements(seffDiff, correspondenceModel);
+		this.bindAbstractActionsAndStatements(correspondenceModel);
 		
 		return;
 	}
 	
-	private void updateOldResourceDemandingBehaviour(ResourceDemandingBehaviourDiff seffDiff,
-			ResourceDemandingBehaviour rdBehavior, ResourceDemandingBehaviour newSeff,
-			ResourceDemandingBehaviourMatching rsdMatching) {
+	private void updateOldResourceDemandingBehaviour(
+			ResourceDemandingBehaviour rdBehavior, ResourceDemandingBehaviour newSeff) {
 		final List<AbstractAction> steps = rdBehavior.getSteps_Behaviour();
 		final boolean addStartAction = 0 == steps.size() || !(steps.get(0) instanceof StartAction);
 		final boolean addStopAction = 0 == steps.size() || !(steps.get(steps.size() - 1) instanceof StopAction);
@@ -125,15 +116,14 @@ public class FineGranularClassMethodBodyChangedTransformation extends ExtendedCl
 			rdBehavior.getSteps_Behaviour().add(stopAction);
 		}
 		
-		this.addNewAbstractActions(seffDiff, steps, newSeff, rsdMatching);
+		this.addNewAbstractActions(steps, newSeff);
 		
 		VisitorUtils.connectActions(rdBehavior);
 	}
 	
 	
-	private void addNewAbstractActions(ResourceDemandingBehaviourDiff seffDiff,
-			List<AbstractAction> steps, ResourceDemandingBehaviour newSeff,
-			ResourceDemandingBehaviourMatching rsdMatching) {
+	private void addNewAbstractActions(
+			List<AbstractAction> steps, ResourceDemandingBehaviour newSeff) {
 		
 		List<AbstractAction> newSeffAbstractActions = new ArrayList<AbstractAction>();
 		for(AbstractAction aa: newSeff.getSteps_Behaviour()) {
@@ -142,7 +132,7 @@ public class FineGranularClassMethodBodyChangedTransformation extends ExtendedCl
 		
 		AbstractAction newAbstractActionPredecessor = null;
 		for(AbstractAction newAbstractAction: Lists.reverse(newSeffAbstractActions)) {
-			AbstractAction matching = this.getNewAbstractActionMatching(newAbstractAction, rsdMatching);
+			AbstractAction matching = null; // this.getNewAbstractActionMatching(newAbstractAction);
 			
 			if(matching == null) {
 				if(newAbstractActionPredecessor == null) {
@@ -153,7 +143,7 @@ public class FineGranularClassMethodBodyChangedTransformation extends ExtendedCl
 					
 				}
 				else {
-					AbstractAction precessorMatching = this.getNewAbstractActionMatching(newAbstractActionPredecessor, rsdMatching);
+					AbstractAction precessorMatching = null; // this.getNewAbstractActionMatching(newAbstractActionPredecessor);
 					if(precessorMatching != null) {
 						// case 2: the Predecessor of the current element in the new SEFF has a matching in the old SEFF
 						// ==> use this matching in as a Predecessor of the current element in the old SEFF
@@ -174,67 +164,6 @@ public class FineGranularClassMethodBodyChangedTransformation extends ExtendedCl
 			newAbstractActionPredecessor = newAbstractAction;
 		}
 	}
-	
-	
-	private ResourceDemandingBehaviourDiff getResourceDemandingBehaviourDiff(
-			ResourceDemandingBehaviourMatching newOldSeffMatching, ResourceDemandingBehaviour oldSEFF,
-			ResourceDemandingBehaviour newSEFF) {
-		
-		ResourceDemandingBehaviourDiff seffDiff = new ResourceDemandingBehaviourDiff();
-		
-		List<AbstractAction> listOldAbstractActions = this.getResourceDemandingBehaviourAbstractActions(oldSEFF);
-		List<AbstractAction> listNewAbstractActions = this.getResourceDemandingBehaviourAbstractActions(newSEFF);
-		
-		// if the old seff is empty, all the new Abstract actions are added 
-		if(newOldSeffMatching.getMatchingList().size() == 0 && listOldAbstractActions.size() == 0) {
-			for(AbstractAction newAbstractAction: listNewAbstractActions) {
-				seffDiff.getAddedAbstractActions().add(newAbstractAction);
-			}
-			
-			return seffDiff;
-		}
-		
-		// find modified and deleted abstract actions
-		for(AbstractAction oldAbstractAction: listOldAbstractActions) {
-			Matching matching = this.hasOldAbstractActionMatching(oldAbstractAction, newOldSeffMatching);
-			if(matching == null) {
-				seffDiff.getDeletedAbstractActions().add(oldAbstractAction);
-			}
-			else if(matching.getMatchinType().equals(MatchinType.MODIFIED)) {
-				seffDiff.getModifiedAbstractActions().add(oldAbstractAction);
-			}
-		}
-		
-		// find add abstract actions
-		for(AbstractAction newAbstractAction: listNewAbstractActions) {
-			if(this.getNewAbstractActionMatching(newAbstractAction, newOldSeffMatching) == null) {
-				seffDiff.getAddedAbstractActions().add(newAbstractAction);
-			}
-		}
-		
-		return seffDiff;
-	}
-	
-	private Matching hasOldAbstractActionMatching(AbstractAction oldAbstractAction,
-			ResourceDemandingBehaviourMatching rsdMatching) {
-		for(Matching matching: rsdMatching.getMatchingList()) {
-			if(oldAbstractAction.equals(matching.getOldAbstractAction())) {
-				return matching;
-			}
-		}
-		return null;
-	}
-	
-	
-	private AbstractAction getNewAbstractActionMatching(AbstractAction newAbstractAction,
-			ResourceDemandingBehaviourMatching rsdMatching) {
-		for(Matching matching: rsdMatching.getMatchingList()) {
-			if(matching.getNewAbstractAction().equals(newAbstractAction)) {
-				return matching.getOldAbstractAction();
-			}
-		}
-		return null;
-	}
 
 	private ResourceDemandingBehaviour createNewResourceDemandingBehaviour(final CorrespondenceModel correspondenceModel) {
 		ResourceDemandingBehaviour newSEFF = SeffFactory.eINSTANCE.createResourceDemandingBehaviour();
@@ -246,69 +175,107 @@ public class FineGranularClassMethodBodyChangedTransformation extends ExtendedCl
 		return newSEFF;
 	}
 	
-	private ResourceDemandingBehaviourMatching getNewOldSeffMatching(ResourceDemandingBehaviour oldSEFF,
-			ResourceDemandingBehaviour newSEFF, CorrespondenceModel ci) {
-		ResourceDemandingBehaviourMatching rsdMachting = new ResourceDemandingBehaviourMatching();
+	private void calculateResourceDemandingBehaviourDiff(ResourceDemandingBehaviour oldSEFF,
+			ResourceDemandingBehaviour newSEFF) {
+		rdbDifference = new ResourceDemandingBehaviourDiff();
 		
-		List<AbstractAction> oldAbstractActions = this.getResourceDemandingBehaviourAbstractActions(oldSEFF);
-		Map<AbstractAction, List<Statement>> newSeffStatements = this.newSeffElementsStatements(newSEFF);
+		List<AbstractAction> listOldAbstractActions = this.getRelevantAbstractActions(oldSEFF);
+		List<AbstractAction> listNewAbstractActions = this.getRelevantAbstractActions(newSEFF);
+		
+		// If the old SEFF is empty, all new AbstractActions are added.
+		if (listOldAbstractActions.size() == 0) {
+			rdbDifference.getAddedAbstractActions().addAll(listNewAbstractActions);
+			return;
+		}
+		
+		// Find modified AbstractActions.
+		this.matchNewAndOldSeff(oldSEFF, newSEFF, null);
+		
+		// Find deleted AbstractActions.
+		for (AbstractAction oldAbstractAction : listOldAbstractActions) {
+			if (this.hasOldAbstractActionMatching(oldAbstractAction)) {
+				rdbDifference.getDeletedAbstractActions().add(oldAbstractAction);
+			}
+		}
+		
+		// Find added AbstractActions.
+		for (AbstractAction newAbstractAction : listNewAbstractActions) {
+			if (!this.hasNewAbstractActionMatching(newAbstractAction)) {
+				rdbDifference.getAddedAbstractActions().add(newAbstractAction);
+			}
+		}
+	}
+	
+	private List<AbstractAction> getRelevantAbstractActions(ResourceDemandingBehaviour seff) {
+		List<AbstractAction> listAbstractActions = new ArrayList<>();
+		for (AbstractAction aa : seff.getSteps_Behaviour()) {
+			if (!(aa instanceof StartAction || aa instanceof StopAction)) {
+				listAbstractActions.add(aa);
+			}
+		}
+		return listAbstractActions;
+	}
+	
+	private void matchNewAndOldSeff(ResourceDemandingBehaviour oldSEFF,
+			ResourceDemandingBehaviour newSEFF, CorrespondenceModel ci) {
+
+		List<AbstractAction> oldAbstractActions = this.getRelevantAbstractActions(oldSEFF);
+		Map<AbstractAction, List<Statement>> newSeffStatements = this.getNewSeffElementStatements(newSEFF);
 				
-		for (Map.Entry<AbstractAction, List<Statement>> entry : newSeffStatements.entrySet())
-		{			
+		for (Map.Entry<AbstractAction, List<Statement>> entry : newSeffStatements.entrySet()) {
 			AbstractAction newAbstractAction = entry.getKey();
 			List<Statement> newAbstractActionStatements = entry.getValue();
-
 			
-			for(AbstractAction oldAbstractAction: oldAbstractActions) {
-				// get old AbstractActions corresponding statements
+			for (AbstractAction oldAbstractAction : oldAbstractActions) {
+				// Get corresponding statements for old AbstractAction. 
 				Set<Statement> oldAbstractActionStatements = CorrespondenceModelUtil
 						.getCorrespondingEObjects(ci, oldAbstractAction, Statement.class);
 				
+				int similarStatementsCount = this.compareAbstractActions(newAbstractAction, oldAbstractAction, 
+						newAbstractActionStatements, oldAbstractActionStatements);
 				
-				int similarStatementsCount = this.compareAbstractActions(oldAbstractAction, 
-						newAbstractActionStatements, 
-						newAbstractAction, 
-						oldAbstractActionStatements);
-				
-				if(newAbstractActionStatements.size() == similarStatementsCount) {
-					rsdMachting.addMatching(newAbstractAction, oldAbstractAction, MatchinType.TOTAL_EQUAL);
+				if (newAbstractActionStatements.size() == similarStatementsCount) {
+					rdbDifference.getUnmodifiedAbstractActions().add(
+							new AbstractActionMatching(newAbstractAction, oldAbstractAction));
+					break;
+				} else if (similarStatementsCount != 0) {
+					rdbDifference.getModifiedAbstractActions().add(
+							new AbstractActionMatching(newAbstractAction, oldAbstractAction));
 					break;
 				}
-				else if(similarStatementsCount != 0){
-					// make sure the new and the old abstract actions have the same location
-					rsdMachting.addMatching(newAbstractAction, oldAbstractAction, MatchinType.MODIFIED);
-					break;
-				}
-				
 			}
-						
 		}
-		
-		return rsdMachting;
 	}
 	
-	
-	private int compareAbstractActions(AbstractAction oldAbstractAction,
-			 List<Statement> newAbstractActionStatements, AbstractAction newAbstractAction, 
-			 Set<Statement> oldAbstractActionStatements) {
-		if(!oldAbstractAction.getClass().getSimpleName().equals(newAbstractAction.getClass().getSimpleName())) {
-			return 0;
+	private Map<AbstractAction, List<Statement>> getNewSeffElementStatements(ResourceDemandingBehaviour newSEFF) {
+	    Map<AbstractAction, List<Statement>> newSeffStatements = new HashMap<>();
+		List<SeffElementSourceCodeLink> seffStatementLinks = sourceCodeDecorator.getSeffElementsSourceCodeLinks();
+		for (SeffElementSourceCodeLink seffStatementLink : seffStatementLinks) {
+			List<Statement> listStatement = seffStatementLink.getStatement();
+			newSeffStatements.put((AbstractAction) seffStatementLink.getSeffElement(), listStatement);
 		}
-		else {
-			// compare statements
-		    return this.compareListOfStatements(newAbstractActionStatements,
+		return newSeffStatements;
+	}
+	
+	private int compareAbstractActions(AbstractAction newAbstractAction, AbstractAction oldAbstractAction,
+			 List<Statement> newAbstractActionStatements, Set<Statement> oldAbstractActionStatements) {
+		if (oldAbstractAction.getClass() != newAbstractAction.getClass()) {
+			return 0;
+		} else {
+			// Compare statements.
+		    return this.compareStatements(newAbstractActionStatements,
 		    		oldAbstractActionStatements);
 		}
 	}
 	
-	/*
-	 * return the number of the similar statement
+	/**
+	 * Returns the number of similar statement.
 	 */
-	private int compareListOfStatements(List<Statement> newStatements, Set<Statement> oldStatements) {
+	private int compareStatements(List<Statement> newStatements, Set<Statement> oldStatements) {
 		int similarStatementsCount = 0;
-		for(Statement newStatement: newStatements) {
-			for(Statement oldStatement: oldStatements) {
-				if(this.similarityChecker.isSimilar(newStatement, oldStatement)) {
+		for (Statement newStatement : newStatements) {
+			for (Statement oldStatement : oldStatements) {
+				if (this.similarityChecker.isSimilar(newStatement, oldStatement)) {
 					similarStatementsCount++;
 				}
 			}
@@ -316,47 +283,35 @@ public class FineGranularClassMethodBodyChangedTransformation extends ExtendedCl
 		return similarStatementsCount;
 	}
 	
-	
-	private Map<AbstractAction, List<Statement>> newSeffElementsStatements(ResourceDemandingBehaviour newSEFF){
-		    Map<AbstractAction, List<Statement>> newSeffStatements  = 
-					new HashMap<AbstractAction, List<Statement>>();
-		
-			List<SeffElementSourceCodeLink> seffStatementLinks = sourceCodeDecorator.getSeffElementsSourceCodeLinks();
-			
-			for(SeffElementSourceCodeLink seffStatementLink :seffStatementLinks) {
-				if(seffStatementLink.getSeffElement() instanceof ResourceDemandingBehaviour) {
-					ResourceDemandingBehaviour seff = (ResourceDemandingBehaviour) seffStatementLink.getSeffElement();
-	            	AbstractBranchTransition abstractBranchTr = seff.getAbstractBranchTransition_ResourceDemandingBehaviour();
-	            	
-	            	BranchAction branchAction = abstractBranchTr.getBranchAction_AbstractBranchTransition();
-	            	
-	            	List<Statement> listStatement = seffStatementLink.getStatement();
-					newSeffStatements.put((AbstractAction) branchAction, listStatement);
-				}
-				else {
-					List<Statement> listStatement = seffStatementLink.getStatement();
-					newSeffStatements.put((AbstractAction) seffStatementLink.getSeffElement(), listStatement);
-				}
-				
-			}
-			
-			return newSeffStatements;
-	}
-		
-	
-	private List<AbstractAction> getResourceDemandingBehaviourAbstractActions(ResourceDemandingBehaviour seff){
-		List<AbstractAction> listAbstractActions =  new ArrayList<AbstractAction>();
-		for(AbstractAction aa: seff.getSteps_Behaviour()) {
-			if(!(aa instanceof StartAction || aa instanceof StopAction)) {
-				listAbstractActions.add(aa);
+	private boolean hasOldAbstractActionMatching(AbstractAction oldAbstractAction) {
+		for (AbstractActionMatching matching : rdbDifference.getModifiedAbstractActions()) {
+			if (oldAbstractAction == matching.getOldAbstractAction()) {
+				return true;
 			}
 		}
-		return listAbstractActions;
+		for (AbstractActionMatching matching : rdbDifference.getUnmodifiedAbstractActions()) {
+			if (oldAbstractAction == matching.getOldAbstractAction()) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
+	private boolean hasNewAbstractActionMatching(AbstractAction newAbstractAction) {
+		for (AbstractActionMatching matching : rdbDifference.getModifiedAbstractActions()) {
+			if (matching.getNewAbstractAction() == newAbstractAction) {
+				return true;
+			}
+		}
+		for (AbstractActionMatching matching : rdbDifference.getUnmodifiedAbstractActions()) {
+			if (matching.getNewAbstractAction() == newAbstractAction) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
-	
-	private void bindAbstractActionsAndStatements(ResourceDemandingBehaviourDiff seffDiff,
+	private void bindAbstractActionsAndStatements(
 			CorrespondenceModel correspondenceModel) {
 		List<SeffElementSourceCodeLink> seffElementSourceCodeLinks =  sourceCodeDecorator.getSeffElementsSourceCodeLinks();
         for(SeffElementSourceCodeLink seffElementSourceCodeLink: seffElementSourceCodeLinks) {
@@ -368,7 +323,7 @@ public class FineGranularClassMethodBodyChangedTransformation extends ExtendedCl
         				correspondenceModel);
         	}
         	else if(seffElement instanceof InternalAction || seffElement instanceof LoopAction) {
-        		if(seffDiff.getAddedAbstractActions().contains(seffElement)) {
+        		if(rdbDifference.getAddedAbstractActions().contains(seffElement)) {
         			this.createAbstractActionStatementsCorrespondence((AbstractAction) seffElement, 
         					listStatements, correspondenceModel);
         		}
@@ -379,7 +334,7 @@ public class FineGranularClassMethodBodyChangedTransformation extends ExtendedCl
             	
             	BranchAction branchAction = abstractBranchTr.getBranchAction_AbstractBranchTransition();
             	
-            	if(seffDiff.getAddedAbstractActions().contains(branchAction)) {
+            	if(rdbDifference.getAddedAbstractActions().contains(branchAction)) {
             		this.createAbstractActionStatementsCorrespondence(branchAction, listStatements,
             				correspondenceModel);
             	}
