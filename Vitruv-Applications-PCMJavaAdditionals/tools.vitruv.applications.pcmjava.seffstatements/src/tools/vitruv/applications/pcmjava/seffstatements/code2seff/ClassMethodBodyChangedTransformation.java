@@ -98,7 +98,7 @@ public class ClassMethodBodyChangedTransformation {
 		this.connectCreatedResourceDemandingBehaviour(resourceDemandingBehaviour, correspondenceModel);
 
 		// 4)
-		this.createNewCorrespondences(correspondenceModel, resourceDemandingBehaviour, basicComponent);
+		this.createNewCorrespondences(correspondenceModel, resourceDemandingBehaviour);
 
 		return;
 	}
@@ -156,9 +156,8 @@ public class ClassMethodBodyChangedTransformation {
 
 	}
 
-	private void createNewCorrespondences(final CorrespondenceModel ci,
-			final ResourceDemandingBehaviour newResourceDemandingBehaviourElements,
-			final BasicComponent basicComponent) {
+	protected void createNewCorrespondences(final CorrespondenceModel ci,
+			final ResourceDemandingBehaviour newResourceDemandingBehaviourElements) {
 		for (final AbstractAction abstractAction : newResourceDemandingBehaviourElements.getSteps_Behaviour()) {
 			ci.createAndAddCorrespondence(Lists.newArrayList(abstractAction), Lists.newArrayList(this.newMethod));
 		}

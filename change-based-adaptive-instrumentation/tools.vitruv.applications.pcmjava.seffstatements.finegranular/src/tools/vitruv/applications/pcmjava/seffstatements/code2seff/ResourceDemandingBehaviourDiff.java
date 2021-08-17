@@ -39,4 +39,46 @@ public class ResourceDemandingBehaviourDiff {
 	public List<AbstractActionMatching> getUnmodifiedAbstractActions() {
 		return unmodifiedAbstractActions;
 	}
+	
+	public boolean hasOldAbstractActionMatching(AbstractAction oldAbstractAction) {
+		for (AbstractActionMatching matching : getModifiedAbstractActions()) {
+			if (oldAbstractAction == matching.getOldAbstractAction()) {
+				return true;
+			}
+		}
+		for (AbstractActionMatching matching : getUnmodifiedAbstractActions()) {
+			if (oldAbstractAction == matching.getOldAbstractAction()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean hasNewAbstractActionMatching(AbstractAction newAbstractAction) {
+		for (AbstractActionMatching matching : getModifiedAbstractActions()) {
+			if (matching.getNewAbstractAction() == newAbstractAction) {
+				return true;
+			}
+		}
+		for (AbstractActionMatching matching : getUnmodifiedAbstractActions()) {
+			if (matching.getNewAbstractAction() == newAbstractAction) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public AbstractActionMatching getNewAbstractActionMatching(AbstractAction newAction) {
+		for (var matching : getModifiedAbstractActions()) {
+			if (matching.getNewAbstractAction() == newAction) {
+				return matching;
+			}
+		}
+		for (var matching : getUnmodifiedAbstractActions()) {
+			if (matching.getNewAbstractAction() == newAction) {
+				return matching;
+			}
+		}
+		return null;
+	}
 }
