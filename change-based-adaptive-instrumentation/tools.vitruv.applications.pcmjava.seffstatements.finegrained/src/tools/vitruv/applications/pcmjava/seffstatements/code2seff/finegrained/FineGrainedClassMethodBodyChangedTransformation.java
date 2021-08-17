@@ -43,7 +43,7 @@ public class FineGrainedClassMethodBodyChangedTransformation extends ExtendedCla
 	private ResourceDemandingBehaviourDiff rdbDifference;
 	private final SimilarityChecker similarityChecker;
 	
-	public FineGrainedClassMethodBodyChangedTransformation(final Method oldMethod, final Method newMethod,
+	public FineGrainedClassMethodBodyChangedTransformation(final Method newMethod,
 			final BasicComponentFinding basicComponentFinder,
 			final IFunctionClassificationStrategy iFunctionClassificationStrategy,
 			final InterfaceOfExternalCallFindingFactory InterfaceOfExternalCallFindingFactory,

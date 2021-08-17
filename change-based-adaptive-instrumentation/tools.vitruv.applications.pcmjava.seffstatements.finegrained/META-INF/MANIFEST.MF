@@ -25,6 +25,8 @@ Require-Bundle: com.google.guava,
  org.somox.util,
  org.splevo.jamopp.diffing,
  tools.vitruv.applications.pcmjava.seffstatements,
- tools.vitruv.applications.pcmjava.seffstatements.extended
+ tools.vitruv.applications.pcmjava.seffstatements.extended,
+ cipm.consistency.domains.java,
+ tools.vitruv.framework.propagation
 Export-Package: tools.vitruv.applications.pcmjava.seffstatements.code2seff.finegrained
 Automatic-Module-Name: tools.vitruv.applications.pcmjava.seffstatements.finegrained
