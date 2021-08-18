@@ -75,7 +75,7 @@ public class FineGrainedClassMethodBodyChangedTransformation extends ExtendedCla
 		final ResourceDemandingBehaviour newSEFF = this.createNewResourceDemandingBehaviour(correspondenceModel);
 		
 		// 3) Calculate the difference between the old and new SEFF.
-		this.calculateResourceDemandingBehaviourDiff(oldSEFF, newSEFF);
+		this.calculateResourceDemandingBehaviourDiff(oldSEFF, newSEFF, correspondenceModel);
 		
 		// 4) Update the old ResourceDemandingBehaviour.
 		this.updateOldResourceDemandingBehaviour(oldSEFF, newSEFF);
@@ -98,7 +98,7 @@ public class FineGrainedClassMethodBodyChangedTransformation extends ExtendedCla
 	}
 	
 	private void calculateResourceDemandingBehaviourDiff(ResourceDemandingBehaviour oldSEFF,
-			ResourceDemandingBehaviour newSEFF) {
+			ResourceDemandingBehaviour newSEFF, CorrespondenceModel ci) {
 		rdbDifference = new ResourceDemandingBehaviourDiff();
 		
 		List<AbstractAction> listOldAbstractActions = this.getRelevantAbstractActions(oldSEFF);
@@ -111,7 +111,7 @@ public class FineGrainedClassMethodBodyChangedTransformation extends ExtendedCla
 		}
 		
 		// Find modified AbstractActions.
-		this.matchNewAndOldSeff(oldSEFF, newSEFF, null);
+		this.matchNewAndOldSeff(oldSEFF, newSEFF, ci);
 		
 		// Find deleted AbstractActions.
 		for (AbstractAction oldAbstractAction : listOldAbstractActions) {
@@ -266,8 +266,10 @@ public class FineGrainedClassMethodBodyChangedTransformation extends ExtendedCla
         				new ArrayList<>(listStatements));
         	} else {
         		var matching = rdbDifference.getNewAbstractActionMatching((AbstractAction) seffElement);
-        		correspondenceModel.createAndAddCorrespondence(List.of(matching.getOldAbstractAction()),
-        				new ArrayList<>(listStatements));
+        		if (matching != null) {
+	        		correspondenceModel.createAndAddCorrespondence(List.of(matching.getOldAbstractAction()),
+	        				new ArrayList<>(listStatements));
+        		}
         	}
         }
 	}
