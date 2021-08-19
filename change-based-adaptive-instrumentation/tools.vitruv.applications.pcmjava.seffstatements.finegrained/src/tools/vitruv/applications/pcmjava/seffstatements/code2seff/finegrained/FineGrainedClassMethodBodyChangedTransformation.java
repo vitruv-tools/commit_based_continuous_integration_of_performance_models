@@ -11,7 +11,9 @@ import org.emftext.language.java.members.Method;
 import org.emftext.language.java.statements.Statement;
 import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.palladiosimulator.pcm.seff.AbstractAction;
+import org.palladiosimulator.pcm.seff.InternalCallAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
+import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import org.palladiosimulator.pcm.seff.SeffFactory;
 import org.palladiosimulator.pcm.seff.StartAction;
 import org.palladiosimulator.pcm.seff.StopAction;
@@ -85,6 +87,9 @@ public class FineGrainedClassMethodBodyChangedTransformation extends ExtendedCla
 		
 		// 6) Create correspondences between the SEFF elements and statements.
 		this.createCorrespondencesForAbstractActionsAndStatements(correspondenceModel, oldSEFF);
+		
+		// 7) Update the ResourceDemandingInternalBehaviours.
+		this.updateResourceDemandingInternalBehaviours(oldSEFF);
 	}
 
 	private ResourceDemandingBehaviour createNewResourceDemandingBehaviour(final CorrespondenceModel correspondenceModel) {
@@ -272,5 +277,36 @@ public class FineGrainedClassMethodBodyChangedTransformation extends ExtendedCla
         		}
         	}
         }
+	}
+	
+	private void updateResourceDemandingInternalBehaviours(ResourceDemandingBehaviour oldRDB) {
+		if (!(oldRDB instanceof ResourceDemandingSEFF)) {
+			return;
+		}
+		var oldSEFF = (ResourceDemandingSEFF) oldRDB;
+		oldSEFF.getResourceDemandingInternalBehaviours().clear();
+		for (var link : this.getSourceCodeDecoratorRepository().getMethodLevelResourceDemandingInternalBehaviorLink()) {
+			InternalCallAction correspondingAction = null;
+			for (var actionLink : this.getSourceCodeDecoratorRepository().getAbstractActionClassMethodLink()) {
+				if (actionLink.getAbstractAction() instanceof InternalCallAction) {
+					var iac = (InternalCallAction) actionLink.getAbstractAction();
+					if (iac.getCalledResourceDemandingInternalBehaviour() == link.getResourceDemandingInternalBehaviour()) {
+						correspondingAction = iac;
+						break;
+					}
+				}
+			}
+			if (!oldSEFF.getSteps_Behaviour().contains(correspondingAction)) {
+				AbstractActionMatching match = this.rdbDifference
+						.getNewAbstractActionMatching(correspondingAction);
+				if (match != null) {
+					InternalCallAction oldCorrespondingAction =
+							(InternalCallAction) match.getOldAbstractAction();
+					oldCorrespondingAction.setCalledResourceDemandingInternalBehaviour(
+							link.getResourceDemandingInternalBehaviour());
+				}
+			}
+			oldSEFF.getResourceDemandingInternalBehaviours().add(link.getResourceDemandingInternalBehaviour());
+		}
 	}
 }
