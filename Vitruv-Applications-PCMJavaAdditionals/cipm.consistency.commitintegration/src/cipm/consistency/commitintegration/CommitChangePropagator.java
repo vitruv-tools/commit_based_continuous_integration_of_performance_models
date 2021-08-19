@@ -179,7 +179,7 @@ public class CommitChangePropagator {
 		String oldId = start != null ? start.getId().getName() : null;
 		cs.setOldCommit(oldId != null ? oldId : "");
 		cs.setNewCommit(commitId);
-		cs.setNumberChangedJavaFiles(repoWrapper.getAllCommitsBetweenTwoCommits(oldId,
+		cs.setNumberCommits(repoWrapper.getAllCommitsBetweenTwoCommits(oldId,
 				commitId).size() - 1);
 		logger.debug("Cleaning the repository.");
 		repoWrapper.performCompleteClean();
