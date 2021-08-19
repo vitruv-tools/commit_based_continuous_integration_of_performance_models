@@ -8,15 +8,12 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
-import cipm.consistency.designtime.instrumentation2.CodeInstrumenter;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
 
@@ -47,14 +44,14 @@ public class TeaStoreCITest extends AbstractCITest {
 	@Test
 	public void testTeaStore1_1Integration() throws Exception {
 		// Integrates TeaStore version 1.1.
-		prop.propagateChanges(COMMIT_TAG_1_1);
+		executePropagationAndEvaluation(null, COMMIT_TAG_1_1, 0);
 	}
 	
 	@Disabled("Only one test case should run at once.")
 	@Test
 	public void testTeaStore1_1To1_2Propagation() throws Exception {
 		// Propagation of changes between TeaStore version 1.1 and 1.2.
-		prop.propagateChanges(COMMIT_TAG_1_1, COMMIT_TAG_1_2);
+		executePropagationAndEvaluation(COMMIT_TAG_1_1, COMMIT_TAG_1_2, 1);
 	}
 	
 	@Disabled("Only one test case should run at once.")
@@ -77,7 +74,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	@Test
 	public void testTeaStoreWithMultipleCommits1_2To1_2_1() throws GitAPIException, IOException, InterruptedException {
 		List<String> successfulCommits = new ArrayList<>();
-		var commits = convertToStringList(this.prop.getWrapper()
+		var commits = convertToStringList(this.controller.getCommitChangePropagator().getWrapper()
 				.getAllCommitsBetweenTwoCommits(COMMIT_TAG_1_2, COMMIT_TAG_1_2_1));
 		var oldCommit = commits.get(0);
 		successfulCommits.add(oldCommit);
@@ -107,44 +104,23 @@ public class TeaStoreCITest extends AbstractCITest {
 			throws GitAPIException, IOException {
 		EvaluationDataContainer evalResult = new EvaluationDataContainer();
 		EvaluationDataContainer.setGlobalContainer(evalResult);
-		this.facade.getInstrumentationModel().eAllContents().forEachRemaining(ip -> {
-			if (ip instanceof ActionInstrumentationPoint) {
-				((ActionInstrumentationPoint) ip).setActive(false);
-			}
-		});
-		this.facade.getInstrumentationModel().eResource().save(null);
-		boolean result = prop.propagateChanges(oldCommit, newCommit);
+		boolean result = this.controller.propagateChanges(oldCommit, newCommit, true);
 		if (result) {
-			FileUtils.deleteDirectory(this.prop.getJavaFileSystemLayout().getInstrumentationCopy().toFile());
-			Resource javaModel = getJavaModel();
-			Resource instrumentedModel = new CodeInstrumenter().instrument(
-					this.facade.getInstrumentationModel(),
-					this.facade.getVSUM().getCorrespondenceModel(),
-					javaModel,
-					this.prop.getJavaFileSystemLayout().getInstrumentationCopy(),
-					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), true);
-//			new CodeInstrumenter().instrument(this.facade.getInstrumentationModel(),
-//					this.facade.getVSUM().getCorrespondenceModel(),
-//					javaModel,
-//					this.prop.getJavaFileSystemLayout().getInstrumentationCopy().resolveSibling("ins-all"),
-//					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), false);
-			Path root = this.facade.getFileLayout().getRootPath();
+			Resource javaModel = this.controller.getJavaModelResource();
+			Resource instrumentedModel = this.controller.getLastInstrumentedModelResource();
+			Path root = this.controller.getVSUMFacade().getFileLayout().getRootPath();
 			Path copy = root.resolveSibling(root.getFileName().toString() + "-" + num + "-" + newCommit);
 			logger.debug("Copying the propagated state.");
 			FileUtils.copyDirectory(root.toFile(), copy.toFile());
 			logger.debug("Evaluating the instrumentation.");
-			new InstrumentationEvaluator().evaluateInstrumentationDependently(this.facade.getInstrumentationModel(),
-					javaModel, instrumentedModel, this.facade.getVSUM().getCorrespondenceModel());
+			new InstrumentationEvaluator().evaluateInstrumentationDependently(
+					this.controller.getVSUMFacade().getInstrumentationModel(),
+					javaModel, instrumentedModel,
+					this.controller.getVSUMFacade().getVSUM().getCorrespondenceModel());
 			EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("DependentEvaluationResult.json"));
 			logger.debug("Finished the evaluation.");
 		}
 		return result;
-	}
-	
-	private Resource getJavaModel() {
-		return this.facade.getVSUM().getModelInstance(
-				URI.createFileURI(prop.getJavaFileSystemLayout().getJavaModelFile().toString()))
-				.getResource();
 	}
 	
 	private void performIndependentEvaluation(String oldCommit, String newCommit) throws IOException {
@@ -152,19 +128,23 @@ public class TeaStoreCITest extends AbstractCITest {
 		EvaluationDataContainer evalResult = EvaluationDataContainer.getGlobalContainer();
 		evalResult.getChangeStatistic().setOldCommit(oldCommit);
 		evalResult.getChangeStatistic().setNewCommit(newCommit);
-		Resource javaModel = getJavaModel();
+		Resource javaModel = this.controller.getJavaModelResource();
 		logger.debug("Evaluating the Java model.");
 		new JavaModelEvaluator().evaluateJavaModels(javaModel,
-				prop.getJavaFileSystemLayout().getLocalJavaRepo(), evalResult.getJavaComparisonResult(),
-				prop.getJavaFileSystemLayout().getModuleConfiguration());
+				this.controller.getCommitChangePropagator().getJavaFileSystemLayout().getLocalJavaRepo(),
+				evalResult.getJavaComparisonResult(),
+				this.controller.getCommitChangePropagator().getJavaFileSystemLayout().getModuleConfiguration());
 		logger.debug("Evaluating the instrumentation model.");
-		new IMUpdateEvaluator().evaluateIMUpdate(this.facade.getPCMWrapper().getRepository(),
-				this.facade.getInstrumentationModel(), evalResult.getImEvalResult());
+		new IMUpdateEvaluator().evaluateIMUpdate(
+				this.controller.getVSUMFacade().getPCMWrapper().getRepository(),
+				this.controller.getVSUMFacade().getInstrumentationModel(),
+				evalResult.getImEvalResult());
 		logger.debug("Evaluating the instrumentation.");
-		new InstrumentationEvaluator().evaluateInstrumentationIndependently(this.facade.getInstrumentationModel(),
-				javaModel, this.prop.getJavaFileSystemLayout(),
-				this.facade.getVSUM().getCorrespondenceModel());
-		Path root = this.facade.getFileLayout().getRootPath();
+		new InstrumentationEvaluator().evaluateInstrumentationIndependently(
+				this.controller.getVSUMFacade().getInstrumentationModel(),
+				javaModel, this.controller.getCommitChangePropagator().getJavaFileSystemLayout(),
+				this.controller.getVSUMFacade().getVSUM().getCorrespondenceModel());
+		Path root = this.controller.getVSUMFacade().getFileLayout().getRootPath();
 		EvaluationDataContainerReaderWriter.write(evalResult, root.resolveSibling("EvaluationResult-"
 				+ newCommit + "-" + evalResult.getEvaluationTime() + ".json"));
 		logger.debug("Finished the evaluation.");

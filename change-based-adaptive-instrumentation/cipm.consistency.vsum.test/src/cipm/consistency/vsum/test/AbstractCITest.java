@@ -1,6 +1,5 @@
 package cipm.consistency.vsum.test;
 
-import java.io.File;
 import java.nio.file.Paths;
 
 import org.apache.log4j.ConsoleAppender;
@@ -10,32 +9,26 @@ import org.apache.log4j.PatternLayout;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-import cipm.consistency.commitintegration.CommitChangePropagator;
-import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
-import cipm.consistency.vsum.VSUMFacade;
+import cipm.consistency.vsum.CommitIntegrationController;
 
 public abstract class AbstractCITest {
-	protected VSUMFacade facade;
-	protected CommitChangePropagator prop;
+	protected CommitIntegrationController controller;
 	
 	@BeforeEach
 	public void setUp() throws Exception {
 		Logger logger = Logger.getLogger("cipm");
 		logger.setLevel(Level.ALL);
+		logger.removeAllAppenders();
 		ConsoleAppender ap = new ConsoleAppender(new PatternLayout("[%d{DATE}] %-5p: %c - %m%n"),
 				ConsoleAppender.SYSTEM_OUT);
 		logger.addAppender(ap);
-		CommitIntegrationSettingsContainer.initialize(Paths.get(getSettingsPath()));
-		facade = new VSUMFacade(Paths.get(getTestPath()));
-		prop = new CommitChangePropagator(new File(getRepositoryPath())
-				.getAbsoluteFile(), facade.getFileLayout().getJavaPath().toString(), facade.getVSUM());
-		prop.initialize();
+		controller = new CommitIntegrationController(Paths.get(getTestPath()),
+				getRepositoryPath(), Paths.get(getSettingsPath()));
 	}
 	
 	@AfterEach
 	public void tearDown() throws Exception {
-		facade.getVSUM().dispose();
-		prop.shutdown();
+		controller.shutdown();
 	}
 	
 	protected abstract String getTestPath();

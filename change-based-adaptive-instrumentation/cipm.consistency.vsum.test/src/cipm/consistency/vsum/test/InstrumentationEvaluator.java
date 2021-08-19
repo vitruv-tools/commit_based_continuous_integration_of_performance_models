@@ -1,5 +1,6 @@
 package cipm.consistency.vsum.test;
 
+import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,6 +35,9 @@ public class InstrumentationEvaluator {
 	
 	public void evaluateInstrumentationDependently(InstrumentationModel im, Resource javaModel,
 			Resource instrumentedModel, CorrespondenceModel cm) {
+		if (im == null) {
+			return;
+		}
 		InstrumentationEvaluationData insEvalData = EvaluationDataContainer
 				.getGlobalContainer().getInstrumentationData();
 		int javaStatements = countStatements(javaModel);
@@ -45,6 +49,9 @@ public class InstrumentationEvaluator {
 	
 	public void evaluateInstrumentationIndependently(InstrumentationModel im, Resource javaModel,
 			JavaFileSystemLayout fileLayout, CorrespondenceModel cm) {
+		if (Files.notExists(fileLayout.getInstrumentationCopy())) {
+			return;
+		}
 		InstrumentationEvaluationData insEvalData = EvaluationDataContainer
 				.getGlobalContainer().getInstrumentationData();
 		insEvalData.setExpectedLowerStatementDifferenceCount(countExpectedStatements(im, cm, true));
