@@ -1,13 +1,8 @@
 package cipm.consistency.commitintegration;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
@@ -20,6 +15,8 @@ import org.emftext.language.java.containers.JavaRoot;
 
 import cipm.consistency.commitintegration.detection.BuildFileBasedComponentDetectionStrategy;
 import cipm.consistency.commitintegration.detection.ComponentModuleDetector;
+import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
+import cipm.consistency.commitintegration.settings.SettingKeys;
 import jamopp.options.ParserOptions;
 import jamopp.parser.jdt.singlefile.JaMoPPJDTSingleFileParser;
 import tools.vitruv.framework.vsum.VirtualModel;
@@ -50,10 +47,9 @@ public final class JavaParserAndPropagatorUtility {
 		ParserOptions.REGISTER_LOCAL.setValue(Boolean.TRUE);
 		JaMoPPJDTSingleFileParser parser = new JaMoPPJDTSingleFileParser();
 		parser.setResourceSet(new ResourceSetImpl());
-		parser.setExclusionPatterns(".*?/src/test/java/.*?",
-				".*?/utilities/tools.descartes.teastore.kieker/.*?",
-				".*?/utilities/.*?/cipm/consistency/.*?",
-				".*?/services/.*?/cipm/consistency/.*?");
+		parser.setExclusionPatterns(CommitIntegrationSettingsContainer
+				.getSettingsContainer().getProperty(SettingKeys.JAVA_PARSER_EXCLUSION_PATTERNS).
+				split(";"));
 		logger.debug("Parsing " + dir.toString());
 		ResourceSet resourceSet = parser.parseDirectory(dir);
 		logger.debug("Parsed " + resourceSet.getResources().size() + " files.");

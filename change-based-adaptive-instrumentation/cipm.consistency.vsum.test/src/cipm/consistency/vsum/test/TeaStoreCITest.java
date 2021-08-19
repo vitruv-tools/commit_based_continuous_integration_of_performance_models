@@ -33,7 +33,14 @@ public class TeaStoreCITest extends AbstractCITest {
 	
 	@Override
 	protected String getRepositoryPath() {
-		return "../.git/modules/cipm.consistency.base.vitruv.vsum.test/TeaStore";
+		return ".." + File.separator + ".git" + File.separator + "modules"
+				+ File.separator + "cipm.consistency.base.vitruv.vsum.test"
+				+ File.separator + "TeaStore";
+	}
+	
+	@Override
+	protected String getSettingsPath() {
+		return "teastore-exec-files" + File.separator + "settings.properties";
 	}
 	
 	@Disabled("Only one test case should run at once.")

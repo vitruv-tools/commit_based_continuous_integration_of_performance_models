@@ -28,5 +28,6 @@ Require-Bundle: cipm.consistency.commitintegration,
  org.eclipse.xtext.xbase.lib,
  cipm.consistency.designtime.instrumentation2,
  cipm.consistency.commitintegration.diff.util,
- cipm.consistency.tools.evaluation.data
+ cipm.consistency.tools.evaluation.data,
+ cipm.consistency.commitintegration.settings
 Export-Package: cipm.consistency.vsum.test

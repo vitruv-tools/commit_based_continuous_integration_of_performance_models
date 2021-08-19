@@ -1,9 +1,12 @@
 package cipm.consistency.cpr.javapcm;
 
+import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
+import cipm.consistency.commitintegration.settings.SettingKeys;
 import mir.reactions.all.AllChangePropagationSpecification;
 import mir.reactions.classifierBody.ClassifierBodyChangePropagationSpecification;
 
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended.ExtendedJava2PcmMethodBodyChangePreprocessor;
+import tools.vitruv.applications.pcmjava.seffstatements.code2seff.finegrained.FineGrainedJava2PcmMethodBodyChangePreprocessor;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.Java2PcmPackageMappingMethodBodyChangePreprocessor;
 
 /**
@@ -30,6 +33,11 @@ public class CommitIntegrationJavaPCMChangePropagationSpecification extends AllC
 	protected void setup() {
 		super.setup();
 		// Change propagation specification for changes on method bodies.
-		this.addChangeMainprocessor(new ExtendedJava2PcmMethodBodyChangePreprocessor());
+		if (CommitIntegrationSettingsContainer.getSettingsContainer()
+				.getPropertyAsBoolean(SettingKeys.PERFORM_FINE_GRAINED_SEFF_RECONSTRUCTION)) {
+			this.addChangeMainprocessor(new FineGrainedJava2PcmMethodBodyChangePreprocessor());
+		} else {
+			this.addChangeMainprocessor(new ExtendedJava2PcmMethodBodyChangePreprocessor());
+		}
 	}
 }

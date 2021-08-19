@@ -6,11 +6,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.revwalk.RevCommit;
 
+import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
+import cipm.consistency.commitintegration.settings.SettingKeys;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
 
@@ -196,21 +199,18 @@ public class CommitChangePropagator {
 	
 	private boolean preprocess() {
 		int result = -1;
-		File possibleFile = new File("preprocess.bat");
+		File possibleFile = new File(CommitIntegrationSettingsContainer.getSettingsContainer()
+				.getProperty(SettingKeys.PATH_TO_PREPROCESSING_SCRIPT));
 		String absPath = possibleFile.getAbsolutePath();
 		if (possibleFile.exists()) {
 			logger.debug("Executing " + absPath + " for the preprocessing.");
-			result = runPreprocessingScript("cmd.exe", "/c", "\"" + absPath + "\"");
+			if (SystemUtils.IS_OS_WINDOWS) {
+				result = runPreprocessingScript("cmd.exe", "/c", "\"" + absPath + "\"");
+			} else {
+				result = runPreprocessingScript(absPath);
+			}
 		} else {
 			logger.debug(absPath + " not found.");
-			possibleFile = new File("preprocess.sh");
-			absPath = possibleFile.getAbsolutePath();
-			if (possibleFile.exists()) {
-				logger.debug("Executing " + absPath + " for the preprocessing.");
-				result = runPreprocessingScript(absPath);
-			} else {
-				logger.debug(absPath + " not found.");
-			}
 		}
 		if (result != 0) {
 			return false;

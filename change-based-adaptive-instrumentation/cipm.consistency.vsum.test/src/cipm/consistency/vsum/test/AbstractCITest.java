@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 import cipm.consistency.commitintegration.CommitChangePropagator;
+import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
 import cipm.consistency.vsum.VSUMFacade;
 
 public abstract class AbstractCITest {
@@ -24,6 +25,7 @@ public abstract class AbstractCITest {
 		ConsoleAppender ap = new ConsoleAppender(new PatternLayout("[%d{DATE}] %-5p: %c - %m%n"),
 				ConsoleAppender.SYSTEM_OUT);
 		logger.addAppender(ap);
+		CommitIntegrationSettingsContainer.initialize(Paths.get(getSettingsPath()));
 		facade = new VSUMFacade(Paths.get(getTestPath()));
 		prop = new CommitChangePropagator(new File(getRepositoryPath())
 				.getAbsoluteFile(), facade.getFileLayout().getJavaPath().toString(), facade.getVSUM());
@@ -39,4 +41,6 @@ public abstract class AbstractCITest {
 	protected abstract String getTestPath();
 	
 	protected abstract String getRepositoryPath();
+	
+	protected abstract String getSettingsPath();
 }
