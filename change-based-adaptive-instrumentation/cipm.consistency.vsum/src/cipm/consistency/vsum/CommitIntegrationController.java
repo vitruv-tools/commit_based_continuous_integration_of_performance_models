@@ -15,6 +15,7 @@ import cipm.consistency.commitintegration.CommitChangePropagator;
 import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
 import cipm.consistency.commitintegration.settings.SettingKeys;
 import cipm.consistency.designtime.instrumentation2.CodeInstrumenter;
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 
 public class CommitIntegrationController {
 	private final static Logger logger = Logger.getLogger("cipm." + CommitIntegrationController.class.getSimpleName());
@@ -37,6 +38,7 @@ public class CommitIntegrationController {
 	
 	public boolean propagateChanges(String oldCommit, String newCommit, boolean storeInstrumentedModel)
 			throws IOException, GitAPIException {
+		long overallTimer = System.currentTimeMillis();
 		instrumentedModel = null;
 		Path insDir = this.prop.getJavaFileSystemLayout().getInstrumentationCopy();
 		if (Files.exists(insDir)) {
@@ -49,7 +51,11 @@ public class CommitIntegrationController {
 			}
 		});
 		this.facade.getInstrumentationModel().eResource().save(null);
+		long fineTimer = System.currentTimeMillis();
 		boolean result = prop.propagateChanges(oldCommit, newCommit);
+		fineTimer = System.currentTimeMillis() - fineTimer;
+		EvaluationDataContainer.getGlobalContainer().getExecutionTimes()
+				.setChangePropagationTime(fineTimer);
 		if (result) {
 			boolean hasChangedIM = false;
 			for (var iter = this.facade.getInstrumentationModel().eAllContents(); iter.hasNext();) {
@@ -65,16 +71,22 @@ public class CommitIntegrationController {
 					.getPropertyAsBoolean(SettingKeys.PERFORM_FULL_INSTRUMENTATION);
 			if (hasChangedIM || fullInstrumentation) {
 				Resource javaModel = getJavaModelResource();
+				fineTimer = System.currentTimeMillis();
 				Resource insModel = new CodeInstrumenter().instrument(
 					this.facade.getInstrumentationModel(),
 					this.facade.getVSUM().getCorrespondenceModel(),
 					javaModel, insDir,
 					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), fullInstrumentation);
+				fineTimer = System.currentTimeMillis() - fineTimer;
+				EvaluationDataContainer.getGlobalContainer().getExecutionTimes()
+						.setInstrumentationTime(fineTimer);
 				if (storeInstrumentedModel) {
 					this.instrumentedModel = insModel;
 				}
 			}
 		}
+		overallTimer = System.currentTimeMillis() - overallTimer;
+		EvaluationDataContainer.getGlobalContainer().getExecutionTimes().setOverallTime(overallTimer);
 		return result;
 	}
 	
