@@ -35,7 +35,7 @@ public class InstrumentationEvaluator {
 	
 	public void evaluateInstrumentationDependently(InstrumentationModel im, Resource javaModel,
 			Resource instrumentedModel, CorrespondenceModel cm) {
-		if (im == null) {
+		if (instrumentedModel == null || instrumentedModel.getContents().isEmpty()) {
 			return;
 		}
 		InstrumentationEvaluationData insEvalData = EvaluationDataContainer

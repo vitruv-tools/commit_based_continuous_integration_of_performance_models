@@ -180,7 +180,7 @@ public class CommitChangePropagator {
 		cs.setOldCommit(oldId != null ? oldId : "");
 		cs.setNewCommit(commitId);
 		cs.setNumberCommits(repoWrapper.getAllCommitsBetweenTwoCommits(oldId,
-				commitId).size() - 1);
+				commitId).size() + 1);
 		logger.debug("Cleaning the repository.");
 		repoWrapper.performCompleteClean();
 		logger.debug("Checkout of " + commitId);

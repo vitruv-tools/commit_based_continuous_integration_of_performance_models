@@ -76,9 +76,11 @@ public class TeaStoreCITest extends AbstractCITest {
 		List<String> successfulCommits = new ArrayList<>();
 		var commits = convertToStringList(this.controller.getCommitChangePropagator().getWrapper()
 				.getAllCommitsBetweenTwoCommits(COMMIT_TAG_1_2, COMMIT_TAG_1_2_1));
-		var oldCommit = commits.get(0);
+		commits.add(0, COMMIT_TAG_1_2);
+		int startIndex = 0;
+		var oldCommit = commits.get(startIndex);
 		successfulCommits.add(oldCommit);
-		for (int idx = 1; idx < commits.size(); idx++) {
+		for (int idx = startIndex + 1; idx < commits.size(); idx++) {
 			var newCommit = commits.get(idx);
 			boolean result = executePropagationAndEvaluation(oldCommit, newCommit, idx);
 			if (result) {
