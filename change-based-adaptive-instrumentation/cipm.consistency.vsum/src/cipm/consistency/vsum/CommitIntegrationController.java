@@ -76,7 +76,7 @@ public class CommitIntegrationController {
 					this.facade.getInstrumentationModel(),
 					this.facade.getVSUM().getCorrespondenceModel(),
 					javaModel, insDir,
-					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), fullInstrumentation);
+					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), !fullInstrumentation);
 				fineTimer = System.currentTimeMillis() - fineTimer;
 				EvaluationDataContainer.getGlobalContainer().getExecutionTimes()
 						.setInstrumentationTime(fineTimer);
