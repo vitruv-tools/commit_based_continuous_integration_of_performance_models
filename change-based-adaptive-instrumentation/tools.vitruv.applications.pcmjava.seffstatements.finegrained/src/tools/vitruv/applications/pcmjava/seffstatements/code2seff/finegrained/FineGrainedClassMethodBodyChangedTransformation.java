@@ -79,17 +79,14 @@ public class FineGrainedClassMethodBodyChangedTransformation extends ExtendedCla
 		// 3) Calculate the difference between the old and new SEFF.
 		this.calculateResourceDemandingBehaviourDiff(oldSEFF, newSEFF, correspondenceModel);
 		
-		// 4) Update the old ResourceDemandingBehaviour.
-		this.updateOldResourceDemandingBehaviour(oldSEFF, newSEFF);
+		// 4) Update the old ResourceDemandingBehaviour by merging the differences.
+		this.mergeDifferences(oldSEFF, newSEFF);
 		
 		// 5) Create new correspondences between the SEFF elements and the method.
 		this.createNewCorrespondences(correspondenceModel, oldSEFF);
 		
 		// 6) Create correspondences between the SEFF elements and statements.
 		this.createCorrespondencesForAbstractActionsAndStatements(correspondenceModel, oldSEFF);
-		
-		// 7) Update the ResourceDemandingInternalBehaviours.
-		this.updateResourceDemandingInternalBehaviours(oldSEFF);
 	}
 
 	private ResourceDemandingBehaviour createNewResourceDemandingBehaviour(final CorrespondenceModel correspondenceModel) {
@@ -120,7 +117,7 @@ public class FineGrainedClassMethodBodyChangedTransformation extends ExtendedCla
 		
 		// Find deleted AbstractActions.
 		for (AbstractAction oldAbstractAction : listOldAbstractActions) {
-			if (rdbDifference.hasOldAbstractActionMatching(oldAbstractAction)) {
+			if (!rdbDifference.hasOldAbstractActionMatching(oldAbstractAction)) {
 				rdbDifference.getDeletedAbstractActions().add(oldAbstractAction);
 			}
 		}
@@ -211,7 +208,7 @@ public class FineGrainedClassMethodBodyChangedTransformation extends ExtendedCla
 		return similarStatementsCount;
 	}
 	
-	private void updateOldResourceDemandingBehaviour(ResourceDemandingBehaviour rdBehavior,
+	private void mergeDifferences(ResourceDemandingBehaviour rdBehavior,
 			ResourceDemandingBehaviour newSeff) {
 		final List<AbstractAction> steps = rdBehavior.getSteps_Behaviour();
 		
@@ -224,9 +221,21 @@ public class FineGrainedClassMethodBodyChangedTransformation extends ExtendedCla
 			rdBehavior.getSteps_Behaviour().add(SeffFactory.eINSTANCE.createStopAction());
 		}
 		
+		this.removeOldAbstractActions(steps);
+		
 		this.addNewAbstractActions(steps, newSeff);
 		
+		this.addChangedAbstractActions(steps, newSeff);
+		
 		VisitorUtils.connectActions(rdBehavior);
+		
+		this.updateResourceDemandingInternalBehaviours(rdBehavior);
+	}
+	
+	private void removeOldAbstractActions(List<AbstractAction> steps) {
+		for (var action : rdbDifference.getDeletedAbstractActions()) {
+			steps.remove(action);
+		}
 	}
 	
 	private void addNewAbstractActions(List<AbstractAction> steps, ResourceDemandingBehaviour newSeff) {
@@ -256,6 +265,16 @@ public class FineGrainedClassMethodBodyChangedTransformation extends ExtendedCla
 				}
 			}
 			newAbstractActionPredecessor = newAbstractAction;
+		}
+	}
+	
+	private void addChangedAbstractActions(List<AbstractAction> oldActions, ResourceDemandingBehaviour newSeff) {
+		for (AbstractAction newAction : newSeff.getSteps_Behaviour()) {
+			var matching = rdbDifference.getNewAbstractActionMatching(newAction);
+			if (matching != null && rdbDifference.getModifiedAbstractActions().contains(matching)) {
+				int oldIndex = oldActions.indexOf(matching.getOldAbstractAction());
+				oldActions.set(oldIndex, newAction);
+			}
 		}
 	}
 	
