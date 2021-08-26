@@ -105,7 +105,7 @@ public class InternalActionInstrumenter extends AbstractInstrumenter {
 		LocalVariable returnVariable = VariablesFactory.eINSTANCE.createLocalVariable();
 		returnVariable.setTypeReference(EcoreUtil.copy(findMethod(ret).getTypeReference()));
 		returnVariable.setName("longAndUniqueNameToAvoidDuplicationsAndCompilationErrors"
-				+ System.currentTimeMillis() + Double.toString(Math.random()).replace('.', '0'));
+				+ System.currentTimeMillis() + Double.toString(Math.random()).replace('.', '0').replace('-', '0'));
 		returnVariable.setInitialValue(ret.getReturnValue());
 		LocalVariableStatement retVarStat = StatementsFactory.eINSTANCE.createLocalVariableStatement();
 		retVarStat.setVariable(returnVariable);
