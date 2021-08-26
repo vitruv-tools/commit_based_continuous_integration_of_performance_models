@@ -41,10 +41,7 @@ public class CommitIntegrationController {
 		long overallTimer = System.currentTimeMillis();
 		instrumentedModel = null;
 		Path insDir = this.prop.getJavaFileSystemLayout().getInstrumentationCopy();
-		if (Files.exists(insDir)) {
-			logger.debug("Deleting the instrumentation directory.");
-			FileUtils.deleteDirectory(insDir.toFile());
-		}
+		removeInstrumentationDirectory(insDir);
 		this.facade.getInstrumentationModel().eAllContents().forEachRemaining(ip -> {
 			if (ip instanceof ActionInstrumentationPoint) {
 				((ActionInstrumentationPoint) ip).setActive(false);
@@ -70,13 +67,8 @@ public class CommitIntegrationController {
 			boolean fullInstrumentation = CommitIntegrationSettingsContainer.getSettingsContainer()
 					.getPropertyAsBoolean(SettingKeys.PERFORM_FULL_INSTRUMENTATION);
 			if (hasChangedIM || fullInstrumentation) {
-				Resource javaModel = getJavaModelResource();
 				fineTimer = System.currentTimeMillis();
-				Resource insModel = new CodeInstrumenter().instrument(
-					this.facade.getInstrumentationModel(),
-					this.facade.getVSUM().getCorrespondenceModel(),
-					javaModel, insDir,
-					this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), !fullInstrumentation);
+				Resource insModel = performInstrumentation(insDir, fullInstrumentation);
 				fineTimer = System.currentTimeMillis() - fineTimer;
 				EvaluationDataContainer.getGlobalContainer().getExecutionTimes()
 						.setInstrumentationTime(fineTimer);
@@ -88,6 +80,32 @@ public class CommitIntegrationController {
 		overallTimer = System.currentTimeMillis() - overallTimer;
 		EvaluationDataContainer.getGlobalContainer().getExecutionTimes().setOverallTime(overallTimer);
 		return result;
+	}
+	
+	public Resource instrumentCode(boolean performFullInstrumentation) {
+		Path insDir = this.prop.getJavaFileSystemLayout().getInstrumentationCopy();
+		removeInstrumentationDirectory(insDir);
+		return performInstrumentation(insDir, performFullInstrumentation);
+	}
+	
+	private void removeInstrumentationDirectory(Path instrumentationDirectory) {
+		if (Files.exists(instrumentationDirectory)) {
+			logger.debug("Deleting the instrumentation directory.");
+			try {
+				FileUtils.deleteDirectory(instrumentationDirectory.toFile());
+			} catch (IOException e) {
+				logger.error(e);
+			}
+		}
+	}
+	
+	private Resource performInstrumentation(Path instrumentationDirectory, boolean performFullInstrumentation) {
+		Resource javaModel = getJavaModelResource();
+		return new CodeInstrumenter().instrument(
+			this.facade.getInstrumentationModel(),
+			this.facade.getVSUM().getCorrespondenceModel(),
+			javaModel, instrumentationDirectory,
+			this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), !performFullInstrumentation);
 	}
 	
 	public void shutdown() {
