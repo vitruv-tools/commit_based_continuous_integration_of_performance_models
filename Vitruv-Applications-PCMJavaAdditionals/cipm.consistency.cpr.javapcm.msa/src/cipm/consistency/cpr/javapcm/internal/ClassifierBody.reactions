@@ -36,7 +36,9 @@ reaction AddedClassMethod {
 reaction ChangedJavaReturnType {
 	after element java::TypeReference replaced at java::Method[typeReference]
 	call {
-		updateReturnType(affectedEObject, newValue)
+		if (newValue !== null) {
+			updateReturnType(affectedEObject, newValue)
+		}
 	}
 }
 

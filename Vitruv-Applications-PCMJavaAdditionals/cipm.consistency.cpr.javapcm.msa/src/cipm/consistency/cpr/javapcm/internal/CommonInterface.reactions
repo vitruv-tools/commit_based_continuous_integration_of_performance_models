@@ -32,3 +32,12 @@ routine addCorrespondenceBetweenClassifierAndInterface(java::ConcreteClassifier 
 		add correspondence between javaClassifier and pcmInterface
 	}
 }
+
+routine removeInterface(java::Classifier classifier) {
+	match {
+		val opInterface = retrieve pcm::OperationInterface corresponding to classifier
+	}
+	action {
+		delete opInterface
+	}
+}

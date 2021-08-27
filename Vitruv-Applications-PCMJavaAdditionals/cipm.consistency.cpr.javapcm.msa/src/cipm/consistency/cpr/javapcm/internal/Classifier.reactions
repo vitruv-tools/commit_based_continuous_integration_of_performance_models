@@ -62,6 +62,8 @@ reaction RemovedClass {
 	call {
 		checkBasicComponentRemovalForClassifier(oldValue)
 		checkDataTypeRemoval(oldValue)
+		removeOperationProvidedRolesForRemovedClass(oldValue)
+		removeInterface(oldValue)
 	}
 } 
 
@@ -71,6 +73,7 @@ reaction RemovedInterface {
 	call {
 		checkBasicComponentRemovalForClassifier(oldValue)
 		checkDataTypeRemoval(oldValue)
+		removeInterface(oldValue)
 	}
 }
 

@@ -85,6 +85,19 @@ routine checkRemovalOfOperationProvidedRole(java::Class clazz, java::Classifier 
 	}
 }
 
+routine removeOperationProvidedRolesForRemovedClass(java::Classifier classifier) {
+	match {
+		val opRoles = retrieve many pcm::OperationProvidedRole corresponding to classifier
+	}
+	action {
+		call {
+			for (role : opRoles) {
+				removeOperationProvidedRole(role)
+			}
+		}
+	}
+}
+
 routine removeOperationProvidedRole(pcm::OperationProvidedRole role) {
 	action {
 		delete role
