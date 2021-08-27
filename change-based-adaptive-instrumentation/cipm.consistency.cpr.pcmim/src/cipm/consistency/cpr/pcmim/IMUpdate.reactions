@@ -6,6 +6,7 @@ import org.palladiosimulator.pcm.seff.ExternalCallAction
 import org.palladiosimulator.pcm.seff.InternalAction
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationType
 import org.eclipse.emf.ecore.InternalEObject
+import cipm.consistency.cpr.pcmim.InternalUtility
 
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
 import "http://www.dmodel.com/InstrumentationMetamodel" as im
@@ -41,7 +42,7 @@ routine createOrFindServiceInstrumentationPoint(pcm::ResourceDemandingSEFF seff)
 }
 
 reaction AddedAction {
-	after element pcm::AbstractAction inserted in pcm::ResourceDemandingSEFF[steps_Behaviour]
+	after element pcm::AbstractAction inserted in pcm::ResourceDemandingBehaviour[steps_Behaviour]
 	call {
 		var actionType = InstrumentationType.INTERNAL_VALUE
 		if (newValue instanceof LoopAction) {
@@ -58,7 +59,10 @@ reaction AddedAction {
 			actionType = -1
 		}
 		if (actionType !== -1) {
-			createOrFindActionInstrumentationPoint(affectedEObject, newValue, actionType)
+			var seff = InternalUtility.getParentSEFFNotForInternalBehaviour(affectedEObject)
+			if (seff !== null) {
+				createOrFindActionInstrumentationPoint(seff, newValue, actionType)
+			}
 		}
 	}
 }
@@ -98,7 +102,20 @@ routine checkRemovalOfServiceInstrumentationPoint(pcm::ResourceDemandingSEFF sef
 				.findFirst[(it.service as InternalEObject).eProxyURI.toString.contains(seff.id)]
 			if (sip !== null) {
 				removeServiceInstrumentationPoint(sip)
+			} else {
+				checkRemovalOfNonProxyServiceInstrumentationPoint(seff)
 			}
+		}
+	}
+}
+
+routine checkRemovalOfNonProxyServiceInstrumentationPoint(pcm::ResourceDemandingSEFF seff) {
+	match {
+		val sip = retrieve im::ServiceInstrumentationPoint corresponding to seff
+	}
+	action {
+		call {
+			removeServiceInstrumentationPoint(sip)
 		}
 	}
 }
@@ -110,9 +127,12 @@ routine removeServiceInstrumentationPoint(im::ServiceInstrumentationPoint sip) {
 }
 
 reaction RemovedAbstractAction {
-	after element pcm::AbstractAction removed from pcm::ResourceDemandingSEFF[steps_Behaviour]
+	after element pcm::AbstractAction removed from pcm::ResourceDemandingBehaviour[steps_Behaviour]
 	call {
-		checkRemovalOfActionInstrumentationPoint(oldValue, affectedEObject)
+		var seff = InternalUtility.getParentSEFFNotForInternalBehaviour(affectedEObject)
+		if (seff !== null) {
+			checkRemovalOfActionInstrumentationPoint(oldValue, seff)
+		}
 	}
 }
 
@@ -126,7 +146,20 @@ routine checkRemovalOfActionInstrumentationPoint(pcm::AbstractAction absAction, 
 				.findFirst[(it.^action as InternalEObject).eProxyURI.toString.contains(absAction.id)]
 			if (aip !== null) {
 				removeActionInstrumentationPoint(aip)
+			} else {
+				checkRemovalOfNonProxyActionInstrumentationPoint(absAction)
 			}
+		}
+	}
+}
+
+routine checkRemovalOfNonProxyActionInstrumentationPoint(pcm::AbstractAction absAction) {
+	match {
+		val aip = retrieve im::ActionInstrumentationPoint corresponding to absAction
+	}
+	action {
+		call {
+			removeActionInstrumentationPoint(aip)
 		}
 	}
 }
