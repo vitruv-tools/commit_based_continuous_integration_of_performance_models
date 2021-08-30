@@ -39,4 +39,4 @@ Require-Bundle: org.apache.log4j,
  cipm.consistency.domains.pcm,
  cipm.consistency.cpr.javaim
 Automatic-Module-Name: cipm.consistency.cpr.javapcm.msa
-Bundle-RequiredExecutionEnvironment: JavaSE-12
+Bundle-RequiredExecutionEnvironment: JavaSE-11

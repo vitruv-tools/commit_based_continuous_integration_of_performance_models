@@ -36,6 +36,6 @@ Require-Bundle: javax.inject,
  tools.vitruv.domains.java,
  cipm.consistency.domains.pcm,
  tools.vitruv.applications.pcmjava.seffstatements.extended
-Bundle-RequiredExecutionEnvironment: JavaSE-13
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: javax.annotation
 Automatic-Module-Name: cipm.consistency.cpr.javaim

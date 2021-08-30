@@ -20,5 +20,5 @@ Require-Bundle: tools.vitruv.framework.change,
  tools.vitruv.framework.domains,
  tools.vitruv.domains.pcm,
  cipm.consistency.domains.pcm
-Bundle-RequiredExecutionEnvironment: JavaSE-13
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: cipm.consistency.cpr.pcmim
