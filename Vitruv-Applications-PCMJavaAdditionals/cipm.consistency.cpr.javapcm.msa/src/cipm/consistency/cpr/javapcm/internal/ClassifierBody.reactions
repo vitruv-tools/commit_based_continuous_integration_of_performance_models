@@ -42,13 +42,21 @@ reaction ChangedJavaReturnType {
 	}
 }
 
+reaction RemovedPublicModifierFromClassMethod {
+	after element java::Public removed from java::ClassMethod[annotationsAndModifiers]
+	call {
+		checkRemovalOfSEFF(affectedEObject)
+		checkRemovalOfOperationSignature(affectedEObject)
+	}
+}
+
 // Removed Interface Method.
 reaction RemovedInterfaceMethod {
 	after element java::InterfaceMethod removed from java::Interface[members] 
 	call {
 		checkRemovalOfOperationSignature(oldValue)
 	}
-} 
+}
 
 // Removed Class Method.
 reaction RemovedClassMethod {
