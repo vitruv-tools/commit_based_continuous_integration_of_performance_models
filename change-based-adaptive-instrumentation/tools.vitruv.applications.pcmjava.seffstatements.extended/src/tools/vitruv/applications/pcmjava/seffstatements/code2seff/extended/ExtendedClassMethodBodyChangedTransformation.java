@@ -7,6 +7,8 @@ import org.eclipse.emf.ecore.EObject;
 import org.emftext.language.java.members.Method;
 import org.emftext.language.java.statements.Statement;
 import org.palladiosimulator.pcm.seff.AbstractAction;
+import org.palladiosimulator.pcm.seff.ResourceDemandingInternalBehaviour;
+import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import org.somox.gast2seff.visitors.IFunctionClassificationStrategy;
 import org.somox.gast2seff.visitors.InterfaceOfExternalCallFindingFactory;
 import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding;
@@ -28,10 +30,7 @@ import tools.vitruv.framework.userinteraction.UserInteractor;
  * @author Martin Armbruster
  */
 public class ExtendedClassMethodBodyChangedTransformation extends ClassMethodBodyChangedTransformation {
-
 	private final static Logger logger = Logger.getLogger(ExtendedClassMethodBodyChangedTransformation.class.getSimpleName());
-	
-	private final Method newMethod;
 
 	public ExtendedClassMethodBodyChangedTransformation(final Method newMethod,
 			final BasicComponentFinding basicComponentFinder,
@@ -40,12 +39,11 @@ public class ExtendedClassMethodBodyChangedTransformation extends ClassMethodBod
 			final ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding) {
 		super(newMethod, basicComponentFinder, iFunctionClassificationStrategy, InterfaceOfExternalCallFindingFactory,
 				resourceDemandingBehaviourForClassMethodFinding);
-		this.newMethod = newMethod;
 	}
 
 	/**
 	 * Extends the process to keep Java method bodies consistent with SEFFs by introducing the following step:
-	 * 5) Link the abstract actions with the corresponding statements which is needed
+	 * 5) Link the abstract actions with the corresponding statements which are needed
 	 * during the instrumentation process.
 	 */
 	@Override
@@ -66,11 +64,34 @@ public class ExtendedClassMethodBodyChangedTransformation extends ClassMethodBod
         for (SeffElementSourceCodeLink seffElementSourceCodeLink : seffElementSourceCodeLinks) {
             if (seffElementSourceCodeLink.getSeffElement() instanceof AbstractAction) {
             	AbstractAction ab = (AbstractAction) seffElementSourceCodeLink.getSeffElement();
+            	// Actions in ResourceDemandingInternalBehaviours are ignored.
+            	if (this.isContainedInResourceDemandingInternalBehaviour(ab)) {
+            		continue;
+            	}
             	List<EObject> actionList = Lists.newArrayList(ab);
 	            for (Statement statement : seffElementSourceCodeLink.getStatement()) {
                     correspondenceModel.createAndAddCorrespondence(actionList, Lists.newArrayList(statement));
 	            }
             }
         }
+	}
+	
+	/**
+	 * Checks if an action is contained within a ResourceDemandingInternalBehaviour.
+	 * 
+	 * @param action the action to check.
+	 * @return true if the action is contained within a ResourceDemandingInternalBehaviour. false otherwise.
+	 */
+	private boolean isContainedInResourceDemandingInternalBehaviour(AbstractAction action) {
+		EObject obj = action.eContainer();
+		while (obj != null) {
+			if (obj instanceof ResourceDemandingInternalBehaviour) {
+				return true;
+			} else if (obj instanceof ResourceDemandingSEFF) {
+				return false;
+			}
+			obj = obj.eContainer();
+		}
+		return false;
 	}
 }
