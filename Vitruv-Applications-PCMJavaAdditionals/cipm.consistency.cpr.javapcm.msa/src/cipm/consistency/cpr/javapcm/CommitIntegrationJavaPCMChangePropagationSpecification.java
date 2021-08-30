@@ -2,6 +2,7 @@ package cipm.consistency.cpr.javapcm;
 
 import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
 import cipm.consistency.commitintegration.settings.SettingKeys;
+import cipm.consistency.cpr.javaim.Java2ImChangePropagationSpecification;
 import mir.reactions.all.AllChangePropagationSpecification;
 import mir.reactions.classifierBody.ClassifierBodyChangePropagationSpecification;
 
@@ -37,7 +38,12 @@ public class CommitIntegrationJavaPCMChangePropagationSpecification extends AllC
 				.getPropertyAsBoolean(SettingKeys.PERFORM_FINE_GRAINED_SEFF_RECONSTRUCTION)) {
 			this.addChangeMainprocessor(new FineGrainedJava2PcmMethodBodyChangePreprocessor());
 		} else {
-			this.addChangeMainprocessor(new ExtendedJava2PcmMethodBodyChangePreprocessor());
+			if (CommitIntegrationSettingsContainer.getSettingsContainer()
+					.getPropertyAsBoolean(SettingKeys.USE_PCM_IM_CPRS)) {
+				this.addChangeMainprocessor(new ExtendedJava2PcmMethodBodyChangePreprocessor());
+			} else {
+				this.addChangeMainprocessor(new Java2ImChangePropagationSpecification());
+			}
 		}
 	}
 }

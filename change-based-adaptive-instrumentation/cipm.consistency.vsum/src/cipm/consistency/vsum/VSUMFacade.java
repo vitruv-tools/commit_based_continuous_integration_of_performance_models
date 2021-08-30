@@ -22,7 +22,8 @@ import cipm.consistency.base.models.instrumentation.InstrumentationModel.Instrum
 import cipm.consistency.base.shared.FileBackedModelUtil;
 import cipm.consistency.base.shared.pcm.InMemoryPCM;
 import cipm.consistency.base.shared.pcm.LocalFilesystemPCM;
-import cipm.consistency.cpr.javaim.Java2ImChangePropagationSpecification;
+import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
+import cipm.consistency.commitintegration.settings.SettingKeys;
 import cipm.consistency.cpr.javapcm.CommitIntegrationJavaPCMChangePropagationSpecification;
 import cipm.consistency.domains.im.InstrumentationModelDomainProvider;
 import cipm.consistency.domains.java.AdjustedJavaDomainProvider;
@@ -50,15 +51,17 @@ public class VSUMFacade {
 		boolean isVSUMExistent = Files.exists(files.getVsumPath());
 		ExtendedPcmDomain pcmDomain = new ExtendedPcmDomainProvider().getDomain();
 		pcmDomain.enableTransitiveChangePropagation();
-		vsum = new VirtualModelBuilder().withDomain(new AdjustedJavaDomainProvider().getDomain())
+		var vsumBuilder = new VirtualModelBuilder().withDomain(new AdjustedJavaDomainProvider().getDomain())
 				.withDomain(pcmDomain)
 				.withDomain(new InstrumentationModelDomainProvider().getDomain())
 				.withStorageFolder(files.getVsumPath())
 				.withUserInteractor(UserInteractionFactory.instance.createDialogUserInteractor())
-				.withChangePropagationSpecification(new CommitIntegrationJavaPCMChangePropagationSpecification())
-//				.withChangePropagationSpecification(new Java2ImChangePropagationSpecification())
-				.withChangePropagationSpecification(new ImUpdateChangePropagationSpecification())
-				.buildAndInitialize();
+				.withChangePropagationSpecification(new CommitIntegrationJavaPCMChangePropagationSpecification());
+		if (CommitIntegrationSettingsContainer.getSettingsContainer().getPropertyAsBoolean(SettingKeys.PERFORM_FINE_GRAINED_SEFF_RECONSTRUCTION)
+				|| CommitIntegrationSettingsContainer.getSettingsContainer().getPropertyAsBoolean(SettingKeys.USE_PCM_IM_CPRS)) {
+			vsumBuilder = vsumBuilder.withChangePropagationSpecification(new ImUpdateChangePropagationSpecification());
+		}
+		vsum = vsumBuilder.buildAndInitialize();
 		filePCM = new LocalFilesystemPCM();
 		filePCM.setRepositoryFile(files.getPcmRepositoryPath().toFile());
 		filePCM.setAllocationModelFile(files.getPcmAllocationPath().toFile());
