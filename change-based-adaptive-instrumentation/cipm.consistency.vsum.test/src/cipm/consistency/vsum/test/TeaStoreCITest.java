@@ -45,6 +45,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	public void testTeaStore1_1Integration() throws Exception {
 		// Integrates TeaStore version 1.1.
 		executePropagationAndEvaluation(null, COMMIT_TAG_1_1, 0);
+//		performIndependentEvaluation(null, COMMIT_TAG_1_1);
 	}
 	
 	@Disabled("Only one test case should run at once.")
@@ -52,6 +53,12 @@ public class TeaStoreCITest extends AbstractCITest {
 	public void testTeaStore1_1To1_2Propagation() throws Exception {
 		// Propagation of changes between TeaStore version 1.1 and 1.2.
 		executePropagationAndEvaluation(COMMIT_TAG_1_1, COMMIT_TAG_1_2, 1);
+	}
+	
+	@Disabled("Only one test case should run at once.")
+	@Test
+	public void testTeaStoreWithMultipleCommits1_1To_1_2() throws Exception {
+		propagateMultipleCommits(COMMIT_TAG_1_1, COMMIT_TAG_1_2);
 	}
 	
 	@Disabled("Only one test case should run at once.")
@@ -73,10 +80,14 @@ public class TeaStoreCITest extends AbstractCITest {
 	@Disabled("Only one test case should run at once.")
 	@Test
 	public void testTeaStoreWithMultipleCommits1_2To1_2_1() throws GitAPIException, IOException, InterruptedException {
+		propagateMultipleCommits(COMMIT_TAG_1_2, COMMIT_TAG_1_2_1);
+	}
+	
+	private void propagateMultipleCommits(String firstCommit, String lastCommit) throws InterruptedException, GitAPIException, IOException {
 		List<String> successfulCommits = new ArrayList<>();
 		var commits = convertToStringList(this.controller.getCommitChangePropagator().getWrapper()
-				.getAllCommitsBetweenTwoCommits(COMMIT_TAG_1_2, COMMIT_TAG_1_2_1));
-		commits.add(0, COMMIT_TAG_1_2);
+				.getAllCommitsBetweenTwoCommits(firstCommit, lastCommit));
+		commits.add(0, firstCommit);
 		int startIndex = 0;
 		var oldCommit = commits.get(startIndex);
 		successfulCommits.add(oldCommit);
@@ -151,25 +162,4 @@ public class TeaStoreCITest extends AbstractCITest {
 				+ newCommit + "-" + evalResult.getEvaluationTime() + ".json"));
 		logger.debug("Finished the evaluation.");
 	}
-	
-//	@Disabled("Only one test case should run at once.")
-//	@Test
-//	public void testTeaStoreIntegration() throws Exception {
-//		prop.propagateChanges("b0ecb45238772f06db1e11e8e7baaa72f48cdd96");
-//	}
-	
-//	@Disabled("Only one test case should run at once.")
-//	@Test
-//	public void testTeaStoreFirstPropagation() throws Exception {
-//		prop.propagateChanges("b0ecb45238772f06db1e11e8e7baaa72f48cdd96",
-//					"653528e387a4fb764e48c9422ab218c65f87082f",
-//					"0ce0cababe2590eff6d03c15f9eb3c977fdf4914");
-//	}
-	
-//	@Disabled("Only one test case should run at once.")
-//	@Test
-//	public void testTeaStoreSecondPropagation() throws Exception {
-//		prop.propagateChanges("0ce0cababe2590eff6d03c15f9eb3c977fdf4914",
-//				"205d163bc2c878c90ac5038276ad04cdf502a695");
-//	}
 }
