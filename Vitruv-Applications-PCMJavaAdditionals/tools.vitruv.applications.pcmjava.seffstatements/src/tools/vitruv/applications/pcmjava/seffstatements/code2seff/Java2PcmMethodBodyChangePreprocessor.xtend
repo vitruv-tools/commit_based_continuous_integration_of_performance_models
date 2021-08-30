@@ -12,10 +12,10 @@ import tools.vitruv.framework.propagation.ResourceAccess
 import tools.vitruv.framework.change.echange.EChange
 import org.somox.gast2seff.visitors.AbstractFunctionClassificationStrategy
 import tools.vitruv.domains.java.JavaDomain
-import tools.vitruv.domains.pcm.PcmDomain
 import tools.vitruv.domains.java.JavaDomainProvider
 import tools.vitruv.framework.change.echange.feature.attribute.ReplaceSingleValuedEAttribute
 import org.emftext.language.java.commons.CommonsPackage
+import tools.vitruv.framework.domains.AbstractVitruvDomain
 
 class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpecification {
 	val Code2SeffFactory code2SeffFactory;
@@ -24,7 +24,7 @@ class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpec
 		this(code2SEFFfactory, new JavaDomainProvider().domain, new PcmDomainProvider().domain);
 	}
 	
-	new(Code2SeffFactory code2SEFFfactory, JavaDomain sourceDomain, PcmDomain targetDomain) {
+	new(Code2SeffFactory code2SEFFfactory, JavaDomain sourceDomain, AbstractVitruvDomain targetDomain) {
 		super(sourceDomain, targetDomain)
 		this.code2SeffFactory = code2SEFFfactory
 	}

@@ -26,9 +26,9 @@ import cipm.consistency.cpr.javaim.Java2ImChangePropagationSpecification;
 import cipm.consistency.cpr.javapcm.CommitIntegrationJavaPCMChangePropagationSpecification;
 import cipm.consistency.domains.im.InstrumentationModelDomainProvider;
 import cipm.consistency.domains.java.AdjustedJavaDomainProvider;
+import cipm.consistency.domains.pcm.ExtendedPcmDomain;
+import cipm.consistency.domains.pcm.ExtendedPcmDomainProvider;
 import mir.reactions.imUpdate.ImUpdateChangePropagationSpecification;
-import tools.vitruv.domains.pcm.PcmDomain;
-import tools.vitruv.domains.pcm.PcmDomainProvider;
 import tools.vitruv.extensions.dslsruntime.reactions.helper.ReactionsCorrespondenceHelper;
 import tools.vitruv.framework.userinteraction.UserInteractionFactory;
 import tools.vitruv.framework.vsum.VirtualModelBuilder;
@@ -48,7 +48,7 @@ public class VSUMFacade {
 	
 	private void setUp() {
 		boolean isVSUMExistent = Files.exists(files.getVsumPath());
-		PcmDomain pcmDomain = new PcmDomainProvider().getDomain();
+		ExtendedPcmDomain pcmDomain = new ExtendedPcmDomainProvider().getDomain();
 		pcmDomain.enableTransitiveChangePropagation();
 		vsum = new VirtualModelBuilder().withDomain(new AdjustedJavaDomainProvider().getDomain())
 				.withDomain(pcmDomain)
@@ -69,14 +69,14 @@ public class VSUMFacade {
 		if (isVSUMExistent) {
 			Resource resource = vsum.getModelInstance(files.getPcmRepositoryURI()).getResource();
 			pcm.setRepository((Repository) resource.getContents().get(0));
-//			resource = vsum.getModelInstance(files.getPcmAllocationURI()).getResource();
-//			pcm.setAllocationModel((Allocation) resource.getContents().get(0));
-//			resource = vsum.getModelInstance(files.getPcmSystemURI()).getResource();
-//			pcm.setSystem((org.palladiosimulator.pcm.system.System) resource.getContents().get(0));
-//			resource = vsum.getModelInstance(files.getPcmResourceEnvironmentURI()).getResource();
-//			pcm.setResourceEnvironmentModel((ResourceEnvironment) resource.getContents().get(0));
-//			resource = vsum.getModelInstance(files.getPcmUsageModelURI()).getResource();
-//			pcm.setUsageModel((UsageModel) resource.getContents().get(0));
+			resource = vsum.getModelInstance(files.getPcmAllocationURI()).getResource();
+			pcm.setAllocationModel((Allocation) resource.getContents().get(0));
+			resource = vsum.getModelInstance(files.getPcmSystemURI()).getResource();
+			pcm.setSystem((org.palladiosimulator.pcm.system.System) resource.getContents().get(0));
+			resource = vsum.getModelInstance(files.getPcmResourceEnvironmentURI()).getResource();
+			pcm.setResourceEnvironmentModel((ResourceEnvironment) resource.getContents().get(0));
+			resource = vsum.getModelInstance(files.getPcmUsageModelURI()).getResource();
+			pcm.setUsageModel((UsageModel) resource.getContents().get(0));
 			resource = vsum.getModelInstance(files.getImURI()).getResource();
 			imm = (InstrumentationModel) resource.getContents().get(0);
 		} else {
@@ -92,10 +92,10 @@ public class VSUMFacade {
 			FileBackedModelUtil.synchronize(imm, files.getImPath().toFile(), InstrumentationModel.class);
 			vsum.propagateChangedState(imm.eResource());
 			vsum.propagateChangedState(pcm.getRepository().eResource());
-//			vsum.propagateChangedState(pcm.getResourceEnvironmentModel().eResource());
-//			vsum.propagateChangedState(pcm.getSystem().eResource());
-//			vsum.propagateChangedState(pcm.getAllocationModel().eResource());
-//			vsum.propagateChangedState(pcm.getUsageModel().eResource());
+			vsum.propagateChangedState(pcm.getResourceEnvironmentModel().eResource());
+			vsum.propagateChangedState(pcm.getSystem().eResource());
+			vsum.propagateChangedState(pcm.getAllocationModel().eResource());
+			vsum.propagateChangedState(pcm.getUsageModel().eResource());
 			ReactionsCorrespondenceHelper.addCorrespondence(vsum.getCorrespondenceModel(), pcm.getRepository(),
 					RepositoryPackage.Literals.REPOSITORY, null);
 			var correspondence = ReactionsCorrespondenceHelper.addCorrespondence(vsum.getCorrespondenceModel(), imm,

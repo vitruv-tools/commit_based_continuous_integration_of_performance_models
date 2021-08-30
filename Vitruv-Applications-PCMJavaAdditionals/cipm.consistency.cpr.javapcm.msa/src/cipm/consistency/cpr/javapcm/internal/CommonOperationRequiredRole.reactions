@@ -7,7 +7,7 @@ import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
 
 reactions: commonOperationRequiredRole
 in reaction to changes in AdjustedJava
-execute actions in PCM
+execute actions in PCMExtended
 
 
 reaction AddedImport {
