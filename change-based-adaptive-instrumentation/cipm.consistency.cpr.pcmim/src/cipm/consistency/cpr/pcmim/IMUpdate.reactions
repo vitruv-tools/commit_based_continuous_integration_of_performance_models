@@ -5,7 +5,6 @@ import org.palladiosimulator.pcm.seff.BranchAction
 import org.palladiosimulator.pcm.seff.ExternalCallAction
 import org.palladiosimulator.pcm.seff.InternalAction
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationType
-import org.eclipse.emf.ecore.InternalEObject
 import cipm.consistency.cpr.pcmim.InternalUtility
 
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
@@ -98,13 +97,13 @@ routine checkRemovalOfServiceInstrumentationPoint(pcm::ResourceDemandingSEFF sef
 	}
 	action {
 		call {
-			val sip = im.points.filter[it.service.eIsProxy]
-				.findFirst[(it.service as InternalEObject).eProxyURI.toString.contains(seff.id)]
-			if (sip !== null) {
-				removeServiceInstrumentationPoint(sip)
-			} else {
-				checkRemovalOfNonProxyServiceInstrumentationPoint(seff)
+			val sips = im.points.filter[it.service === null || it.service.eIsProxy].toSet
+			if (sips !== null && !sips.empty) {
+				for (si : sips) {
+					removeServiceInstrumentationPoint(si)
+				}
 			}
+			checkRemovalOfNonProxyServiceInstrumentationPoint(seff)
 		}
 	}
 }
@@ -142,13 +141,13 @@ routine checkRemovalOfActionInstrumentationPoint(pcm::AbstractAction absAction, 
 	}
 	action {
 		call {
-			val aip = sip.actionInstrumentationPoints.filter[it.^action.eIsProxy]
-				.findFirst[(it.^action as InternalEObject).eProxyURI.toString.contains(absAction.id)]
-			if (aip !== null) {
-				removeActionInstrumentationPoint(aip)
-			} else {
-				checkRemovalOfNonProxyActionInstrumentationPoint(absAction)
+			val aips = sip.actionInstrumentationPoints.filter[it.^action === null || it.^action.eIsProxy].toSet
+			if (aips !== null && !aips.empty) {
+				for (ai : aips) {
+					removeActionInstrumentationPoint(ai)
+				}
 			}
+			checkRemovalOfNonProxyActionInstrumentationPoint(absAction)
 		}
 	}
 }
