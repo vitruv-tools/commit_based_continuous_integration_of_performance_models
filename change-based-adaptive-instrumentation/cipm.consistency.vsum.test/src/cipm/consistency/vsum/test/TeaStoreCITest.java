@@ -30,9 +30,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	
 	@Override
 	protected String getRepositoryPath() {
-		return ".." + File.separator + ".git" + File.separator + "modules"
-				+ File.separator + "cipm.consistency.base.vitruv.vsum.test"
-				+ File.separator + "TeaStore";
+		return "https://github.com/DescartesResearch/TeaStore";
 	}
 	
 	@Override
