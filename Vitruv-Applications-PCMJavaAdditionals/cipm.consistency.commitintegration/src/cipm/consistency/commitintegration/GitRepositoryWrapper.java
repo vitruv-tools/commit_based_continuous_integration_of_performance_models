@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
@@ -26,7 +27,6 @@ import org.eclipse.jgit.diff.RenameDetector;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
-import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
@@ -416,12 +416,24 @@ public class GitRepositoryWrapper {
 	/**
 	 * Performs a complete cleaning of the git repository, i. e., all untracked and ignored files are removed,
 	 * and all changes are reset to the last commit.
+	 * 
+	 * @throws GitAPIException if a Git operation cannot be performed.
+	 * @throws IOException if an IO operation cannot be performed.
 	 */
-	public void performCompleteClean() {
-		try {
-			git.clean().setIgnore(true).setCleanDirectories(true).setForce(true).call();
-			git.reset().setMode(ResetType.HARD).call();
-		} catch (NoWorkTreeException | GitAPIException e) {
+	public void performCompleteClean() throws GitAPIException, IOException {
+		var files = this.rootDirectory.listFiles();
+		if (files != null) {
+			for (File innerFile : files) {
+				if (innerFile.getName().equals(".git")) {
+					continue;
+				}
+				if (innerFile.isDirectory()) {
+					FileUtils.deleteDirectory(innerFile);
+				} else if (innerFile.isFile()) {
+					innerFile.delete();
+				}
+			}
 		}
+		git.reset().setMode(ResetType.HARD).call();
 	}
 }
