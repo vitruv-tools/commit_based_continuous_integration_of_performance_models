@@ -145,10 +145,22 @@ public class SimilarityChecker {
         }
 
         // check type specific similarity
-        SimilaritySwitch similaritySwitch = new SimilaritySwitch(element2, checkStatementPosition,
-                classifierNormalizations, compilationUnitNormalizations, packageNormalizations);
-        Boolean similar = similaritySwitch.doSwitch(element1);
-        return similar;
+        return this.checkSimilarityForResolvedAndSameType(element1, element2, checkStatementPosition);
+    }
+    
+    /**
+     * Checks the similarity of two EObjects where both EObjects are resolved and have the same type.
+     * 
+     * @param element1 the first EObject.
+     * @param element2 the second EObject.
+     * @param checkStatementPosition true if the position of statements should be checked. false otherwise.
+     *                               If no statements are involved, the flag can be ignored.
+     * @return true if the EObjects are similar. null if they cannot be compared. false otherwise.
+     */
+    protected Boolean checkSimilarityForResolvedAndSameType(EObject element1, EObject element2,
+    		boolean checkStatementPosition) {
+    	return new SimilaritySwitch(element2, checkStatementPosition, classifierNormalizations,
+    			compilationUnitNormalizations, packageNormalizations).doSwitch(element1);
     }
 
     /**
