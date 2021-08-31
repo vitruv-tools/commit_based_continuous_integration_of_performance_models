@@ -13,7 +13,7 @@ import "http://www.dmodel.com/InstrumentationMetamodel" as im
 
 
 reactions: imUpdate
-in reaction to changes in PCM
+in reaction to changes in PCMExtended
 execute actions in IMM
 
 
