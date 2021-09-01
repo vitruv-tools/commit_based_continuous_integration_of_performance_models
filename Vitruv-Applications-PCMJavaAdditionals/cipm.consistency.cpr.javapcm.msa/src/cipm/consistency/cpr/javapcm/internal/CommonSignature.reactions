@@ -166,30 +166,11 @@ routine updateReturnType(java::Method javaMethod, java::TypeReference typeRefere
 routine checkRemovalOfOperationSignature(java::Method interfaceMethod) {
 	match {
 		val operationSignature = retrieve pcm::OperationSignature corresponding to interfaceMethod
-		val classifiers = retrieve many java::ConcreteClassifier corresponding to operationSignature
 	}
-	action {
-		call {
-			if (classifiers.size == 1) {
-				deleteSignature(operationSignature);
-			} else {
-				removeCorrespondenceBetweenMethodAndSignature(interfaceMethod, operationSignature)
-			}
-		}
-	}
-}
-
-routine deleteSignature(pcm::OperationSignature sign) {
 	action {
 		// Should the corresponding SEFFs still exist?
 		// Should the references to the removed OperationSignature in all rdseff.describedService__SEFF also be removed?
-		delete sign
-	}
-}
-
-routine removeCorrespondenceBetweenMethodAndSignature(java::Method method, pcm::OperationSignature sign) {
-	action {
-		remove correspondence between method and sign
+		delete operationSignature
 	}
 }
 
