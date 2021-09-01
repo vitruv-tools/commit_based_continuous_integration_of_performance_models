@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Utilities for diffing Java models
 Bundle-SymbolicName: cipm.consistency.commitintegration.diff.util;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Export-Package: cipm.consistency.commitintegration.diff.util
+Export-Package: cipm.consistency.commitintegration.diff.util,
+ cipm.consistency.commitintegration.diff.util.pcm
 Require-Bundle: org.eclipse.emf.ecore,
  org.eclipse.emf.compare,
  org.eclipse.emf.common,
@@ -15,6 +16,7 @@ Require-Bundle: org.eclipse.emf.ecore,
  org.splevo.jamopp.extraction,
  org.splevo.jamopp.util,
  org.eclipse.emf.compare.rcp,
- org.emftext.language.java
+ org.emftext.language.java,
+ org.palladiosimulator.pcm
 Automatic-Module-Name: cipm.consistency.commitintegration.diff.util
 Bundle-RequiredExecutionEnvironment: JavaSE-11
