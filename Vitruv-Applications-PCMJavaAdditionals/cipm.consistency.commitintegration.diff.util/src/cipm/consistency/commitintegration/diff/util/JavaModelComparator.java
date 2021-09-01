@@ -11,7 +11,6 @@ import org.eclipse.emf.compare.postprocessor.BasicPostProcessorDescriptorImpl;
 import org.eclipse.emf.compare.postprocessor.PostProcessorDescriptorRegistryImpl;
 import java.util.regex.Pattern;
 import java.util.List;
-import org.eclipse.emf.compare.rcp.EMFCompareRCPPlugin;
 import org.emftext.language.java.JavaPackage;
 import org.splevo.jamopp.diffing.scope.PackageIgnoreChecker;
 import org.splevo.jamopp.diffing.diff.JaMoPPFeatureFilter;
@@ -53,10 +52,9 @@ public class JavaModelComparator {
 			}
 		};
 		
-		var matchEngineFactory = JavaMatchEngineFactoryGenerator.generateMatchEngineFactory();
-		matchEngineFactory.setRanking(20);
-		var engineRegistry = EMFCompareRCPPlugin.getDefault().getMatchEngineFactoryRegistry();
-		engineRegistry.add(matchEngineFactory);
+		var engineRegistry = HierarchicalMatchEngineFactoryGenerator
+				.generateMatchEngineRegistry(JavaMatchEngineFactoryGenerator
+						.generateMatchEngineFactory());
 		
 		var builder = EMFCompare.builder()
 			.setMatchEngineFactoryRegistry(engineRegistry)
