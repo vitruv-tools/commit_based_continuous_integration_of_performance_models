@@ -119,6 +119,7 @@ import org.emftext.language.java.statements.LocalVariableStatement;
 import org.emftext.language.java.statements.Return;
 import org.emftext.language.java.statements.Statement;
 import org.emftext.language.java.statements.StatementListContainer;
+import org.emftext.language.java.statements.Switch;
 import org.emftext.language.java.statements.SynchronizedBlock;
 import org.emftext.language.java.statements.Throw;
 import org.emftext.language.java.statements.util.StatementsSwitch;
@@ -1478,6 +1479,13 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             String name2 = Strings.nullToEmpty(label2.getName());
 
             return (name1.equals(name2));
+        }
+        
+        @Override
+        public Boolean caseSwitch(Switch switch1) {
+        	Switch switch2 = (Switch) compareElement;
+        	
+        	return similarityChecker.isSimilar(switch1.getVariable(), switch2.getVariable());
         }
 
         @Override
