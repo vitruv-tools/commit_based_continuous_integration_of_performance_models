@@ -300,8 +300,8 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
 
             ConcreteClassifier classifier2 = (ConcreteClassifier) compareElement;
 
-            String name1 = NormalizationUtil.normalize(classifier1.getName(), classifierNormalizationPatterns);
-            String name2 = Strings.nullToEmpty(classifier2.getName());
+            String name1 = NormalizationUtil.normalize(classifier1.getQualifiedName(), classifierNormalizationPatterns);
+            String name2 = Strings.nullToEmpty(classifier2.getQualifiedName());
 
             return (name1.equals(name2));
         }
