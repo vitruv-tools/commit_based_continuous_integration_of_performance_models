@@ -16,9 +16,10 @@ public abstract class AbstractCITest {
 	
 	@BeforeEach
 	public void setUp() throws Exception {
-		Logger.getRootLogger().removeAllAppenders();
 		Logger logger = Logger.getLogger("cipm");
 		logger.setLevel(Level.ALL);
+		logger = Logger.getRootLogger();
+		logger.removeAllAppenders();
 		ConsoleAppender ap = new ConsoleAppender(new PatternLayout("[%d{DATE}] %-5p: %c - %m%n"),
 				ConsoleAppender.SYSTEM_OUT);
 		logger.addAppender(ap);
