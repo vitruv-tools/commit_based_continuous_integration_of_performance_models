@@ -965,6 +965,9 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
                 if (typeSimilarity == Boolean.FALSE) {
                     return Boolean.FALSE;
                 }
+                if (param1.getTypeReference().getArrayDimension() != param2.getTypeReference().getArrayDimension()) {
+                	return Boolean.FALSE;
+                }
             }
 
             /* **************************************
