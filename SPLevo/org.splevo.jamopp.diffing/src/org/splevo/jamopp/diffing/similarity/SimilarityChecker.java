@@ -8,6 +8,7 @@
  *
  * Contributors:
  *    Benjamin Klatt - initial API and implementation and/or initial documentation
+ *    Martin Armbruster - enable change of default behavior for statement position check.
  *******************************************************************************/
 package org.splevo.jamopp.diffing.similarity;
 
@@ -37,6 +38,7 @@ public class SimilarityChecker {
     private LinkedHashMap<Pattern, String> classifierNormalizations = null;
     private LinkedHashMap<Pattern, String> compilationUnitNormalizations = null;
     private LinkedHashMap<Pattern, String> packageNormalizations = null;
+    private boolean defaultCheckStatementPositionFlag = true;
 
     /**
      * Constructor to set the required configurations.
@@ -64,6 +66,24 @@ public class SimilarityChecker {
         this.classifierNormalizations = Maps.newLinkedHashMap();
         this.compilationUnitNormalizations = Maps.newLinkedHashMap();
         this.packageNormalizations = Maps.newLinkedHashMap();
+    }
+    
+    /**
+     * Indicates if the SimilarityChecker instance checks the position of statements in its default behavior.
+     * 
+     * @return true if the statement positions are checked. false otherwise.
+     */
+    public boolean checksStatementPositionOnDefault() {
+    	return this.defaultCheckStatementPositionFlag;
+    }
+    
+    /**
+     * Controls if the SimilarityChecker checks the position of statements in the default behavior.
+     * 
+     * @param check true if the statement positions are checked. false otherwise.
+     */
+    public void setCheckStatementPositionOnDefault(boolean check) {
+    	this.defaultCheckStatementPositionFlag = check;
     }
 
     /**
@@ -103,7 +123,7 @@ public class SimilarityChecker {
      * @return TRUE, if they are similar; FALSE if not, NULL if it can't be decided.
      */
     public Boolean isSimilar(final EObject element1, final EObject element2) {
-        return isSimilar(element1, element2, true);
+        return isSimilar(element1, element2, this.defaultCheckStatementPositionFlag);
     }
 
     /**
