@@ -8,12 +8,17 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import cipm.consistency.commitintegration.diff.util.ComparisonBasedJaccardCoefficientCalculator;
+import cipm.consistency.commitintegration.diff.util.pcm.PCMModelComparator;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
 
@@ -51,7 +56,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	public void testTeaStore1_0Integration() throws Exception {
 		// Integrates TeaStore version 1.0.
 		executePropagationAndEvaluation(null, COMMIT_TAG_1_0, 0);
-		performIndependentEvaluation(null, COMMIT_TAG_1_0);
+//		performIndependentEvaluation(null, COMMIT_TAG_1_0);
 	}
 	
 	@Disabled("Only one test case should run at once.")
@@ -262,5 +267,15 @@ public class TeaStoreCITest extends AbstractCITest {
 		EvaluationDataContainerReaderWriter.write(evalResult, root.resolveSibling("EvaluationResult-"
 				+ newCommit + "-" + evalResult.getEvaluationTime() + ".json"));
 		logger.debug("Finished the evaluation.");
+	}
+	
+//	@Test
+	public void testTemplateForPCMRepositoryComparison() {
+		ResourceSet set = new ResourceSetImpl();
+		Resource res1 = set.getResource(URI.createFileURI("path1"), true);
+		Resource res2 = set.getResource(URI.createFileURI("path2"), true);
+		var comp = PCMModelComparator.compareRepositoryModels(res1, res2);
+		var res = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comp);
+		System.out.println(res);
 	}
 }
