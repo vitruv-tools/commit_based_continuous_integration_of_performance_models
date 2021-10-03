@@ -1,8 +1,18 @@
 package cipm.consistency.vsum;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -10,19 +20,33 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
 import cipm.consistency.commitintegration.CommitChangePropagator;
+import cipm.consistency.commitintegration.ExternalCommandExecutionUtility;
 import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
 import cipm.consistency.commitintegration.settings.SettingKeys;
 import cipm.consistency.designtime.instrumentation2.CodeInstrumenter;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 
+/**
+ * This central class is responsible for controlling the complete change propagation and adaptive instrumentation.
+ * 
+ * @author Martin Armbruster
+ */
 public class CommitIntegrationController {
 	private final static Logger logger = Logger.getLogger("cipm." + CommitIntegrationController.class.getSimpleName());
 	private VSUMFacade facade;
 	private CommitChangePropagator prop;
 	private Resource instrumentedModel;
 	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param rootPath path to the root directory in which all data is stored.
+	 * @param repositoryPath path to the remote repository from which commits are fetched.
+	 * @param settingsPath path to the settings file.
+	 * @throws IOException if an IO operation fails.
+	 * @throws GitAPIException if a Git operation fails.
+	 */
 	public CommitIntegrationController(Path rootPath, String repositoryPath, Path settingsPath)
 			throws IOException, GitAPIException {
 		CommitIntegrationSettingsContainer.initialize(settingsPath);
@@ -32,40 +56,65 @@ public class CommitIntegrationController {
 		prop.initialize();
 	}
 	
+	/**
+	 * Propagates the changes between two commits.
+	 * 
+	 * @param oldCommit the first commit or null.
+	 * @param newCommit the second commit. Changes between the oldCommit and newCommit are propagated.
+	 * @return true if the propagation was successful. false otherwise.
+	 * @throws IOException if an IO operation fails.
+	 * @throws GitAPIException if a Git operation fails.
+	 */
 	public boolean propagateChanges(String oldCommit, String newCommit) throws IOException, GitAPIException {
 		return propagateChanges(oldCommit, newCommit, true);
 	}
 	
+	/**
+	 * Propagates the changes between two commits.
+	 * 
+	 * @param oldCommit the first commit or null.
+	 * @param newCommit the second commit. Changes between the oldCommit and newCommit are propagated.
+	 * @param storeInstrumentedModel true if the instrumented code model shall be stored in this instance.
+	 * @return true if the propagation was successful. false otherwise.
+	 * @throws IOException if an IO operation fails.
+	 * @throws GitAPIException if a Git operation fails.
+	 */
 	public boolean propagateChanges(String oldCommit, String newCommit, boolean storeInstrumentedModel)
 			throws IOException, GitAPIException {
 		long overallTimer = System.currentTimeMillis();
 		instrumentedModel = null;
 		Path insDir = this.prop.getJavaFileSystemLayout().getInstrumentationCopy();
 		removeInstrumentationDirectory(insDir);
-		this.facade.getInstrumentationModel().eAllContents().forEachRemaining(ip -> {
-			if (ip instanceof ActionInstrumentationPoint) {
-				((ActionInstrumentationPoint) ip).setActive(false);
-			}
-		});
+		
+		// Deactivate all action instrumentation points.
+		this.facade.getInstrumentationModel().getPoints().forEach(sip -> 
+			sip.getActionInstrumentationPoints().forEach(aip -> aip.setActive(false)));
 		this.facade.getInstrumentationModel().eResource().save(null);
+		
 		long fineTimer = System.currentTimeMillis();
+		
+		// Propagate the changes.
 		boolean result = prop.propagateChanges(oldCommit, newCommit);
+		
 		fineTimer = System.currentTimeMillis() - fineTimer;
 		EvaluationDataContainer.getGlobalContainer().getExecutionTimes()
 				.setChangePropagationTime(fineTimer);
+		
 		if (result) {
 			boolean hasChangedIM = false;
-			for (var iter = this.facade.getInstrumentationModel().eAllContents(); iter.hasNext();) {
-				var next = iter.next();
-				if (next instanceof ActionInstrumentationPoint) {
-					hasChangedIM |= ((ActionInstrumentationPoint) next).isActive();
+			for (var sip : this.facade.getInstrumentationModel().getPoints()) {
+				for (var aip : sip.getActionInstrumentationPoints()) {
+					hasChangedIM |= aip.isActive();
 				}
 			}
-			if (hasChangedIM) {
+			if (!hasChangedIM) {
 				logger.debug("No instrumentation points changed.");
 			}
 			boolean fullInstrumentation = CommitIntegrationSettingsContainer.getSettingsContainer()
 					.getPropertyAsBoolean(SettingKeys.PERFORM_FULL_INSTRUMENTATION);
+			
+			// Instrument the code only if there is a new action instrumentation point or if a full instrumentation
+			// shall be performed.
 			if (hasChangedIM || fullInstrumentation) {
 				fineTimer = System.currentTimeMillis();
 				Resource insModel = performInstrumentation(insDir, fullInstrumentation);
@@ -81,7 +130,13 @@ public class CommitIntegrationController {
 		EvaluationDataContainer.getGlobalContainer().getExecutionTimes().setOverallTime(overallTimer);
 		return result;
 	}
-	
+
+	/**
+	 * Removes potentially available instrumented code and performs a new instrumentation.
+	 * 
+	 * @param performFullInstrumentation true if a full instrumentation shall be performed. false otherwise.
+	 * @return the instrumented code model as a copy of the code model in the V-SUM.
+	 */
 	public Resource instrumentCode(boolean performFullInstrumentation) {
 		Path insDir = this.prop.getJavaFileSystemLayout().getInstrumentationCopy();
 		removeInstrumentationDirectory(insDir);
@@ -99,6 +154,7 @@ public class CommitIntegrationController {
 		}
 	}
 	
+	@SuppressWarnings("restriction")
 	private Resource performInstrumentation(Path instrumentationDirectory, boolean performFullInstrumentation) {
 		Resource javaModel = getJavaModelResource();
 		return new CodeInstrumenter().instrument(
@@ -107,12 +163,116 @@ public class CommitIntegrationController {
 			javaModel, instrumentationDirectory,
 			this.prop.getJavaFileSystemLayout().getLocalJavaRepo(), !performFullInstrumentation);
 	}
+
+	/**
+	 * Compiles and deploy the instrumented code.
+	 * 
+	 * @throws IOException if an IO operation fails.
+	 */
+	public void compileAndDeployInstrumentedCode() throws IOException {
+		Path instrumentationCodeDir = this.prop.getJavaFileSystemLayout().getInstrumentationCopy();
+		if (Files.exists(instrumentationCodeDir)) {
+			boolean compilationResult = compileInstrumentedCode(instrumentationCodeDir);
+			if (compilationResult) {
+				Path deployPath = Paths.get(CommitIntegrationSettingsContainer.getSettingsContainer()
+						.getProperty(SettingKeys.DEPLOYMENT_PATH));
+				var result = copyArtifacts(instrumentationCodeDir, deployPath);
+				logger.debug("Removing the monitoring classes.");
+				result.forEach(p -> {
+					try {
+						removeMonitoringClasses(p);
+					} catch (IOException e) {
+						logger.error(e);
+					}
+				});
+			} else {
+				logger.debug("Could not compile the instrumented code.");
+			}
+		}
+		logger.debug("Finished the compilation and deployment.");
+	}
 	
+	private boolean compileInstrumentedCode(Path insCode) {
+		logger.debug("Compiling the instrumented code.");
+		String compileScript = CommitIntegrationSettingsContainer.getSettingsContainer()
+			.getProperty(SettingKeys.PATH_TO_COMPILATION_SCRIPT);
+		compileScript = new File(compileScript).getAbsolutePath();
+		return ExternalCommandExecutionUtility.runScript(insCode.toFile(), compileScript);
+	}
+	
+	private List<Path> copyArtifacts(Path insCode, Path deployPath) throws IOException {
+		logger.debug("Copying the artifacts to " + deployPath);
+		var warFiles = Files.walk(insCode).filter(Files::isRegularFile)
+			.filter(p -> p.getFileName().toString().endsWith(".war"))
+			.collect(Collectors.toCollection(ArrayList::new));
+		List<String> fileNames = new ArrayList<>();
+		for (int idx = 0; idx < warFiles.size(); idx++) {
+			String name = warFiles.get(idx).getFileName().toString();
+			if (fileNames.contains(name)) {
+				warFiles.remove(idx);
+				idx--;
+			} else {
+				fileNames.add(name);
+			}
+		}
+		List<Path> result = new ArrayList<>();
+		warFiles.forEach(p -> {
+			Path target = deployPath.resolve(p.getFileName());
+			try {
+				Files.copy(p, target, StandardCopyOption.REPLACE_EXISTING);
+				result.add(target);
+			} catch (IOException e) {
+				logger.error(e);
+			}
+		});
+		return result;
+	}
+	
+	private void removeMonitoringClasses(Path file) throws IOException {
+		Map<String, String> options = new HashMap<>();
+		options.put("create", "false");
+		try (FileSystem fileSys = FileSystems.newFileSystem(file, options)) {
+			String tmcEndPath = "cipm/consistency/bridge/monitoring/controller/ThreadMonitoringController.class";
+			String spEndPath = "cipm/consistency/bridge/monitoring/controller/ServiceParameters.class";
+			fileSys.getRootDirectories().forEach(root -> {
+				try {
+					Files.walk(root).filter(p -> {
+						String fullPath = p.toString();
+						if (fullPath.endsWith(".jar") || fullPath.endsWith(".war")
+								|| fullPath.endsWith(".zip")) {
+							try {
+								removeMonitoringClasses(p);
+							} catch (IOException e) {
+								logger.error(e);
+							}
+						} else if (fullPath.endsWith(tmcEndPath) || fullPath.endsWith(spEndPath)) {
+							return true;
+						}
+						return false;
+					}).forEach(p -> {
+						try {
+							Files.delete(p);
+						} catch (IOException e) {
+							logger.error(e);
+						}
+					});
+				} catch (IOException e) {
+					logger.error(e);
+				}
+			});
+		}
+	}
+
+	/**
+	 * Shutdowns the environment.
+	 */
+	@SuppressWarnings("restriction")
 	public void shutdown() {
 		facade.getVSUM().dispose();
 		prop.shutdown();
 	}
 	
+	@SuppressWarnings("restriction")
 	public Resource getJavaModelResource() {
 		return this.facade.getVSUM().getModelInstance(
 				URI.createFileURI(prop.getJavaFileSystemLayout().getJavaModelFile().toString()))
