@@ -122,7 +122,6 @@ import org.emftext.language.java.statements.StatementListContainer;
 import org.emftext.language.java.statements.Switch;
 import org.emftext.language.java.statements.SynchronizedBlock;
 import org.emftext.language.java.statements.Throw;
-import org.emftext.language.java.statements.TryBlock;
 import org.emftext.language.java.statements.util.StatementsSwitch;
 import org.emftext.language.java.types.ClassifierReference;
 import org.emftext.language.java.types.InferableType;
@@ -1342,6 +1341,16 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             if (varSimilarity == Boolean.FALSE) {
                 return Boolean.FALSE;
             }
+            
+            if (checkStatementPosition) {
+            	varSimilarity = similarityChecker.isSimilar(varStmt1.eContainer(), varStmt2.eContainer(), false);
+            	if (!varSimilarity) {
+            		return Boolean.FALSE;
+            	}
+            	if (differentPredecessor(varStmt1, varStmt2)) {
+            		return Boolean.FALSE;
+            	}
+            }
 
             return Boolean.TRUE;
         }
@@ -1412,18 +1421,6 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
         @Override
         public Boolean caseThrow(Throw throwStatement1) {
             return Boolean.TRUE;
-        }
-        
-        @Override
-        public Boolean caseTryBlock(TryBlock try1) {
-        	TryBlock try2 = (TryBlock) compareElement;
-        	
-        	if (checkStatementPosition
-        			&& differentPredecessor(try1, try2)) {
-        		return Boolean.FALSE;
-        	}
-        	
-        	return Boolean.TRUE;
         }
 
         @Override
