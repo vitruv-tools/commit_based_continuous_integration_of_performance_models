@@ -1,5 +1,5 @@
-import cipm.consistency.cpr.javapcm.internal.InternalUtility
 import org.emftext.language.java.members.ClassMethod
+import cipm.consistency.cpr.javapcm.internal.InternalUtils
 
 import "http://www.emftext.org/java" as java
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
@@ -32,7 +32,7 @@ routine createOrFindCallTarget(java::MethodCall methCall, java::Method method) {
 	action {
 		call {
 			val classifier = method.containingConcreteClassifier
-			if (callCom !== com && InternalUtility.isExternalCall(
+			if (callCom !== com && InternalUtils.isExternalCall(
 					method, correspondenceModel, com)) {
 				createInterface(classifier)
 				createOrFindPCMSignature(method)

@@ -18,6 +18,11 @@ import cipm.consistency.base.models.instrumentation.InstrumentationModel.Instrum
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint;
 import cipm.consistency.tools.evaluation.data.IMEvaluationData;
 
+/**
+ * Evaluated the update of the extended IM.
+ * 
+ * @author Martin Armbruster
+ */
 public class IMUpdateEvaluator {
 	private IMEvaluationData currentEvalResult;
 	
@@ -25,14 +30,14 @@ public class IMUpdateEvaluator {
 		currentEvalResult = evalData;
 		
 		for (TreeIterator<EObject> iter = im.eAllContents(); iter.hasNext(); iter.next()) {
-			currentEvalResult.setNumberAllIP(currentEvalResult.getNumberAllIP()+1);
+			currentEvalResult.setNumberAllIP(currentEvalResult.getNumberAllIP() + 1);
 		}
 		
 		for (RepositoryComponent com : repo.getComponents__Repository()) {
 			if (com instanceof BasicComponent) {
 				BasicComponent basicCom = (BasicComponent) com;
-				for (ServiceEffectSpecification seff :
-						basicCom.getServiceEffectSpecifications__BasicComponent()) {
+				for (ServiceEffectSpecification seff
+						: basicCom.getServiceEffectSpecifications__BasicComponent()) {
 					if (seff instanceof ResourceDemandingSEFF) {
 						ResourceDemandingSEFF rdseff = (ResourceDemandingSEFF) seff;
 						var sip = findSIP(im, rdseff);
@@ -56,8 +61,8 @@ public class IMUpdateEvaluator {
 	private ServiceInstrumentationPoint findSIP(InstrumentationModel im, ResourceDemandingSEFF seff) {
 		for (var sip : im.getPoints()) {
 			if (sip.getService() == seff) {
-				currentEvalResult.setNumberMatchedIP(currentEvalResult.getNumberMatchedIP()+1);
-				currentEvalResult.setNumberSIP(currentEvalResult.getNumberSIP()+1);
+				currentEvalResult.setNumberMatchedIP(currentEvalResult.getNumberMatchedIP() + 1);
+				currentEvalResult.setNumberSIP(currentEvalResult.getNumberSIP() + 1);
 				return sip;
 			}
 		}
@@ -81,8 +86,8 @@ public class IMUpdateEvaluator {
 		} else if (aa instanceof BranchAction) {
 			BranchAction branch = (BranchAction) aa;
 			for (var transition : branch.getBranches_Branch()) {
-				for (AbstractAction innerAA :
-						transition.getBranchBehaviour_BranchTransition().getSteps_Behaviour()) {
+				for (AbstractAction innerAA
+						: transition.getBranchBehaviour_BranchTransition().getSteps_Behaviour()) {
 					checkActionInstrumentationPoint(sip, innerAA);
 				}
 			}
@@ -96,9 +101,9 @@ public class IMUpdateEvaluator {
 	private void findAIP(ServiceInstrumentationPoint sip, AbstractAction aa) {
 		for (var aip : sip.getActionInstrumentationPoints()) {
 			if (aip.getAction() == aa) {
-				currentEvalResult.setNumberMatchedIP(currentEvalResult.getNumberMatchedIP()+1);
+				currentEvalResult.setNumberMatchedIP(currentEvalResult.getNumberMatchedIP() + 1);
 				if (aip.isActive()) {
-					currentEvalResult.setNumberActivatedAIP(currentEvalResult.getNumberActivatedAIP()+1);
+					currentEvalResult.setNumberActivatedAIP(currentEvalResult.getNumberActivatedAIP() + 1);
 				}
 				return;
 			}

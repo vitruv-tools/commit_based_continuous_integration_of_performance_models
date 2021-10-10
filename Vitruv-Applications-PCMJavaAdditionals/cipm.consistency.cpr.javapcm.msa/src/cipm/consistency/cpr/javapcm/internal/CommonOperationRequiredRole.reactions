@@ -87,7 +87,8 @@ routine checkFieldForRequiredInterface(java::Classifier classifier, java::Field 
 	match {
 		val correspondingInterface = retrieve pcm::OperationInterface corresponding to classifier
 		val correspondingComponent = retrieve pcm::RepositoryComponent corresponding to classifier
-		val repositoryComponent = retrieve pcm::RepositoryComponent corresponding to javaField.containingConcreteClassifier
+		val repositoryComponent = retrieve pcm::RepositoryComponent 
+			corresponding to javaField.containingConcreteClassifier
 	}
 	action {
 		call {
@@ -98,7 +99,8 @@ routine checkFieldForRequiredInterface(java::Classifier classifier, java::Field 
 	}
 }
 
-routine createOperationRequiredRoleForField(java::Field javaField, pcm::OperationInterface operationInterface, pcm::RepositoryComponent repoComponent) {
+routine createOperationRequiredRoleForField(java::Field javaField,
+	pcm::OperationInterface operationInterface, pcm::RepositoryComponent repoComponent) {
 	action {
 		val operationRequiredRole = create pcm::OperationRequiredRole and initialize {
 			operationRequiredRole.requiredInterface__OperationRequiredRole = operationInterface
@@ -135,10 +137,14 @@ routine removeRequiredRoleForImport(java::Import importSt) {
 
 routine checkUpdatedFieldType(java::Field field, java::TypeReference oldType, java::TypeReference newType) {
 	match {
-		val oldCorrespondingOpInterface = retrieve optional pcm::OperationInterface corresponding to getNormalizedClassifierFromTypeReference(oldType)
-		val oldCorrespondingCom = retrieve optional pcm::RepositoryComponent corresponding to getNormalizedClassifierFromTypeReference(oldType)
-		val opInterface = retrieve optional pcm::OperationInterface corresponding to getNormalizedClassifierFromTypeReference(newType)
-		val newCom = retrieve optional pcm::RepositoryComponent corresponding to getNormalizedClassifierFromTypeReference(newType)
+		val oldCorrespondingOpInterface = retrieve optional pcm::OperationInterface
+			corresponding to getNormalizedClassifierFromTypeReference(oldType)
+		val oldCorrespondingCom = retrieve optional pcm::RepositoryComponent
+			corresponding to getNormalizedClassifierFromTypeReference(oldType)
+		val opInterface = retrieve optional pcm::OperationInterface
+			corresponding to getNormalizedClassifierFromTypeReference(newType)
+		val newCom = retrieve optional pcm::RepositoryComponent
+			corresponding to getNormalizedClassifierFromTypeReference(newType)
 		val opRequiredRole = retrieve optional pcm::OperationRequiredRole corresponding to field
 		val basicComponent = retrieve pcm::BasicComponent corresponding to field.containingConcreteClassifier
 	}

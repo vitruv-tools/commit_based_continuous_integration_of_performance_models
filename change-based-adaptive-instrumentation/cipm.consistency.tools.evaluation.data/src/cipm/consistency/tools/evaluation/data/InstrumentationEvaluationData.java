@@ -3,6 +3,11 @@ package cipm.consistency.tools.evaluation.data;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A data structure for the evaluation of the instrumentation.
+ * 
+ * @author Martin Armbruster
+ */
 public class InstrumentationEvaluationData {
 	private int expectedLowerStatementDifferenceCount;
 	private int expectedUpperStatementDifferenceCount;

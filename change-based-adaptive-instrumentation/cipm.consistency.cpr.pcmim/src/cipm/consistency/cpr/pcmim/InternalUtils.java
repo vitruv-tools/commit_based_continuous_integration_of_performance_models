@@ -11,7 +11,7 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
  * 
  * @author Martin Armbruster
  */
-public class InternalUtility {
+public class InternalUtils {
 	/**
 	 * Finds the parent ResourceDemandingSEFF for a ResourceDemandingBehaviour which is a ResourceDemandingSEFF,
 	 * not a ResourceDemandingInternalBehaviour, or not contained within a ResourceDemandingInternalBehaviour.

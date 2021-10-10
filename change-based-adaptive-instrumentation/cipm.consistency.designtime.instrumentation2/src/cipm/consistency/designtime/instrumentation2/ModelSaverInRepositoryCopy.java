@@ -27,19 +27,23 @@ import cipm.consistency.designtime.instrumentation2.instrumenter.MinimalMonitori
  * 
  * @author Martin Armbruster
  */
-public class ModelSaver2 {
-	void saveModels(ResourceSet copyContainer, Resource copiedResource, Path target, Path source,
+public final class ModelSaverInRepositoryCopy {
+	private ModelSaverInRepositoryCopy() {
+	}
+
+	static void saveModels(ResourceSet copyContainer, Resource copiedResource, Path target, Path source,
 			MinimalMonitoringEnvironmentModelGenerator monitoringEnv) {
 		try {
+			// Copy the repository.
 			FileUtils.copyDirectory(source.toFile(), target.toFile());
-			var origJavaFiles = Files.walk(target).filter(Files::isRegularFile).map(Path::toAbsolutePath)
-				.filter(p -> {
-					String abs = p.toString();
-					return abs.endsWith(LogicalJavaURIGenerator.JAVA_FILE_EXTENSION)
-							&& !(abs.matches(".*?/src/test/java/.*?"))
-							&& !(abs.matches(".*?/utilities/tools.descartes.teastore.kieker/.*?"));
-				})
-				.collect(Collectors.toList());
+			var origJavaFiles = Files.walk(target).filter(Files::isRegularFile)
+					.map(Path::toAbsolutePath).filter(p -> {
+				String abs = p.toString();
+				return abs.endsWith(LogicalJavaURIGenerator.JAVA_FILE_EXTENSION)
+						&& !(abs.matches(".*?/src/test/java/.*?"))
+						&& !(abs.matches(".*?/utilities/tools.descartes.teastore.kieker/.*?"));
+			}).collect(Collectors.toList());
+			// Provide Resources for the monitoring environment.
 			Resource monRes = copyContainer.createResource(URI.createURI("empty:/ThreadMonitoringController.java"));
 			monRes.getContents().add(monitoringEnv.threadMonitoringControllerCU);
 			Resource serviceRes = copyContainer.createResource(URI.createURI("empty:/ServiceParameters.java"));
@@ -47,20 +51,26 @@ public class ModelSaver2 {
 			Set<String> injectedProjects = new HashSet<>();
 			for (EObject root : new ArrayList<>(copiedResource.getContents())) {
 				JavaRoot cu = (JavaRoot) root;
+				// All Java models originating from a file are printed.
 				if (cu.getOrigin() == Origin.FILE) {
 					String lastPart = createLastPathPart(cu);
 					for (Path path : origJavaFiles) {
+						// Relate the Java model to its original file.
 						String absPath = path.toString();
 						if (absPath.endsWith(lastPart)) {
+							// Because all Java models are contained within one Resource,
+							// a new Resource is
+							// created for every model to be printed.
 							Resource newResource = copyContainer.createResource(
 									URI.createFileURI(path.toString()));
 							newResource.getContents().add(cu);
 							newResource.save(null);
 							copiedResource.getContents().add(cu);
 							checkMonitoringEnvironmentPrinting(injectedProjects,
-									absPath.substring(0, absPath.length() - lastPart.length()),
-									monRes, monitoringEnv.threadMonitoringControllerCU,
-									serviceRes, monitoringEnv.serviceParametersCU);
+									absPath.substring(0, absPath.length()
+											- lastPart.length()), monRes,
+									monitoringEnv.threadMonitoringControllerCU, serviceRes,
+									monitoringEnv.serviceParametersCU);
 						}
 					}
 				}
@@ -70,8 +80,9 @@ public class ModelSaver2 {
 		} catch (IOException e) {
 		}
 	}
-	
-	private String createLastPathPart(JavaRoot cu) {
+
+	// Converts a Java model to a file name.
+	private static String createLastPathPart(JavaRoot cu) {
 		StringBuilder builder = new StringBuilder();
 		if (cu instanceof NamespaceAwareElement) {
 			for (String ns : ((NamespaceAwareElement) cu).getNamespaces()) {
@@ -90,10 +101,11 @@ public class ModelSaver2 {
 		}
 		return builder.toString();
 	}
-	
-	private void checkMonitoringEnvironmentPrinting(Set<String> injectedProjects, String project,
-			Resource monitoringRes, CompilationUnit monitoringCU,
-			Resource serviceRes, CompilationUnit serviceCU) throws IOException {
+
+	// Checks if the monitoring environment can be printed.
+	private static void checkMonitoringEnvironmentPrinting(Set<String> injectedProjects, String project,
+			Resource monitoringRes, CompilationUnit monitoringCU, Resource serviceRes, CompilationUnit serviceCU)
+			throws IOException {
 		if (!injectedProjects.contains(project)) {
 			monitoringRes.setURI(URI.createFileURI(project + createLastPathPart(monitoringCU)));
 			monitoringRes.save(null);

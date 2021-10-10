@@ -3,6 +3,11 @@ package cipm.consistency.commitintegration
 import java.nio.file.Path
 import org.eclipse.xtend.lib.annotations.Accessors
 
+/**
+ * This class represents the layout on the file system related to the Java models.
+ * 
+ * @author Martin Armbruster
+ */
 @Accessors
 class JavaFileSystemLayout {
 	static final String localJavaRepoDirName = "local-repo-clone";

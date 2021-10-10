@@ -220,8 +220,8 @@ public class GitRepositoryWrapper {
 	 * @throws IOException if an IO operation fails.
 	 * @throws IncorrectObjectTypeException if one of the given commits is invalid.
 	 */
-	public List<DiffEntry> computeDiffsBetweenTwoCommits(RevCommit oldRevCommit, RevCommit newRevCommit, boolean onlyChangesOnJavaFiles,
-			boolean detectRenames) throws IncorrectObjectTypeException, IOException {
+	public List<DiffEntry> computeDiffsBetweenTwoCommits(RevCommit oldRevCommit, RevCommit newRevCommit,
+			boolean onlyChangesOnJavaFiles, boolean detectRenames) throws IncorrectObjectTypeException, IOException {
 
 		ObjectReader treeReader = git.getRepository().newObjectReader();
 		
@@ -244,13 +244,13 @@ public class GitRepositoryWrapper {
 			@Override
 			protected void writeAddedLine(RawText text, int line) {
 				var cs = EvaluationDataContainer.getGlobalContainer().getChangeStatistic();
-				cs.setNumberAddedLines(cs.getNumberAddedLines()+1);
+				cs.setNumberAddedLines(cs.getNumberAddedLines() + 1);
 			}
 			
 			@Override
 			protected void writeRemovedLine(RawText text, int line) {
 				var cs = EvaluationDataContainer.getGlobalContainer().getChangeStatistic();
-				cs.setNumberRemovedLines(cs.getNumberRemovedLines()+1);
+				cs.setNumberRemovedLines(cs.getNumberRemovedLines() + 1);
 			}
 		};
 		df.setRepository(git.getRepository());
@@ -343,7 +343,8 @@ public class GitRepositoryWrapper {
 	 * @throws IOException if the diff cannot be read.
 	 * @throws MissingObjectException if the diff cannot be found.
 	 */
-	public OutputStream getOldContentOfFileFromDiffEntryInOutputStream(DiffEntry diff) throws MissingObjectException, IOException {
+	public OutputStream getOldContentOfFileFromDiffEntryInOutputStream(DiffEntry diff)
+			throws MissingObjectException, IOException {
 		ObjectId oldObjectId = diff.getOldId().toObjectId();
         return readObjectAsOutputStream(oldObjectId);
  	}
@@ -356,7 +357,8 @@ public class GitRepositoryWrapper {
  	 * @throws IOException if the diff cannot be read.
  	 * @throws MissingObjectException if the diff cannot be found.
 	 */
-	public OutputStream getNewContentOfFileFromDiffEntryInOutputStream(DiffEntry diff) throws MissingObjectException, IOException {
+	public OutputStream getNewContentOfFileFromDiffEntryInOutputStream(DiffEntry diff)
+			throws MissingObjectException, IOException {
 		ObjectId newObjectId = diff.getNewId().toObjectId();
         return readObjectAsOutputStream(newObjectId);
 	}

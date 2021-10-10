@@ -1,5 +1,10 @@
 package cipm.consistency.tools.evaluation.data;
 
+/**
+ * Container for the complete data.
+ * 
+ * @author Martin Armbruster
+ */
 public class EvaluationDataContainer {
 	private static EvaluationDataContainer globalContainer;
 	

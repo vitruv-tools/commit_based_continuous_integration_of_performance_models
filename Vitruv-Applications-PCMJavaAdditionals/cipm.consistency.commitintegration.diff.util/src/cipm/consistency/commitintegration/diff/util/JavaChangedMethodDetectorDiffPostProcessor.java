@@ -9,9 +9,19 @@ import org.eclipse.emf.compare.Match;
 import org.eclipse.emf.compare.postprocessor.IPostProcessor;
 import org.emftext.language.java.members.Method;
 
+/**
+ * A post processor for comparing Java models to detect changed methods.
+ * 
+ * @author Martin Armbruster
+ */
 public class JavaChangedMethodDetectorDiffPostProcessor implements IPostProcessor {
 	private Set<Method> changedMethods = new HashSet<>();
 	
+	/**
+	 * Returns a set with all changed methods.
+	 * 
+	 * @return the set of changed methods.
+	 */
 	public Set<Method> getChangedMethods() {
 		return changedMethods;
 	}

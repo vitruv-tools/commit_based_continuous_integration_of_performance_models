@@ -22,6 +22,7 @@ public class ExternalCallActionInstrumenter extends AbstractInstrumenter {
 
 	@Override
 	protected void instrument(ActionInstrumentationPoint aip, ActionStatementMapping statementMap) {
+		// Statement for setting the external call id.
 		Statement callStatement = statementMap.get(aip.getAction());
 		String externalCallId = aip.getAction().getId();
 		ExpressionStatement enterSt = StatementsFactory.eINSTANCE.createExpressionStatement();

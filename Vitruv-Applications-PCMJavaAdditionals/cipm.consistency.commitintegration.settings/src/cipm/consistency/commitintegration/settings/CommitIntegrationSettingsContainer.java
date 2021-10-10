@@ -6,7 +6,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-public class CommitIntegrationSettingsContainer {
+/**
+ * A container for the settings of the commit-based integration.
+ * 
+ * @author Martin Armbruster
+ */
+public final class CommitIntegrationSettingsContainer {
 	private static CommitIntegrationSettingsContainer instance;
 	private Path settingsFile;
 	private Properties properties;

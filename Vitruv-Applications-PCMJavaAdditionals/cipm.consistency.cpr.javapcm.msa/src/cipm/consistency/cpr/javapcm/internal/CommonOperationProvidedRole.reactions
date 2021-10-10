@@ -57,7 +57,8 @@ routine createOrFindOperationProvidedRole(java::Classifier classifierInterface, 
 	}
 }
 
-routine createOperationProvidedRole(pcm::OperationInterface opInterface, pcm::BasicComponent basicComponent, java::Class javaClass) {
+routine createOperationProvidedRole(pcm::OperationInterface opInterface,
+	pcm::BasicComponent basicComponent, java::Class javaClass) {
 	action {
 		val operationProvidedRole = create pcm::OperationProvidedRole and initialize {
 			operationProvidedRole.providedInterface__OperationProvidedRole = opInterface

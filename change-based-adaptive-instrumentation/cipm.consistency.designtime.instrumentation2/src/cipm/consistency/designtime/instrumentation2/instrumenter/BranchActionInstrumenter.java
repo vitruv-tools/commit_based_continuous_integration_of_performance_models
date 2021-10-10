@@ -28,6 +28,7 @@ public class BranchActionInstrumenter extends AbstractInstrumenter {
 		String transitionId = aip.getAction().getId();
 		if (branchSt instanceof StatementContainer
 				&& ((StatementContainer) branchSt).getStatement() instanceof Block) {
+			// Enter statement at the beginning of the inner statements.
 			ExpressionStatement enterSt = StatementsFactory.eINSTANCE.createExpressionStatement();
 			IdentifierReference idRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
 			idRef.setTarget(this.threadMonitoringVariable);

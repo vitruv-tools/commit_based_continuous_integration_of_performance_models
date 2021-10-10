@@ -2,7 +2,6 @@ package tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EObject;
 import org.emftext.language.java.members.Method;
 import org.emftext.language.java.statements.Statement;
@@ -30,14 +29,12 @@ import tools.vitruv.framework.userinteraction.UserInteractor;
  * @author Martin Armbruster
  */
 public class ExtendedClassMethodBodyChangedTransformation extends ClassMethodBodyChangedTransformation {
-	private final static Logger logger = Logger.getLogger(ExtendedClassMethodBodyChangedTransformation.class.getSimpleName());
-
 	public ExtendedClassMethodBodyChangedTransformation(final Method newMethod,
 			final BasicComponentFinding basicComponentFinder,
 			final IFunctionClassificationStrategy iFunctionClassificationStrategy,
-			final InterfaceOfExternalCallFindingFactory InterfaceOfExternalCallFindingFactory,
+			final InterfaceOfExternalCallFindingFactory interfaceOfExternalCallFindingFactory,
 			final ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding) {
-		super(newMethod, basicComponentFinder, iFunctionClassificationStrategy, InterfaceOfExternalCallFindingFactory,
+		super(newMethod, basicComponentFinder, iFunctionClassificationStrategy, interfaceOfExternalCallFindingFactory,
 				resourceDemandingBehaviourForClassMethodFinding);
 	}
 
@@ -59,7 +56,8 @@ public class ExtendedClassMethodBodyChangedTransformation extends ClassMethodBod
 	
 	private void bindAbstractActionsAndStatements(SourceCodeDecoratorRepository sourceCodeDecorator,
 			CorrespondenceModel correspondenceModel) {
-		List<SeffElementSourceCodeLink> seffElementSourceCodeLinks =  sourceCodeDecorator.getSeffElementsSourceCodeLinks();
+		List<SeffElementSourceCodeLink> seffElementSourceCodeLinks =
+				sourceCodeDecorator.getSeffElementsSourceCodeLinks();
 
         for (SeffElementSourceCodeLink seffElementSourceCodeLink : seffElementSourceCodeLinks) {
             if (seffElementSourceCodeLink.getSeffElement() instanceof AbstractAction) {

@@ -27,7 +27,7 @@ import tools.vitruv.framework.correspondence.CorrespondenceModel;
  */
 public class BasicComponentForPackageMappingFinder implements BasicComponentFinding {
 
-    private static final Logger logger = Logger.getLogger(BasicComponentForPackageMappingFinder.class.getSimpleName());
+    private static final Logger LOGGER = Logger.getLogger(BasicComponentForPackageMappingFinder.class.getSimpleName());
 
     private final ResourceSet dummyResourceSet;
 
@@ -44,14 +44,14 @@ public class BasicComponentForPackageMappingFinder implements BasicComponentFind
     public BasicComponent findBasicComponentForMethod(final Method newMethod, final CorrespondenceModel ci) {
         final CompilationUnit cu = newMethod.getContainingCompilationUnit();
         if (null == cu) {
-            logger.info("Could not find basic component for method " + newMethod
+            LOGGER.info("Could not find basic component for method " + newMethod
                     + " cause the compilation of the method is null");
             return null;
         }
         final Package jaMoPPPackage = this.createPackage(cu, cu.getNamespaces());
         final BasicComponent correspondingBc = this.findCorrespondingBasicComponentForPackage(jaMoPPPackage, ci);
         if (null == correspondingBc) {
-            logger.info("Could not find basic component for method " + newMethod + " in package " + jaMoPPPackage);
+            LOGGER.info("Could not find basic component for method " + newMethod + " in package " + jaMoPPPackage);
         }
         return correspondingBc;
     }
@@ -75,12 +75,12 @@ public class BasicComponentForPackageMappingFinder implements BasicComponentFind
     }
 
     /**
-     * Recursively finds the corresponding basic component for the package. walks up the package
-     * hierarchy and retunrs the first matching basic component.
+     * Recursively finds the corresponding basic component for the package. Walks up the package
+     * hierarchy and returns the first matching basic component.
      *
-     * @param jaMoPPPackage
-     * @param ci
-     * @return
+     * @param jaMoPPPackage the package model to investigate.
+     * @param ci the current correspondence model.
+     * @return the first matching basic component.
      */
     private BasicComponent findCorrespondingBasicComponentForPackage(final Package jaMoPPPackage,
             final CorrespondenceModel ci) {

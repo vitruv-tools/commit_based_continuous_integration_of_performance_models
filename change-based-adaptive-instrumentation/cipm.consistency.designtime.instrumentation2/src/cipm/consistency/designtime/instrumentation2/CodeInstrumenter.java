@@ -26,52 +26,53 @@ import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
 
 /**
- * An instrumenter for the source code based on the instrumentation points in the instrumentation model.
+ * An instrumenter for the source code based on the instrumentation points in
+ * the instrumentation model.
  * 
  * @author Martin Armbruster
  */
-public class CodeInstrumenter {
-	private final static Logger logger = Logger.getLogger("cipm." + CodeInstrumenter.class.getSimpleName());
-	
-	public Resource instrument(InstrumentationModel im, CorrespondenceModel cm, Resource javaModel,
-			Path output, Path input, boolean adaptive) {
-		logger.debug("Executing the " + (adaptive ? "adaptive" : "full") + " instrumentation.");
-		logger.debug("Copying the Java model.");
+public final class CodeInstrumenter {
+	private static final Logger LOGGER = Logger.getLogger("cipm." + CodeInstrumenter.class.getSimpleName());
+
+	private CodeInstrumenter() {
+	}
+
+	public static Resource instrument(InstrumentationModel im, CorrespondenceModel cm, Resource javaModel, Path output,
+			Path input, boolean adaptive) {
+		LOGGER.debug("Executing the " + (adaptive ? "adaptive" : "full") + " instrumentation.");
+		LOGGER.debug("Copying the Java model.");
 		ResourceSet targetSet = new ResourceSetImpl();
 		Resource copy = targetSet.createResource(javaModel.getURI());
 		copy.getContents().addAll(EcoreUtil.copyAll(javaModel.getContents()));
-		
-		logger.debug("Generating the minimal monitoring environment.");
-		MinimalMonitoringEnvironmentModelGenerator gen =
-				new MinimalMonitoringEnvironmentModelGenerator(copy);
-		ServiceInstrumentationPointInstrumenter sipIns =
-				new ServiceInstrumentationPointInstrumenter(gen);
-		
+
+		LOGGER.debug("Generating the minimal monitoring environment.");
+		MinimalMonitoringEnvironmentModelGenerator gen = new MinimalMonitoringEnvironmentModelGenerator(copy);
+		ServiceInstrumentationPointInstrumenter sipIns = new ServiceInstrumentationPointInstrumenter(gen);
+
 		for (ServiceInstrumentationPoint sip : im.getPoints()) {
-			logger.debug("Instrumenting the service " + sip.getService().getDescribedService__SEFF().getEntityName());
-			Method service = CorrespondenceModelUtil
-					.getCorrespondingEObjects(cm, sip.getService(), Method.class).iterator().next();
+			LOGGER.debug("Instrumenting the service " + sip.getService().getDescribedService__SEFF().getEntityName());
+			Method service = CorrespondenceModelUtil.getCorrespondingEObjects(cm, sip.getService(), Method.class)
+					.iterator().next();
 			Method copiedService = findCopiedEObject(targetSet, service);
 			ActionStatementMapping statementMap = createActionStatementMapping(targetSet, sip, cm);
 			sipIns.instrument(copiedService, sip, statementMap, adaptive);
 		}
-		
-		logger.debug("Saving the instrumented code.");
-		new ModelSaver2().saveModels(targetSet, copy, output, input, gen);
-		logger.debug("Finished the instrumentation.");
-		
+
+		LOGGER.debug("Saving the instrumented code.");
+		ModelSaverInRepositoryCopy.saveModels(targetSet, copy, output, input, gen);
+		LOGGER.debug("Finished the instrumentation.");
+
 		return copy;
 	}
-	
-	private ActionStatementMapping createActionStatementMapping(ResourceSet copyContainer,
+
+	private static ActionStatementMapping createActionStatementMapping(ResourceSet copyContainer,
 			ServiceInstrumentationPoint sip, CorrespondenceModel cm) {
 		ActionStatementMapping statementMap = new ActionStatementMapping();
 		for (ActionInstrumentationPoint aip : sip.getActionInstrumentationPoints()) {
-			Set<Statement> correspondingStatements = CorrespondenceModelUtil
-					.getCorrespondingEObjects(cm, aip.getAction(), Statement.class);
+			Set<Statement> correspondingStatements = CorrespondenceModelUtil.getCorrespondingEObjects(cm,
+					aip.getAction(), Statement.class);
 			Statement firstStatement;
-			if (aip.getType() == InstrumentationType.INTERNAL
-					|| aip.getType() == InstrumentationType.INTERNAL_CALL) {
+			if (aip.getType() == InstrumentationType.INTERNAL || aip.getType() == InstrumentationType.INTERNAL_CALL) {
 				Statement lastStatement = findFirstOrLastStatement(correspondingStatements, false);
 				statementMap.getAbstractActionToLastStatementMapping().put(aip.getAction(),
 						findCopiedEObject(copyContainer, lastStatement));
@@ -88,17 +89,17 @@ public class CodeInstrumenter {
 		}
 		return statementMap;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	private <T extends EObject> T findCopiedEObject(ResourceSet copyContainer, T original) {
+	private static <T extends EObject> T findCopiedEObject(ResourceSet copyContainer, T original) {
 		EObject potResult = copyContainer.getEObject(EcoreUtil.getURI(original), false);
 		if (potResult != null && original.eClass().isInstance(potResult)) {
 			return (T) potResult;
 		}
 		return null;
 	}
-	
-	private Statement findFirstOrLastStatement(Set<Statement> statements, boolean findFirst) {
+
+	private static Statement findFirstOrLastStatement(Set<Statement> statements, boolean findFirst) {
 		if (statements.size() == 1) {
 			return statements.iterator().next();
 		}

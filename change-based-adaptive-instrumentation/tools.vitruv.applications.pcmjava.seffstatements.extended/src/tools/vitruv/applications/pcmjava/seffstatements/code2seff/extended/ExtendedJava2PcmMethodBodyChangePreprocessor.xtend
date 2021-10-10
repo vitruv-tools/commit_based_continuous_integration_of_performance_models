@@ -13,7 +13,8 @@ import cipm.consistency.domains.pcm.ExtendedPcmDomainProvider
 class ExtendedJava2PcmMethodBodyChangePreprocessor extends Java2PcmMethodBodyChangePreprocessor {
 
 	new() {
-		super(new CommitIntegrationCodeToSeffFactory, new AdjustedJavaDomainProvider().domain, new ExtendedPcmDomainProvider().domain)
+		super(new CommitIntegrationCodeToSeffFactory,
+			new AdjustedJavaDomainProvider().domain, new ExtendedPcmDomainProvider().domain)
 	}
 
 	protected override ClassMethodBodyChangedTransformation createTransformation(Method newMethod,

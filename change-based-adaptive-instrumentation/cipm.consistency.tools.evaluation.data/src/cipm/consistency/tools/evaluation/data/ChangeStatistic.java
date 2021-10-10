@@ -1,5 +1,10 @@
 package cipm.consistency.tools.evaluation.data;
 
+/**
+ * A data structure for statistics about the propagated changes.
+ * 
+ * @author Martin Armbruster
+ */
 public class ChangeStatistic {
 	private String oldCommit;
 	private String newCommit;

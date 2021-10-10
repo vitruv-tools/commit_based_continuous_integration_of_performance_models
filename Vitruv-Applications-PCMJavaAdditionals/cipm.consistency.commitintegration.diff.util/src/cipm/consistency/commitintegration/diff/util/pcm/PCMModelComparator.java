@@ -8,23 +8,31 @@ import org.palladiosimulator.pcm.repository.RepositoryPackage;
 import cipm.consistency.commitintegration.diff.util.HierarchicalMatchEngineFactoryGenerator;
 import cipm.consistency.commitintegration.diff.util.ResourceListFilteringComparisonScope;
 
-public class PCMModelComparator {
+/**
+ * This class enables the comparison of PCM repository models.
+ * 
+ * @author Martin Armbruster
+ */
+public final class PCMModelComparator {
+	private PCMModelComparator() {
+	}
+
 	/**
 	 * Compares PCM repository models using EMF Compare.
 	 * 
-	 * @param newState contains the new state: a repository or a repository resource.
-	 * @param currentState contains the current or old state compared to the new state: a repository or a repository resource.
+	 * @param newState     contains the new state: a repository or a repository
+	 *                     resource.
+	 * @param currentState contains the current or old state compared to the new
+	 *                     state: a repository or a repository resource.
 	 * @return the result of the comparison.
 	 */
 	public static Comparison compareRepositoryModels(Notifier newState, Notifier currentState) {
-		
+
 		var scope = new ResourceListFilteringComparisonScope(newState, currentState, null, null);
 		scope.getNsURIs().add(RepositoryPackage.eNS_URI);
-		
-		return EMFCompare.builder()
-				.setMatchEngineFactoryRegistry(
-						HierarchicalMatchEngineFactoryGenerator.generateMatchEngineRegistry(
-						PCMRepositoryMatchEngineFactoryGenerator.generateMatchEngineFactory()))
-				.build().compare(scope);
+
+		return EMFCompare.builder().setMatchEngineFactoryRegistry(HierarchicalMatchEngineFactoryGenerator
+				.generateMatchEngineRegistry(PCMRepositoryMatchEngineFactoryGenerator
+						.generateMatchEngineFactory())).build().compare(scope);
 	}
 }

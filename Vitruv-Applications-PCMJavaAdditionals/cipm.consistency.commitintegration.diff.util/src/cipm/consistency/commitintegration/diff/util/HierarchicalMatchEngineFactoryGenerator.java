@@ -16,21 +16,40 @@ import org.splevo.jamopp.diffing.similarity.SimilarityChecker;
 
 import com.google.common.cache.CacheBuilder;
 
+/**
+ * A generator for HierarchicalMatchEngineFactories.
+ * 
+ * @author Martin Armbruster
+ */
 public final class HierarchicalMatchEngineFactoryGenerator {
 	private HierarchicalMatchEngineFactoryGenerator() {
 	}
 	
+	/**
+	 * Generates a HierarchicalMatchEngineFactory.
+	 * 
+	 * @param simChecker the SimilarityChecker which is internally used to compare model elements.
+	 * @param key a key to identify the compared models.
+	 * @return the generated factory.
+	 */
 	public static HierarchicalMatchEngineFactory generateMatchEngineFactory(SimilarityChecker simChecker, String key) {
 		EqualityHelperExtensionProvider.Descriptor.Registry descRegistryImpl =
 				EqualityHelperExtensionProviderDescriptorRegistryImpl.createStandaloneInstance();
 		descRegistryImpl.put(key, new SimilarityCheckerBasedEqualityHelperExtensionProviderDescriptor(simChecker));
 		return new HierarchicalMatchEngineFactory(
-				new EqualityHelper(EqualityHelper.createDefaultCache(CacheBuilder.newBuilder()), descRegistryImpl),
+				new EqualityHelper(EqualityHelper.createDefaultCache(
+						CacheBuilder.newBuilder()), descRegistryImpl),
 				new JaMoPPEqualityStrategy(simChecker),
 				new JaMoPPIgnoreStrategy(new PackageIgnoreChecker(List.of())),
 				new HierarchicalStrategyResourceMatcher());
 	}
 	
+	/**
+	 * Generates a registry with a specific match engine.
+	 * 
+	 * @param engineFactory the MatchEngineFactory which is registered in the generated registry.
+	 * @return the generated registry.
+	 */
 	public static IMatchEngine.Factory.Registry generateMatchEngineRegistry(HierarchicalMatchEngineFactory engineFactory) {
 		engineFactory.setRanking(20);
 		var engineRegistry = EMFCompareRCPPlugin.getDefault().getMatchEngineFactoryRegistry();

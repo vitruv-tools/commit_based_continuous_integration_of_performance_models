@@ -35,6 +35,12 @@ import tools.vitruv.framework.userinteraction.UserInteractionFactory;
 import tools.vitruv.framework.vsum.VirtualModelBuilder;
 import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
 
+/**
+ * Facade to the V-SUM.
+ * 
+ * @author Martin Armbruster
+ */
+@SuppressWarnings("restriction")
 public class VSUMFacade {
 	private FileLayout files;
 	private InternalVirtualModel vsum;
@@ -57,9 +63,12 @@ public class VSUMFacade {
 				.withStorageFolder(files.getVsumPath())
 				.withUserInteractor(UserInteractionFactory.instance.createDialogUserInteractor())
 				.withChangePropagationSpecification(new CommitIntegrationJavaPCMChangePropagationSpecification());
-		if (CommitIntegrationSettingsContainer.getSettingsContainer().getPropertyAsBoolean(SettingKeys.PERFORM_FINE_GRAINED_SEFF_RECONSTRUCTION)
-				|| CommitIntegrationSettingsContainer.getSettingsContainer().getPropertyAsBoolean(SettingKeys.USE_PCM_IM_CPRS)) {
-			vsumBuilder = vsumBuilder.withChangePropagationSpecification(new ImUpdateChangePropagationSpecification());
+		if (CommitIntegrationSettingsContainer.getSettingsContainer()
+				.getPropertyAsBoolean(SettingKeys.PERFORM_FINE_GRAINED_SEFF_RECONSTRUCTION)
+				|| CommitIntegrationSettingsContainer.getSettingsContainer()
+				.getPropertyAsBoolean(SettingKeys.USE_PCM_IM_CPRS)) {
+			vsumBuilder = vsumBuilder.withChangePropagationSpecification(
+					new ImUpdateChangePropagationSpecification());
 		}
 		vsum = vsumBuilder.buildAndInitialize();
 		filePCM = new LocalFilesystemPCM();

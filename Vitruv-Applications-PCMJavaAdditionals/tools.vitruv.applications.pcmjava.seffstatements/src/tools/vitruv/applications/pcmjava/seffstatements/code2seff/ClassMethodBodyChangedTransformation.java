@@ -41,7 +41,7 @@ import tools.vitruv.framework.userinteraction.UserInteractor;
  */
 public class ClassMethodBodyChangedTransformation {
 
-	private final static Logger logger = Logger.getLogger(ClassMethodBodyChangedTransformation.class.getSimpleName());
+	private static final Logger LOGGER = Logger.getLogger(ClassMethodBodyChangedTransformation.class.getSimpleName());
 
 	private final Method newMethod;
 	private final BasicComponentFinding basicComponentFinder;
@@ -56,34 +56,39 @@ public class ClassMethodBodyChangedTransformation {
 	public ClassMethodBodyChangedTransformation(final Method newMethod,
 			final BasicComponentFinding basicComponentFinder,
 			final IFunctionClassificationStrategy iFunctionClassificationStrategy,
-			final InterfaceOfExternalCallFindingFactory InterfaceOfExternalCallFindingFactory,
+			final InterfaceOfExternalCallFindingFactory interfaceOfExternalCallFindingFactory,
 			final ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding) {
 		this.newMethod = newMethod;
 		this.basicComponentFinder = basicComponentFinder;
 		this.iFunctionClassificationStrategy = iFunctionClassificationStrategy;
-		this.interfaceOfExternalCallFinderFactory = InterfaceOfExternalCallFindingFactory;
+		this.interfaceOfExternalCallFinderFactory = interfaceOfExternalCallFindingFactory;
 		this.resourceDemandingBehaviourForClassMethodFinding = resourceDemandingBehaviourForClassMethodFinding;
 	}
 
 	/**
 	 * This method is called after a java method body has been changed. In order
 	 * to keep the SEFF/ResourceDemandingInternalBehaviour consistent with the
-	 * method we 1) remove all AbstractActions corresponding to the Method from
+	 * method we:
+	 * 1) remove all AbstractActions corresponding to the Method from
 	 * the SEFF/ResourceDemandingInternalBehaviour (which are currently all
 	 * AbstractActions in the SEFF/ResourceDemandingInternalBehaviour) and from
-	 * the correspondenceModel 2) run the SoMoX SEFF extractor for this method,
-	 * 3) reconnect the newly extracted SEFF elements with the old elements 4)
-	 * create new AbstractAction 2 Method correspondences for the new method
-	 * (and its inner methods)
-	 *
+	 * the correspondenceModel,
+	 * 2) run the SoMoX SEFF extractor for this method,
+	 * 3) reconnect the newly extracted SEFF elements with the old elements,
+	 * 4) create new AbstractAction 2 Method correspondences for the new method
+	 * (and its inner methods).
+	 * 
+	 * @param correspondenceModel the current correspondence model.
+	 * @param userInteracting the user interactor.
 	 */
 	public void execute(final CorrespondenceModel correspondenceModel,
 			final UserInteractor userInteracting) {
 		if (!this.isArchitectureRelevantChange(correspondenceModel)) {
-			logger.debug("Change within the method: " + this.newMethod
+			LOGGER.debug("Change within the method: " + this.newMethod
 					+ " is not an architecture relevant change");
 			return;
 		}
+		
 		// 1)
 		this.removeCorrespondingAbstractActions(correspondenceModel);
 
@@ -99,17 +104,15 @@ public class ClassMethodBodyChangedTransformation {
 
 		// 4)
 		this.createNewCorrespondences(correspondenceModel, resourceDemandingBehaviour);
-
-		return;
 	}
 
 	/**
-	 * checks whether the change is considered architecture relevant. This is
+	 * Checks whether the change is considered architecture relevant. This is
 	 * the case if either the new or the old method does have a corresponding
-	 * ResourceDemandingBehaviour
+	 * ResourceDemandingBehaviour.
 	 *
-	 * @param ci
-	 * @return
+	 * @param ci the current correspondence model.
+	 * @return true if the method is architecture relevant. false otherwise.
 	 */
 	protected boolean isArchitectureRelevantChange(final CorrespondenceModel ci) {
 		return this.isMethodArchitectureRelevant(this.newMethod, ci);
@@ -139,18 +142,19 @@ public class ClassMethodBodyChangedTransformation {
 			// problems when
 			// changing an abstract method to a ClassMethod
 			VisitorUtils.visitJaMoPPMethod(targetResourceDemandingBehaviour, basicComponent,
-					(StatementListContainer) this.newMethod, sourceCodeDecorator, functionCallClassificationVisitor,
-					this.interfaceOfExternalCallFinderFactory, this.resourceDemandingBehaviourForClassMethodFinding,
-					methodCallFinder);
+					(StatementListContainer) this.newMethod, sourceCodeDecorator,
+					functionCallClassificationVisitor, this.interfaceOfExternalCallFinderFactory,
+					this.resourceDemandingBehaviourForClassMethodFinding, methodCallFinder);
 			for (var rdiLink : sourceCodeDecorator.getMethodLevelResourceDemandingInternalBehaviorLink()) {
 				if (targetResourceDemandingBehaviour instanceof ResourceDemandingSEFF
 						&& rdiLink.getResourceDemandingInternalBehaviour().eContainer() == null) {
-					((ResourceDemandingSEFF) targetResourceDemandingBehaviour).getResourceDemandingInternalBehaviours()
+					((ResourceDemandingSEFF) targetResourceDemandingBehaviour)
+						.getResourceDemandingInternalBehaviours()
 						.add(rdiLink.getResourceDemandingInternalBehaviour());
 				}
 			}
 		} else {
-			logger.info("No SEFF recreated for method " + this.newMethod.getName()
+			LOGGER.info("No SEFF recreated for method " + this.newMethod.getName()
 					+ " because it is not a class method. Method " + this.newMethod);
 		}
 
@@ -201,8 +205,9 @@ public class ClassMethodBodyChangedTransformation {
 
 		for (final AbstractAction abstractAction : resourceDemandingBehaviour.getSteps_Behaviour()) {
 			if (!(abstractAction instanceof StartAction || abstractAction instanceof StopAction)) {
-				logger.warn(
-						"The resource demanding behavior should be empty, but it contains at least following AbstractAction "
+				LOGGER.warn(
+						"The resource demanding behavior should be empty, "
+						+ "but it contains at least following AbstractAction "
 								+ abstractAction);
 			}
 		}
@@ -213,7 +218,7 @@ public class ClassMethodBodyChangedTransformation {
 		ResourceDemandingBehaviour resourceDemandingBehaviour = null;
 		for (final AbstractAction abstractAction : correspondingAbstractActions) {
 			if (null == abstractAction.getResourceDemandingBehaviour_AbstractAction()) {
-				logger.warn("AbstractAction " + abstractAction
+				LOGGER.warn("AbstractAction " + abstractAction
 						+ " does not have a parent ResourceDemandingBehaviour - this should not happen.");
 				continue;
 			}
@@ -223,7 +228,7 @@ public class ClassMethodBodyChangedTransformation {
 				continue;
 			}
 			if (resourceDemandingBehaviour != abstractAction.getResourceDemandingBehaviour_AbstractAction()) {
-				logger.warn("resourceDemandingBehaviour " + resourceDemandingBehaviour
+				LOGGER.warn("resourceDemandingBehaviour " + resourceDemandingBehaviour
 						+ " is different that current resourceDemandingBehaviour: "
 						+ abstractAction.getResourceDemandingBehaviour_AbstractAction());
 			}
@@ -237,7 +242,7 @@ public class ClassMethodBodyChangedTransformation {
 				CorrespondenceModelUtil.getCorrespondingEObjects(
 						ci, this.newMethod, ResourceDemandingBehaviour.class);
 		if (null == correspondingResourceDemandingBehaviours || correspondingResourceDemandingBehaviours.isEmpty()) {
-			logger.warn("No ResourceDemandingBehaviours found for method " + this.newMethod
+			LOGGER.warn("No ResourceDemandingBehaviours found for method " + this.newMethod
 					+ ". Could not create ResourceDemandingBehavoir to insert SEFF elements");
 			return null;
 		}

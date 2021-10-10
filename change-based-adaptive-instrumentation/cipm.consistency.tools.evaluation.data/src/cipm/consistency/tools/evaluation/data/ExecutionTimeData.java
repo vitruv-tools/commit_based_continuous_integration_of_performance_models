@@ -1,5 +1,10 @@
 package cipm.consistency.tools.evaluation.data;
 
+/**
+ * A data structure for execution times.
+ * 
+ * @author Martin Armbruster
+ */
 public class ExecutionTimeData {
 	private long changePropagationTime;
 	private long instrumentationTime;

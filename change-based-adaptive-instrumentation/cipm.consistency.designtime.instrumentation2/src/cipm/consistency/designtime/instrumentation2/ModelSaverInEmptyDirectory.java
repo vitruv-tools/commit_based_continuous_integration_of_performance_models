@@ -20,8 +20,11 @@ import cipm.consistency.designtime.instrumentation2.instrumenter.MinimalMonitori
  * 
  * @author Martin Armbruster
  */
-public class ModelSaver {
-	void saveModels(ResourceSet copyContainer, Resource copiedResource, Path target,
+public final class ModelSaverInEmptyDirectory {
+	private ModelSaverInEmptyDirectory() {
+	}
+	
+	static void saveModels(ResourceSet copyContainer, Resource copiedResource, Path target,
 			MinimalMonitoringEnvironmentModelGenerator monitoringEnv) {
 		copiedResource.getContents().add(monitoringEnv.threadMonitoringControllerCU);
 		copiedResource.getContents().add(monitoringEnv.serviceParametersCU);
@@ -39,7 +42,7 @@ public class ModelSaver {
 		}
 	}
 	
-	private URI createURI(JavaRoot cu, Path newContainer) {
+	private static URI createURI(JavaRoot cu, Path newContainer) {
 		Path resulting = newContainer;
 		if (cu instanceof NamespaceAwareElement) {
 			for (String ns : ((NamespaceAwareElement) cu).getNamespaces()) {

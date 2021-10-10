@@ -23,7 +23,10 @@ import org.eclipse.emf.compare.postprocessor.IPostProcessor;
  * @author Ilia Chupakhin
  * @author Martin Armbruster
  */
-public class JavaModelComparator {
+public final class JavaModelComparator {
+	private JavaModelComparator() {
+	}
+	
 	/**
 	 * Compares Java models using EMF Compare.
 	 * 
@@ -35,6 +38,7 @@ public class JavaModelComparator {
 	 *                         If the currentState is a ResourceSet, this list is used to filter the Resources in the
 	 *                         currentState.
 	 * @param postProcessor an optional post processor for the comparison process.
+	 * @return the comparison result.
 	 */
 	public static Comparison compareJavaModels(Notifier newState, Notifier currentState,
 			List<Resource> newResources, List<Resource> currentResources,

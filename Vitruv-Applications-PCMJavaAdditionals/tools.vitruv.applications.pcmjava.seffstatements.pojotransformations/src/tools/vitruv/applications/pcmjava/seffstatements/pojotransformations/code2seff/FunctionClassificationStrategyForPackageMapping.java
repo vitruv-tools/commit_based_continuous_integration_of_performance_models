@@ -23,7 +23,7 @@ import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
  */
 public class FunctionClassificationStrategyForPackageMapping extends AbstractFunctionClassificationStrategy {
 
-    private static final Logger logger = Logger
+    private static final Logger LOGGER = Logger
             .getLogger(FunctionClassificationStrategyForPackageMapping.class.getSimpleName());
 
     private final BasicComponentFinding basicComponentFinding;
@@ -45,7 +45,7 @@ public class FunctionClassificationStrategyForPackageMapping extends AbstractFun
     @Override
     protected boolean isExternalCall(final Method method) {
         if (!UriUtil.normalizeURI(method)) {
-            logger.info("Could not normalize URI for method " + method
+            LOGGER.info("Could not normalize URI for method " + method
                     + ". Method call is not considered as as external call");
             return false;
         }
@@ -79,7 +79,7 @@ public class FunctionClassificationStrategyForPackageMapping extends AbstractFun
         if (basicComponentOfMethod.getId().equals(this.myBasicComponent.getId())) {
             return false;
         }
-        logger.warn("The destination of a call to the method " + method
+        LOGGER.warn("The destination of a call to the method " + method
                 + " is another component than the source component. This should not happen in isLibraryCall.");
         return true;
     }

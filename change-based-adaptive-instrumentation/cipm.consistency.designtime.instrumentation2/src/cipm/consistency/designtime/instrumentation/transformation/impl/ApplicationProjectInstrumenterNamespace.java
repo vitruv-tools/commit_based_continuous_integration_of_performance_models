@@ -1,5 +1,10 @@
 package cipm.consistency.designtime.instrumentation.transformation.impl;
 
+/**
+ * Constants for the instrumentation.
+ * 
+ * @author David Monschein
+ */
 public interface ApplicationProjectInstrumenterNamespace {
 
 	String RESOURCE_ID_CPU = "_oro4gG3fEdy4YaaT-RYrLQ";

@@ -4,6 +4,11 @@ import org.eclipse.emf.common.util.URI
 import java.nio.file.Path
 import org.eclipse.xtend.lib.annotations.Accessors
 
+/**
+ * Internal layout for the file and directory structure.
+ * 
+ * @author Martin Armbruster
+ */
 @Accessors
 class FileLayout {
 	static final String vsumDirName = "vsum";

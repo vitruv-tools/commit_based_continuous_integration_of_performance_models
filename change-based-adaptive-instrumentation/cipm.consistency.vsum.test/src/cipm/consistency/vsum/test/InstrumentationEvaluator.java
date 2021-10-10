@@ -14,7 +14,7 @@ import org.palladiosimulator.pcm.repository.OperationSignature;
 
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.commitintegration.JavaFileSystemLayout;
-import cipm.consistency.commitintegration.JavaParserAndPropagatorUtility;
+import cipm.consistency.commitintegration.JavaParserAndPropagatorUtils;
 import cipm.consistency.commitintegration.diff.util.JavaChangedMethodDetectorDiffPostProcessor;
 import cipm.consistency.commitintegration.diff.util.JavaModelComparator;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
@@ -23,6 +23,12 @@ import tools.vitruv.domains.java.tuid.JamoppStringOperations;
 import tools.vitruv.framework.correspondence.CorrespondenceModel;
 import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
 
+/**
+ * Evaluates the instrumentation.
+ * 
+ * @author Martin Armbruster
+ */
+@SuppressWarnings("restriction")
 public class InstrumentationEvaluator {
 	private final int numberAdditionalStatements = 10;
 	private final int numberServiceStatements = 7;
@@ -33,6 +39,14 @@ public class InstrumentationEvaluator {
 	private final int numberInternalActionStatements = 2;
 	private final int numberInternalActionStatementsPerReturnStatement = 2;
 	
+	/**
+	 * Evaluates the instrumented model. It is assumed to be executed directly after the instrumentation.
+	 * 
+	 * @param im the extended IM.
+	 * @param javaModel the original Java model.
+	 * @param instrumentedModel the instrumented Java model.
+	 * @param cm the correspondence model.
+	 */
 	public void evaluateInstrumentationDependently(InstrumentationModel im, Resource javaModel,
 			Resource instrumentedModel, CorrespondenceModel cm) {
 		if (instrumentedModel == null || instrumentedModel.getContents().isEmpty()) {
@@ -47,6 +61,14 @@ public class InstrumentationEvaluator {
 		insEvalData.setStatementDifferenceCount(instrumStatements - javaStatements);
 	}
 	
+	/**
+	 * Reloads the instrumented code and evaluates it.
+	 * 
+	 * @param im the extended IM.
+	 * @param javaModel the original Java model.
+	 * @param fileLayout the Java file layout.
+	 * @param cm the correspondence model.
+	 */
 	public void evaluateInstrumentationIndependently(InstrumentationModel im, Resource javaModel,
 			JavaFileSystemLayout fileLayout, CorrespondenceModel cm) {
 		if (Files.notExists(fileLayout.getInstrumentationCopy())) {
@@ -56,7 +78,7 @@ public class InstrumentationEvaluator {
 				.getGlobalContainer().getInstrumentationData();
 		insEvalData.setExpectedLowerStatementDifferenceCount(countExpectedStatements(im, cm, true));
 		insEvalData.setExpectedUpperStatementDifferenceCount(countExpectedStatements(im, cm, false));
-		Resource reloadedModel = JavaParserAndPropagatorUtility.parseJavaCodeIntoOneModel(
+		Resource reloadedModel = JavaParserAndPropagatorUtils.parseJavaCodeIntoOneModel(
 				fileLayout.getInstrumentationCopy(),
 				fileLayout.getJavaModelFile().resolveSibling("ins.javaxmi"),
 				fileLayout.getModuleConfiguration());
@@ -119,7 +141,8 @@ public class InstrumentationEvaluator {
 									aip.getAction(), Statement.class);
 							for (Statement s : stats) {
 								if (s instanceof Return) {
-									statements += numberInternalActionStatementsPerReturnStatement;
+									statements +=
+										numberInternalActionStatementsPerReturnStatement;
 								}
 								statements += numberInternalActionStatementsPerReturnStatement
 										* s.getChildrenByType(Return.class).size();

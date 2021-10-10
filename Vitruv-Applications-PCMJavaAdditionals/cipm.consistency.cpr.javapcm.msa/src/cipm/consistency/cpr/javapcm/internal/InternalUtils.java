@@ -20,8 +20,8 @@ import tools.vitruv.framework.correspondence.CorrespondenceModel;
  * 
  * @author Martin Armbruster
  */
-public final class InternalUtility {
-	private InternalUtility() {
+public final class InternalUtils {
+	private InternalUtils() {
 	}
 	
 	/**

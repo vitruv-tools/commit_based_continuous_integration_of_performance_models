@@ -159,7 +159,8 @@ routine updateReturnType(java::Method javaMethod, java::TypeReference typeRefere
 		 update operationSignature {
 			val repository = operationSignature.interface__OperationSignature.repository__Interface
 			operationSignature.returnType__OperationSignature = getCorrespondingPCMDataTypeForTypeReference(
-				typeReference, correspondenceModel, userInteractor, repository, javaMethod.typeReference.arrayDimension)
+				typeReference, correspondenceModel, userInteractor,
+				repository, javaMethod.typeReference.arrayDimension)
 		 }
 	 }
 }

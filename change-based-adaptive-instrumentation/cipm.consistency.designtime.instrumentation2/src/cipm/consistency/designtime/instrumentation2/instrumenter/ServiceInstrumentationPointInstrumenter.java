@@ -24,7 +24,7 @@ import cipm.consistency.designtime.instrumentation2.ActionStatementMapping;
  * @author Martin Armbruster
  */
 public class ServiceInstrumentationPointInstrumenter extends AbstractInstrumenter {
-	private final static Logger logger = Logger.getLogger("cipm."
+	private static final Logger LOGGER = Logger.getLogger("cipm."
 			+ ServiceInstrumentationPointInstrumenter.class.getSimpleName());
 	private ServiceInstrumenter serviceIns;
 	private EnumMap<InstrumentationType, AbstractInstrumenter> aipTypeToInstrumenter;
@@ -72,6 +72,7 @@ public class ServiceInstrumentationPointInstrumenter extends AbstractInstrumente
 	}
 	
 	private void prepareMethodBeforeInstrumentation(Method m) {
+		// Variable declaration for the ThreadMonitoringController.
 		IdentifierReference init = ReferencesFactory.eINSTANCE.createIdentifierReference();
 		IdentifierReference currentRef = init;
 		for (int idx = 0; idx < this.environmentGen.namespaces.length; idx++) {
@@ -92,7 +93,8 @@ public class ServiceInstrumentationPointInstrumenter extends AbstractInstrumente
 		currentRef.setNext(initCall);
 		
 		threadMonitoringVariable = VariablesFactory.eINSTANCE.createLocalVariable();
-		threadMonitoringVariable.setTypeReference(this.createTypeReference(environmentGen.threadMonitoringControllerClassifier));
+		threadMonitoringVariable.setTypeReference(
+				this.createTypeReference(environmentGen.threadMonitoringControllerClassifier));
 		threadMonitoringVariable.setName(ApplicationProjectInstrumenterNamespace.THREAD_MONITORING_CONTROLLER_VARIABLE);
 		threadMonitoringVariable.setInitialValue(init);
 	}
@@ -107,7 +109,7 @@ public class ServiceInstrumentationPointInstrumenter extends AbstractInstrumente
 	protected void instrument(ActionInstrumentationPoint aip, ActionStatementMapping statementMapping) {
 		AbstractInstrumenter actionInstrumenter = aipTypeToInstrumenter.get(aip.getType());
 		if (actionInstrumenter != null) {
-			logger.debug("Instrumenting the action " + aip.getAction().getEntityName());
+			LOGGER.debug("Instrumenting the action " + aip.getAction().getEntityName());
 			actionInstrumenter.setLocalThreadMonitoringVariable(this.threadMonitoringVariable);
 			actionInstrumenter.instrument(aip, statementMapping);
 		}

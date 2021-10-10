@@ -14,7 +14,7 @@ import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
 public class ResourceDemandingBehaviourForClassMethodFinderForPackageMapping
         implements ResourceDemandingBehaviourForClassMethodFinding {
 
-    private static final Logger logger = Logger
+    private static final Logger LOGGER = Logger
             .getLogger(ResourceDemandingBehaviourForClassMethodFinderForPackageMapping.class.getSimpleName());
 
     private final CorrespondenceModel correspondenceModel;
@@ -36,7 +36,7 @@ public class ResourceDemandingBehaviourForClassMethodFinderForPackageMapping
             return null;
         }
         if (1 < correspondingObjects.size()) {
-            logger.warn("Found " + correspondingObjects.size() + " corresponding Objects from Type "
+            LOGGER.warn("Found " + correspondingObjects.size() + " corresponding Objects from Type "
                     + correspondingClass + " for ClassMethod " + classMethod + " Returning the first.");
         }
         return correspondingObjects.iterator().next();

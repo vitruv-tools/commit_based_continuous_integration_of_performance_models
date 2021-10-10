@@ -9,17 +9,29 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * This class provides a configuration for modules to store and load it between
+ * different change propagations.
+ * 
+ * @author Martin Armbruster
+ */
 public class ModuleConfiguration {
-	private final static String SEPARATOR = "/";
+	private static final String SEPARATOR = "/";
 	private Path configPath;
 	private HashMap<String, ModuleState> moduleClassification = new HashMap<>();
 	private HashMap<String, String> subModuleMapping = new HashMap<>();
-	
+
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param configPath path to a file in which the configuration is stored and
+	 *                   loaded from.
+	 */
 	public ModuleConfiguration(Path configPath) {
 		this.configPath = configPath;
 		load(configPath);
 	}
-	
+
 	private void load(Path configPath) {
 		if (Files.exists(configPath)) {
 			Properties p = new Properties();
@@ -39,20 +51,34 @@ public class ModuleConfiguration {
 			}
 		}
 	}
-	
+
 	public void clear() {
 		moduleClassification.clear();
 		subModuleMapping.clear();
 	}
-	
+
+	/**
+	 * Returns the classification of modules.
+	 * 
+	 * @return the classification.
+	 */
 	public Map<String, ModuleState> getModuleClassification() {
 		return moduleClassification;
 	}
-	
+
+	/**
+	 * Returns a mapping for modules which are part of other modules.
+	 * 
+	 * @return the map in which a key represents a module and the value its
+	 *         containing module.
+	 */
 	public Map<String, String> getSubModuleMapping() {
 		return subModuleMapping;
 	}
-	
+
+	/**
+	 * Stores the configuration.
+	 */
 	public void save() {
 		Properties p = new Properties();
 		moduleClassification.forEach((k, v) -> {

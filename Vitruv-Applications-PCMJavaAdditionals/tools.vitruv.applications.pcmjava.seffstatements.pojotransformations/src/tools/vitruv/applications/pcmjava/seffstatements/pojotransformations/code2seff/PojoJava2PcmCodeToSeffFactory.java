@@ -23,7 +23,8 @@ public class PojoJava2PcmCodeToSeffFactory implements Code2SeffFactory {
 			final CorrespondenceModel correspondenceModel, final BasicComponent basicComponent) {
 		return new InterfaceOfExternalCallFindingFactory() {
 			public InterfaceOfExternalCallFinding createInterfaceOfExternalCallFinding(
-					SourceCodeDecoratorRepository sourceCodeDecoratorRepository, BasicComponent basicComponent) {
+					SourceCodeDecoratorRepository sourceCodeDecoratorRepository,
+					BasicComponent basicComponent) {
 				return new InterfaceOfExternalCallFinderForPackageMapping(correspondenceModel, basicComponent);
 			}
 		};

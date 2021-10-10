@@ -14,7 +14,7 @@ import cipm.consistency.models.instrumentation.InstrumentationModelUtil
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended.ExtendedJava2PcmMethodBodyChangePreprocessor
 
 /**
- * Propagates changes in method bodies to the instrumentation model.
+ * Propagates changes in method bodies to the extended instrumentation model.
  * 
  * @author Noureddine Dahmane
  * @author Martin Armbruster
@@ -37,7 +37,8 @@ class Java2ImChangePropagationSpecification extends ExtendedJava2PcmMethodBodyCh
 	private def executeJava2ImTransformation(CorrespondenceModel correspondenceModel,
 		UserInteractor userInteracting, Method newMethod) {
 		
-		val correspondingSEFFs = CorrespondenceModelUtil.getCorrespondingEObjects(correspondenceModel, newMethod, ResourceDemandingSEFF)
+		val correspondingSEFFs = CorrespondenceModelUtil.getCorrespondingEObjects(
+			correspondenceModel, newMethod, ResourceDemandingSEFF)
 		val im = CorrespondenceModelUtil.getCorrespondingEObjects(correspondenceModel,
 			InstrumentationModelPackage.Literals.INSTRUMENTATION_MODEL, InstrumentationModel).last
 		

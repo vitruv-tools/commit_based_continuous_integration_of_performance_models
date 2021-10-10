@@ -3,6 +3,11 @@ package cipm.consistency.tools.evaluation.data;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A data structure for the evaluation of the update of the extended IM.
+ * 
+ * @author Martin Armbruster
+ */
 public class IMEvaluationData {
 	private int numberMatchedIP;
 	private int numberAllIP;

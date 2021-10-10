@@ -1,6 +1,5 @@
 package cipm.consistency.vsum.test.deployment;
 
-
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.emf.common.util.URI;
@@ -37,6 +36,11 @@ import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsCont
 import cipm.consistency.commitintegration.settings.SettingKeys;
 import cipm.consistency.vsum.test.TeaStoreCITest;
 
+/**
+ * Provides utility methods for the deployment of the instrumented code.
+ * 
+ * @author Martin Armbruster
+ */
 public class DeploymentUtility extends TeaStoreCITest {
 	private InMemoryPCM preparedPCM;
 
@@ -45,7 +49,7 @@ public class DeploymentUtility extends TeaStoreCITest {
 //		this.controller.instrumentCode(false);
 		this.controller.compileAndDeployInstrumentedCode();
 	}
-	
+
 	@Test
 	public void preparePCMModels() {
 		preparedPCM = this.controller.getVSUMFacade().getPCMWrapper().copyDeep();
@@ -55,7 +59,7 @@ public class DeploymentUtility extends TeaStoreCITest {
 		createUsageModel();
 		storePCM();
 	}
-	
+
 	private void eliminateDuplicatedInterfaceNames() {
 		var interfaces = preparedPCM.getRepository().getInterfaces__Repository();
 		for (int index = 0; index < interfaces.size(); index++) {
@@ -68,7 +72,7 @@ public class DeploymentUtility extends TeaStoreCITest {
 			}
 		}
 	}
-	
+
 	private void addResourceDemand() {
 		ResourceSet resSet = new ResourceSetImpl();
 		Resource res = resSet.getResource(URI.createURI("pathmap://PCM_MODELS/Palladio.resourcetype", true), true);
@@ -85,10 +89,11 @@ public class DeploymentUtility extends TeaStoreCITest {
 		}
 		ProcessingResourceType actualCPU = cpu;
 		preparedPCM.getRepository().eAllContents().forEachRemaining(obj -> {
-			if (obj instanceof AbstractInternalControlFlowAction
-					&& !(obj instanceof StartAction) && !(obj instanceof StopAction)) {
+			if (obj instanceof AbstractInternalControlFlowAction && !(obj instanceof StartAction)
+					&& !(obj instanceof StopAction)) {
 				AbstractInternalControlFlowAction action = (AbstractInternalControlFlowAction) obj;
-				ParametricResourceDemand resDemand = SeffPerformanceFactory.eINSTANCE.createParametricResourceDemand();
+				ParametricResourceDemand resDemand =
+						SeffPerformanceFactory.eINSTANCE.createParametricResourceDemand();
 				resDemand.setRequiredResource_ParametricResourceDemand(actualCPU);
 				PCMRandomVariable vari = CoreFactory.eINSTANCE.createPCMRandomVariable();
 				vari.setSpecification("1");
@@ -97,29 +102,34 @@ public class DeploymentUtility extends TeaStoreCITest {
 			}
 		});
 	}
-	
+
 	private void createSystemModel() {
 		var components = preparedPCM.getRepository().getComponents__Repository();
 		var system = preparedPCM.getSystem();
 		for (int index = 0; index < components.size(); index++) {
-			
+
 			var com = components.get(index);
 			AssemblyContext nextCtx = CompositionFactory.eINSTANCE.createAssemblyContext();
 			nextCtx.setEntityName("System_ctx_" + com.getEntityName() + "_" + index);
 			nextCtx.setEncapsulatedComponent__AssemblyContext(com);
 			system.getAssemblyContexts__ComposedStructure().add(nextCtx);
-			
+
 			var providedRoles = com.getProvidedRoles_InterfaceProvidingEntity();
 			for (int provIdx = 0; provIdx < providedRoles.size(); provIdx++) {
 				var role = providedRoles.get(provIdx);
 				if (role instanceof OperationProvidedRole) {
 					OperationProvidedRole opRole = (OperationProvidedRole) role;
-					OperationProvidedRole systemRole = RepositoryFactory.eINSTANCE.createOperationProvidedRole();
-					systemRole.setEntityName("System_provides_" + opRole.getProvidedInterface__OperationProvidedRole().getEntityName());
-					systemRole.setProvidedInterface__OperationProvidedRole(opRole.getProvidedInterface__OperationProvidedRole());
+					OperationProvidedRole systemRole =
+							RepositoryFactory.eINSTANCE.createOperationProvidedRole();
+					systemRole.setEntityName(
+							"System_provides_" + opRole.getProvidedInterface__OperationProvidedRole()
+							.getEntityName());
+					systemRole.setProvidedInterface__OperationProvidedRole(
+							opRole.getProvidedInterface__OperationProvidedRole());
 					system.getProvidedRoles_InterfaceProvidingEntity().add(systemRole);
-					
-					ProvidedDelegationConnector connector = CompositionFactory.eINSTANCE.createProvidedDelegationConnector();
+
+					ProvidedDelegationConnector connector = CompositionFactory.eINSTANCE
+							.createProvidedDelegationConnector();
 					connector.setEntityName(systemRole.getEntityName() + " -> " + opRole.getEntityName());
 					connector.setAssemblyContext_ProvidedDelegationConnector(nextCtx);
 					connector.setInnerProvidedRole_ProvidedDelegationConnector(opRole);
@@ -129,7 +139,7 @@ public class DeploymentUtility extends TeaStoreCITest {
 			}
 		}
 	}
-	
+
 	private void createUsageModel() {
 		var usageModel = preparedPCM.getUsageModel();
 		var components = preparedPCM.getRepository().getComponents__Repository();
@@ -143,16 +153,19 @@ public class DeploymentUtility extends TeaStoreCITest {
 						OperationSignature sign = (OperationSignature) seff.getDescribedService__SEFF();
 						UsageScenario us = UsagemodelFactory.eINSTANCE.createUsageScenario();
 						us.setEntityName("Scenario" + counter);
-						ScenarioBehaviour behaviour = UsagemodelFactory.eINSTANCE.createScenarioBehaviour();
+						ScenarioBehaviour behaviour =
+								UsagemodelFactory.eINSTANCE.createScenarioBehaviour();
 						behaviour.setEntityName("Scenario" + counter + "Behaviour");
 						Start start = UsagemodelFactory.eINSTANCE.createStart();
 						Stop stop = UsagemodelFactory.eINSTANCE.createStop();
-						EntryLevelSystemCall call = UsagemodelFactory.eINSTANCE.createEntryLevelSystemCall();
+						EntryLevelSystemCall call =
+								UsagemodelFactory.eINSTANCE.createEntryLevelSystemCall();
 						call.setOperationSignature__EntryLevelSystemCall(sign);
 						for (var role : systemRoles) {
 							if (role instanceof OperationProvidedRole) {
 								OperationProvidedRole provRole = (OperationProvidedRole) role;
-								if (provRole.getProvidedInterface__OperationProvidedRole() == sign.getInterface__OperationSignature()) {
+								if (provRole.getProvidedInterface__OperationProvidedRole() == sign
+										.getInterface__OperationSignature()) {
 									call.setProvidedRole_EntryLevelSystemCall(provRole);
 									break;
 								}
@@ -176,10 +189,12 @@ public class DeploymentUtility extends TeaStoreCITest {
 			}
 		}
 	}
-	
+
 	private void storePCM() {
 		LocalFilesystemPCM localPCM = new LocalFilesystemPCM();
-		File deployDir = new File(CommitIntegrationSettingsContainer.getSettingsContainer().getProperty(SettingKeys.DEPLOYMENT_PATH));
+		File deployDir = new File(
+				CommitIntegrationSettingsContainer.getSettingsContainer()
+				.getProperty(SettingKeys.DEPLOYMENT_PATH));
 		deployDir = deployDir.getAbsoluteFile();
 		localPCM.setAllocationModelFile(new File(deployDir, "Allocation.allocation"));
 		localPCM.setRepositoryFile(new File(deployDir, "Repository.repository"));

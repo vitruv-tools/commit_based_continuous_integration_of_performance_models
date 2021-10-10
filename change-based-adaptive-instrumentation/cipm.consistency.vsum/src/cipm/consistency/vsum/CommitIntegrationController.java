@@ -21,7 +21,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import cipm.consistency.commitintegration.CommitChangePropagator;
-import cipm.consistency.commitintegration.ExternalCommandExecutionUtility;
+import cipm.consistency.commitintegration.ExternalCommandExecutionUtils;
 import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
 import cipm.consistency.commitintegration.settings.SettingKeys;
 import cipm.consistency.designtime.instrumentation2.CodeInstrumenter;
@@ -33,7 +33,7 @@ import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
  * @author Martin Armbruster
  */
 public class CommitIntegrationController {
-	private final static Logger logger = Logger.getLogger("cipm." + CommitIntegrationController.class.getSimpleName());
+	private static final Logger LOGGER = Logger.getLogger("cipm." + CommitIntegrationController.class.getSimpleName());
 	private VSUMFacade facade;
 	private CommitChangePropagator prop;
 	private Resource instrumentedModel;
@@ -108,7 +108,7 @@ public class CommitIntegrationController {
 				}
 			}
 			if (!hasChangedIM) {
-				logger.debug("No instrumentation points changed.");
+				LOGGER.debug("No instrumentation points changed.");
 			}
 			boolean fullInstrumentation = CommitIntegrationSettingsContainer.getSettingsContainer()
 					.getPropertyAsBoolean(SettingKeys.PERFORM_FULL_INSTRUMENTATION);
@@ -145,11 +145,11 @@ public class CommitIntegrationController {
 	
 	private void removeInstrumentationDirectory(Path instrumentationDirectory) {
 		if (Files.exists(instrumentationDirectory)) {
-			logger.debug("Deleting the instrumentation directory.");
+			LOGGER.debug("Deleting the instrumentation directory.");
 			try {
 				FileUtils.deleteDirectory(instrumentationDirectory.toFile());
 			} catch (IOException e) {
-				logger.error(e);
+				LOGGER.error(e);
 			}
 		}
 	}
@@ -157,7 +157,7 @@ public class CommitIntegrationController {
 	@SuppressWarnings("restriction")
 	private Resource performInstrumentation(Path instrumentationDirectory, boolean performFullInstrumentation) {
 		Resource javaModel = getJavaModelResource();
-		return new CodeInstrumenter().instrument(
+		return CodeInstrumenter.instrument(
 			this.facade.getInstrumentationModel(),
 			this.facade.getVSUM().getCorrespondenceModel(),
 			javaModel, instrumentationDirectory,
@@ -177,31 +177,31 @@ public class CommitIntegrationController {
 				Path deployPath = Paths.get(CommitIntegrationSettingsContainer.getSettingsContainer()
 						.getProperty(SettingKeys.DEPLOYMENT_PATH));
 				var result = copyArtifacts(instrumentationCodeDir, deployPath);
-				logger.debug("Removing the monitoring classes.");
+				LOGGER.debug("Removing the monitoring classes.");
 				result.forEach(p -> {
 					try {
 						removeMonitoringClasses(p);
 					} catch (IOException e) {
-						logger.error(e);
+						LOGGER.error(e);
 					}
 				});
 			} else {
-				logger.debug("Could not compile the instrumented code.");
+				LOGGER.debug("Could not compile the instrumented code.");
 			}
 		}
-		logger.debug("Finished the compilation and deployment.");
+		LOGGER.debug("Finished the compilation and deployment.");
 	}
 	
 	private boolean compileInstrumentedCode(Path insCode) {
-		logger.debug("Compiling the instrumented code.");
+		LOGGER.debug("Compiling the instrumented code.");
 		String compileScript = CommitIntegrationSettingsContainer.getSettingsContainer()
 			.getProperty(SettingKeys.PATH_TO_COMPILATION_SCRIPT);
 		compileScript = new File(compileScript).getAbsolutePath();
-		return ExternalCommandExecutionUtility.runScript(insCode.toFile(), compileScript);
+		return ExternalCommandExecutionUtils.runScript(insCode.toFile(), compileScript);
 	}
 	
 	private List<Path> copyArtifacts(Path insCode, Path deployPath) throws IOException {
-		logger.debug("Copying the artifacts to " + deployPath);
+		LOGGER.debug("Copying the artifacts to " + deployPath);
 		var warFiles = Files.walk(insCode).filter(Files::isRegularFile)
 			.filter(p -> p.getFileName().toString().endsWith(".war"))
 			.collect(Collectors.toCollection(ArrayList::new));
@@ -222,7 +222,7 @@ public class CommitIntegrationController {
 				Files.copy(p, target, StandardCopyOption.REPLACE_EXISTING);
 				result.add(target);
 			} catch (IOException e) {
-				logger.error(e);
+				LOGGER.error(e);
 			}
 		});
 		return result;
@@ -243,7 +243,7 @@ public class CommitIntegrationController {
 							try {
 								removeMonitoringClasses(p);
 							} catch (IOException e) {
-								logger.error(e);
+								LOGGER.error(e);
 							}
 						} else if (fullPath.endsWith(tmcEndPath) || fullPath.endsWith(spEndPath)) {
 							return true;
@@ -253,11 +253,11 @@ public class CommitIntegrationController {
 						try {
 							Files.delete(p);
 						} catch (IOException e) {
-							logger.error(e);
+							LOGGER.error(e);
 						}
 					});
 				} catch (IOException e) {
-					logger.error(e);
+					LOGGER.error(e);
 				}
 			});
 		}

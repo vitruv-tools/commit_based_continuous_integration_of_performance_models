@@ -22,21 +22,22 @@ import jamopp.parser.jdt.singlefile.JaMoPPJDTSingleFileParser;
 import tools.vitruv.framework.vsum.VirtualModel;
 
 /**
- * A utility class for the integration and change propagation of Java code into Vitruvius.
+ * A utility class for the integration and change propagation of Java code into
+ * Vitruvius.
  * 
  * @author Martin Armbruster
  */
-public final class JavaParserAndPropagatorUtility {
-	private static final Logger logger = Logger.getLogger("cipm." + JavaParserAndPropagatorUtility.class.getSimpleName());
-	
-	private JavaParserAndPropagatorUtility() {
+public final class JavaParserAndPropagatorUtils {
+	private static final Logger LOGGER = Logger.getLogger("cipm." + JavaParserAndPropagatorUtils.class.getSimpleName());
+
+	private JavaParserAndPropagatorUtils() {
 	}
-	
+
 	/**
 	 * Parses all Java code and creates one Resource with all models.
 	 * 
-	 * @param dir directory in which the Java code resides.
-	 * @param target target file of the Resource with all models.
+	 * @param dir       directory in which the Java code resides.
+	 * @param target    target file of the Resource with all models.
 	 * @param modConfig file which contains the stored module configuration.
 	 * @return the Resource with all models.
 	 */
@@ -47,20 +48,19 @@ public final class JavaParserAndPropagatorUtility {
 		ParserOptions.REGISTER_LOCAL.setValue(Boolean.TRUE);
 		JaMoPPJDTSingleFileParser parser = new JaMoPPJDTSingleFileParser();
 		parser.setResourceSet(new ResourceSetImpl());
-		parser.setExclusionPatterns(CommitIntegrationSettingsContainer
-				.getSettingsContainer().getProperty(SettingKeys.JAVA_PARSER_EXCLUSION_PATTERNS).
-				split(";"));
-		logger.debug("Parsing " + dir.toString());
+		parser.setExclusionPatterns(CommitIntegrationSettingsContainer.getSettingsContainer()
+				.getProperty(SettingKeys.JAVA_PARSER_EXCLUSION_PATTERNS).split(";"));
+		LOGGER.debug("Parsing " + dir.toString());
 		ResourceSet resourceSet = parser.parseDirectory(dir);
-		logger.debug("Parsed " + resourceSet.getResources().size() + " files.");
-		
+		LOGGER.debug("Parsed " + resourceSet.getResources().size() + " files.");
+
 		// 2. Filter the resources and create modules for components.
 		ComponentModuleDetector detector = new ComponentModuleDetector();
 		detector.addComponentDetectionStrategy(new BuildFileBasedComponentDetectionStrategy());
 		detector.detectComponentsAndCreateModules(resourceSet, dir.toAbsolutePath(), modConfig);
-		
+
 		// 3. Create one resource with all Java models.
-		logger.debug("Creating one resource with all Java models.");
+		LOGGER.debug("Creating one resource with all Java models.");
 		ResourceSet next = new ResourceSetImpl();
 		Resource all = next.createResource(URI.createFileURI(target.toAbsolutePath().toString()));
 		for (Resource r : new ArrayList<>(resourceSet.getResources())) {
@@ -68,29 +68,27 @@ public final class JavaParserAndPropagatorUtility {
 		}
 		return all;
 	}
-	
+
 	/**
 	 * Performs an integration or change propagation of Java code into Vitruvius.
 	 * 
-	 * @param dir the directory with the Java code.
-	 * @param target destination in which the complete Java model will be stored.
-	 * @param vsum the VSUM.
+	 * @param dir        the directory with the Java code.
+	 * @param target     destination in which the complete Java model will be
+	 *                   stored.
+	 * @param vsum       the VSUM.
 	 * @param configPath file path to the module configuration.
 	 */
-	public static void parseAndPropagateJavaCode(Path dir, Path target, VirtualModel vsum,
-			Path configPath) {
+	public static void parseAndPropagateJavaCode(Path dir, Path target, VirtualModel vsum, Path configPath) {
 		// 1. Parse the Java code and create one Resource with all models.
 		Resource all = parseJavaCodeIntoOneModel(dir, target, configPath);
-		all.getContents().forEach(content ->
-			JavaClasspath.get().registerJavaRoot((JavaRoot) content, all.getURI()));
-		
+		all.getContents().forEach(content -> JavaClasspath.get().registerJavaRoot((JavaRoot) content, all.getURI()));
+
 		// 2. Propagate the Java models.
-		logger.debug("Propagating the Java models.");
+		LOGGER.debug("Propagating the Java models.");
 		vsum.propagateChangedState(all);
-		JavaClasspath.get().getURIMap().entrySet().stream()
-			.filter(entry -> entry.getValue() == all.getURI())
-			.map(Map.Entry::getKey).collect(Collectors.toList())
-			.forEach(u -> JavaClasspath.get().getURIMap().remove(u));
+		JavaClasspath.get().getURIMap().entrySet().stream().filter(entry -> entry.getValue() == all.getURI())
+				.map(Map.Entry::getKey).collect(Collectors.toList())
+				.forEach(u -> JavaClasspath.get().getURIMap().remove(u));
 		all.unload();
 		JavaClasspath.remove(all);
 	}

@@ -24,7 +24,7 @@ import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
  */
 public class InterfaceOfExternalCallFinderForPackageMapping implements InterfaceOfExternalCallFinding {
 
-    private static final Logger logger = Logger
+    private static final Logger LOGGER = Logger
             .getLogger(InterfaceOfExternalCallFinderForPackageMapping.class.getSimpleName());
 
     private final CorrespondenceModel correspondenceModel;
@@ -72,8 +72,8 @@ public class InterfaceOfExternalCallFinderForPackageMapping implements Interface
      * corresponds to a SEFF (aka. it is a class method that implements an interface method, that
      * corresponds to an operation signature) we can use the operation signature from the SEFF.
      *
-     * @param invokedMethod
-     * @return
+     * @param invokedMethod the invoked method.
+     * @return the corresponding OperationSignature.
      */
     private OperationSignature queryInterfaceOperation(final Method invokedMethod) {
         final Set<OperationSignature> correspondingOpSigs = CorrespondenceModelUtil
@@ -91,7 +91,7 @@ public class InterfaceOfExternalCallFinderForPackageMapping implements Interface
                 }
             }
         }
-        logger.warn("Could not find operation signature for method " + invokedMethod);
+        LOGGER.warn("Could not find operation signature for method " + invokedMethod);
         return null;
     }
 }

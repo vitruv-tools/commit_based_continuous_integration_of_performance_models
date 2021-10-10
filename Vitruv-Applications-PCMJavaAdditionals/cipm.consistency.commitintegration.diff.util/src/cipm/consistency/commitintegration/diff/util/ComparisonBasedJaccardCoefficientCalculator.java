@@ -12,7 +12,10 @@ import org.eclipse.emf.ecore.EObject;
  * 
  * @author Martin Armbruster
  */
-public class ComparisonBasedJaccardCoefficientCalculator {
+public final class ComparisonBasedJaccardCoefficientCalculator {
+	private ComparisonBasedJaccardCoefficientCalculator() {
+	}
+	
 	/**
 	 * Represents the result of the calculation of the Jaccard coefficient.
 	 * 
