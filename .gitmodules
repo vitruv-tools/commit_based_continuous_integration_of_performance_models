@@ -17,3 +17,6 @@
 [submodule "Vitruv"]
 	path = Vitruv
 	url = https://github.com/HansMartinA/Vitruv
+[submodule "Palladio-Supporting-EclipseJavaDevelopmentTools"]
+	path = Palladio-Supporting-EclipseJavaDevelopmentTools
+	url = https://github.com/PalladioSimulator/Palladio-Supporting-EclipseJavaDevelopmentTools
