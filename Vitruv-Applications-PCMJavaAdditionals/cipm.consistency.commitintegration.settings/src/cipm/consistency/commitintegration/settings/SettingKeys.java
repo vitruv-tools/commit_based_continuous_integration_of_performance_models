@@ -42,6 +42,10 @@ public final class SettingKeys {
 	 * code are deployed.
 	 */
 	public static final String DEPLOYMENT_PATH = KEY_BASE + "path.deployment";
+	/**
+	 * A list of packages which realize a REST Client to identify REST calls.
+	 */
+	public static final String REST_CLIENT_API_PACKAGES = KEY_BASE + "rest.packages";
 	
 	private SettingKeys() {
 	}
