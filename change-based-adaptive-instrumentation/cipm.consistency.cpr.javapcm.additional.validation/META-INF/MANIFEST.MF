@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Additional Validation of the PCM Repository Model after the Change Propagation
+Bundle-SymbolicName: cipm.consistency.cpr.javapcm.additional.validation
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: cipm.consistency.cpr.javapcm.additional.validation
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.apache.log4j,
+ tools.vitruv.extensions.dslsruntime.reactions,
+ cipm.consistency.commitintegration.settings,
+ org.palladiosimulator.pcm
+Export-Package: cipm.consistency.cpr.javapcm.additional.validation
