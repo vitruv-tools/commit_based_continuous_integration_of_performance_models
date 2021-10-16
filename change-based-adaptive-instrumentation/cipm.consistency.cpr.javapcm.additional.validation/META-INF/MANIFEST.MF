@@ -8,5 +8,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.apache.log4j,
  tools.vitruv.extensions.dslsruntime.reactions,
  cipm.consistency.commitintegration.settings,
- org.palladiosimulator.pcm
+ org.palladiosimulator.pcm,
+ com.google.gson
 Export-Package: cipm.consistency.cpr.javapcm.additional.validation
