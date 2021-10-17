@@ -15,11 +15,13 @@ class JavaFileSystemLayout {
 	static final String javaModelFileName = "Java.javaxmi";
 	static final String instrumentationDirName = "instrumented";
 	static final String moduleConfigurationFileName = "module-configuration.properties";
+	static final String externalCallTargetPairsFileName = "external-call-target-pairs.json";
 	Path localJavaRepo;
 	Path javaModelFileContainer;
 	Path javaModelFile;
 	Path instrumentationCopy;
 	Path moduleConfiguration;
+	Path externalCallTargetPairsFile;
 	
 	new(Path parent) {
 		localJavaRepo = parent.resolve(localJavaRepoDirName)
@@ -27,5 +29,6 @@ class JavaFileSystemLayout {
 		javaModelFile = javaModelFileContainer.resolve(javaModelFileName)
 		instrumentationCopy = parent.resolve(instrumentationDirName)
 		moduleConfiguration = parent.resolve(moduleConfigurationFileName);
+		externalCallTargetPairsFile = parent.resolve(externalCallTargetPairsFileName);
 	}
 }

@@ -30,5 +30,6 @@ Require-Bundle: cipm.consistency.commitintegration,
  cipm.consistency.commitintegration.settings,
  cipm.consistency.designtime.instrumentation2,
  cipm.consistency.tools.evaluation.data,
- cipm.consistency.domains.pcm
+ cipm.consistency.domains.pcm,
+ cipm.consistency.cpr.javapcm.additional.validation
 Export-Package: cipm.consistency.vsum
