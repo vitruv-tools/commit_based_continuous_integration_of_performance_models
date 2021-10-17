@@ -1,5 +1,6 @@
 package tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended;
 
+import org.emftext.language.java.LogicalJavaURIGenerator;
 import org.emftext.language.java.members.Method;
 import org.palladiosimulator.pcm.repository.BasicComponent;
 
@@ -34,6 +35,10 @@ public class FunctionClassificationStrategyForCommitIntegration
 			String[] packages = CommitIntegrationSettingsContainer.getSettingsContainer()
 					.getProperty(SettingKeys.REST_CLIENT_API_PACKAGES).split(";");
 			String namespaces = method.getContainingCompilationUnit().getNamespacesAsString();
+			if (namespaces.endsWith(LogicalJavaURIGenerator.CLASSIFIER_SEPARATOR)
+					|| namespaces.endsWith(LogicalJavaURIGenerator.PACKAGE_SEPARATOR)) {
+				namespaces = namespaces.substring(0, namespaces.length() - 1);
+			}
 			for (String p : packages) {
 				if (p.equals(namespaces)) {
 					return true;
