@@ -1,5 +1,6 @@
 package cipm.consistency.cpr.javapcm.additional.validation;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
@@ -68,6 +69,10 @@ public class ExternalCallEmptyTargetFiller {
 			}
 		}
 		ExternalCallCallTargetPairCollectorReaderWriter.write(pairs, collectionFile);
+		try {
+			repository.eResource().save(null);
+		} catch (IOException e) {
+		}
 	}
 
 	/**
@@ -111,10 +116,24 @@ public class ExternalCallEmptyTargetFiller {
 		signatures.forEach(s -> signaturesRepr
 				.add(s.getEntityName() + "(" + s.getInterface__OperationSignature().getEntityName() + ")"));
 		InternalUserInteractor interactor = UserInteractionFactory.instance.createDialogUserInteractor();
-		int index = interactor.getSingleSelectionDialogBuilder()
-				.message("An external call (" + action.getEntityName()
-						+ ") without a target was detected. Which service is the target?")
-				.choices(signaturesRepr).startInteraction();
+		String message = "An external call (" + action.getEntityName()
+			+ ") without a target was detected. Which service is the target?";
+		int index = -1;
+		int internalSteps = 9;
+		for (int internalIdx = 0; internalIdx < signaturesRepr.size(); internalIdx += internalSteps) {
+			ArrayList<String> options = new ArrayList<>();
+			options.add("Next page.");
+			for (int j = internalIdx; j < internalIdx + internalSteps; j++) {
+				options.add(signaturesRepr.get(j));
+			}
+			int potIndex = interactor.getSingleSelectionDialogBuilder()
+					.message(message)
+					.choices(options).startInteraction();
+			if (potIndex != 0) {
+				index = internalIdx + potIndex - 1;
+				break;
+			}
+		}
 		if (index != -1) {
 			// Create a new pair for the external call and its target.
 			var service = signatures.get(index);
