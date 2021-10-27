@@ -123,7 +123,7 @@ public class ExternalCallEmptyTargetFiller {
 		for (int internalIdx = 0; internalIdx < signaturesRepr.size(); internalIdx += internalSteps) {
 			ArrayList<String> options = new ArrayList<>();
 			options.add("Next page.");
-			for (int j = internalIdx; j < internalIdx + internalSteps; j++) {
+			for (int j = internalIdx; j < internalIdx + internalSteps && j < signaturesRepr.size(); j++) {
 				options.add(signaturesRepr.get(j));
 			}
 			int potIndex = interactor.getSingleSelectionDialogBuilder()
@@ -190,8 +190,11 @@ public class ExternalCallEmptyTargetFiller {
 		int lastIndex = parent.getSteps_Behaviour().indexOf(action);
 		if (!(parent.eContainer() instanceof RepositoryComponent)) {
 			var container = parent.eContainer();
-			while (!(container instanceof AbstractAction)) {
+			while (!(container instanceof AbstractAction) && container != null) {
 				container = container.eContainer();
+			}
+			if (container == null) {
+				return Integer.toString(lastIndex);
 			}
 			return encodeAbstractAction((AbstractAction) container) + "-" + lastIndex;
 		}
