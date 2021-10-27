@@ -18,10 +18,21 @@ public final class PCMRepositoryMatchEngineFactoryGenerator {
 	 * Generates a HierarchicalMatchEngineFactory specific for PCM repository
 	 * models.
 	 * 
-	 * @return the generated factories.
+	 * @return the generated factory.
 	 */
 	public static HierarchicalMatchEngineFactory generateMatchEngineFactory() {
 		return HierarchicalMatchEngineFactoryGenerator.generateMatchEngineFactory(new PCMRepositorySimilarityChecker(),
 				"repository");
+	}
+
+	/**
+	 * Generates a HierarchicalMatchEngineFactory specific for PCM repository models
+	 * including the IDs of elements.
+	 * 
+	 * @return the generated factory.
+	 */
+	public static HierarchicalMatchEngineFactory generateIDBasedMatchEngineFactory() {
+		return HierarchicalMatchEngineFactoryGenerator
+				.generateMatchEngineFactory(new PCMRepositoryIDBasedSimilarityChecker(), "repository");
 	}
 }
