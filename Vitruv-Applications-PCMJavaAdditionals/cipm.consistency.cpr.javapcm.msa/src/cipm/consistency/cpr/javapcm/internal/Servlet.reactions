@@ -1,5 +1,4 @@
 import org.emftext.language.java.classifiers.Class
-import org.emftext.language.java.members.Method
 import org.emftext.language.java.classifiers.ConcreteClassifier
 
 import "http://www.emftext.org/java" as java
@@ -47,32 +46,6 @@ routine createServletHierarchy(java::Class start) {
 			val superClass = start.extends.target as Class
 			createServletHierarchy(superClass)
 			connectInterfacesByInheritance(start, superClass)
-		}
-	}
-}
-
-routine checkMembersForOperations(java::ConcreteClassifier classifier) {
-	action {
-		call {
-			for (mem : classifier.members) {
-				if (mem instanceof Method) {
-					if (mem.public) {
-						createOrFindPCMSignature(mem)
-					}
-				}
-			}
-		}
-	}
-}
-
-routine connectInterfacesByInheritance(java::ConcreteClassifier subClassifier, java::ConcreteClassifier superClassifier) {
-	match {
-		val subInterface = retrieve pcm::OperationInterface corresponding to subClassifier
-		val superInterface = retrieve pcm::OperationInterface corresponding to superClassifier
-	}
-	action {
-		update subInterface {
-			subInterface.parentInterfaces__Interface += superInterface
 		}
 	}
 }

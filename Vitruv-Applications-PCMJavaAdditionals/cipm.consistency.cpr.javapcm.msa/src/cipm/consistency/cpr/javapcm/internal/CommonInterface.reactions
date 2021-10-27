@@ -33,6 +33,18 @@ routine addCorrespondenceBetweenClassifierAndInterface(java::ConcreteClassifier 
 	}
 }
 
+routine connectInterfacesByInheritance(java::ConcreteClassifier subClassifier, java::ConcreteClassifier superClassifier) {
+	match {
+		val subInterface = retrieve pcm::OperationInterface corresponding to subClassifier
+		val superInterface = retrieve pcm::OperationInterface corresponding to superClassifier
+	}
+	action {
+		update subInterface {
+			subInterface.parentInterfaces__Interface += superInterface
+		}
+	}
+}
+
 routine removeInterface(java::Classifier classifier) {
 	match {
 		val opInterface = retrieve pcm::OperationInterface corresponding to classifier
