@@ -18,6 +18,7 @@ public class IMEvaluationData {
 	private double deactivatedIPAllIPRatio;
 	private double deactivatedAIPAllAIPRatio;
 	private List<String> unmatchedSEFFElements = new ArrayList<>();
+	private int differenceChangedActionsActivatedAIP;
 	
 	public int getNumberMatchedIP() {
 		return numberMatchedIP;
@@ -93,5 +94,13 @@ public class IMEvaluationData {
 	
 	public List<String> getUnmatchedSEFFElements() {
 		return unmatchedSEFFElements;
+	}
+
+	public int getDifferenceChangedActionsActivatedAIP() {
+		return differenceChangedActionsActivatedAIP;
+	}
+
+	public void setDifferenceChangedActionsActivatedAIP(int differenceChangedActionsActivatedAIP) {
+		this.differenceChangedActionsActivatedAIP = differenceChangedActionsActivatedAIP;
 	}
 }
