@@ -1347,7 +1347,7 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             	if (!varSimilarity) {
             		return Boolean.FALSE;
             	}
-            	if (differentPredecessor(varStmt1, varStmt2)) {
+            	if (differentPredecessor(varStmt1, varStmt2) && differentSuccessor(varStmt1, varStmt2)) {
             		return Boolean.FALSE;
             	}
             }
