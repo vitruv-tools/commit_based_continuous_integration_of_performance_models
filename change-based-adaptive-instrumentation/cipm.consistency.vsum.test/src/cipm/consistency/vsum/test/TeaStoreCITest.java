@@ -217,6 +217,10 @@ public class TeaStoreCITest extends AbstractCITest {
 			throws GitAPIException, IOException {
 		EvaluationDataContainer evalResult = new EvaluationDataContainer();
 		EvaluationDataContainer.setGlobalContainer(evalResult);
+		String repoFile = this.controller.getVSUMFacade().getPCMWrapper().getRepository().eResource()
+				.getURI().toFileString();
+		FileUtils.copyFile(new File(repoFile), new File(this.getTestPath(), "Repository.repository"));
+		FileUtils.copyFile(new File(repoFile), new File(this.getTestPath(), "Repository_" + num + "_mu.repository"));
 		boolean result = this.controller.propagateChanges(oldCommit, newCommit, true);
 		if (result) {
 			Resource javaModel = this.controller.getJavaModelResource();
@@ -259,7 +263,8 @@ public class TeaStoreCITest extends AbstractCITest {
 				this.controller.getCommitChangePropagator().getJavaFileSystemLayout().getModuleConfiguration());
 		LOGGER.debug("Evaluating the instrumentation model.");
 		new IMUpdateEvaluator().evaluateIMUpdate(this.controller.getVSUMFacade().getPCMWrapper().getRepository(),
-				this.controller.getVSUMFacade().getInstrumentationModel(), evalResult.getImEvalResult());
+				this.controller.getVSUMFacade().getInstrumentationModel(), evalResult.getImEvalResult(),
+				this.getTestPath());
 		LOGGER.debug("Evaluating the instrumentation.");
 		new InstrumentationEvaluator().evaluateInstrumentationIndependently(
 				this.controller.getVSUMFacade().getInstrumentationModel(), javaModel,
