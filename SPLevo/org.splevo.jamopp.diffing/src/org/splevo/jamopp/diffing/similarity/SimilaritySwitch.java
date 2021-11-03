@@ -186,6 +186,7 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             LinkedHashMap<Pattern, String> packageNormalizations) {
         this.similarityChecker = new SimilarityChecker(classifierNormalizations, compilationUnitNormalizations,
                 packageNormalizations);
+        this.similarityChecker.setCheckStatementPositionOnDefault(checkStatementPosition);
         this.compareElement = compareElement;
         addSwitch(new AnnotationsSimilaritySwitch());
         addSwitch(new ArraysSimilaritySwitch());
