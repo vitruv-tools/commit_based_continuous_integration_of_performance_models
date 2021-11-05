@@ -41,3 +41,5 @@ Currently, further required plugins are contained within the Git submodules. Aft
     * org.splevo.jamopp.util
 
 A new Eclipse instance with all imported plugins has to be started. Afterwards, the remaining plugins of this repository need to be imported.
+# Remark
+The submodules will be deleted later when the created pull requests are merged.
