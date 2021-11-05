@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SPLevo Common Utilities
+Bundle-SymbolicName: org.splevo.commons
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: com.google.guava;bundle-version="[27.0.0,28.0.0)",
+ org.apache.log4j,
+ org.eclipse.equinox.registry,
+ org.eclipse.osgi,
+ org.eclipse.core.runtime,
+ org.eclipse.emf.ecore,
+ org.eclipse.core.resources
+Export-Package: org.splevo.commons.eclipse,
+ org.splevo.commons.emf,
+ org.splevo.commons.interfaces,
+ org.splevo.commons.registry
+Automatic-Module-Name: org.splevo.commons

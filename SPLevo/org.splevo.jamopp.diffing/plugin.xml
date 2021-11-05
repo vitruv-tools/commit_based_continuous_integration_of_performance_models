@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <!-- @generated jamoppdiff -->
+      <package
+            uri="http://www.splevo.org/diff/jamoppdiff/1.0"
+            class="org.splevo.jamopp.diffing.jamoppdiff.JaMoPPDiffPackage"
+            genModel="model/jamoppdiff.genmodel"/>
+   </extension>
+   <extension
+         point="org.splevo.diffing.differ">
+      <differ
+            differ.class="org.splevo.jamopp.diffing.JaMoPPDiffer">
+      </differ>
+   </extension>
+
+</plugin>

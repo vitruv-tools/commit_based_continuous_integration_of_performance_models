@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<plugin>
+   <extension
+         name="Vitruv Java Domain Provider"
+         point="tools.vitruv.framework.domains.provider">
+      <domainProvider
+            class="cipm.consistency.domains.java.AdjustedJavaDomainProvider"></domainProvider>
+   </extension>
+</plugin>
