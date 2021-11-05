@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SPLevo Source Model Extraction
+Bundle-SymbolicName: org.splevo.extraction;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.splevo.extraction.Activator
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.emf.ecore,
+ org.apache.log4j,
+ com.google.guava;bundle-version="[27.0.0,28.0.0)"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: org.splevo.extraction
+Automatic-Module-Name: org.splevo.extraction

@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Adjusted Java Domain
+Bundle-SymbolicName: cipm.consistency.domains.java;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Export-Package: cipm.consistency.domains.java,
+ cipm.consistency.domains.java.propagation
+Require-Bundle: org.emftext.language.java,
+ tools.vitruv.framework.vsum,
+ org.eclipse.emf.ecore,
+ org.eclipse.xtend.lib,
+ org.eclipse.xtend.lib.macro,
+ tools.vitruv.framework.change,
+ org.eclipse.emf.compare,
+ tools.vitruv.domains.java,
+ org.eclipse.emf.common,
+ cipm.consistency.commitintegration.diff.util,
+ org.apache.log4j,
+ cipm.consistency.tools.evaluation.data
+Automatic-Module-Name: cipm.consistency.domains.java
+Bundle-RequiredExecutionEnvironment: JavaSE-11

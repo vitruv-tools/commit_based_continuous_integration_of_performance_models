@@ -1,0 +1,51 @@
+import org.emftext.language.java.classifiers.Class
+import org.emftext.language.java.classifiers.ConcreteClassifier
+
+import "http://www.emftext.org/java" as java
+import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
+
+
+reactions: Servlet
+in reaction to changes in AdjustedJava
+execute actions in PCMExtended
+
+
+import JaxRS
+
+routine checkServletInterfaceCreation(java::ConcreteClassifier javaInterface) {
+	match {
+		val com = retrieve pcm::RepositoryComponent corresponding to javaInterface
+	}
+	action {
+		call {
+			for (cc : javaInterface.allSuperClassifiers) {
+				if (cc.name.equals("HttpServlet")) {
+					createInterface(javaInterface)
+					val superClass = (javaInterface as Class).extends.target as Class
+					createServletHierarchy(superClass)
+					connectInterfacesByInheritance(javaInterface, superClass)
+					return
+				}
+			}
+		}
+	}
+}
+
+routine createServletHierarchy(java::Class start) {
+	action {
+		call {
+			createInterface(start)
+			checkMembersForOperations(start)
+			if (start.name.equals("GenericServlet")) {
+				val servletInterface = start.implements.get(0).target as ConcreteClassifier
+				createInterface(servletInterface)
+				checkMembersForOperations(servletInterface)
+				connectInterfacesByInheritance(start, servletInterface)
+				return
+			}
+			val superClass = start.extends.target as Class
+			createServletHierarchy(superClass)
+			connectInterfacesByInheritance(start, superClass)
+		}
+	}
+}
