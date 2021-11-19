@@ -1,9 +1,6 @@
 [submodule "cipm.consistency.base.vitruv.vsum.test/TeaStore"]
 	path = change-based-adaptive-instrumentation/cipm.consistency.vsum.test/TeaStore
 	url = https://github.com/DescartesResearch/TeaStore
-[submodule "Palladio-ReverseEngineering-SoMoX-JaMoPP"]
-	path = Palladio-ReverseEngineering-SoMoX-JaMoPP
-	url = https://github.com/HansMartinA/Palladio-ReverseEngineering-SoMoX-JaMoPP
 [submodule "CIPM-Pipeline"]
 	path = CIPM-Pipeline
 	url = https://github.com/HansMartinA/CIPM-Pipeline
@@ -17,6 +14,3 @@
 [submodule "Vitruv"]
 	path = Vitruv
 	url = https://github.com/HansMartinA/Vitruv
-[submodule "Palladio-Supporting-EclipseJavaDevelopmentTools"]
-	path = Palladio-Supporting-EclipseJavaDevelopmentTools
-	url = https://github.com/PalladioSimulator/Palladio-Supporting-EclipseJavaDevelopmentTools
