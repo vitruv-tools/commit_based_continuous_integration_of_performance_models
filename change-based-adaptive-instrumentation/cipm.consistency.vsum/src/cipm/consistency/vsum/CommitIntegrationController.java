@@ -279,6 +279,28 @@ public class CommitIntegrationController {
 			});
 		}
 	}
+	
+	/**
+	 * Loads the propagated commits.
+	 * 
+	 * @return an empty array if the commits cannot be loaded. Otherwise, the first index contains the start commit
+	 *         (possibly null for the initial commit), and the second index contains the target commit.
+	 */
+	public String[] loadCommits() {
+		try {
+			var lines = Files.readAllLines(this.getVSUMFacade().getFileLayout().getCommitsPath());
+			String[] result = new String[2];
+			if (lines.size() == 1) {
+				result[1] = lines.get(0);
+			} else {
+				result[0] = lines.get(0);
+				result[1] = lines.get(1);
+			}
+			return result;
+		} catch (IOException e) {
+			return new String[0];
+		}
+	}
 
 	/**
 	 * Shutdowns the environment.
