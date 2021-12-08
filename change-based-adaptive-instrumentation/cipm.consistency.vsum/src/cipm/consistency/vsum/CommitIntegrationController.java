@@ -1,5 +1,6 @@
 package cipm.consistency.vsum;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -82,6 +83,14 @@ public class CommitIntegrationController {
 	 */
 	public boolean propagateChanges(String oldCommit, String newCommit, boolean storeInstrumentedModel)
 			throws IOException, GitAPIException {
+		Files.createDirectory(this.facade.getFileLayout().getCommitsPath().toAbsolutePath().getParent());
+		try (BufferedWriter writer = Files.newBufferedWriter(this.facade.getFileLayout().getCommitsPath())) {
+			if (oldCommit != null) {
+				writer.write(oldCommit + "\n");
+			}
+			writer.write(newCommit + "\n");
+		}
+		
 		long overallTimer = System.currentTimeMillis();
 		instrumentedModel = null;
 		Path insDir = this.prop.getJavaFileSystemLayout().getInstrumentationCopy();
