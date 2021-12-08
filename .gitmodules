@@ -14,3 +14,6 @@
 [submodule "Vitruv"]
 	path = Vitruv
 	url = https://github.com/HansMartinA/Vitruv
+[submodule "Palladio-Build-CodingConventions"]
+	path = Palladio-Build-CodingConventions
+	url = https://github.com/PalladioSimulator/Palladio-Build-CodingConventions
