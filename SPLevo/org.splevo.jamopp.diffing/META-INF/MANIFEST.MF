@@ -16,7 +16,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.apache.commons.io,
  org.splevo.jamopp.extraction,
  org.splevo.jamopp.util,
- com.google.guava;bundle-version="[27.0.0,28.0.0)",
+ com.google.guava,
  jamopp.printer,
  org.splevo.commons,
  org.splevo.extraction

@@ -11,7 +11,7 @@ Require-Bundle: org.splevo.extraction,
  org.eclipse.emf.ecore.xmi,
  org.apache.commons.io,
  org.apache.log4j,
- com.google.guava;bundle-version="[27.0.0,28.0.0)",
+ com.google.guava,
  org.eclipse.core.resources,
  org.splevo.commons,
  org.eclipse.core.runtime

@@ -56,7 +56,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	public void testTeaStore1_0Integration() throws Exception {
 		// Integrates TeaStore version 1.0.
 		executePropagationAndEvaluation(null, COMMIT_TAG_1_0, 0);
-//		performIndependentEvaluation(null, COMMIT_TAG_1_0);
+//		performIndependentEvaluation();
 	}
 
 	@Disabled("Only one test case should run at once.")
@@ -64,7 +64,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	public void testTeaStore1_0To1_1Propagation() throws Exception {
 		// Propagation of changes between TeaStore version 1.0 and 1.1.
 		executePropagationAndEvaluation(COMMIT_TAG_1_0, COMMIT_TAG_1_1, 1);
-//		performIndependentEvaluation(COMMIT_TAG_1_0, COMMIT_TAG_1_1);
+//		performIndependentEvaluation();
 	}
 
 	@Disabled("Only one test case should run at once.")
@@ -78,7 +78,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	public void testTeaStore1_1Integration() throws Exception {
 		// Integrates TeaStore version 1.1.
 		executePropagationAndEvaluation(null, COMMIT_TAG_1_1, 0);
-//		performIndependentEvaluation(null, COMMIT_TAG_1_1);
+//		performIndependentEvaluation();
 	}
 
 	@Disabled("Only one test case should run at once.")
@@ -86,7 +86,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	public void testTeaStore1_1To1_2Propagation() throws Exception {
 		// Propagation of changes between TeaStore version 1.1 and 1.2.
 		executePropagationAndEvaluation(COMMIT_TAG_1_1, COMMIT_TAG_1_2, 1);
-//		performIndependentEvaluation(COMMIT_TAG_1_1, COMMIT_TAG_1_2);
+//		performIndependentEvaluation();
 	}
 
 	@Disabled("Only one test case should run at once.")
@@ -100,7 +100,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	public void testTeaStore1_2Integration() throws Exception {
 		// Integrates TeaStore version 1.2.
 		executePropagationAndEvaluation(null, COMMIT_TAG_1_2, 0);
-//		performIndependentEvaluation(null, COMMIT_TAG_1_2);
+//		performIndependentEvaluation();
 	}
 
 	@Disabled("Only one test case should run at once.")
@@ -108,7 +108,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	public void testTeaStore1_2To_1_2_1Propagation() throws Exception {
 		// Propagation of changes between TeaStore version 1.2 and 1.2.1.
 		executePropagationAndEvaluation(COMMIT_TAG_1_2, COMMIT_TAG_1_2_1, 1);
-//		performIndependentEvaluation(COMMIT_TAG_1_2, COMMIT_TAG_1_2_1);
+//		performIndependentEvaluation();
 	}
 
 	@Disabled("Only one test case should run at once.")
@@ -122,7 +122,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	public void testTeaStore1_2_1Integration() throws Exception {
 		// Integrates TeaStore version 1.2.1.
 		executePropagationAndEvaluation(null, COMMIT_TAG_1_2_1, 0);
-//		performIndependentEvaluation(null, COMMIT_TAG_1_2_1);
+//		performIndependentEvaluation();
 	}
 
 	@Disabled("Only one test case should run at once.")
@@ -130,7 +130,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	public void testTeaStore1_2_1To_1_3Propagation() throws Exception {
 		// Propagation of changes between TeaStore version 1.2.1 and 1.3.
 		executePropagationAndEvaluation(COMMIT_TAG_1_2_1, COMMIT_TAG_1_3, 1);
-//		performIndependentEvaluation(COMMIT_TAG_1_2_1, COMMIT_TAG_1_3);
+//		performIndependentEvaluation();
 	}
 
 	@Disabled("Only one test case should run at once.")
@@ -144,7 +144,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	public void testTeaStore1_3Integration() throws Exception {
 		// Integrates TeaStore version 1.3.
 		executePropagationAndEvaluation(null, COMMIT_TAG_1_3, 0);
-//		performIndependentEvaluation(null, COMMIT_TAG_1_3);
+//		performIndependentEvaluation();
 	}
 
 	@Disabled("Only one test case should run at once.")
@@ -152,7 +152,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	public void testTeaStore1_3To_1_3_1Propagation() throws Exception {
 		// Propagation of changes between TeaStore version 1.3 and 1.3.1.
 		executePropagationAndEvaluation(COMMIT_TAG_1_3, COMMIT_TAG_1_3_1, 1);
-//		performIndependentEvaluation(COMMIT_TAG_1_3, COMMIT_TAG_1_3_1);
+//		performIndependentEvaluation();
 	}
 
 	@Disabled("Only one test case should run at once.")
@@ -166,7 +166,7 @@ public class TeaStoreCITest extends AbstractCITest {
 	public void testTeaStore1_3_1Integration() throws Exception {
 		// Integrates TeaStore version 1.3.1.
 		executePropagationAndEvaluation(null, COMMIT_TAG_1_3_1, 0);
-//		performIndependentEvaluation(null, COMMIT_TAG_1_3_1);
+//		performIndependentEvaluation();
 	}
 
 	private void propagateMultipleCommits(String firstCommit, String lastCommit)
@@ -250,7 +250,10 @@ public class TeaStoreCITest extends AbstractCITest {
 	 * @throws IOException if an IO operation cannot be performed.
 	 */
 	@SuppressWarnings("restriction")
-	private void performIndependentEvaluation(String oldCommit, String newCommit) throws IOException {
+	private void performIndependentEvaluation() throws IOException {
+		String[] commits = this.controller.loadCommits();
+		String oldCommit = commits[0];
+		String newCommit = commits[1];
 		LOGGER.debug("Evaluating the propagation " + oldCommit + "->" + newCommit);
 		EvaluationDataContainer evalResult = EvaluationDataContainer.getGlobalContainer();
 		evalResult.getChangeStatistic().setOldCommit(oldCommit);

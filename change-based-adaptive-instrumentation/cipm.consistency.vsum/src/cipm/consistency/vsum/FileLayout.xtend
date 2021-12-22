@@ -21,6 +21,7 @@ class FileLayout {
 	static final String imDirName = "im";
 	static final String imFileName = "InstrumentationModel.imm";
 	static final String javaDirName = "java";
+	static final String commitsFileName = ".commits";
 	Path rootPath;
 	Path vsumPath;
 	Path pcmRepositoryPath;
@@ -36,6 +37,7 @@ class FileLayout {
 	Path imPath;
 	URI imURI;
 	Path javaPath;
+	Path commitsPath;
 	
 	new(Path rootDir) {
 		rootPath = rootDir;
@@ -55,5 +57,6 @@ class FileLayout {
 		imPath = pcm.resolve(imFileName).toAbsolutePath();
 		imURI = URI.createFileURI(imPath.toString());
 		javaPath = rootDir.resolve(javaDirName);
+		commitsPath = rootDir.resolve(commitsFileName);
 	}
 }

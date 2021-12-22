@@ -1,5 +1,6 @@
 package cipm.consistency.vsum;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -82,6 +83,14 @@ public class CommitIntegrationController {
 	 */
 	public boolean propagateChanges(String oldCommit, String newCommit, boolean storeInstrumentedModel)
 			throws IOException, GitAPIException {
+		Files.createDirectory(this.facade.getFileLayout().getCommitsPath().toAbsolutePath().getParent());
+		try (BufferedWriter writer = Files.newBufferedWriter(this.facade.getFileLayout().getCommitsPath())) {
+			if (oldCommit != null) {
+				writer.write(oldCommit + "\n");
+			}
+			writer.write(newCommit + "\n");
+		}
+		
 		long overallTimer = System.currentTimeMillis();
 		instrumentedModel = null;
 		Path insDir = this.prop.getJavaFileSystemLayout().getInstrumentationCopy();
@@ -268,6 +277,28 @@ public class CommitIntegrationController {
 					LOGGER.error(e);
 				}
 			});
+		}
+	}
+	
+	/**
+	 * Loads the propagated commits.
+	 * 
+	 * @return an empty array if the commits cannot be loaded. Otherwise, the first index contains the start commit
+	 *         (possibly null for the initial commit), and the second index contains the target commit.
+	 */
+	public String[] loadCommits() {
+		try {
+			var lines = Files.readAllLines(this.getVSUMFacade().getFileLayout().getCommitsPath());
+			String[] result = new String[2];
+			if (lines.size() == 1) {
+				result[1] = lines.get(0);
+			} else {
+				result[0] = lines.get(0);
+				result[1] = lines.get(1);
+			}
+			return result;
+		} catch (IOException e) {
+			return new String[0];
 		}
 	}
 
