@@ -1,5 +1,5 @@
 /**
  * Defines the consistency preservation rules between Java and the PCM for
- * Microservice-based applications.
+ * TEAMMATES.
  */
 package cipm.consistency.cpr.javapcm.teammates;

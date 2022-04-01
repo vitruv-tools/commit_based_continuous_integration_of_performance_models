@@ -15,7 +15,7 @@ import tools.vitruv.applications.pcmjava.seffstatements.code2seff.finegrained.Fi
  * @author Manar Mazkatli (advisor)
  * @author Martin Armbruster
  */
-public class CommitIntegrationJavaPCMChangePropagationSpecification extends AllChangePropagationSpecification {
+public class TeammatesJavaPCMChangePropagationSpecification extends AllChangePropagationSpecification {
 	@Override
 	protected void setup() {
 		super.setup();

@@ -1,15 +1,7 @@
 package cipm.consistency.cpr.javapcm.teammates.internal;
 
-import org.emftext.language.java.classifiers.ConcreteClassifier;
-import org.emftext.language.java.commons.Commentable;
 import org.emftext.language.java.members.Method;
-import org.emftext.language.java.types.ClassifierReference;
-import org.emftext.language.java.types.TypeReference;
-import org.emftext.language.java.types.TypesFactory;
-import org.palladiosimulator.pcm.core.entity.Entity;
 import org.palladiosimulator.pcm.repository.BasicComponent;
-import org.palladiosimulator.pcm.repository.DataType;
-import org.palladiosimulator.pcm.repository.PrimitiveDataType;
 
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended.CommitIntegrationCodeToSeffFactory;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff.FunctionClassificationStrategyForPackageMapping;
@@ -22,22 +14,6 @@ import tools.vitruv.framework.correspondence.CorrespondenceModel;
  */
 public final class InternalUtils {
 	private InternalUtils() {
-	}
-	
-	/**
-	 * Returns the module in which a classifier is contained.
-	 * 
-	 * @param classifier the classifier for which the module is looked up.
-	 * @return the module in which the classifier is contained
-	 *         or null if the classifier is not contained within a module.
-	 */
-	public static org.emftext.language.java.containers.Module getModule(ConcreteClassifier classifier) {
-		if (classifier.getPackage() != null) {
-			if (classifier.getPackage().getModule() != null) {
-				return classifier.getPackage().getModule();
-			}
-		}
-		return null;
 	}
 	
 	/**
@@ -62,36 +38,5 @@ public final class InternalUtils {
 		}
 		var strategy = new LocalStrategy();
 		return strategy.isExternalCall(method);
-	}
-	
-	/**
-	 * Returns the name of a DataType.
-	 * 
-	 * @param dataType the DataType to convert.
-	 * @return the name of the DataType.
-	 */
-	public static String convertToName(DataType dataType) {
-		if (dataType instanceof Entity) {
-			return ((Entity) dataType).getEntityName();
-		} else if (dataType instanceof PrimitiveDataType) {
-			return ((PrimitiveDataType) dataType).getType().getLiteral();
-		}
-		return "";
-	}
-	
-	/**
-	 * Returns a TypeReference to the Object class.
-	 * 
-	 * @param context context from whicht the object class is retrieved.
-	 * @return the TypeReference or null if the Object class cannot be found.
-	 */
-	public static TypeReference getTypeReferenceToObject(Commentable context) {
-		var objClass = context.getObjectClass();
-		if (!objClass.eIsProxy()) {
-			ClassifierReference result = TypesFactory.eINSTANCE.createClassifierReference();
-			result.setTarget(context.getObjectClass());
-			return result;
-		}
-		return null;
 	}
 }
