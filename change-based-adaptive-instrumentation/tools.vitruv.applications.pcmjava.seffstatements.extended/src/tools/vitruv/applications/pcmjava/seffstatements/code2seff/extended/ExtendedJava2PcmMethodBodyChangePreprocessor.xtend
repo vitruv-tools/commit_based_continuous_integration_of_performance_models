@@ -9,12 +9,17 @@ import tools.vitruv.applications.pcmjava.seffstatements.code2seff.ClassMethodBod
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding
 import cipm.consistency.domains.java.AdjustedJavaDomainProvider
 import cipm.consistency.domains.pcm.ExtendedPcmDomainProvider
+import tools.vitruv.applications.pcmjava.seffstatements.code2seff.Code2SeffFactory
 
 class ExtendedJava2PcmMethodBodyChangePreprocessor extends Java2PcmMethodBodyChangePreprocessor {
 
 	new() {
-		super(new CommitIntegrationCodeToSeffFactory,
-			new AdjustedJavaDomainProvider().domain, new ExtendedPcmDomainProvider().domain)
+		this(new CommitIntegrationCodeToSeffFactory)
+	}
+	
+	new(Code2SeffFactory factory) {
+		super(factory,
+			new AdjustedJavaDomainProvider().domain, new ExtendedPcmDomainProvider().domain)		
 	}
 
 	protected override ClassMethodBodyChangedTransformation createTransformation(Method newMethod,

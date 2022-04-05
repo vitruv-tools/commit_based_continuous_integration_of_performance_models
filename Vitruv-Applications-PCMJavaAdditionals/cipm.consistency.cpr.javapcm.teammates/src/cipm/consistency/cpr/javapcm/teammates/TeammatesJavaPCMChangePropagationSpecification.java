@@ -1,15 +1,11 @@
 package cipm.consistency.cpr.javapcm.teammates;
 
-import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
-import cipm.consistency.commitintegration.settings.SettingKeys;
-import cipm.consistency.cpr.javaim.Java2ImChangePropagationSpecification;
+import cipm.consistency.cpr.javapcm.teammates.seff.TeammatesJava2PcmMethodBodyChangePreprocessor;
 import mir.reactions.all.AllChangePropagationSpecification;
-
-import tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended.ExtendedJava2PcmMethodBodyChangePreprocessor;
-import tools.vitruv.applications.pcmjava.seffstatements.code2seff.finegrained.FineGrainedJava2PcmMethodBodyChangePreprocessor;
 
 /**
  * Change propagation specification in order to propagate changes on JaMoPP models to the PCM models.
+ * Specific for TEAMMATES.
  * 
  * @author Ilia Chupakhin
  * @author Manar Mazkatli (advisor)
@@ -20,16 +16,6 @@ public class TeammatesJavaPCMChangePropagationSpecification extends AllChangePro
 	protected void setup() {
 		super.setup();
 		// Change propagation specification for changes on method bodies.
-		if (CommitIntegrationSettingsContainer.getSettingsContainer()
-				.getPropertyAsBoolean(SettingKeys.PERFORM_FINE_GRAINED_SEFF_RECONSTRUCTION)) {
-			this.addChangeMainprocessor(new FineGrainedJava2PcmMethodBodyChangePreprocessor());
-		} else {
-			if (CommitIntegrationSettingsContainer.getSettingsContainer()
-					.getPropertyAsBoolean(SettingKeys.USE_PCM_IM_CPRS)) {
-				this.addChangeMainprocessor(new ExtendedJava2PcmMethodBodyChangePreprocessor());
-			} else {
-				this.addChangeMainprocessor(new Java2ImChangePropagationSpecification());
-			}
-		}
+		this.addChangeMainprocessor(new TeammatesJava2PcmMethodBodyChangePreprocessor());
 	}
 }
