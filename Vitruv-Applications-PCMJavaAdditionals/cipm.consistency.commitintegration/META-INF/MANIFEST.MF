@@ -22,6 +22,7 @@ Require-Bundle: org.apache.log4j,
  tools.vitruv.framework.userinteraction,
  cipm.consistency.tools.evaluation.data,
  cipm.consistency.commitintegration.settings,
- org.apache.commons.lang
+ org.apache.commons.lang,
+ jamopp.resolution
 Automatic-Module-Name: cipm.consistency.commitintegration
 Bundle-RequiredExecutionEnvironment: JavaSE-11
