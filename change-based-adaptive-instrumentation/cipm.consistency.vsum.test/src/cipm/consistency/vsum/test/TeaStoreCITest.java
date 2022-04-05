@@ -19,8 +19,10 @@ import org.junit.jupiter.api.Test;
 
 import cipm.consistency.commitintegration.diff.util.ComparisonBasedJaccardCoefficientCalculator;
 import cipm.consistency.commitintegration.diff.util.pcm.PCMModelComparator;
+import cipm.consistency.cpr.javapcm.CommitIntegrationJavaPCMChangePropagationSpecification;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
+import tools.vitruv.framework.propagation.ChangePropagationSpecification;
 
 /**
  * A test class for the TeaStore.
@@ -245,8 +247,6 @@ public class TeaStoreCITest extends AbstractCITest {
 	 * this method is not executed with the executePropagationAndEvaluation method
 	 * at the same time because this can cause a OutOfMemoryError.
 	 * 
-	 * @param oldCommit the first commit. Can be null.
-	 * @param newCommit the second commit.
 	 * @throws IOException if an IO operation cannot be performed.
 	 */
 	@SuppressWarnings("restriction")
@@ -288,5 +288,10 @@ public class TeaStoreCITest extends AbstractCITest {
 		var comp = PCMModelComparator.compareRepositoryModels(res1, res2);
 		var res = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comp);
 		System.out.println(res);
+	}
+
+	@Override
+	protected ChangePropagationSpecification getJavaPCMSpecification() {
+		return new CommitIntegrationJavaPCMChangePropagationSpecification();
 	}
 }

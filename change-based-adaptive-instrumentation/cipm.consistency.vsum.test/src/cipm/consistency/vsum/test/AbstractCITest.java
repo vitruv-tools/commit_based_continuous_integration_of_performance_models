@@ -10,6 +10,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 import cipm.consistency.vsum.CommitIntegrationController;
+import tools.vitruv.framework.propagation.ChangePropagationSpecification;
 
 /**
  * An abstract superclass for test cases providing the setup.
@@ -23,13 +24,15 @@ public abstract class AbstractCITest {
 	public void setUp() throws Exception {
 		Logger logger = Logger.getLogger("cipm");
 		logger.setLevel(Level.ALL);
+		logger = Logger.getLogger("jamopp");
+		logger.setLevel(Level.ALL);
 		logger = Logger.getRootLogger();
 		logger.removeAllAppenders();
 		ConsoleAppender ap = new ConsoleAppender(new PatternLayout("[%d{DATE}] %-5p: %c - %m%n"),
 				ConsoleAppender.SYSTEM_OUT);
 		logger.addAppender(ap);
 		controller = new CommitIntegrationController(Paths.get(getTestPath()), getRepositoryPath(),
-				Paths.get(getSettingsPath()));
+				Paths.get(getSettingsPath()), getJavaPCMSpecification());
 	}
 
 	@AfterEach
@@ -57,4 +60,11 @@ public abstract class AbstractCITest {
 	 * @return the path.
 	 */
 	protected abstract String getSettingsPath();
+	
+	/**
+	 * Returns the CPRs between Java and the PCM.
+	 * 
+	 * @return the CPRs.
+	 */
+	protected abstract ChangePropagationSpecification getJavaPCMSpecification();
 }

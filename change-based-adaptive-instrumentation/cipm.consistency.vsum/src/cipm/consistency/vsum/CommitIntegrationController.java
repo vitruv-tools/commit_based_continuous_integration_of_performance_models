@@ -28,6 +28,7 @@ import cipm.consistency.commitintegration.settings.SettingKeys;
 import cipm.consistency.cpr.javapcm.additional.validation.ExternalCallEmptyTargetFiller;
 import cipm.consistency.designtime.instrumentation2.CodeInstrumenter;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
+import tools.vitruv.framework.propagation.ChangePropagationSpecification;
 
 /**
  * This central class is responsible for controlling the complete change propagation and adaptive instrumentation.
@@ -46,13 +47,14 @@ public class CommitIntegrationController {
 	 * @param rootPath path to the root directory in which all data is stored.
 	 * @param repositoryPath path to the remote repository from which commits are fetched.
 	 * @param settingsPath path to the settings file.
+	 * @param javaPCMSpecification the CPRs from Java to the PCM.
 	 * @throws IOException if an IO operation fails.
 	 * @throws GitAPIException if a Git operation fails.
 	 */
-	public CommitIntegrationController(Path rootPath, String repositoryPath, Path settingsPath)
-			throws IOException, GitAPIException {
+	public CommitIntegrationController(Path rootPath, String repositoryPath, Path settingsPath,
+			ChangePropagationSpecification javaPCMSpecification) throws IOException, GitAPIException {
 		CommitIntegrationSettingsContainer.initialize(settingsPath);
-		facade = new VSUMFacade(rootPath);
+		facade = new VSUMFacade(rootPath, javaPCMSpecification);
 		prop = new CommitChangePropagator(repositoryPath,
 				facade.getFileLayout().getJavaPath().toString(), facade.getVSUM());
 		prop.initialize();
@@ -83,7 +85,10 @@ public class CommitIntegrationController {
 	 */
 	public boolean propagateChanges(String oldCommit, String newCommit, boolean storeInstrumentedModel)
 			throws IOException, GitAPIException {
-		Files.createDirectory(this.facade.getFileLayout().getCommitsPath().toAbsolutePath().getParent());
+		var parent = this.facade.getFileLayout().getCommitsPath().toAbsolutePath().getParent();
+		if (Files.notExists(parent)) {
+			Files.createDirectories(parent);
+		}
 		try (BufferedWriter writer = Files.newBufferedWriter(this.facade.getFileLayout().getCommitsPath())) {
 			if (oldCommit != null) {
 				writer.write(oldCommit + "\n");
