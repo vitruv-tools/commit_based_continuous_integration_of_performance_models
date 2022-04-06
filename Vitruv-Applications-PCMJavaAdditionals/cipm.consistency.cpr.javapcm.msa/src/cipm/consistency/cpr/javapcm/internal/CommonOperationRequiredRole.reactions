@@ -1,5 +1,5 @@
 import static tools.vitruv.applications.util.temporary.java.JavaTypeUtil.*
-import org.palladiosimulator.pcm.repository.OperationRequiredRole
+import static cipm.consistency.cpr.javapcm.internal.InternalUtils.findRequiredRole
 
 import "http://www.emftext.org/java" as java
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
@@ -46,12 +46,10 @@ routine createOrFindRequiredRoleForImport(java::Import importSt, java::ConcreteC
 	action {
 		call {
 			if (opInterfaceCom !== containingCom) {
-				for (reqRole : containingCom.requiredRoles_InterfaceRequiringEntity) {
-					if (reqRole instanceof OperationRequiredRole
-							&& reqRole.requiringEntity_RequiredRole === containingCom) {
-						addCorrespondenceForImportAndRequiredRole(importSt, reqRole as OperationRequiredRole)
-						return;
-					}
+				var reqRole = findRequiredRole(containingCom, opInterface)
+				if (reqRole !== null) {
+					addCorrespondenceForImportAndRequiredRole(importSt, reqRole)
+					return;
 				}
 				createRequiredRoleForImport(importSt, opInterface, containingCom)
 			}
@@ -93,7 +91,13 @@ routine checkFieldForRequiredInterface(java::Classifier classifier, java::Field 
 	action {
 		call {
 			if (correspondingComponent != repositoryComponent) {
-				createOperationRequiredRoleForField(javaField, correspondingInterface, repositoryComponent)
+				var reqRole = findRequiredRole(repositoryComponent, correspondingInterface)
+				if (reqRole !== null) {
+					addCorrespondenceForFieldAndRequiredRole(javaField, reqRole)
+				} else {
+					createOperationRequiredRoleForField(javaField, correspondingInterface,
+						repositoryComponent)
+				}
 			}
 		}
 	}
@@ -108,28 +112,36 @@ routine createOperationRequiredRoleForField(java::Field javaField,
 			operationRequiredRole.entityName = "Component_" + repoComponent.entityName + "_requires_" +
 				operationInterface.entityName
 		}
-		add correspondence between operationRequiredRole and javaField
+		call {
+			addCorrespondenceForFieldAndRequiredRole(javaField, operationRequiredRole)
+		}
+	}
+}
+
+routine addCorrespondenceForFieldAndRequiredRole(java::Field javaField, pcm::OperationRequiredRole reqRole) {
+	action {
+		add correspondence between reqRole and javaField
 	}
 }
 
 reaction RemovedImport {
 	after element java::Import removed from java::JavaRoot[imports]
 	call {
-		removeRequiredRoleForImport(oldValue)
+		removeRequiredRoleForJavaElement(oldValue)
 	}
 }
 
-routine removeRequiredRoleForImport(java::Import importSt) {
+routine removeRequiredRoleForJavaElement(java::Commentable javaElement) {
 	match {
-		val reqRole = retrieve pcm::OperationRequiredRole corresponding to importSt
-		val allImports = retrieve many java::Import corresponding to reqRole
+		val reqRole = retrieve pcm::OperationRequiredRole corresponding to javaElement
+		val allImports = retrieve many java::Commentable corresponding to reqRole
 	}
 	action {
 		call {
 			if (allImports.size === 1) {
 				removeRequiredRole(reqRole)
 			} else {
-				removeCorrespondenceForImportAndRequiredRole(importSt, reqRole)
+				removeCorrespondenceForJavaElementAndRequiredRole(javaElement, reqRole)
 			}
 		}
 	}
@@ -154,14 +166,15 @@ routine checkUpdatedFieldType(java::Field field, java::TypeReference oldType, ja
 					&& oldCorrespondingOpInterface.present && opInterface.present
 					&& oldCorrespondingCom.present && newCom.present
 					&& newCom.get !== basicComponent) {
-				// Reset required role. 
-				opRequiredRole.get.requiredInterface__OperationRequiredRole = opInterface.get
+				// Reset required role.
+				removeRequiredRoleForJavaElement(field)
+				checkFieldForRequiredInterface(field.containingConcreteClassifier, field)
 				return
 			}
 			if (!oldCorrespondingOpInterface.present && opInterface.present
 					&& newCom.present && newCom.get !== basicComponent) {
 				// New required role needs to be added.
-				createOperationRequiredRoleForField(field, opInterface.get, basicComponent)
+				checkFieldForRequiredInterface(field.containingConcreteClassifier, field)
 				return
 			}
 			if (opRequiredRole.present
@@ -170,7 +183,7 @@ routine checkUpdatedFieldType(java::Field field, java::TypeReference oldType, ja
 					&& oldCorrespondingCom.present && newCom.present
 					&& newCom.get === basicComponent)) {
 				// Remove required role and correspondence.
-				removeRequiredRole(opRequiredRole.get)
+				removeRequiredRoleForJavaElement(field)
 			}
 		}
 	}
@@ -182,8 +195,8 @@ routine removeRequiredRole(pcm::OperationRequiredRole reqRole) {
 	}
 }
 
-routine removeCorrespondenceForImportAndRequiredRole(java::Import importSt, pcm::OperationRequiredRole reqRole) {
+routine removeCorrespondenceForJavaElementAndRequiredRole(java::Commentable javaElement, pcm::OperationRequiredRole reqRole) {
 	action {
-		remove correspondence between importSt and reqRole
+		remove correspondence between javaElement and reqRole
 	}
 }

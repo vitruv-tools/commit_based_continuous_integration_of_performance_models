@@ -9,7 +9,10 @@ import org.emftext.language.java.types.TypesFactory;
 import org.palladiosimulator.pcm.core.entity.Entity;
 import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.palladiosimulator.pcm.repository.DataType;
+import org.palladiosimulator.pcm.repository.Interface;
+import org.palladiosimulator.pcm.repository.OperationRequiredRole;
 import org.palladiosimulator.pcm.repository.PrimitiveDataType;
+import org.palladiosimulator.pcm.repository.RepositoryComponent;
 
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended.CommitIntegrationCodeToSeffFactory;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff.FunctionClassificationStrategyForPackageMapping;
@@ -91,6 +94,25 @@ public final class InternalUtils {
 			ClassifierReference result = TypesFactory.eINSTANCE.createClassifierReference();
 			result.setTarget(context.getObjectClass());
 			return result;
+		}
+		return null;
+	}
+	
+	/**
+	 * Finds a RequiredRole for an interface in a component if its exists.
+	 * 
+	 * @param component the component.
+	 * @param interfaze the interface.
+	 * @return the RequiredRole or null if it does not exist.
+	 */
+	public static OperationRequiredRole findRequiredRole(RepositoryComponent component, Interface interfaze) {
+		for (var role : component.getRequiredRoles_InterfaceRequiringEntity()) {
+			if (role instanceof OperationRequiredRole) {
+				var opRole = (OperationRequiredRole) role;
+				if (opRole.getRequiredInterface__OperationRequiredRole() == interfaze) {
+					return opRole;
+				}
+			}
 		}
 		return null;
 	}
