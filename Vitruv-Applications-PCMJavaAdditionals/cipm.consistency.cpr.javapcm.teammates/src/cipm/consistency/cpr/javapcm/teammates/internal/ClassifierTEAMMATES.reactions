@@ -48,13 +48,7 @@ routine decideInterfaceCreation(java::ConcreteClassifier javaInterface) {
 			if (mod.origin == Origin.FILE) {
 				checkServletInterfaceCreation(javaInterface)
 			} else if (mod.origin == Origin.ARCHIVE) {
-				if ((javaInterface.public && mod.name != 'teammates.common') ||
-					(javaInterface.public
-						&& ((javaInterface instanceof Interface
-							&& (javaInterface as Interface).extends.size === 0)
-						|| (javaInterface instanceof org.emftext.language.java.classifiers.Class
-							&& (javaInterface as org.emftext.language.java.classifiers.Class).extends === null
-							&& (javaInterface as org.emftext.language.java.classifiers.Class).implements.size == 0)))) {
+				if (javaInterface.public) {
 					createInterface(javaInterface)
 				}
 			}
