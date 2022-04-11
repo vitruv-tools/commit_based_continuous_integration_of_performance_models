@@ -130,15 +130,6 @@ reaction ChangedFieldType {
 reaction RemovedField {
 	after element java::Field removed from java::Class[members]
 	call {
-		removeFieldCorrespondence(oldValue)
-	}
-}
-
-routine removeFieldCorrespondence(java::Field field) {
-	match {
-		val namedElement = retrieve pcm::NamedElement corresponding to field
-	}
-	action {
-		delete namedElement
+		removeRequiredRoleForJavaElement(oldValue)
 	}
 }
