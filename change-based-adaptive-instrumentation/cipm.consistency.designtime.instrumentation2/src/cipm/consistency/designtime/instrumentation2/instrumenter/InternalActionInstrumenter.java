@@ -2,6 +2,7 @@ package cipm.consistency.designtime.instrumentation2.instrumenter;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.emftext.language.java.expressions.LambdaExpression;
 import org.emftext.language.java.members.Method;
 import org.emftext.language.java.references.IdentifierReference;
 import org.emftext.language.java.references.MethodCall;
@@ -13,6 +14,7 @@ import org.emftext.language.java.statements.LocalVariableStatement;
 import org.emftext.language.java.statements.Return;
 import org.emftext.language.java.statements.Statement;
 import org.emftext.language.java.statements.StatementsFactory;
+import org.emftext.language.java.statements.Throw;
 import org.emftext.language.java.variables.LocalVariable;
 import org.emftext.language.java.variables.VariablesFactory;
 
@@ -63,6 +65,8 @@ public class InternalActionInstrumenter extends AbstractInstrumenter {
 		if (end instanceof Return) {
 			Return ret = (Return) end;
 			addExitStatementOnReturn(ret, exitStatement);
+		} else if (end instanceof Throw) {
+			end.addBeforeContainingStatement(exitStatement);
 		} else {
 			var retList = end.getChildrenByType(Return.class);
 			if (retList.size() != 0) {
@@ -103,6 +107,16 @@ public class InternalActionInstrumenter extends AbstractInstrumenter {
 	
 	private void addExitStatementOnReturn(Return ret, Statement exitStatement) {
 		if (ret.getReturnValue() != null) {
+			// Check that return statement is not contained within a LambdaExpression.
+			// If this is the case, the exit statement generation is surpressed.
+			EObject container = ret.eContainer();
+			while (container != null && !(container instanceof Method)) {
+				if (container instanceof LambdaExpression) {
+					return;
+				}
+				container = container.eContainer();
+			}
+			
 			LocalVariable returnVariable = VariablesFactory.eINSTANCE.createLocalVariable();
 			returnVariable.setTypeReference(EcoreUtil.copy(findMethod(ret).getTypeReference()));
 			returnVariable.setName("longAndUniqueNameToAvoidDuplicationsAndCompilationErrors"
