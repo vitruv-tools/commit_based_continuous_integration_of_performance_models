@@ -7,6 +7,7 @@ import org.emftext.language.java.members.Method;
 import org.emftext.language.java.parameters.Parameter;
 import org.emftext.language.java.references.IdentifierReference;
 import org.emftext.language.java.references.MethodCall;
+import org.emftext.language.java.references.Reference;
 import org.emftext.language.java.references.ReferencesFactory;
 import org.emftext.language.java.references.SelfReference;
 import org.emftext.language.java.statements.Block;
@@ -103,9 +104,7 @@ public class ServiceInstrumenter extends AbstractInstrumenter {
 		MethodCall enterCall = ReferencesFactory.eINSTANCE.createMethodCall();
 		enterCall.setTarget(environmentGen.enterServiceMethod);
 		this.createAndAddStringArgument(enterCall, seffId);
-		SelfReference selfRef = ReferencesFactory.eINSTANCE.createSelfReference();
-		selfRef.setSelf(LiteralsFactory.eINSTANCE.createThis());
-		enterCall.getArguments().add(selfRef);
+		enterCall.getArguments().add(this.createEnteredObjectReference());
 		IdentifierReference serviceParametersRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
 		serviceParametersRef.setTarget(serviceParam);
 		enterCall.getArguments().add(serviceParametersRef);
@@ -114,6 +113,19 @@ public class ServiceInstrumenter extends AbstractInstrumenter {
 		ExpressionStatement result = StatementsFactory.eINSTANCE.createExpressionStatement();
 		result.setExpression(rootRef);
 		return result;
+	}
+	
+	private Reference createEnteredObjectReference() {
+		if (this.service.isStatic()) {
+			IdentifierReference idRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
+			idRef.setTarget(this.service.getContainingConcreteClassifier());
+			idRef.setNext(ReferencesFactory.eINSTANCE.createReflectiveClassReference());
+			return idRef;
+		} else {
+			SelfReference selfRef = ReferencesFactory.eINSTANCE.createSelfReference();
+			selfRef.setSelf(LiteralsFactory.eINSTANCE.createThis());
+			return selfRef;
+		}
 	}
 
 	private ExpressionStatement createServiceExitStatement(String seffId) {
