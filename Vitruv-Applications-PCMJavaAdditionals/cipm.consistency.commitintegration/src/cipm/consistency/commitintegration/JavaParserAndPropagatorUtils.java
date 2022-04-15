@@ -12,6 +12,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.emftext.language.java.JavaClasspath;
 import org.emftext.language.java.containers.JavaRoot;
+import org.emftext.language.java.types.PrimitiveType;
 
 import cipm.consistency.commitintegration.detection.BuildFileBasedComponentDetectionStrategy;
 import cipm.consistency.commitintegration.detection.ComponentDetectionStrategy;
@@ -62,7 +63,20 @@ public final class JavaParserAndPropagatorUtils {
 				.getProperty(SettingKeys.JAVA_PARSER_EXCLUSION_PATTERNS).split(";"));
 		LOGGER.debug("Parsing " + dir.toString());
 		ResourceSet resourceSet = parser.parseDirectory(dir);
-		new TrivialRecovery(resourceSet).recover();
+		
+		if (!config.resolveAll) {
+			// Wrap all primitive types to ensure that their wrapper classes are loaded.
+			for (var resource : new ArrayList<>(resourceSet.getResources())) {
+				resource.getAllContents().forEachRemaining(obj -> {
+					if (obj instanceof PrimitiveType) {
+						var type = (PrimitiveType) obj;
+						type.wrapPrimitiveType();
+					}
+				});
+			}
+			new TrivialRecovery(resourceSet).recover();
+		}
+		
 		LOGGER.debug("Parsed " + resourceSet.getResources().size() + " files.");
 
 		// 2. Filter the resources and create modules for components.
