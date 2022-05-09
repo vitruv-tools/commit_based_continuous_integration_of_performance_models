@@ -209,7 +209,7 @@ routine checkDataTypeRemoval(java::ConcreteClassifier javaClass) {
 	action {
 		call {
 			pcmRepository.dataTypes__Repository.filter(CompositeDataType)
-				.filter[it.entityName == javaClass.name]
+				.filter[it.entityName == javaClass.name].toList
 				.forEach[
 					removeDataType(it)
 				]
