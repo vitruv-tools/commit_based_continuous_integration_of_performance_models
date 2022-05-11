@@ -120,9 +120,11 @@ reaction AddedField {
 reaction ChangedFieldType {
 	after element replaced at java::Field[typeReference]
 	call {
-		changeInnerDeclarationType(newValue, affectedEObject)
-		if (oldValue !== null) {
-			checkUpdatedFieldType(affectedEObject, oldValue, newValue)
+		if (newValue !== null) {
+			changeInnerDeclarationType(newValue, affectedEObject)
+			if (oldValue !== null) {
+				checkUpdatedFieldType(affectedEObject, oldValue, newValue)
+			}
 		}
 	}
 }
@@ -130,6 +132,7 @@ reaction ChangedFieldType {
 reaction RemovedField {
 	after element java::Field removed from java::Class[members]
 	call {
+		checkInnerDeclarationRemoval(oldValue)
 		removeRequiredRoleForJavaElement(oldValue)
 	}
 }

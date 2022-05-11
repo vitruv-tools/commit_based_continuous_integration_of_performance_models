@@ -201,6 +201,15 @@ routine changeInnerDeclarationType(java::TypeReference typeReference, java::Fiel
 	}
 }
 
+routine checkInnerDeclarationRemoval(java::Field field) {
+	match {
+		val innerDeclaration = retrieve pcm::InnerDeclaration corresponding to field
+	}
+	action {
+		delete innerDeclaration
+	}
+}
+
 routine checkDataTypeRemoval(java::ConcreteClassifier javaClass) {
 	match {
 		val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
