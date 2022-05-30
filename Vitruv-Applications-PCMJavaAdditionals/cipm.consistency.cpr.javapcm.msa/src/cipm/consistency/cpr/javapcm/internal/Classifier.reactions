@@ -63,6 +63,7 @@ reaction RemovedClass {
 		checkBasicComponentRemovalForClassifier(oldValue)
 		checkDataTypeRemoval(oldValue)
 		removeOperationProvidedRolesForRemovedClass(oldValue)
+		removeOperationRequiredRolesForRemovedClass(oldValue)
 		removeInterface(oldValue)
 	}
 } 

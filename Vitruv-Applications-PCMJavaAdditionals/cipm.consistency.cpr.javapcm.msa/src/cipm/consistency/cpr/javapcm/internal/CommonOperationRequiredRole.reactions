@@ -1,5 +1,7 @@
 import static tools.vitruv.applications.util.temporary.java.JavaTypeUtil.*
 import static cipm.consistency.cpr.javapcm.internal.InternalUtils.findRequiredRole
+import org.palladiosimulator.pcm.repository.OperationRequiredRole
+import org.palladiosimulator.pcm.repository.RepositoryPackage
 
 import "http://www.emftext.org/java" as java
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
@@ -185,6 +187,24 @@ routine checkUpdatedFieldType(java::Field field, java::TypeReference oldType, ja
 				// Remove required role and correspondence.
 				removeRequiredRoleForJavaElement(field)
 			}
+		}
+	}
+}
+
+routine removeOperationRequiredRolesForRemovedClass(java::Classifier classifier) {
+	match {
+		val pcmInterface = retrieve pcm::Interface corresponding to classifier
+		val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
+	}
+	action {
+		call {
+			pcmRepository.components__Repository.forEach[
+				it.requiredRoles_InterfaceRequiringEntity
+					.filter(OperationRequiredRole)
+					.filter[it.requiredInterface__OperationRequiredRole === pcmInterface]
+					.toSet
+					.forEach[removeRequiredRole(it)]
+			]
 		}
 	}
 }
