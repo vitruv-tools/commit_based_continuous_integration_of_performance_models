@@ -78,6 +78,13 @@ reaction RemovedInterface {
 	}
 }
 
+reaction RemovedInnerClassifier {
+	after element java::ConcreteClassifier removed from java::MemberContainer[members]
+	call {
+		checkDataTypeRemoval(oldValue)
+	}
+}
+
 reaction RemovedModule {
 	after element java::Module removed from java::Package[module]
 	call {
