@@ -201,18 +201,26 @@ routine changeInnerDeclarationType(java::TypeReference typeReference, java::Fiel
 	}
 }
 
+routine checkInnerDeclarationRemoval(java::Field field) {
+	match {
+		val innerDeclaration = retrieve pcm::InnerDeclaration corresponding to field
+	}
+	action {
+		delete innerDeclaration
+	}
+}
+
 routine checkDataTypeRemoval(java::ConcreteClassifier javaClass) {
 	match {
 		val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
 		val collTypes = retrieve many pcm::CollectionDataType corresponding to javaClass
+		val compTypes = retrieve many pcm::CompositeDataType corresponding to javaClass
 	}
 	action {
 		call {
-			pcmRepository.dataTypes__Repository.filter(CompositeDataType)
-				.filter[it.entityName == javaClass.name]
-				.forEach[
-					removeDataType(it)
-				]
+			for (type : compTypes) {
+				removeDataType(type)
+			}
 			for (type : collTypes) {
 				removeDataType(type)
 			}

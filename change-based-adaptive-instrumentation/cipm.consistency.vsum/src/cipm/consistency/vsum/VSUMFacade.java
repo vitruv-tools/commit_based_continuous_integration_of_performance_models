@@ -24,13 +24,13 @@ import cipm.consistency.base.shared.pcm.InMemoryPCM;
 import cipm.consistency.base.shared.pcm.LocalFilesystemPCM;
 import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
 import cipm.consistency.commitintegration.settings.SettingKeys;
-import cipm.consistency.cpr.javapcm.CommitIntegrationJavaPCMChangePropagationSpecification;
 import cipm.consistency.domains.im.InstrumentationModelDomainProvider;
 import cipm.consistency.domains.java.AdjustedJavaDomainProvider;
 import cipm.consistency.domains.pcm.ExtendedPcmDomain;
 import cipm.consistency.domains.pcm.ExtendedPcmDomainProvider;
 import mir.reactions.imUpdate.ImUpdateChangePropagationSpecification;
 import tools.vitruv.extensions.dslsruntime.reactions.helper.ReactionsCorrespondenceHelper;
+import tools.vitruv.framework.propagation.ChangePropagationSpecification;
 import tools.vitruv.framework.userinteraction.UserInteractionFactory;
 import tools.vitruv.framework.vsum.VirtualModelBuilder;
 import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
@@ -48,12 +48,12 @@ public class VSUMFacade {
 	private InMemoryPCM pcm;
 	private InstrumentationModel imm;
 
-	public VSUMFacade(Path rootDir) {
+	public VSUMFacade(Path rootDir, ChangePropagationSpecification javaPCMSpecificaton) {
 		files = new FileLayout(rootDir);
-		setUp();
+		setUp(javaPCMSpecificaton);
 	}
 	
-	private void setUp() {
+	private void setUp(ChangePropagationSpecification javaPCMSpecification) {
 		boolean isVSUMExistent = Files.exists(files.getVsumPath());
 		ExtendedPcmDomain pcmDomain = new ExtendedPcmDomainProvider().getDomain();
 		pcmDomain.enableTransitiveChangePropagation();
@@ -62,7 +62,7 @@ public class VSUMFacade {
 				.withDomain(new InstrumentationModelDomainProvider().getDomain())
 				.withStorageFolder(files.getVsumPath())
 				.withUserInteractor(UserInteractionFactory.instance.createDialogUserInteractor())
-				.withChangePropagationSpecification(new CommitIntegrationJavaPCMChangePropagationSpecification());
+				.withChangePropagationSpecification(javaPCMSpecification);
 		if (CommitIntegrationSettingsContainer.getSettingsContainer()
 				.getPropertyAsBoolean(SettingKeys.PERFORM_FINE_GRAINED_SEFF_RECONSTRUCTION)
 				|| CommitIntegrationSettingsContainer.getSettingsContainer()
@@ -117,7 +117,7 @@ public class VSUMFacade {
 				vsum.dispose();
 			} catch (IOException e) {
 			}
-			setUp();
+			setUp(javaPCMSpecification);
 		}
 	}
 	

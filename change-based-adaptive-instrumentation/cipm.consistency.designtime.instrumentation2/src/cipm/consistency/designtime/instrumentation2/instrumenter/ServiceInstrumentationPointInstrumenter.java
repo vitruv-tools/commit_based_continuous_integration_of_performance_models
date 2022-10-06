@@ -8,6 +8,7 @@ import org.emftext.language.java.references.IdentifierReference;
 import org.emftext.language.java.references.MethodCall;
 import org.emftext.language.java.references.PackageReference;
 import org.emftext.language.java.references.ReferencesFactory;
+import org.emftext.language.java.statements.Block;
 import org.emftext.language.java.statements.LocalVariableStatement;
 import org.emftext.language.java.statements.StatementsFactory;
 import org.emftext.language.java.variables.VariablesFactory;
@@ -56,6 +57,10 @@ public class ServiceInstrumentationPointInstrumenter extends AbstractInstrumente
 	 */
 	public void instrument(Method m, ServiceInstrumentationPoint sip, ActionStatementMapping statementMapping,
 			boolean adaptive) {
+		if (!(m.getStatement() instanceof Block)) {
+			return;
+		}
+		
 		prepareMethodBeforeInstrumentation(m);
 		
 		serviceIns.setLocalThreadMonitoringVariable(this.threadMonitoringVariable);

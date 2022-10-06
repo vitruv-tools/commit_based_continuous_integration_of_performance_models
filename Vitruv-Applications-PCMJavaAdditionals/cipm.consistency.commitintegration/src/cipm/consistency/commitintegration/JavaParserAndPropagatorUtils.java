@@ -12,13 +12,16 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.emftext.language.java.JavaClasspath;
 import org.emftext.language.java.containers.JavaRoot;
+import org.emftext.language.java.types.PrimitiveType;
 
 import cipm.consistency.commitintegration.detection.BuildFileBasedComponentDetectionStrategy;
+import cipm.consistency.commitintegration.detection.ComponentDetectionStrategy;
 import cipm.consistency.commitintegration.detection.ComponentModuleDetector;
 import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
 import cipm.consistency.commitintegration.settings.SettingKeys;
 import jamopp.options.ParserOptions;
 import jamopp.parser.jdt.singlefile.JaMoPPJDTSingleFileParser;
+import jamopp.recovery.trivial.TrivialRecovery;
 import tools.vitruv.framework.vsum.VirtualModel;
 
 /**
@@ -29,6 +32,7 @@ import tools.vitruv.framework.vsum.VirtualModel;
  */
 public final class JavaParserAndPropagatorUtils {
 	private static final Logger LOGGER = Logger.getLogger("cipm." + JavaParserAndPropagatorUtils.class.getSimpleName());
+	private static Configuration config = new Configuration(true, new BuildFileBasedComponentDetectionStrategy());
 
 	private JavaParserAndPropagatorUtils() {
 	}
@@ -44,19 +48,42 @@ public final class JavaParserAndPropagatorUtils {
 	public static Resource parseJavaCodeIntoOneModel(Path dir, Path target, Path modConfig) {
 		// 1. Parse the code.
 		ParserOptions.CREATE_LAYOUT_INFORMATION.setValue(Boolean.FALSE);
-		ParserOptions.RESOLVE_EVERYTHING.setValue(Boolean.TRUE);
 		ParserOptions.REGISTER_LOCAL.setValue(Boolean.TRUE);
+		if (config.resolveAll) {
+			ParserOptions.RESOLVE_EVERYTHING.setValue(Boolean.TRUE);
+			ParserOptions.RESOLVE_ALL_BINDINGS.setValue(Boolean.TRUE);
+		} else {
+			ParserOptions.RESOLVE_ALL_BINDINGS.setValue(Boolean.FALSE);
+			ParserOptions.RESOLVE_EVERYTHING.setValue(Boolean.FALSE);
+		}
+		
 		JaMoPPJDTSingleFileParser parser = new JaMoPPJDTSingleFileParser();
 		parser.setResourceSet(new ResourceSetImpl());
 		parser.setExclusionPatterns(CommitIntegrationSettingsContainer.getSettingsContainer()
 				.getProperty(SettingKeys.JAVA_PARSER_EXCLUSION_PATTERNS).split(";"));
 		LOGGER.debug("Parsing " + dir.toString());
 		ResourceSet resourceSet = parser.parseDirectory(dir);
+		
+		if (!config.resolveAll) {
+			// Wrap all primitive types to ensure that their wrapper classes are loaded.
+			for (var resource : new ArrayList<>(resourceSet.getResources())) {
+				resource.getAllContents().forEachRemaining(obj -> {
+					if (obj instanceof PrimitiveType) {
+						var type = (PrimitiveType) obj;
+						type.wrapPrimitiveType();
+					}
+				});
+			}
+			new TrivialRecovery(resourceSet).recover();
+		}
+		
 		LOGGER.debug("Parsed " + resourceSet.getResources().size() + " files.");
 
 		// 2. Filter the resources and create modules for components.
 		ComponentModuleDetector detector = new ComponentModuleDetector();
-		detector.addComponentDetectionStrategy(new BuildFileBasedComponentDetectionStrategy());
+		for (var strat : config.strategies) {
+			detector.addComponentDetectionStrategy(strat);
+		}
 		detector.detectComponentsAndCreateModules(resourceSet, dir.toAbsolutePath(), modConfig);
 
 		// 3. Create one resource with all Java models.
@@ -67,6 +94,15 @@ public final class JavaParserAndPropagatorUtils {
 			all.getContents().addAll(r.getContents());
 		}
 		return all;
+	}
+	
+	/**
+	 * Sets the configuration for the Java parsing and module / component detection.
+	 * 
+	 * @param config the configuration.
+	 */
+	public static void setConfiguration(Configuration config) {
+		JavaParserAndPropagatorUtils.config = config;
 	}
 
 	/**
@@ -91,5 +127,22 @@ public final class JavaParserAndPropagatorUtils {
 				.forEach(u -> JavaClasspath.get().getURIMap().remove(u));
 		all.unload();
 		JavaClasspath.remove(all);
+	}
+	
+	public static class Configuration {
+		private ComponentDetectionStrategy[] strategies;
+		private boolean resolveAll;
+
+		/**
+		 * Creates a new instance.
+		 * 
+		 * @param resolveAll true if all dependencies for the Java code are available and should be parsed into models.
+		 *                         Otherwise, only direct dependencies are resolved.
+		 * @param strategies all strategies to detect components.
+		 */
+		public Configuration(boolean resolveAll, ComponentDetectionStrategy... strategies) {
+			this.resolveAll = resolveAll;
+			this.strategies = strategies;
+		}
 	}
 }

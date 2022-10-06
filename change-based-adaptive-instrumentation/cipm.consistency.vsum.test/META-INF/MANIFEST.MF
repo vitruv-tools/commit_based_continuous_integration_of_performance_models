@@ -29,5 +29,8 @@ Require-Bundle: cipm.consistency.commitintegration,
  cipm.consistency.designtime.instrumentation2,
  cipm.consistency.commitintegration.diff.util,
  cipm.consistency.tools.evaluation.data,
- cipm.consistency.commitintegration.settings
+ cipm.consistency.commitintegration.settings,
+ tools.vitruv.framework.propagation,
+ cipm.consistency.cpr.javapcm.msa,
+ cipm.consistency.cpr.javapcm.teammates
 Export-Package: cipm.consistency.vsum.test

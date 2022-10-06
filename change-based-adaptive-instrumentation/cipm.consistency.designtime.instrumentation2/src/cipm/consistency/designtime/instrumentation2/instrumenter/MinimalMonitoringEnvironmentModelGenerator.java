@@ -5,8 +5,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.emftext.language.java.JavaClasspath;
 import org.emftext.language.java.LogicalJavaURIGenerator;
 import org.emftext.language.java.classifiers.ClassifiersFactory;
 import org.emftext.language.java.classifiers.ConcreteClassifier;
@@ -57,20 +55,32 @@ public final class MinimalMonitoringEnvironmentModelGenerator {
 	final Method addParameterValueMethod;
 	
 	public MinimalMonitoringEnvironmentModelGenerator(Resource context) {
+		String[] atomicIntegerPackages = AtomicInteger.class.getPackageName().split("\\"
+				+ LogicalJavaURIGenerator.PACKAGE_SEPARATOR);
 		ConcreteClassifier potAtomicIntegerClassifier = findClassifierInJavaModel(context,
-				AtomicInteger.class.getPackageName().split("\\"
-						+ LogicalJavaURIGenerator.PACKAGE_SEPARATOR),
-				AtomicInteger.class.getSimpleName());
+				atomicIntegerPackages, AtomicInteger.class.getSimpleName());
 		if (potAtomicIntegerClassifier == null) {
-			potAtomicIntegerClassifier = (ConcreteClassifier) EcoreUtil.resolve(
-				JavaClasspath.get().getConcreteClassifier(AtomicInteger.class.getCanonicalName()),
-				context);
+			CompilationUnit atomicIntegerCU = ContainersFactory.eINSTANCE.createCompilationUnit();
+			for (var ns : atomicIntegerPackages) {
+				atomicIntegerCU.getNamespaces().add(ns);
+			}
+			potAtomicIntegerClassifier = ClassifiersFactory.eINSTANCE.createClass();
+			atomicIntegerCU.getClassifiers().add(potAtomicIntegerClassifier);
+			potAtomicIntegerClassifier.setName(AtomicInteger.class.getSimpleName());
+			getAndIncrementMethod = MembersFactory.eINSTANCE.createClassMethod();
+			getAndIncrementMethod.setName(ApplicationProjectInstrumenterNamespace.METHOD_ATOMIC_INTEGER_INCREMENT);
+			getMethod = MembersFactory.eINSTANCE.createClassMethod();
+			getMethod.setName(ApplicationProjectInstrumenterNamespace.METHOD_ATOMIC_INTEGER_GET);
+			potAtomicIntegerClassifier.getMembers().add(getAndIncrementMethod);
+			potAtomicIntegerClassifier.getMembers().add(getMethod);
+		} else {
+			getAndIncrementMethod = findMethod(potAtomicIntegerClassifier,
+					ApplicationProjectInstrumenterNamespace.METHOD_ATOMIC_INTEGER_INCREMENT, 0);
+			getMethod = findMethod(potAtomicIntegerClassifier,
+					ApplicationProjectInstrumenterNamespace.METHOD_ATOMIC_INTEGER_GET, 0);
 		}
 		atomicIntegerClassifier = potAtomicIntegerClassifier;
-		getAndIncrementMethod = findMethod(atomicIntegerClassifier,
-				ApplicationProjectInstrumenterNamespace.METHOD_ATOMIC_INTEGER_INCREMENT, 0);
-		getMethod = findMethod(atomicIntegerClassifier,
-				ApplicationProjectInstrumenterNamespace.METHOD_ATOMIC_INTEGER_GET, 0);
+		
 		String[] javaLang = {"java", "lang"};
 		stringClassifier = findClassifierInJavaModel(context, javaLang, String.class.getSimpleName());
 		objectClassifier = findClassifierInJavaModel(context, javaLang, Object.class.getSimpleName());
@@ -183,7 +193,8 @@ public final class MinimalMonitoringEnvironmentModelGenerator {
 		for (EObject c : javaModel.getContents()) {
 			if (c instanceof CompilationUnit) {
 				var cu = (CompilationUnit) c;
-				outerIf: if (cu.getName().equals(className) && cu.getNamespaces().size() == packageParts.length) {
+				outerIf: if (cu.getName() != null && cu.getName().equals(className)
+						&& cu.getNamespaces().size() == packageParts.length) {
 					for (int idx = 0; idx < packageParts.length; idx++) {
 						if (!packageParts[idx].equals(cu.getNamespaces().get(idx))) {
 							break outerIf;
