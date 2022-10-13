@@ -1,5 +1,10 @@
-package cipm.consistency.vsum.test.deployment;
+package cipm.consistency.vsum.test.ci.deployment;
 
+import cipm.consistency.base.shared.pcm.InMemoryPCM;
+import cipm.consistency.base.shared.pcm.LocalFilesystemPCM;
+import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
+import cipm.consistency.commitintegration.settings.SettingKeys;
+import cipm.consistency.vsum.test.ci.TeaStoreCITest;
 import java.io.File;
 import java.io.IOException;
 import org.eclipse.emf.common.util.URI;
@@ -29,12 +34,6 @@ import org.palladiosimulator.pcm.usagemodel.Start;
 import org.palladiosimulator.pcm.usagemodel.Stop;
 import org.palladiosimulator.pcm.usagemodel.UsageScenario;
 import org.palladiosimulator.pcm.usagemodel.UsagemodelFactory;
-
-import cipm.consistency.base.shared.pcm.InMemoryPCM;
-import cipm.consistency.base.shared.pcm.LocalFilesystemPCM;
-import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
-import cipm.consistency.commitintegration.settings.SettingKeys;
-import cipm.consistency.vsum.test.TeaStoreCITest;
 
 /**
  * Provides utility methods for the deployment of the instrumented code.

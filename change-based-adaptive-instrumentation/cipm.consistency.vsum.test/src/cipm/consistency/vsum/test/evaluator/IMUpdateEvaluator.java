@@ -1,8 +1,11 @@
-package cipm.consistency.vsum.test;
+package cipm.consistency.vsum.test.evaluator;
 
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint;
+import cipm.consistency.commitintegration.diff.util.pcm.PCMModelComparator;
+import cipm.consistency.tools.evaluation.data.IMEvaluationData;
 import java.io.File;
 import java.util.ArrayList;
-
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -23,11 +26,6 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import org.palladiosimulator.pcm.seff.ServiceEffectSpecification;
 import org.palladiosimulator.pcm.seff.StartAction;
 import org.palladiosimulator.pcm.seff.StopAction;
-
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint;
-import cipm.consistency.commitintegration.diff.util.pcm.PCMModelComparator;
-import cipm.consistency.tools.evaluation.data.IMEvaluationData;
 
 /**
  * Evaluated the update of the extended IM.
