@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Consistency Preservation Rules from the lua model to the PCM
+Bundle-SymbolicName: cipm.consistency.cpr.luacpm;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Export-Package: cipm.consistency.cpr.luapcm,
+ mir.reactions.luaPcm,
+ mir.routines.luaPcm
+Require-Bundle: org.apache.log4j,
+ org.eclipse.emf.ecore,
+ org.eclipse.core.resources,
+ tools.vitruv.change.correspondence,
+ tools.vitruv.change.interaction,
+ tools.vitruv.dsls.reactions.runtime,
+ cipm.consistency.models.instrumentation,
+ org.xtext.lua
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: cipm.consistency.cpr.luapcm
