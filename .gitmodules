@@ -8,6 +8,7 @@
 [submodule "Vitruv-Applications-ComponentBasedSystems"]
 	path = Vitruv-Applications-ComponentBasedSystems
 	url = https://github.com/HansMartinA/Vitruv-Applications-ComponentBasedSystems
+	branch = vitruv3
 [submodule "Vitruv"]
 	path = Vitruv
 	url = https://github.com/vitruv-tools/Vitruv
