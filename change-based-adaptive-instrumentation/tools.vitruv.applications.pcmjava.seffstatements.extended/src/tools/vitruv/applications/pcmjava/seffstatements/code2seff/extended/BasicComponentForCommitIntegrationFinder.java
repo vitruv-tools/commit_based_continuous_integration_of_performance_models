@@ -3,9 +3,9 @@ package tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended;
 import org.emftext.language.java.members.Method;
 import org.palladiosimulator.pcm.repository.BasicComponent;
 
-import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
+import tools.vitruv.change.correspondence.model.CorrespondenceModelUtil;
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
-import tools.vitruv.framework.correspondence.CorrespondenceModel;
+import tools.vitruv.change.correspondence.model.CorrespondenceModel;
 
 /**
  * Finds the component for a method in the case of a commit-based integration.

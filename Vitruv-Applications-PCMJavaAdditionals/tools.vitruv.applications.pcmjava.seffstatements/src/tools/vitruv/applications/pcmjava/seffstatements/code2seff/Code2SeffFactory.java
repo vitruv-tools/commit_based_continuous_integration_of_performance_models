@@ -4,20 +4,20 @@ import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.somox.gast2seff.visitors.AbstractFunctionClassificationStrategy;
 import org.somox.gast2seff.visitors.InterfaceOfExternalCallFindingFactory;
 import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding;
-
-import tools.vitruv.framework.correspondence.CorrespondenceModel;
+import tools.vitruv.change.correspondence.Correspondence;
+import tools.vitruv.change.correspondence.view.EditableCorrespondenceModelView;
 
 public interface Code2SeffFactory {
 
     BasicComponentFinding createBasicComponentFinding();
 
     InterfaceOfExternalCallFindingFactory createInterfaceOfExternalCallFindingFactory(
-    		CorrespondenceModel correspondenceModel, BasicComponent basicComponent);
+    		EditableCorrespondenceModelView<Correspondence> correspondenceModelView, BasicComponent basicComponent);
 
     ResourceDemandingBehaviourForClassMethodFinding createResourceDemandingBehaviourForClassMethodFinding(
-    		CorrespondenceModel correspondenceModel);
+    		EditableCorrespondenceModelView<Correspondence> correspondenceModelView);
 
     AbstractFunctionClassificationStrategy createAbstractFunctionClassificationStrategy(
-            BasicComponentFinding basicComponentFinding, CorrespondenceModel correspondenceModel,
+            BasicComponentFinding basicComponentFinding, EditableCorrespondenceModelView<Correspondence> correspondenceModelView,
             BasicComponent basicComponent);
 }

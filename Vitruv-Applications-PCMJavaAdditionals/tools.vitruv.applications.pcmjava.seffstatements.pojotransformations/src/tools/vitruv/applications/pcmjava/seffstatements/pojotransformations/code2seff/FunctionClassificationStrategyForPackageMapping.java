@@ -12,8 +12,8 @@ import org.somox.gast2seff.visitors.MethodCallFinder;
 
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
 import tools.vitruv.applications.util.temporary.other.UriUtil;
-import tools.vitruv.framework.correspondence.CorrespondenceModel;
-import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
+import tools.vitruv.change.correspondence.model.CorrespondenceModel;
+import tools.vitruv.change.correspondence.model.CorrespondenceModelUtil;
 
 /**
  * FunctionClassificationStrategy for the simple package mapping Strategy.

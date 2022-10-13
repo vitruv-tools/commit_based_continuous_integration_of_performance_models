@@ -6,7 +6,7 @@ import org.palladiosimulator.pcm.repository.BasicComponent;
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff.FunctionClassificationStrategyForPackageMapping;
 import tools.vitruv.applications.util.temporary.other.UriUtil;
-import tools.vitruv.framework.correspondence.CorrespondenceModel;
+import tools.vitruv.change.correspondence.model.CorrespondenceModel;
 
 public class TeammatesFunctionClassificationStrategy extends FunctionClassificationStrategyForPackageMapping {
     private final BasicComponentFinding basicComponentFinding;

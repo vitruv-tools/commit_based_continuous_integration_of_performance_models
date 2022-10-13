@@ -8,7 +8,7 @@ import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsCont
 import cipm.consistency.commitintegration.settings.SettingKeys;
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff.FunctionClassificationStrategyForPackageMapping;
-import tools.vitruv.framework.correspondence.CorrespondenceModel;
+import tools.vitruv.change.correspondence.model.CorrespondenceModel;
 
 /**
  * A function classification strategy for the commit-based integration.

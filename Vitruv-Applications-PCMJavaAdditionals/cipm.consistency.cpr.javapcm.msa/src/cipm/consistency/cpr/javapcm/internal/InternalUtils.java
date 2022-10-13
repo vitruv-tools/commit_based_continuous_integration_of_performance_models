@@ -16,7 +16,7 @@ import org.palladiosimulator.pcm.repository.RepositoryComponent;
 
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended.CommitIntegrationCodeToSeffFactory;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff.FunctionClassificationStrategyForPackageMapping;
-import tools.vitruv.framework.correspondence.CorrespondenceModel;
+import tools.vitruv.change.correspondence.model.CorrespondenceModel;
 
 /**
  * An internal utility class.

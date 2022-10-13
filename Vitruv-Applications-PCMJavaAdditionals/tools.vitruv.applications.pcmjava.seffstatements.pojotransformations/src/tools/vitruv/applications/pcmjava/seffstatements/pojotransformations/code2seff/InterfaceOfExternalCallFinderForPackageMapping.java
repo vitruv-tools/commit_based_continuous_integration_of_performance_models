@@ -13,8 +13,8 @@ import org.palladiosimulator.pcm.repository.RequiredRole;
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import org.somox.gast2seff.visitors.InterfaceOfExternalCallFinding;
 
-import tools.vitruv.framework.correspondence.CorrespondenceModel;
-import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
+import tools.vitruv.change.correspondence.model.CorrespondenceModel;
+import tools.vitruv.change.correspondence.model.CorrespondenceModelUtil;
 
 /**
  * Class realizes a InterfaceOfExternalCallFinding for the simple package mapping

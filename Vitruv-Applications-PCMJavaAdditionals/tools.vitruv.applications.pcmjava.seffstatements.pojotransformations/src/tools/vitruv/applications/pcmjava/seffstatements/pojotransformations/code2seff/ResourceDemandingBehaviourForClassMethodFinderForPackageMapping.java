@@ -8,8 +8,8 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingInternalBehaviour;
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFinding;
 
-import tools.vitruv.framework.correspondence.CorrespondenceModel;
-import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
+import tools.vitruv.change.correspondence.model.CorrespondenceModel;
+import tools.vitruv.change.correspondence.model.CorrespondenceModelUtil;
 
 public class ResourceDemandingBehaviourForClassMethodFinderForPackageMapping
         implements ResourceDemandingBehaviourForClassMethodFinding {

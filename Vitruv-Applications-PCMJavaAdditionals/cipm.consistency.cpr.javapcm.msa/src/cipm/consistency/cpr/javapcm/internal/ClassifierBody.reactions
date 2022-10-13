@@ -2,20 +2,18 @@ import org.emftext.language.java.classifiers.ConcreteClassifier
 import static tools.vitruv.applications.util.temporary.java.JavaTypeUtil.*
 import org.emftext.language.java.members.Field
 
-import "http://www.emftext.org/java" as java 
+import "http://www.emftext.org/java" as java
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
 
-
 reactions: classifierBody
-in reaction to changes in AdjustedJava
-execute actions in PCMExtended
-
+in reaction to changes in java
+execute actions in pcm
 
 import classifier
 
 // Created Interface Method.
 reaction AddedInterfaceMethod {
-	after element java::InterfaceMethod inserted in java::Interface[members] 
+	after element java::InterfaceMethod inserted in java::Interface[members]
 	call {
 		createOrFindPCMSignature(newValue)
 	}
@@ -52,7 +50,7 @@ reaction RemovedPublicModifierFromClassMethod {
 
 // Removed Interface Method.
 reaction RemovedInterfaceMethod {
-	after element java::InterfaceMethod removed from java::Interface[members] 
+	after element java::InterfaceMethod removed from java::Interface[members]
 	call {
 		checkRemovalOfOperationSignature(oldValue)
 	}
@@ -69,7 +67,7 @@ reaction RemovedClassMethod {
 
 reaction RenamedMember {
 	after attribute replaced at java::Member[name]
-		with !(affectedEObject instanceof ConcreteClassifier) && !(affectedEObject instanceof Field)
+	with !(affectedEObject instanceof ConcreteClassifier) && !(affectedEObject instanceof Field)
 	call {
 		renameMember(affectedEObject)
 	}
@@ -77,11 +75,10 @@ reaction RenamedMember {
 
 routine renameMember(java::Member javaMember) {
 	match {
-		val pcmElement = retrieve pcm::NamedElement corresponding to javaMember}
-	action {
-		update pcmElement {
-			pcmElement.entityName = javaMember.name
-		}
+		val pcmElement = retrieve pcm::NamedElement corresponding to javaMember
+	}
+	update {
+		pcmElement.entityName = javaMember.name
 	}
 }
 

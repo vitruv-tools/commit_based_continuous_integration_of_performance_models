@@ -12,8 +12,10 @@ import "http://www.dmodel.com/InstrumentationMetamodel" as im
 
 
 reactions: imUpdate
-in reaction to changes in PCMExtended
-execute actions in IMM
+in reaction to changes in pcm
+execute actions in im
+
+
 
 
 reaction AddedSEFF {
@@ -24,20 +26,21 @@ reaction AddedSEFF {
 }
 
 routine createOrFindServiceInstrumentationPoint(pcm::ResourceDemandingSEFF seff) {
-	match {
+	match  {
 		require absence of im::ServiceInstrumentationPoint corresponding to seff
 		val insModel = retrieve im::InstrumentationModel
 			corresponding to InstrumentationModelPackage.Literals.INSTRUMENTATION_MODEL
+	} 
+	create {
+		val sip = new im::ServiceInstrumentationPoint
 	}
-	action {
-		val sip = create im::ServiceInstrumentationPoint and initialize {
-			sip.active = true
-			sip.service = seff
-		}
-		update insModel {
-			insModel.points += sip
-		}
-		add correspondence between sip and seff
+//	action {
+//		val sip = create im::ServiceInstrumentationPoint and initialize {
+	update {
+		sip.active = true
+		sip.service = seff
+		insModel.points += sip
+		sip.addCorrespondenceBetween(seff)
 	}
 }
 
@@ -73,16 +76,20 @@ routine createOrFindActionInstrumentationPoint(pcm::ResourceDemandingSEFF seff,
 		require absence of im::ActionInstrumentationPoint corresponding to absAction
 		val sip = retrieve im::ServiceInstrumentationPoint corresponding to seff
 	}
-	action {
-		val aip = create im::ActionInstrumentationPoint and initialize {
+	create {
+		val aip = new im::ActionInstrumentationPoint
+	}
+	update {
+//		val aip = create im::ActionInstrumentationPoint and initialize {
 			aip.active = true
 			aip.^action = absAction
 			aip.type = InstrumentationType.get(typeValue)
-		}
-		update sip {
+//		}
+//		update sip {
 			sip.actionInstrumentationPoints += aip
-		}
-		add correspondence between aip and absAction
+//		}
+//		add correspondence between aip and absAction
+		addCorrespondenceBetween(aip, absAction)
 	}
 }
 
@@ -98,35 +105,37 @@ routine checkRemovalOfServiceInstrumentationPoint(pcm::ResourceDemandingSEFF sef
 		val im = retrieve im::InstrumentationModel
 			corresponding to InstrumentationModelPackage.Literals.INSTRUMENTATION_MODEL
 	}
-	action {
-		call {
+//	action {
+		update {
 			val sips = im.points.filter[it.service === null || it.service.eIsProxy].toSet
 			if (sips !== null && !sips.empty) {
 				for (si : sips) {
-					removeServiceInstrumentationPoint(si)
+					si.removeObject
+//					removeServiceInstrumentationPoint(si)
 				}
 			}
 			checkRemovalOfNonProxyServiceInstrumentationPoint(seff)
 		}
-	}
+//	}
 }
 
 routine checkRemovalOfNonProxyServiceInstrumentationPoint(pcm::ResourceDemandingSEFF seff) {
 	match {
 		val sip = retrieve im::ServiceInstrumentationPoint corresponding to seff
 	}
-	action {
-		call {
-			removeServiceInstrumentationPoint(sip)
-		}
-	}
+	update sip.removeObject
+//	{
+//		removeServiceInstrumentationPoint(sip)
+//	}
 }
 
-routine removeServiceInstrumentationPoint(im::ServiceInstrumentationPoint sip) {
-	action {
-		delete sip
-	}
-}
+//routine removeServiceInstrumentationPoint(im::ServiceInstrumentationPoint sip) {
+////	action {
+////		delete sip
+////
+////	}
+//	update sip.removeObject
+//}
 
 reaction RemovedAbstractAction {
 	after element pcm::AbstractAction removed from pcm::ResourceDemandingBehaviour[steps_Behaviour]
@@ -142,32 +151,28 @@ routine checkRemovalOfActionInstrumentationPoint(pcm::AbstractAction absAction, 
 	match {
 		val sip = retrieve im::ServiceInstrumentationPoint corresponding to seff
 	}
-	action {
-		call {
+//	action {
+		update {
 			val aips = sip.actionInstrumentationPoints.filter[it.^action === null || it.^action.eIsProxy].toSet
 			if (aips !== null && !aips.empty) {
 				for (ai : aips) {
-					removeActionInstrumentationPoint(ai)
+					ai.removeObject
+//					removeActionInstrumentationPoint(ai)
 				}
 			}
 			checkRemovalOfNonProxyActionInstrumentationPoint(absAction)
 		}
-	}
+//	}
 }
 
 routine checkRemovalOfNonProxyActionInstrumentationPoint(pcm::AbstractAction absAction) {
 	match {
 		val aip = retrieve im::ActionInstrumentationPoint corresponding to absAction
 	}
-	action {
-		call {
-			removeActionInstrumentationPoint(aip)
-		}
-	}
-}
-
-routine removeActionInstrumentationPoint(im::ActionInstrumentationPoint aip) {
-	action {
-		delete aip
-	}
+//	action {
+//		call {
+//			removeActionInstrumentationPoint(aip)
+//		}
+//	}
+	update aip.removeObject
 }

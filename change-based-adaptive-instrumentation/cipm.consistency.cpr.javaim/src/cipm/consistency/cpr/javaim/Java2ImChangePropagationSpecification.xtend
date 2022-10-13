@@ -1,17 +1,18 @@
 package cipm.consistency.cpr.javaim
 
-import org.emftext.language.java.members.Method
-import tools.vitruv.framework.correspondence.CorrespondenceModel
-import tools.vitruv.framework.userinteraction.UserInteractor
-import tools.vitruv.framework.change.echange.EChange
-import tools.vitruv.framework.propagation.ResourceAccess
-import tools.vitruv.framework.correspondence.CorrespondenceModelUtil
-import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage
-import tools.vitruv.framework.change.echange.feature.attribute.ReplaceSingleValuedEAttribute
 import cipm.consistency.models.instrumentation.InstrumentationModelUtil
+import org.emftext.language.java.members.Method
+import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended.ExtendedJava2PcmMethodBodyChangePreprocessor
+import tools.vitruv.change.atomic.EChange
+import tools.vitruv.change.atomic.feature.attribute.ReplaceSingleValuedEAttribute
+import tools.vitruv.change.correspondence.Correspondence
+import tools.vitruv.change.interaction.UserInteractor
+import tools.vitruv.change.propagation.ResourceAccess
+import tools.vitruv.change.correspondence.model.CorrespondenceModel
+import java.util.List
 
 /**
  * Propagates changes in method bodies to the extended instrumentation model.
@@ -37,13 +38,11 @@ class Java2ImChangePropagationSpecification extends ExtendedJava2PcmMethodBodyCh
 	private def executeJava2ImTransformation(CorrespondenceModel correspondenceModel,
 		UserInteractor userInteracting, Method newMethod) {
 		
-		val correspondingSEFFs = CorrespondenceModelUtil.getCorrespondingEObjects(
-			correspondenceModel, newMethod, ResourceDemandingSEFF)
-		val im = CorrespondenceModelUtil.getCorrespondingEObjects(correspondenceModel,
-			InstrumentationModelPackage.Literals.INSTRUMENTATION_MODEL, InstrumentationModel).last
+		val correspondingSEFFs = correspondenceModel.getCorrespondingEObjects(Correspondence, List.of(newMethod), null)
+		val im = correspondenceModel.getCorrespondingEObjects(Correspondence, List.of(InstrumentationModelPackage.Literals.INSTRUMENTATION_MODEL), null) as InstrumentationModel
 		
 		if (!correspondingSEFFs.empty) {
-			val seff = correspondingSEFFs.last
+			val seff = correspondingSEFFs.last as ResourceDemandingSEFF
 			var sip = im.points.filter[it.service == seff].last
 			if (sip !== null) {
 				sip.actionInstrumentationPoints.clear

@@ -6,19 +6,13 @@ Bundle-Version: 1.0.0.qualifier
 Export-Package: cipm.consistency.cpr.pcmim,
  mir.reactions.imUpdate,
  mir.routines.imUpdate
-Require-Bundle: tools.vitruv.framework.change,
- org.palladiosimulator.pcm,
+Require-Bundle: org.palladiosimulator.pcm,
  org.apache.log4j,
  org.eclipse.emf.ecore,
  org.eclipse.core.resources,
- tools.vitruv.framework.util,
- tools.vitruv.framework.correspondence,
- tools.vitruv.framework.userinteraction,
- tools.vitruv.extensions.dslsruntime.reactions;visibility:=reexport,
- cipm.consistency.models.instrumentation,
- cipm.consistency.domains.im,
- tools.vitruv.framework.domains,
- tools.vitruv.domains.pcm,
- cipm.consistency.domains.pcm
+ tools.vitruv.change.correspondence,
+ tools.vitruv.change.interaction,
+ tools.vitruv.dsls.reactions.runtime,
+ cipm.consistency.models.instrumentation
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: cipm.consistency.cpr.pcmim

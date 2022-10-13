@@ -18,8 +18,8 @@ import com.google.common.collect.Lists;
 
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.ClassMethodBodyChangedTransformation;
-import tools.vitruv.framework.correspondence.CorrespondenceModel;
-import tools.vitruv.framework.userinteraction.UserInteractor;
+import tools.vitruv.change.correspondence.model.CorrespondenceModel;
+import tools.vitruv.change.interaction.UserInteractor;
 
 /**
  * Class that keeps changes within a class method body consistent with the

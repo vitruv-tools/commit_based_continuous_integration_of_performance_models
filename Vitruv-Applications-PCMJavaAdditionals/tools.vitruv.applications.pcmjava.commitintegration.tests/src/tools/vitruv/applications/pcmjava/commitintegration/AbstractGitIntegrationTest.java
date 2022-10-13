@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
 import tools.vitruv.applications.pcmjava.commitintegration.domains.java.AdjustedJavaDomainProvider;
-import tools.vitruv.framework.userinteraction.UserInteractionFactory;
+//import tools.vitruv.framework.userinteraction.UserInteractionFactory;
 import tools.vitruv.framework.vsum.VirtualModel;
 import tools.vitruv.framework.vsum.VirtualModelBuilder;
 
