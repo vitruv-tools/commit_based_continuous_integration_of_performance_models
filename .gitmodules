@@ -1,10 +1,7 @@
-[submodule "cipm.consistency.base.vitruv.vsum.test/TeaStore"]
-	path = change-based-adaptive-instrumentation/cipm.consistency.vsum.test/TeaStore
-	url = https://github.com/DescartesResearch/TeaStore
 [submodule "CIPM-Pipeline"]
 	path = CIPM-Pipeline
 	url = https://github.com/HansMartinA/CIPM-Pipeline
-	branch = eclipse-bridge
+	branch = vitruv3
 [submodule "Vitruv-Domains-ComponentBasedSystems"]
 	path = Vitruv-Domains-ComponentBasedSystems
 	url = https://github.com/HansMartinA/Vitruv-Domains-ComponentBasedSystems
@@ -13,7 +10,11 @@
 	url = https://github.com/HansMartinA/Vitruv-Applications-ComponentBasedSystems
 [submodule "Vitruv"]
 	path = Vitruv
-	url = https://github.com/HansMartinA/Vitruv
+	url = https://github.com/vitruv-tools/Vitruv
+	branch = vitruv3
 [submodule "Palladio-Build-CodingConventions"]
 	path = Palladio-Build-CodingConventions
 	url = https://github.com/PalladioSimulator/Palladio-Build-CodingConventions
+[submodule "change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/caseStudy1"]
+	path = change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/caseStudy1
+	url = ssh://git.scc.kit.edu/luaCIPM/caseStudy1
