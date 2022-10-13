@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -17,9 +16,8 @@ import org.emftext.language.java.LogicalJavaURIGenerator;
 import org.emftext.language.java.classifiers.ConcreteClassifier;
 import org.emftext.language.java.containers.CompilationUnit;
 import org.emftext.language.java.containers.Origin;
-
-import tools.vitruv.framework.userinteraction.InternalUserInteractor;
-import tools.vitruv.framework.userinteraction.UserInteractionFactory;
+import tools.vitruv.change.interaction.InternalUserInteractor;
+import tools.vitruv.change.interaction.UserInteractionFactory;
 
 /**
  * A utility class for the detection of components which are converted to

@@ -1,13 +1,15 @@
-package cipm.consistency.commitintegration;
+package cipm.consistency.commitintegration.git;
 
+import cipm.consistency.commitintegration.lang.LanguageSpecification;
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
@@ -31,16 +33,16 @@ import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
+import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.patch.FileHeader;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.submodule.SubmoduleWalk;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.io.NullOutputStream;
-
-import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 
 /**
  * Wraps and represents a Git repository.
@@ -51,17 +53,22 @@ import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
  */
 public class GitRepositoryWrapper {
 	private Git git;
+	private Repository repository;
 	private RevCommit latestCommit;
 	private File rootDirectory;
 	private String defaultBranch;
+	private LanguageSpecification languageSpec;
+	private DiffComputation diffComputation;
 	
 	/**
 	 * Creates a new Git repository wrapper with a local copy in <code>rootDirectory</code>.
 	 * 
 	 * @param rootDirectory local directory for a copy of the Git repository.
 	 */
-	public GitRepositoryWrapper(File rootDirectory) {
-		this.rootDirectory = rootDirectory;
+	public GitRepositoryWrapper(Path rootPath, LanguageSpecification langSpec, DiffComputation diffComputation) {
+		this.rootDirectory = rootPath.toFile();
+		this.languageSpec = langSpec;
+		this.diffComputation = diffComputation;
 	}
 	
 	/**
@@ -72,7 +79,8 @@ public class GitRepositoryWrapper {
 	 * @throws NoHeadException if the repository has no head.
 	 */
 	public void initFromRootDirectory() throws IOException, NoHeadException, GitAPIException {
-		this.git = Git.open(this.rootDirectory);
+		git = Git.open(rootDirectory);
+		repository = git.getRepository();
 		readInitialState();
 	}
 	
@@ -87,27 +95,22 @@ public class GitRepositoryWrapper {
 	 */
 	public void initFromRemoteRepository(String uriToRemoteRepository)
 			throws InvalidRemoteException, TransportException, GitAPIException, IOException {
-		this.git = Git.cloneRepository().setURI(uriToRemoteRepository)
+		git = Git.cloneRepository().setURI(uriToRemoteRepository)
 		  .setDirectory(rootDirectory).setCloneAllBranches(true).call();
+		repository = this.git.getRepository();
 		readInitialState();
 	}
-	
-	/**
-	 * Clones an existing local Git repository into the given local directory as a copy.
-	 * 
-	 * @param localRepository the local Git repository.
-	 * @throws GitAPIException if unable to compute a result.
-     * @throws InvalidRemoteException thrown when the local Git repository is invalid.
-     * @throws TransportException thrown when the transport operation failed.
-	 * @throws IOException if the cloned repository cannot be read.
-	 */
-	public void initFromLocalRepository(File localRepository)
+
+	public void initFromLocalSubmodule(Path parentRepoGitDir, String submoduleName)
 			throws InvalidRemoteException, TransportException, GitAPIException, IOException {
-		initFromRemoteRepository(localRepository.getAbsolutePath());
+	    var parentGit = Git.open(parentRepoGitDir.toFile());
+        repository  = SubmoduleWalk.getSubmoduleRepository(parentGit.getRepository(), submoduleName);
+        git = new Git(repository);
+        readInitialState();
 	}
 	
 	private void readInitialState() throws IOException, NoHeadException, GitAPIException {
-		defaultBranch = git.getRepository().getBranch();
+		defaultBranch = repository.getBranch();
 		git.log().setMaxCount(1).call().forEach(c -> latestCommit = c);
 	}
 	
@@ -120,6 +123,7 @@ public class GitRepositoryWrapper {
 	 */
 	public void closeRepository() {
 		git.close();
+		repository.close();
 	}
 	
 	/**
@@ -151,7 +155,7 @@ public class GitRepositoryWrapper {
 		if (commitId == null) {
 			return null;
 		}
-		return git.getRepository().parseCommit(git.getRepository().resolve(commitId));
+		return repository.parseCommit(repository.resolve(commitId));
 	}
 	
 	/**
@@ -178,7 +182,7 @@ public class GitRepositoryWrapper {
 	public List<RevCommit> getAllCommitsFromBranch(String branchName) {
 		List<RevCommit> listOfCommits = new ArrayList<>();
 		try {
-			git.log().add(git.getRepository().resolve(branchName)).call().forEach(listOfCommits::add);
+			git.log().add(repository.resolve(branchName)).call().forEach(listOfCommits::add);
 		} catch (RevisionSyntaxException | GitAPIException | IOException e) {
 		}
 		Collections.reverse(listOfCommits);
@@ -195,11 +199,11 @@ public class GitRepositoryWrapper {
 	public List<RevCommit> getAllCommitsBetweenTwoCommits(final String startCommitHash, final String endCommitHash) {
 		List<RevCommit> listOfCommits = new ArrayList<>();
 		try {
-			ObjectId refTo = git.getRepository().resolve(endCommitHash);
+			ObjectId refTo = repository.resolve(endCommitHash);
 			if (startCommitHash == null) {
 				git.log().add(refTo).call().forEach(listOfCommits::add);
 			} else {
-				ObjectId refFrom = git.getRepository().resolve(startCommitHash);
+				ObjectId refFrom = repository.resolve(startCommitHash);
 				git.log().addRange(refFrom, refTo).call().forEach(listOfCommits::add);
 			}
 		} catch (IOException | GitAPIException e) {
@@ -220,10 +224,9 @@ public class GitRepositoryWrapper {
 	 * @throws IOException if an IO operation fails.
 	 * @throws IncorrectObjectTypeException if one of the given commits is invalid.
 	 */
-	public List<DiffEntry> computeDiffsBetweenTwoCommits(RevCommit oldRevCommit, RevCommit newRevCommit,
-			boolean onlyChangesOnJavaFiles, boolean detectRenames) throws IncorrectObjectTypeException, IOException {
+	public List<DiffEntry> computeDiffsBetweenTwoCommits(RevCommit oldRevCommit, RevCommit newRevCommit) throws IncorrectObjectTypeException, IOException {
 
-		ObjectReader treeReader = git.getRepository().newObjectReader();
+		ObjectReader treeReader = repository.newObjectReader();
 		
 		AbstractTreeIterator oldParser;
 		if (oldRevCommit != null) {
@@ -253,19 +256,19 @@ public class GitRepositoryWrapper {
 				cs.setNumberRemovedLines(cs.getNumberRemovedLines() + 1);
 			}
 		};
-		df.setRepository(git.getRepository());
+		df.setRepository(repository);
 		
 		// Set filter to detect only changes on Java files if necessary. 
-		if (onlyChangesOnJavaFiles) {
-			TreeFilter treeFilter = PathSuffixFilter.create(".java");
+		if (diffComputation.getOnlySourceFiles()) {
+			TreeFilter treeFilter = PathSuffixFilter.create("."+languageSpec.getSourceSuffix());
 			df.setPathFilter(treeFilter);
 		}
 		// Compute diffs between the commits.
 		List<DiffEntry> diffs = df.scan(oldParser, newTreeParser);
 		
 		// Detect renames on changed files if necessary.
-		if (detectRenames) {
-			 RenameDetector rd = new RenameDetector(git.getRepository());
+		if (diffComputation.getDetectRenames()) {
+			 RenameDetector rd = new RenameDetector(repository);
 			 rd.addAll(diffs);
 			 diffs = rd.compute();
 		}
@@ -295,7 +298,7 @@ public class GitRepositoryWrapper {
 			throws CorruptObjectException, MissingObjectException, IOException {
 		OutputStream outputStream = NullOutputStream.INSTANCE;
 		DiffFormatter diffFormatter = new DiffFormatter(outputStream);
-		diffFormatter.setRepository(git.getRepository());
+		diffFormatter.setRepository(repository);
 		try {
 			FileHeader fileHeader = diffFormatter.toFileHeader(diff);
 			return fileHeader.toEditList();
@@ -331,7 +334,7 @@ public class GitRepositoryWrapper {
 	}
 	
 	private String readObjectToString(ObjectId objId) throws MissingObjectException, IOException {
-		ObjectLoader loader = git.getRepository().open(objId);
+		ObjectLoader loader = repository.open(objId);
 		return new String(loader.getBytes());
 	}
 	
@@ -365,7 +368,7 @@ public class GitRepositoryWrapper {
 	
 	private OutputStream readObjectAsOutputStream(ObjectId objId) throws MissingObjectException, IOException {
 		OutputStream oldContent = new ByteArrayOutputStream();
-		git.getRepository().open(objId).copyTo(oldContent);
+		repository.open(objId).copyTo(oldContent);
         return oldContent;
 	}
 	
@@ -379,7 +382,7 @@ public class GitRepositoryWrapper {
 	public FileHeader getFileHeaderFromDiffEntry(DiffEntry diff) throws IOException {
 		OutputStream outputStream = NullOutputStream.INSTANCE;
 		DiffFormatter diffFormatter = new DiffFormatter(outputStream);
-		diffFormatter.setRepository(git.getRepository());
+		diffFormatter.setRepository(repository);
 		
 		try {
 			return diffFormatter.toFileHeader(diff);
@@ -407,7 +410,7 @@ public class GitRepositoryWrapper {
 		try {
 			git.fetch().call();
 			ObjectId curCommit = latestCommit.getId();
-			ObjectId lastCommit = git.getRepository().resolve("origin/" + defaultBranch);
+			ObjectId lastCommit = repository.resolve("origin/" + defaultBranch);
 			git.log().addRange(curCommit, lastCommit).call().forEach(result::add);
 		} catch (GitAPIException | IOException e) {
 		}

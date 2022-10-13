@@ -1,7 +1,6 @@
 package cipm.consistency.commitintegration.detection;
 
 import java.nio.file.Path;
-
 import org.eclipse.emf.ecore.resource.Resource;
 
 /**

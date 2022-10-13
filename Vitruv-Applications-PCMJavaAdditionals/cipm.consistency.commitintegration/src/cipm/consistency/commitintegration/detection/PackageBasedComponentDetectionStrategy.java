@@ -2,7 +2,6 @@ package cipm.consistency.commitintegration.detection;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-
 import org.eclipse.emf.ecore.resource.Resource;
 import org.emftext.language.java.containers.CompilationUnit;
 

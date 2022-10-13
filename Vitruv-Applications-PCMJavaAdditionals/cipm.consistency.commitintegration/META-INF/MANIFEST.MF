@@ -4,26 +4,32 @@ Bundle-Name: Commit-Based Integration of Java Code
 Bundle-SymbolicName: cipm.consistency.commitintegration
 Bundle-Version: 1.0.0.qualifier
 Export-Package: cipm.consistency.commitintegration,
- cipm.consistency.commitintegration.detection
+ cipm.consistency.commitintegration.detection,
+ cipm.consistency.commitintegration.git,
+ cipm.consistency.commitintegration.git.impl,
+ cipm.consistency.commitintegration.lang,
+ cipm.consistency.commitintegration.lang.impl,
+ cipm.consistency.commitintegration.lang.impl.java,
+ cipm.consistency.commitintegration.lang.impl.lua
 Require-Bundle: org.apache.log4j,
  org.eclipse.core.resources,
  org.eclipse.jdt.core,
  org.eclipse.jgit,
  org.eclipse.text,
  org.emftext.language.java,
- tools.vitruv.framework.vsum,
  org.apache.commons.io,
- tools.vitruv.domains.java,
- cipm.consistency.domains.java,
+ tools.vitruv.framework.vsum,
  jamopp.parser.jdt.singlefile,
  jamopp.parser,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtend.lib,
  org.eclipse.xtend.lib.macro,
- tools.vitruv.framework.userinteraction,
+ tools.vitruv.change.interaction,
  cipm.consistency.tools.evaluation.data,
  cipm.consistency.commitintegration.settings,
- org.apache.commons.lang,
- jamopp.resolution
+ jamopp.resolution,
+ cipm.consistency.vsum,
+ cipm.consistency.models.instrumentation,
+ cipm.consistency.designtime.instrumentation2
 Automatic-Module-Name: cipm.consistency.commitintegration
 Bundle-RequiredExecutionEnvironment: JavaSE-11

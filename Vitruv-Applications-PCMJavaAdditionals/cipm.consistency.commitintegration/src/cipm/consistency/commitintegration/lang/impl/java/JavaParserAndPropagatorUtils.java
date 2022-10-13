@@ -1,18 +1,4 @@
-package cipm.consistency.commitintegration;
-
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.log4j.Logger;
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.emftext.language.java.JavaClasspath;
-import org.emftext.language.java.containers.JavaRoot;
-import org.emftext.language.java.types.PrimitiveType;
+package cipm.consistency.commitintegration.lang.impl.java;
 
 import cipm.consistency.commitintegration.detection.BuildFileBasedComponentDetectionStrategy;
 import cipm.consistency.commitintegration.detection.ComponentDetectionStrategy;
@@ -21,7 +7,22 @@ import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsCont
 import cipm.consistency.commitintegration.settings.SettingKeys;
 import jamopp.options.ParserOptions;
 import jamopp.parser.jdt.singlefile.JaMoPPJDTSingleFileParser;
-import jamopp.recovery.trivial.TrivialRecovery;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.apache.log4j.Logger;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.emftext.language.java.JavaClasspath;
+import org.emftext.language.java.containers.JavaRoot;
+import org.emftext.language.java.types.PrimitiveType;
+import tools.vitruv.change.atomic.EChange;
+import tools.vitruv.change.composite.description.VitruviusChange;
+import tools.vitruv.change.composite.description.VitruviusChangeFactory;
+//import jamopp.recovery.trivial.TrivialRecovery;
 import tools.vitruv.framework.vsum.VirtualModel;
 
 /**
@@ -56,14 +57,14 @@ public final class JavaParserAndPropagatorUtils {
 			ParserOptions.RESOLVE_ALL_BINDINGS.setValue(Boolean.FALSE);
 			ParserOptions.RESOLVE_EVERYTHING.setValue(Boolean.FALSE);
 		}
-		
+
 		JaMoPPJDTSingleFileParser parser = new JaMoPPJDTSingleFileParser();
 		parser.setResourceSet(new ResourceSetImpl());
 		parser.setExclusionPatterns(CommitIntegrationSettingsContainer.getSettingsContainer()
 				.getProperty(SettingKeys.JAVA_PARSER_EXCLUSION_PATTERNS).split(";"));
 		LOGGER.debug("Parsing " + dir.toString());
 		ResourceSet resourceSet = parser.parseDirectory(dir);
-		
+
 		if (!config.resolveAll) {
 			// Wrap all primitive types to ensure that their wrapper classes are loaded.
 			for (var resource : new ArrayList<>(resourceSet.getResources())) {
@@ -74,9 +75,10 @@ public final class JavaParserAndPropagatorUtils {
 					}
 				});
 			}
-			new TrivialRecovery(resourceSet).recover();
+//			TODO
+//			new TrivialRecovery(resourceSet).recover();
 		}
-		
+
 		LOGGER.debug("Parsed " + resourceSet.getResources().size() + " files.");
 
 		// 2. Filter the resources and create modules for components.
@@ -95,7 +97,7 @@ public final class JavaParserAndPropagatorUtils {
 		}
 		return all;
 	}
-	
+
 	/**
 	 * Sets the configuration for the Java parsing and module / component detection.
 	 * 
@@ -103,6 +105,16 @@ public final class JavaParserAndPropagatorUtils {
 	 */
 	public static void setConfiguration(Configuration config) {
 		JavaParserAndPropagatorUtils.config = config;
+	}
+
+	private static VitruviusChange createChange(VirtualModel vsum, Resource allModels) {
+		var changes = new ArrayList<EChange>();
+		// TODO calculate the change deltas
+
+		// TODO we need the current state from the vsum for the change calculation
+		vsum.getViewTypes();
+
+		return VitruviusChangeFactory.getInstance().createTransactionalChange(changes);
 	}
 
 	/**
@@ -121,14 +133,23 @@ public final class JavaParserAndPropagatorUtils {
 
 		// 2. Propagate the Java models.
 		LOGGER.debug("Propagating the Java models.");
-		vsum.propagateChangedState(all);
+
+		// TODO the API changed
+		// -> use views + viewTypes
+//		vsum.propagateChangedState(all);
+
+		// we need to compute the change delta ourselves as vitruv pivoted away from
+		// state-based changes
+		vsum.propagateChange(createChange(vsum, all));
+
+		// TODO what is this doing?
 		JavaClasspath.get().getURIMap().entrySet().stream().filter(entry -> entry.getValue() == all.getURI())
 				.map(Map.Entry::getKey).collect(Collectors.toList())
 				.forEach(u -> JavaClasspath.get().getURIMap().remove(u));
 		all.unload();
 		JavaClasspath.remove(all);
 	}
-	
+
 	public static class Configuration {
 		private ComponentDetectionStrategy[] strategies;
 		private boolean resolveAll;
@@ -136,8 +157,9 @@ public final class JavaParserAndPropagatorUtils {
 		/**
 		 * Creates a new instance.
 		 * 
-		 * @param resolveAll true if all dependencies for the Java code are available and should be parsed into models.
-		 *                         Otherwise, only direct dependencies are resolved.
+		 * @param resolveAll true if all dependencies for the Java code are available
+		 *                   and should be parsed into models. Otherwise, only direct
+		 *                   dependencies are resolved.
 		 * @param strategies all strategies to detect components.
 		 */
 		public Configuration(boolean resolveAll, ComponentDetectionStrategy... strategies) {

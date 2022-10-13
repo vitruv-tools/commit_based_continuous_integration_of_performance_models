@@ -1,9 +1,9 @@
-package cipm.consistency.commitintegration;
+package cipm.consistency.commitintegration.util;
 
 import java.io.File;
 import java.io.IOException;
-
-import org.apache.commons.lang.SystemUtils;
+// TODO
+//import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -28,11 +28,11 @@ public final class ExternalCommandExecutionUtils {
 	public static boolean runScript(File directory, String command) {
 		int result = -1;
 		LOGGER.debug("Executing " + command);
-		if (SystemUtils.IS_OS_WINDOWS) {
-			result = internalRunScript(directory, "cmd.exe", "/c", "\"" + command + "\"");
-		} else {
+//		if (SystemUtils.IS_OS_WINDOWS) {
+//			result = internalRunScript(directory, "cmd.exe", "/c", "\"" + command + "\"");
+//		} else {
 			result = internalRunScript(directory, command);
-		}
+//		}
 		return result == 0;
 	}
 
