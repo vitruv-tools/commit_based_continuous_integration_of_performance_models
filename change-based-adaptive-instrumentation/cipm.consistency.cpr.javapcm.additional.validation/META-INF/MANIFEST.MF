@@ -6,7 +6,7 @@ Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: cipm.consistency.cpr.javapcm.additional.validation
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.apache.log4j,
- tools.vitruv.extensions.dslsruntime.reactions,
+ tools.vitruv.dsls.reactions.runtime,
  cipm.consistency.commitintegration.settings,
  org.palladiosimulator.pcm,
  com.google.gson

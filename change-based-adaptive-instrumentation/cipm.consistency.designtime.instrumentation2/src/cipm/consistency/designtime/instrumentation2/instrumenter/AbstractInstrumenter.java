@@ -1,5 +1,7 @@
 package cipm.consistency.designtime.instrumentation2.instrumenter;
 
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
+import cipm.consistency.designtime.instrumentation2.ActionStatementMapping;
 import org.emftext.language.java.classifiers.ConcreteClassifier;
 import org.emftext.language.java.references.MethodCall;
 import org.emftext.language.java.references.ReferencesFactory;
@@ -8,9 +10,6 @@ import org.emftext.language.java.types.ClassifierReference;
 import org.emftext.language.java.types.NamespaceClassifierReference;
 import org.emftext.language.java.types.TypesFactory;
 import org.emftext.language.java.variables.LocalVariable;
-
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
-import cipm.consistency.designtime.instrumentation2.ActionStatementMapping;
 
 /**
  * An abstract instrumenter.

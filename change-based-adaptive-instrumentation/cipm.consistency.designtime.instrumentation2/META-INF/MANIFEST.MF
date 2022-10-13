@@ -13,12 +13,11 @@ Require-Bundle: javax.inject,
  org.eclipse.equinox.registry,
  org.emftext.language.java,
  org.somox.sourcecodedecorator,
- tools.vitruv.framework.correspondence,
+ tools.vitruv.change.correspondence,
  org.palladiosimulator.pcm,
  org.somox.kdmhelper,
  org.eclipse.jdt.core,
  com.google.guava,
- cipm.consistency.cpr.javaim,
  org.eclipse.text,
  cipm.consistency.models.instrumentation
 Bundle-RequiredExecutionEnvironment: JavaSE-11

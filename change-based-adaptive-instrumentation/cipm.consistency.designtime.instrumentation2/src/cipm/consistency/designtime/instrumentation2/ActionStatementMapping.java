@@ -2,7 +2,6 @@ package cipm.consistency.designtime.instrumentation2;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.emftext.language.java.statements.Statement;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 

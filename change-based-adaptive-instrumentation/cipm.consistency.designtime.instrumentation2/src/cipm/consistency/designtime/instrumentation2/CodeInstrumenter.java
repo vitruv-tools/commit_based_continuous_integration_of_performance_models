@@ -1,10 +1,15 @@
 package cipm.consistency.designtime.instrumentation2;
 
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationType;
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint;
+import cipm.consistency.designtime.instrumentation2.instrumenter.MinimalMonitoringEnvironmentModelGenerator;
+import cipm.consistency.designtime.instrumentation2.instrumenter.ServiceInstrumentationPointInstrumenter;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
-
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
@@ -15,15 +20,8 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.emftext.language.java.members.Method;
 import org.emftext.language.java.statements.Statement;
 import org.emftext.language.java.statements.StatementListContainer;
-
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationType;
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint;
-import cipm.consistency.designtime.instrumentation2.instrumenter.MinimalMonitoringEnvironmentModelGenerator;
-import cipm.consistency.designtime.instrumentation2.instrumenter.ServiceInstrumentationPointInstrumenter;
-import tools.vitruv.framework.correspondence.CorrespondenceModel;
-import tools.vitruv.framework.correspondence.CorrespondenceModelUtil;
+import tools.vitruv.change.correspondence.Correspondence;
+import tools.vitruv.change.correspondence.view.CorrespondenceModelView;
 
 /**
  * An instrumenter for the source code based on the instrumentation points in
@@ -37,8 +35,8 @@ public final class CodeInstrumenter {
 	private CodeInstrumenter() {
 	}
 
-	public static Resource instrument(InstrumentationModel im, CorrespondenceModel cm, Resource javaModel, Path output,
-			Path input, boolean adaptive) {
+	public static <C extends Correspondence> Resource instrument(InstrumentationModel im,
+			CorrespondenceModelView<C> cmv, Resource javaModel, Path output, Path input, boolean adaptive) {
 		LOGGER.debug("Executing the " + (adaptive ? "adaptive" : "full") + " instrumentation.");
 		LOGGER.debug("Copying the Java model.");
 		ResourceSet targetSet = new ResourceSetImpl();
@@ -51,10 +49,12 @@ public final class CodeInstrumenter {
 
 		for (ServiceInstrumentationPoint sip : im.getPoints()) {
 			LOGGER.debug("Instrumenting the service " + sip.getService().getDescribedService__SEFF().getEntityName());
-			Method service = CorrespondenceModelUtil.getCorrespondingEObjects(cm, sip.getService(), Method.class)
-					.iterator().next();
+//			Method service = CorrespondenceModelUtil.getCorrespondingEObjects(cm, sip.getService(), Method.class)
+//					.iterator().next();
+			Method service = (Method) cmv.getCorrespondingEObjects(sip.getService(), null).iterator().next();
+
 			Method copiedService = findCopiedEObject(targetSet, service);
-			ActionStatementMapping statementMap = createActionStatementMapping(targetSet, sip, cm);
+			ActionStatementMapping statementMap = createActionStatementMapping(targetSet, sip, cmv);
 			sipIns.instrument(copiedService, sip, statementMap, adaptive);
 		}
 
@@ -65,12 +65,15 @@ public final class CodeInstrumenter {
 		return copy;
 	}
 
-	private static ActionStatementMapping createActionStatementMapping(ResourceSet copyContainer,
-			ServiceInstrumentationPoint sip, CorrespondenceModel cm) {
+	private static <C extends Correspondence> ActionStatementMapping createActionStatementMapping(
+			ResourceSet copyContainer, ServiceInstrumentationPoint sip, CorrespondenceModelView<C> cmv) {
 		ActionStatementMapping statementMap = new ActionStatementMapping();
 		for (ActionInstrumentationPoint aip : sip.getActionInstrumentationPoints()) {
-			Set<Statement> correspondingStatements = CorrespondenceModelUtil.getCorrespondingEObjects(cm,
-					aip.getAction(), Statement.class);
+//			Set<Statement> correspondingStatements = CorrespondenceModelUtil.getCorrespondingEObjects(cm,
+//					aip.getAction(), Statement.class);
+			
+			// TODO I cannot cast Set<EObject> to Set<Statement> here?!
+			Set<EObject> correspondingStatements = cmv.getCorrespondingEObjects(aip.getAction(), null);
 			Statement firstStatement;
 			if (aip.getType() == InstrumentationType.INTERNAL || aip.getType() == InstrumentationType.INTERNAL_CALL) {
 				Statement lastStatement = findFirstOrLastStatement(correspondingStatements, false);
@@ -79,7 +82,7 @@ public final class CodeInstrumenter {
 				firstStatement = findFirstOrLastStatement(correspondingStatements, true);
 			} else {
 				try {
-					firstStatement = correspondingStatements.iterator().next();
+					firstStatement = (Statement) correspondingStatements.iterator().next();
 				} catch (NoSuchElementException e) {
 					continue;
 				}
@@ -99,9 +102,9 @@ public final class CodeInstrumenter {
 		return null;
 	}
 
-	private static Statement findFirstOrLastStatement(Set<Statement> statements, boolean findFirst) {
+	private static Statement findFirstOrLastStatement(Set<EObject> statements, boolean findFirst) {
 		if (statements.size() == 1) {
-			return statements.iterator().next();
+			return (Statement) statements.iterator().next();
 		}
 		EObject container = statements.iterator().next().eContainer();
 		if (container instanceof StatementListContainer) {
@@ -113,11 +116,11 @@ public final class CodeInstrumenter {
 					}
 				}
 			}
-			Set<Statement> copiedStatements = new HashSet<>(statements);
+			Set<EObject> copiedStatements = new HashSet<>(statements);
 			for (Statement next : stats) {
 				copiedStatements.remove(next);
 				if (copiedStatements.size() == 1) {
-					return copiedStatements.iterator().next();
+					return (Statement) copiedStatements.iterator().next();
 				}
 			}
 		}

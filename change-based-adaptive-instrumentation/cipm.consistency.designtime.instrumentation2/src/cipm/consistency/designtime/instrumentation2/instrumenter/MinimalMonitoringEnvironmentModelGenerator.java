@@ -1,8 +1,8 @@
 package cipm.consistency.designtime.instrumentation2.instrumenter;
 
+import cipm.consistency.designtime.instrumentation.transformation.impl.ApplicationProjectInstrumenterNamespace;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.emftext.language.java.LogicalJavaURIGenerator;
@@ -23,8 +23,6 @@ import org.emftext.language.java.statements.StatementsFactory;
 import org.emftext.language.java.types.ClassifierReference;
 import org.emftext.language.java.types.TypeReference;
 import org.emftext.language.java.types.TypesFactory;
-
-import cipm.consistency.designtime.instrumentation.transformation.impl.ApplicationProjectInstrumenterNamespace;
 
 /**
  * A generator for a model of a minimal monitoring environment.

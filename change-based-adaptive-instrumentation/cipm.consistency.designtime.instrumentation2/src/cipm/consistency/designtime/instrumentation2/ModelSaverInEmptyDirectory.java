@@ -1,9 +1,9 @@
 package cipm.consistency.designtime.instrumentation2;
 
+import cipm.consistency.designtime.instrumentation2.instrumenter.MinimalMonitoringEnvironmentModelGenerator;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -12,8 +12,6 @@ import org.emftext.language.java.LogicalJavaURIGenerator;
 import org.emftext.language.java.commons.NamespaceAwareElement;
 import org.emftext.language.java.containers.CompilationUnit;
 import org.emftext.language.java.containers.JavaRoot;
-
-import cipm.consistency.designtime.instrumentation2.instrumenter.MinimalMonitoringEnvironmentModelGenerator;
 
 /**
  * Saves the instrumented model.

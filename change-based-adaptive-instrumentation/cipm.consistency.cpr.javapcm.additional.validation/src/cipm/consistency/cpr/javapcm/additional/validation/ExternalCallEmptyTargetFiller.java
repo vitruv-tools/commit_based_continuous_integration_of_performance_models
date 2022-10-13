@@ -3,6 +3,7 @@ package cipm.consistency.cpr.javapcm.additional.validation;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.palladiosimulator.pcm.repository.OperationInterface;
@@ -15,18 +16,25 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ExternalCallAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 
-import tools.vitruv.extensions.dslsruntime.reactions.helper.ReactionsCorrespondenceHelper;
-import tools.vitruv.framework.correspondence.CorrespondenceModel;
-import tools.vitruv.framework.userinteraction.InternalUserInteractor;
-import tools.vitruv.framework.userinteraction.UserInteractionFactory;
+import tools.vitruv.change.correspondence.Correspondence;
+import tools.vitruv.change.correspondence.model.CorrespondenceModel;
+import tools.vitruv.change.correspondence.view.CorrespondenceModelView;
+import tools.vitruv.change.correspondence.view.EditableCorrespondenceModelView;
+import tools.vitruv.change.interaction.InternalUserInteractor;
+import tools.vitruv.change.interaction.UserInteractionFactory;
+//import tools.vitruv.dsls.reactions.runtime.helper.ReactionsCorrespondenceHelper;
+//import tools.vitruv.changes.correspondence.model.CorrespondenceModel;
+//import tools.vitruv.change.interaction.InternalUserInteractor;
+//import tools.vitruv.change.interaction.UserInteractionFactory;
 
 /**
  * Tries to find a target for all external calls which have no target.
  * 
  * @author Martin Armbruster
  */
-public class ExternalCallEmptyTargetFiller {
-	private CorrespondenceModel cm;
+public  class ExternalCallEmptyTargetFiller {
+//	private CorrespondenceModel cm;
+	private EditableCorrespondenceModelView<Correspondence> cModelView;
 	private Repository repository;
 	private Path collectionFile;
 
@@ -38,8 +46,10 @@ public class ExternalCallEmptyTargetFiller {
 	 * @param collection path to a collection of all external calls and their
 	 *                   targets.
 	 */
-	public ExternalCallEmptyTargetFiller(CorrespondenceModel cModel, Repository repo, Path collection) {
-		this.cm = cModel;
+//	public ExternalCallEmptyTargetFiller(CorrespondenceModel cModel, Repository repo, Path collection) {
+//		this.cm = cModel;
+	public ExternalCallEmptyTargetFiller(EditableCorrespondenceModelView<Correspondence> cModelView, Repository repo, Path collection) {
+		this.cModelView = cModelView;
 		this.repository = repo;
 		this.collectionFile = collection;
 	}
@@ -176,7 +186,9 @@ public class ExternalCallEmptyTargetFiller {
 		newRole.setRequiredInterface__OperationRequiredRole(sign.getInterface__OperationSignature());
 		newRole.setRequiringEntity_RequiredRole(component);
 		component.getRequiredRoles_InterfaceRequiringEntity().add(newRole);
-		ReactionsCorrespondenceHelper.addCorrespondence(cm, action, newRole, null);
+//		old and new usage:
+//		ReactionsCorrespondenceHelper.addCorrespondence(cm, action, newRole, null);
+		cModelView.addCorrespondenceBetween(Arrays.asList(action), Arrays.asList(newRole), null);
 	}
 
 	/**

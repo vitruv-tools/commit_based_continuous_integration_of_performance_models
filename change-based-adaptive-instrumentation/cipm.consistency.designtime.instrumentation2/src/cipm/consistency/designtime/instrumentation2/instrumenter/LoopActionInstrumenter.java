@@ -1,8 +1,10 @@
 package cipm.consistency.designtime.instrumentation2.instrumenter;
 
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
+import cipm.consistency.designtime.instrumentation.transformation.impl.ApplicationProjectInstrumenterNamespace;
+import cipm.consistency.designtime.instrumentation2.ActionStatementMapping;
 import java.math.BigInteger;
 import java.util.HashMap;
-
 import org.emftext.language.java.instantiations.InstantiationsFactory;
 import org.emftext.language.java.instantiations.NewConstructorCall;
 import org.emftext.language.java.literals.DecimalIntegerLiteral;
@@ -19,10 +21,6 @@ import org.emftext.language.java.statements.StatementContainer;
 import org.emftext.language.java.statements.StatementsFactory;
 import org.emftext.language.java.variables.LocalVariable;
 import org.emftext.language.java.variables.VariablesFactory;
-
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
-import cipm.consistency.designtime.instrumentation.transformation.impl.ApplicationProjectInstrumenterNamespace;
-import cipm.consistency.designtime.instrumentation2.ActionStatementMapping;
 
 /**
  * An instrumenter for LoopActions.

@@ -1,5 +1,8 @@
 package cipm.consistency.designtime.instrumentation2.instrumenter;
 
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
+import cipm.consistency.designtime.instrumentation.transformation.impl.ApplicationProjectInstrumenterNamespace;
+import cipm.consistency.designtime.instrumentation2.ActionStatementMapping;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.emftext.language.java.expressions.LambdaExpression;
@@ -17,10 +20,6 @@ import org.emftext.language.java.statements.StatementsFactory;
 import org.emftext.language.java.statements.Throw;
 import org.emftext.language.java.variables.LocalVariable;
 import org.emftext.language.java.variables.VariablesFactory;
-
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
-import cipm.consistency.designtime.instrumentation.transformation.impl.ApplicationProjectInstrumenterNamespace;
-import cipm.consistency.designtime.instrumentation2.ActionStatementMapping;
 
 /**
  * An instrumenter for InternalActions.
