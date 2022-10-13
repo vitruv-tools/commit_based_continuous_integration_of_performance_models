@@ -1,11 +1,14 @@
-package cipm.consistency.vsum
+package cipm.consistency.vsum;
 
-import org.eclipse.emf.common.util.URI
+import cipm.consistency.base.shared.pcm.LocalFilesystemPCM
+import java.nio.file.Files
 import java.nio.file.Path
+import java.util.Comparator
+import org.eclipse.emf.common.util.URI
 import org.eclipse.xtend.lib.annotations.Accessors
 
 /**
- * Internal layout for the file and directory structure.
+ * Internal layout for the directory structure of VSUM, PCM and IMM.
  * 
  * @author Martin Armbruster
  */
@@ -58,5 +61,27 @@ class FileLayout {
 		imURI = URI.createFileURI(imPath.toString());
 		javaPath = rootDir.resolve(javaDirName);
 		commitsPath = rootDir.resolve(commitsFileName);
+	}
+
+	def LocalFilesystemPCM getFilePCM() {
+		var filePCM = new LocalFilesystemPCM();
+		filePCM.setRepositoryFile(pcmRepositoryPath.toFile());
+		filePCM.setAllocationModelFile(pcmAllocationPath.toFile());
+		filePCM.setSystemFile(pcmSystemPath.toFile());
+		filePCM.setResourceEnvironmentFile(pcmResourceEnvironmentPath.toFile());
+		filePCM.setUsageModelFile(pcmUsageModelPath.toFile());
+		return filePCM;
+	}
+	
+	def deleteVsum() {
+		Files.walk(vsumPath).sorted(Comparator.reverseOrder()).forEach[
+			it.toFile.delete
+		]
+	}
+
+	def delete() {
+		Files.walk(rootPath).sorted(Comparator.reverseOrder()).forEach[
+			it.toFile.delete
+		]
 	}
 }
