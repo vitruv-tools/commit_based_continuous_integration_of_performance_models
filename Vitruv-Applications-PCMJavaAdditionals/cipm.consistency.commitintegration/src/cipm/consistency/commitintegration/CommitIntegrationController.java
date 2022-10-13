@@ -1,19 +1,13 @@
 package cipm.consistency.commitintegration;
 
-import cipm.consistency.commitintegration.lang.CommitChangePropagator;
-import cipm.consistency.commitintegration.lang.LanguageSpecification;
-import cipm.consistency.commitintegration.lang.impl.java.JavaCommitChangePropagator;
 import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
 import cipm.consistency.commitintegration.settings.SettingKeys;
 import cipm.consistency.commitintegration.util.ExternalCommandExecutionUtils;
 import cipm.consistency.designtime.instrumentation2.CodeInstrumenter;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
-import cipm.consistency.vsum.VsumFacade;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,32 +29,13 @@ import org.eclipse.jgit.api.errors.GitAPIException;
  * 
  * @author Martin Armbruster
  */
-public class CommitIntegrationController {
+public class CommitIntegrationController extends CommitIntegrationState {
     private static final Logger LOGGER = Logger.getLogger("cipm." + CommitIntegrationController.class.getSimpleName());
-    private VsumFacade vsumFacade;
-    private CommitChangePropagator propagator;
     private Resource instrumentedModel;
-//    private LanguageSpecification languageSpecification;
 
-    /**
-     * Creates a new instance.
-     * 
-     * @param rootPath
-     *            path to the root directory in which all data is stored.
-     * @param repositoryPath
-     *            path to the remote repository from which commits are fetched.
-     * @param settingsPath
-     *            path to the settings file.
-     * @throws IOException
-     *             if an IO operation fails.
-     * @throws GitAPIException
-     *             if a Git operation fails.
-     */
-    public CommitIntegrationController(CommitIntegration integration) throws IOException, GitAPIException {
-        CommitIntegrationSettingsContainer.initialize(integration.getSettingsPath());
-        vsumFacade = new VsumFacade(integration.getVsumPath());
-        propagator = integration.getLanguageSpec()
-            .getCommitChangePropagator(integration.getRootPath(), vsumFacade.getVsum(), integration.getRepoWrapper());
+    public CommitIntegrationController(CommitIntegration commitIntegration) {
+        super(commitIntegration);
+        // TODO Auto-generated constructor stub
     }
 
     /**
@@ -97,14 +72,13 @@ public class CommitIntegrationController {
      */
     public boolean propagateChanges(String oldCommit, String newCommit, boolean storeInstrumentedModel)
             throws IOException, GitAPIException {
-        var parent = this.vsumFacade.getFileLayout()
-            .getCommitsPath()
+        var parent = getVsumFacade().getFileSystemLayout().getCommitsPath()
             .toAbsolutePath()
             .getParent();
         if (Files.notExists(parent)) {
             Files.createDirectories(parent);
         }
-        try (BufferedWriter writer = Files.newBufferedWriter(this.vsumFacade.getFileLayout()
+        try (BufferedWriter writer = Files.newBufferedWriter(getVsumFacade().getFileSystemLayout()
             .getCommitsPath())) {
             if (oldCommit != null) {
                 writer.write(oldCommit + "\n");
@@ -114,23 +88,22 @@ public class CommitIntegrationController {
 
         long overallTimer = System.currentTimeMillis();
         instrumentedModel = null;
-        Path insDir = this.propagator.getFileSystemLayout()
-            .getInstrumentationDir();
+        Path insDir = getFileSystemLayout().getInstrumentationDir();
         removeInstrumentationDirectory(insDir);
 
         // Deactivate all action instrumentation points.
-        this.vsumFacade.getInstrumentationModel()
+        getVsumFacade().getInstrumentationModel()
             .getPoints()
             .forEach(sip -> sip.getActionInstrumentationPoints()
                 .forEach(aip -> aip.setActive(false)));
-        this.vsumFacade.getInstrumentationModel()
+        getVsumFacade().getInstrumentationModel()
             .eResource()
             .save(null);
 
         long fineTimer = System.currentTimeMillis();
 
         // Propagate the changes.
-        boolean result = propagator.propagateChanges(oldCommit, newCommit);
+        boolean result = getCommitChangePropagator().propagateChanges(oldCommit, newCommit);
 
         fineTimer = System.currentTimeMillis() - fineTimer;
         EvaluationDataContainer.getGlobalContainer()
@@ -149,7 +122,7 @@ public class CommitIntegrationController {
 //            filler.fillExternalCalls();
 
             boolean hasChangedIM = false;
-            for (var sip : this.vsumFacade.getInstrumentationModel()
+            for (var sip : getVsumFacade().getInstrumentationModel()
                 .getPoints()) {
                 for (var aip : sip.getActionInstrumentationPoints()) {
                     hasChangedIM |= aip.isActive();
@@ -191,8 +164,7 @@ public class CommitIntegrationController {
      * @return the instrumented code model as a copy of the code model in the V-SUM.
      */
     public Resource instrumentCode(boolean performFullInstrumentation) {
-        Path insDir = this.propagator.getFileSystemLayout()
-            .getInstrumentationDir();
+        Path insDir = getFileSystemLayout().getInstrumentationDir();
         removeInstrumentationDirectory(insDir);
         return performInstrumentation(insDir, performFullInstrumentation);
     }
@@ -211,10 +183,8 @@ public class CommitIntegrationController {
     @SuppressWarnings("restriction")
     private Resource performInstrumentation(Path instrumentationDirectory, boolean performFullInstrumentation) {
         Resource javaModel = getJavaModelResource();
-        return CodeInstrumenter.instrument(this.vsumFacade.getInstrumentationModel(), this.vsumFacade.getVsum()
-            .getCorrespondenceModel(), javaModel, instrumentationDirectory,
-                this.propagator.getFileSystemLayout()
-                    .getLocalRepo(),
+        return CodeInstrumenter.instrument(getVsumFacade().getInstrumentationModel(), getVsumFacade().getVsum()
+            .getCorrespondenceModel(), javaModel, instrumentationDirectory, getFileSystemLayout().getLocalRepo(),
                 !performFullInstrumentation);
     }
 
@@ -225,8 +195,7 @@ public class CommitIntegrationController {
      *             if an IO operation fails.
      */
     public void compileAndDeployInstrumentedCode() throws IOException {
-        Path instrumentationCodeDir = this.propagator.getFileSystemLayout()
-            .getInstrumentationDir();
+        Path instrumentationCodeDir = getFileSystemLayout().getInstrumentationDir();
         if (Files.exists(instrumentationCodeDir)) {
             boolean compilationResult = compileInstrumentedCode(instrumentationCodeDir);
             if (compilationResult) {
@@ -336,8 +305,7 @@ public class CommitIntegrationController {
      */
     public String[] loadCommits() {
         try {
-            var lines = Files.readAllLines(this.getVSUMFacade()
-                .getFileLayout()
+            var lines = Files.readAllLines(getVsumFacade().getFileSystemLayout()
                 .getCommitsPath());
             String[] result = new String[2];
             if (lines.size() == 1) {
@@ -352,34 +320,23 @@ public class CommitIntegrationController {
         }
     }
 
-    /**
-     * Shutdowns the environment.
-     */
-    @SuppressWarnings("restriction")
-    public void shutdown() {
-        vsumFacade.getVsum()
-            .dispose();
-        propagator.shutdown();
-    }
-
     @SuppressWarnings("restriction")
     public Resource getJavaModelResource() {
-        return this.vsumFacade.getVsum()
-            .getModelInstance(URI.createFileURI(propagator.getFileSystemLayout()
-                .getModelFile()
+        return getVsumFacade().getVsum()
+            .getModelInstance(URI.createFileURI(getFileSystemLayout().getModelFile()
                 .toString()))
             .getResource();
     }
 
     public Resource getLastInstrumentedModelResource() {
-        return this.instrumentedModel;
+        return instrumentedModel;
     }
 
-    public VsumFacade getVSUMFacade() {
-        return vsumFacade;
-    }
-
-    public CommitChangePropagator getCommitChangePropagator() {
-        return propagator;
-    }
+//    public VsumFacade getVSUMFacade() {
+//        return vsumFacade;
+//    }
+//
+//    public CommitChangePropagator getCommitChangePropagator() {
+//        return propagator;
+//    }
 }

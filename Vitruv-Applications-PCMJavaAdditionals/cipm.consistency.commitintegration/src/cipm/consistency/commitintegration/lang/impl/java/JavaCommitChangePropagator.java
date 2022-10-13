@@ -53,8 +53,8 @@ public class JavaCommitChangePropagator extends CommitChangePropagator {
 		cs.setOldCommit(oldId != null ? oldId : "");
 		cs.setNewCommit(commitId);
 		cs.setNumberCommits(repoWrapper.getAllCommitsBetweenTwoCommits(oldId, commitId).size() + 1);
-		LOGGER.debug("Cleaning the repository.");
-		repoWrapper.performCompleteClean();
+//		LOGGER.debug("Cleaning the repository.");
+//		repoWrapper.performCompleteClean();
 		LOGGER.debug("Checkout of " + commitId);
 		repoWrapper.checkout(commitId);
 		boolean preprocessResult = preprocess();

@@ -13,7 +13,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
  * @author Martin Armbruster
  */
 @Accessors
-class FileLayout {
+class FileSystemLayout {
 	static final String vsumDirName = "vsum";
 	static final String pcmDirName = "pcm";
 	static final String pcmRepositoryFileName = "Repository.repository";

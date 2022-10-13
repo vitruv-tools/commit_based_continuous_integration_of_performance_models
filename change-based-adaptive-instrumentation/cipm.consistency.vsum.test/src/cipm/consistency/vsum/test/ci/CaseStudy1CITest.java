@@ -1,6 +1,5 @@
 package cipm.consistency.vsum.test.ci;
 
-import cipm.consistency.commitintegration.CommitIntegration;
 import cipm.consistency.commitintegration.diff.util.ComparisonBasedJaccardCoefficientCalculator;
 import cipm.consistency.commitintegration.diff.util.pcm.PCMModelComparator;
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
@@ -8,15 +7,12 @@ import cipm.consistency.commitintegration.git.impl.LuaDiffComputation;
 import cipm.consistency.commitintegration.lang.LanguageSpecification;
 import cipm.consistency.commitintegration.lang.impl.lua.LuaLanguageSpecification;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.InvalidRemoteException;
-import org.eclipse.jgit.api.errors.TransportException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +40,7 @@ public class CaseStudy1CITest extends AbstractCITest {
 
     @Override
     public GitRepositoryWrapper getRepoWrapper() {
-        var gitWrapper = new GitRepositoryWrapper(null, getLanguageSpec(), new LuaDiffComputation());
+        var gitWrapper = new GitRepositoryWrapper(getRootPath().resolve("localRepo"), getLanguageSpec(), new LuaDiffComputation());
         var parentGitDir = Paths.get("../../.git");
         var submoduleName = "change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/caseStudy1";
         try {

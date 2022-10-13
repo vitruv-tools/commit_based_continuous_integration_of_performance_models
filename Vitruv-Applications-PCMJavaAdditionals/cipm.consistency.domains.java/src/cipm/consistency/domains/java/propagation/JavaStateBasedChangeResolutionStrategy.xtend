@@ -7,11 +7,11 @@ import org.eclipse.emf.compare.merge.IMerger
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 import org.eclipse.emf.ecore.util.EcoreUtil
-import tools.vitruv.framework.change.recording.ChangeRecorder
+//import tools.vitruv.framework.change.recording.ChangeRecorder
 import org.eclipse.emf.ecore.resource.ResourceSet
 import static com.google.common.base.Preconditions.checkArgument
 import static extension edu.kit.ipd.sdq.commons.util.org.eclipse.emf.ecore.resource.ResourceUtil.getReferencedProxies
-import tools.vitruv.framework.domains.StateBasedChangeResolutionStrategy
+//import tools.vitruv.framework.domains.StateBasedChangeResolutionStrategy
 import org.emftext.language.java.commons.Commentable
 import java.util.List
 import java.util.ArrayList
@@ -21,6 +21,8 @@ import org.apache.log4j.Logger
 import cipm.consistency.commitintegration.diff.util.JavaModelComparator
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer
 import cipm.consistency.commitintegration.diff.util.JavaChangedMethodDetectorDiffPostProcessor
+import tools.vitruv.change.composite.recording.ChangeRecorder
+import tools.vitruv.framework.views.changederivation.StateBasedChangeResolutionStrategy
 
 /**
  * This strategy for diff based state changes of Java models uses EMFCompare to resolve a 

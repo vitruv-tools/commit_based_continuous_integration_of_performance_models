@@ -55,10 +55,11 @@ public abstract class AbstractCITest implements CommitIntegration {
     @AfterEach
     public void tearDown() {
         if (controller != null)
-            controller.shutdown();
+            controller.dispose();
     }
 
-    protected void propagateMultipleCommits(String firstCommit, String lastCommit) throws IOException, InterruptedException {
+    protected void propagateMultipleCommits(String firstCommit, String lastCommit)
+            throws IOException, InterruptedException {
         List<String> successfulCommits = new ArrayList<>();
         var commits = convertToStringList(getRepoWrapper().getAllCommitsBetweenTwoCommits(firstCommit, lastCommit));
         commits.add(0, firstCommit);
@@ -108,7 +109,7 @@ public abstract class AbstractCITest implements CommitIntegration {
     protected boolean executePropagationAndEvaluation(String oldCommit, String newCommit, int num) throws IOException {
         EvaluationDataContainer evalResult = new EvaluationDataContainer();
         EvaluationDataContainer.setGlobalContainer(evalResult);
-        String repoFile = this.controller.getVSUMFacade()
+        String repoFile = controller.getVsumFacade()
             .getPCMWrapper()
             .getRepository()
             .eResource()
@@ -125,17 +126,17 @@ public abstract class AbstractCITest implements CommitIntegration {
             if (result) {
                 Resource javaModel = this.controller.getJavaModelResource();
                 Resource instrumentedModel = this.controller.getLastInstrumentedModelResource();
-                Path root = this.controller.getVSUMFacade()
-                    .getFileLayout()
+                Path root = controller.getVsumFacade()
+                    .getFileSystemLayout()
                     .getRootPath();
                 Path copy = root.resolveSibling(root.getFileName()
                     .toString() + "-" + num + "-" + newCommit);
                 LOGGER.debug("Copying the propagated state.");
                 FileUtils.copyDirectory(root.toFile(), copy.toFile());
                 LOGGER.debug("Evaluating the instrumentation.");
-                new InstrumentationEvaluator().evaluateInstrumentationDependently(this.controller.getVSUMFacade()
+                new InstrumentationEvaluator().evaluateInstrumentationDependently(this.controller.getVsumFacade()
                     .getInstrumentationModel(), javaModel, instrumentedModel,
-                        this.controller.getVSUMFacade()
+                        this.controller.getVsumFacade()
                             .getVsum()
                             .getCorrespondenceModel());
                 EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("DependentEvaluationResult.json"));
@@ -176,23 +177,23 @@ public abstract class AbstractCITest implements CommitIntegration {
                     .getFileSystemLayout()
                     .getModuleConfiguration());
         LOGGER.debug("Evaluating the instrumentation model.");
-        new IMUpdateEvaluator().evaluateIMUpdate(this.controller.getVSUMFacade()
+        new IMUpdateEvaluator().evaluateIMUpdate(this.controller.getVsumFacade()
             .getPCMWrapper()
             .getRepository(),
-                this.controller.getVSUMFacade()
+                this.controller.getVsumFacade()
                     .getInstrumentationModel(),
                 evalResult.getImEvalResult(), this.getRootPath()
                     .toString());
         LOGGER.debug("Evaluating the instrumentation.");
-        new InstrumentationEvaluator().evaluateInstrumentationIndependently(this.controller.getVSUMFacade()
+        new InstrumentationEvaluator().evaluateInstrumentationIndependently(this.controller.getVsumFacade()
             .getInstrumentationModel(), javaModel,
                 this.controller.getCommitChangePropagator()
                     .getFileSystemLayout(),
-                this.controller.getVSUMFacade()
+                this.controller.getVsumFacade()
                     .getVsum()
                     .getCorrespondenceModel());
-        Path root = this.controller.getVSUMFacade()
-            .getFileLayout()
+        Path root = this.controller.getVsumFacade()
+            .getFileSystemLayout()
             .getRootPath();
         EvaluationDataContainerReaderWriter.write(evalResult,
                 root.resolveSibling("EvaluationResult-" + newCommit + "-" + evalResult.getEvaluationTime() + ".json"));

@@ -43,13 +43,19 @@ import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
 @SuppressWarnings("restriction")
 public class VsumFacade {
     private static final Logger LOGGER = Logger.getLogger("cipm.VSUMFacade");
-    private FileLayout fileLayout;
+    private Path rootPath;
+    private FileSystemLayout fileLayout;
+
     private InternalVirtualModel vsum;
     private InMemoryPCM pcm;
     private InstrumentationModel imm;
 
-    public VsumFacade(Path rootPath) throws IOException {
-        this.fileLayout = new FileLayout(rootPath);
+    public VsumFacade(Path rootPath) {
+        this.rootPath = rootPath;
+    }
+    
+    public void initialize() throws IOException {
+        fileLayout = new FileSystemLayout(rootPath);
         loadOrCreateVsum();
     }
 
@@ -269,7 +275,7 @@ public class VsumFacade {
         return vsum;
     }
 
-    public FileLayout getFileLayout() {
+    public FileSystemLayout getFileSystemLayout() {
         return fileLayout;
     }
 

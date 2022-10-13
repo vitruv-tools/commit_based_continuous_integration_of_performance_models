@@ -18,13 +18,13 @@ public class LuaLanguageSpecification implements LanguageSpecification {
     @Override
     public LanguageFileSystemLayout getFileLayout(Path root) {
         // TODO Auto-generated method stub
-        return null;
+        return new LuaLanguageFileSystemLayout(root.resolve("lua"));
     }
 
     @Override
     public CommitChangePropagator getCommitChangePropagator(Path root, InternalVirtualModel vsum,
             GitRepositoryWrapper repoWrapper) {
         // TODO Auto-generated method stub
-        return null;
+        return new LuaCommitChangePropagator(vsum, repoWrapper, getFileLayout(root));
     }
 }
