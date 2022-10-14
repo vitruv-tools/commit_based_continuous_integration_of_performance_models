@@ -6,13 +6,15 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.submodule.SubmoduleWalk;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class GitTest {
     @Test
     public void testGitRepo() throws IOException, NoHeadException, GitAPIException {
         var parentPath = Paths.get("../../.git");
-        System.out.println("Parent path: "+ parentPath.toAbsolutePath().toString());
+        System.out.println("Parent path: " + parentPath.toAbsolutePath()
+            .toString());
         var parentFile = parentPath.toFile();
         var parentRepo = Git.open(parentFile);
 
@@ -30,11 +32,11 @@ public class GitTest {
 
         var submodule = SubmoduleWalk.getSubmoduleRepository(parentRepo.getRepository(),
                 "change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/caseStudy1");
+        Assert.assertNotNull(submodule);
         var gitSubmodule = new Git(submodule);
-        var commits = gitSubmodule.log().call();
-
-
-        System.out.println("foobar");
-
+        Assert.assertNotNull(gitSubmodule);
+        var commits = gitSubmodule.log()
+            .call();
+        Assert.assertNotNull(commits);
     }
 }

@@ -32,4 +32,4 @@ Require-Bundle: org.apache.log4j,
  cipm.consistency.models.instrumentation,
  cipm.consistency.designtime.instrumentation2
 Automatic-Module-Name: cipm.consistency.commitintegration
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
