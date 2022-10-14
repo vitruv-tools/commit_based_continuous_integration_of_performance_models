@@ -29,14 +29,9 @@ import org.eclipse.jgit.api.errors.GitAPIException;
  * 
  * @author Martin Armbruster
  */
-public class CommitIntegrationController extends CommitIntegrationState {
+public abstract class CommitIntegrationController extends CommitIntegrationState {
     private static final Logger LOGGER = Logger.getLogger("cipm." + CommitIntegrationController.class.getSimpleName());
     private Resource instrumentedModel;
-
-    public CommitIntegrationController(CommitIntegration commitIntegration) {
-        super(commitIntegration);
-        // TODO Auto-generated constructor stub
-    }
 
     /**
      * Propagates the changes between two commits.
@@ -71,12 +66,15 @@ public class CommitIntegrationController extends CommitIntegrationState {
      *             if a Git operation fails.
      */
     public boolean propagateChanges(String oldCommit, String newCommit, boolean storeInstrumentedModel)
-            throws IOException, GitAPIException {
-        var parent = getVsumFacade().getFileSystemLayout().getCommitsPath()
-            .toAbsolutePath()
-            .getParent();
-        if (Files.notExists(parent)) {
-            Files.createDirectories(parent);
+            throws IOException {
+        {
+            var parent = getVsumFacade().getFileSystemLayout()
+                .getCommitsPath()
+                .toAbsolutePath()
+                .getParent();
+            if (Files.notExists(parent)) {
+                Files.createDirectories(parent);
+            }
         }
         try (BufferedWriter writer = Files.newBufferedWriter(getVsumFacade().getFileSystemLayout()
             .getCommitsPath())) {
@@ -103,15 +101,17 @@ public class CommitIntegrationController extends CommitIntegrationState {
         long fineTimer = System.currentTimeMillis();
 
         // Propagate the changes.
-        boolean result = getCommitChangePropagator().propagateChanges(oldCommit, newCommit);
+        boolean result = false;
+        try {
+            result = getCommitChangePropagator().propagateChanges(oldCommit, newCommit);
 
-        fineTimer = System.currentTimeMillis() - fineTimer;
-        EvaluationDataContainer.getGlobalContainer()
-            .getExecutionTimes()
-            .setChangePropagationTime(fineTimer);
+            fineTimer = System.currentTimeMillis() - fineTimer;
+            EvaluationDataContainer.getGlobalContainer()
+                .getExecutionTimes()
+                .setChangePropagationTime(fineTimer);
 
-        if (result) {
-            // TODO out commented this
+            if (result) {
+                // TODO out commented this
 //            @SuppressWarnings("restriction")
 //            ExternalCallEmptyTargetFiller filler = new ExternalCallEmptyTargetFiller(facade.getVSUM()
 //                .getCorrespondenceModel(),
@@ -121,38 +121,44 @@ public class CommitIntegrationController extends CommitIntegrationState {
 //                        .getExternalCallTargetPairsFile());
 //            filler.fillExternalCalls();
 
-            boolean hasChangedIM = false;
-            for (var sip : getVsumFacade().getInstrumentationModel()
-                .getPoints()) {
-                for (var aip : sip.getActionInstrumentationPoints()) {
-                    hasChangedIM |= aip.isActive();
+                boolean hasChangedIM = false;
+                for (var sip : getVsumFacade().getInstrumentationModel()
+                    .getPoints()) {
+                    for (var aip : sip.getActionInstrumentationPoints()) {
+                        hasChangedIM |= aip.isActive();
+                    }
                 }
-            }
-            if (!hasChangedIM) {
-                LOGGER.debug("No instrumentation points changed.");
-            }
-            boolean fullInstrumentation = CommitIntegrationSettingsContainer.getSettingsContainer()
-                .getPropertyAsBoolean(SettingKeys.PERFORM_FULL_INSTRUMENTATION);
+                if (!hasChangedIM) {
+                    LOGGER.debug("No instrumentation points changed.");
+                }
+                boolean fullInstrumentation = CommitIntegrationSettingsContainer.getSettingsContainer()
+                    .getPropertyAsBoolean(SettingKeys.PERFORM_FULL_INSTRUMENTATION);
 
-            // Instrument the code only if there is a new action instrumentation point or if a full
-            // instrumentation
-            // shall be performed.
-            if (hasChangedIM || fullInstrumentation) {
-                fineTimer = System.currentTimeMillis();
-                Resource insModel = performInstrumentation(insDir, fullInstrumentation);
-                fineTimer = System.currentTimeMillis() - fineTimer;
-                EvaluationDataContainer.getGlobalContainer()
-                    .getExecutionTimes()
-                    .setInstrumentationTime(fineTimer);
-                if (storeInstrumentedModel) {
-                    this.instrumentedModel = insModel;
+                // Instrument the code only if there is a new action instrumentation point or if a
+                // full
+                // instrumentation
+                // shall be performed.
+                if (hasChangedIM || fullInstrumentation) {
+                    fineTimer = System.currentTimeMillis();
+                    Resource insModel = performInstrumentation(insDir, fullInstrumentation);
+                    fineTimer = System.currentTimeMillis() - fineTimer;
+                    EvaluationDataContainer.getGlobalContainer()
+                        .getExecutionTimes()
+                        .setInstrumentationTime(fineTimer);
+                    if (storeInstrumentedModel) {
+                        this.instrumentedModel = insModel;
+                    }
                 }
             }
+            overallTimer = System.currentTimeMillis() - overallTimer;
+            EvaluationDataContainer.getGlobalContainer()
+                .getExecutionTimes()
+                .setOverallTime(overallTimer);
+
+        } catch (GitAPIException | IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
-        overallTimer = System.currentTimeMillis() - overallTimer;
-        EvaluationDataContainer.getGlobalContainer()
-            .getExecutionTimes()
-            .setOverallTime(overallTimer);
         return result;
     }
 
@@ -182,7 +188,7 @@ public class CommitIntegrationController extends CommitIntegrationState {
 
     @SuppressWarnings("restriction")
     private Resource performInstrumentation(Path instrumentationDirectory, boolean performFullInstrumentation) {
-        Resource javaModel = getJavaModelResource();
+        Resource javaModel = getModelResource();
         return CodeInstrumenter.instrument(getVsumFacade().getInstrumentationModel(), getVsumFacade().getVsum()
             .getCorrespondenceModel(), javaModel, instrumentationDirectory, getFileSystemLayout().getLocalRepo(),
                 !performFullInstrumentation);
@@ -321,7 +327,7 @@ public class CommitIntegrationController extends CommitIntegrationState {
     }
 
     @SuppressWarnings("restriction")
-    public Resource getJavaModelResource() {
+    public Resource getModelResource() {
         return getVsumFacade().getVsum()
             .getModelInstance(URI.createFileURI(getFileSystemLayout().getModelFile()
                 .toString()))
@@ -331,12 +337,4 @@ public class CommitIntegrationController extends CommitIntegrationState {
     public Resource getLastInstrumentedModelResource() {
         return instrumentedModel;
     }
-
-//    public VsumFacade getVSUMFacade() {
-//        return vsumFacade;
-//    }
-//
-//    public CommitChangePropagator getCommitChangePropagator() {
-//        return propagator;
-//    }
 }

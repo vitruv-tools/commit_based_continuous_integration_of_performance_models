@@ -45,13 +45,13 @@ public class DeploymentUtility extends TeaStoreCITest {
 
 	@Test
 	public void compileAndDeployInstrumentedCode() throws IOException {
-//		this.controller.instrumentCode(false);
-		this.controller.compileAndDeployInstrumentedCode();
+//		instrumentCode(false);
+		compileAndDeployInstrumentedCode();
 	}
 
 	@Test
 	public void preparePCMModels() {
-		preparedPCM = this.controller.getVsumFacade().getPCMWrapper().copyDeep();
+		preparedPCM = getVsumFacade().getPCMWrapper().copyDeep();
 		eliminateDuplicatedInterfaceNames();
 		addResourceDemand();
 		createSystemModel();

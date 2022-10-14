@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
@@ -26,6 +27,7 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.EditList;
 import org.eclipse.jgit.diff.RawText;
 import org.eclipse.jgit.diff.RenameDetector;
+import org.eclipse.jgit.errors.AmbiguousObjectException;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
@@ -148,12 +150,16 @@ public class GitRepositoryWrapper {
 	 * 
 	 * @param commitId the commit id.
 	 * @return the commit.
+	 * @throws AmbiguousObjectException 
+	 * @throws MissingObjectException 
+	 * @throws IncorrectObjectTypeException 
+	 * @throws RevisionSyntaxException 
 	 * @throws GitAPIException if the commit id is invalid.
 	 * @throws IOException if the repository cannot be read.
 	 */
-	public RevCommit getCommitForId(String commitId) throws GitAPIException, IOException {
+	public RevCommit getCommitForId(String commitId) throws RevisionSyntaxException, IncorrectObjectTypeException, MissingObjectException, AmbiguousObjectException, IOException {
 		if (commitId == null) {
-			return null;
+		    return null;
 		}
 		return repository.parseCommit(repository.resolve(commitId));
 	}

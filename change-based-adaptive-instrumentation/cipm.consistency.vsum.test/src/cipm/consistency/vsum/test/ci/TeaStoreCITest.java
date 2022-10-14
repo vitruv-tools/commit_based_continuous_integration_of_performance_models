@@ -30,7 +30,7 @@ public class TeaStoreCITest extends AbstractCITest {
     private static final String COMMIT_TAG_1_3_1 = "de69e957597d20d4be17fc7db2a0aa2fb3a414f7";
 
     @Override
-    public GitRepositoryWrapper getRepoWrapper() {
+    public GitRepositoryWrapper initializeGitRepositoryWrapper() {
         var wrapper = new GitRepositoryWrapper(getRootPath().resolve("repo"), getLanguageSpec(), new JavaDiffComputation());
         try {
             wrapper.initFromRemoteRepository("https://github.com/DescartesResearch/TeaStore");

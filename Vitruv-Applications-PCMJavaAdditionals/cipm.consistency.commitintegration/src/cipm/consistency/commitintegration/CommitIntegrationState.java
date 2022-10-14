@@ -3,8 +3,14 @@ package cipm.consistency.commitintegration;
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import cipm.consistency.commitintegration.lang.CommitChangePropagator;
 import cipm.consistency.commitintegration.lang.LanguageFileSystemLayout;
+import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
 import cipm.consistency.vsum.VsumFacade;
 import java.io.IOException;
+import java.nio.file.Path;
+import org.apache.log4j.Logger;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
 
 /**
  * Encapsulates all state of an ongoing integration
@@ -12,29 +18,42 @@ import java.io.IOException;
  * @author Lukas Burgey
  *
  */
-public class CommitIntegrationState {
-    private CommitIntegration commitIntegration;
+public abstract class CommitIntegrationState {
+    private final Logger LOGGER = Logger.getLogger("cipm.consistency.commitintegration.CommitIntegrationState");
+//    private CommitIntegration commitIntegration;
     private VsumFacade vsumFacade;
     private GitRepositoryWrapper gitRepositoryWrapper;
     private CommitChangePropagator commitChangePropagator;
     private LanguageFileSystemLayout fileSystemLayout;
     
-    public CommitIntegrationState(CommitIntegration commitIntegration) {
-        this.commitIntegration = commitIntegration;
-        vsumFacade = new VsumFacade(commitIntegration.getVsumPath());
+    protected abstract GitRepositoryWrapper initializeGitRepositoryWrapper() throws IOException, InvalidRemoteException, TransportException, GitAPIException;
+
+    protected VsumFacade initializeVsumFacade(Path vsumPath) throws IOException {
+        var vsumFacade = new VsumFacade(vsumPath);
+        vsumFacade.initialize();
+        return vsumFacade;
+    }
+
+    protected CommitChangePropagator initializePropagator(CommitIntegration commitIntegration, VsumFacade vsumFacade, GitRepositoryWrapper gitRepositoryWrapper) throws IOException {
+        return commitIntegration.getLanguageSpec()
+            .getCommitChangePropagator(commitIntegration.getRootPath(), vsumFacade.getVsum(), gitRepositoryWrapper);
     }
     
-    public void initialize() throws IOException {
-        vsumFacade.initialize();
-        commitChangePropagator = commitIntegration.getLanguageSpec()
-            .getCommitChangePropagator(commitIntegration.getRootPath(), getVsumFacade().getVsum(), commitIntegration.getRepoWrapper());
+    public void initialize(CommitIntegration commitIntegration) throws IOException, InvalidRemoteException, TransportException, GitAPIException {
+        LOGGER.info("Initializing the CommitIntegrationState");
+        // the settings container needs to be initialized before everything else
+        CommitIntegrationSettingsContainer.initialize(commitIntegration.getSettingsPath());
+        gitRepositoryWrapper = initializeGitRepositoryWrapper();
+        vsumFacade = initializeVsumFacade(commitIntegration.getVsumPath());
+        commitChangePropagator = initializePropagator(commitIntegration, vsumFacade, gitRepositoryWrapper);
         fileSystemLayout = commitIntegration.getLanguageSpec().getFileLayout(commitIntegration.getRootPath());
     }
     
     @SuppressWarnings("restriction")
     public void dispose() {
+        LOGGER.info("Disposing of the CommitIntegrationState");
         vsumFacade.getVsum().dispose();
-        commitChangePropagator.shutdown();
+        gitRepositoryWrapper.closeRepository();
     }
 
     public VsumFacade getVsumFacade() {
@@ -50,6 +69,6 @@ public class CommitIntegrationState {
     }
     
     public LanguageFileSystemLayout getFileSystemLayout() {
-        return this.fileSystemLayout;
+        return fileSystemLayout;
     }
 }

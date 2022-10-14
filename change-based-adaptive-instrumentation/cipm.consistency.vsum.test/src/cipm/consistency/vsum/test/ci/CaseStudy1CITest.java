@@ -13,6 +13,8 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -38,19 +40,12 @@ public class CaseStudy1CITest extends AbstractCITest {
     }
 
 
-    @Override
-    public GitRepositoryWrapper getRepoWrapper() {
+    public GitRepositoryWrapper initializeGitRepositoryWrapper() throws InvalidRemoteException, TransportException, GitAPIException, IOException {
         var gitWrapper = new GitRepositoryWrapper(getRootPath().resolve("localRepo"), getLanguageSpec(), new LuaDiffComputation());
         var parentGitDir = Paths.get("../../.git");
         var submoduleName = "change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/caseStudy1";
-        try {
-            gitWrapper.initFromLocalSubmodule(parentGitDir, submoduleName);
-        } catch (GitAPIException | IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        gitWrapper.initFromLocalSubmodule(parentGitDir, submoduleName);
         return gitWrapper;
-          
     }
 
 

@@ -13,5 +13,5 @@ public interface CommitIntegration {
 
     public LanguageSpecification getLanguageSpec();
 
-    public GitRepositoryWrapper getRepoWrapper();
+    public GitRepositoryWrapper getGitRepositoryWrapper();
 }

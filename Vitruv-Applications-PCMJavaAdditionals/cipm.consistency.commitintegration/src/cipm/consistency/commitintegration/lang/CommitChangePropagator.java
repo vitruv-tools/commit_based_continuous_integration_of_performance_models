@@ -159,12 +159,4 @@ public abstract class CommitChangePropagator {
 	 * @throws IOException     if something from the repositories cannot be read.
 	 */
 	public abstract boolean propagateChanges(RevCommit start, RevCommit end) throws GitAPIException, IOException; 
-
-	/**
-	 * Shuts the propagator down by freeing up resources.
-	 */
-	public void shutdown() {
-		LOGGER.debug("Shutting down.");
-		repoWrapper.closeRepository();
-	}
 }

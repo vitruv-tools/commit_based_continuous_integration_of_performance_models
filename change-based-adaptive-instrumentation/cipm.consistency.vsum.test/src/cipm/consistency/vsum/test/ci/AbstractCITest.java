@@ -19,6 +19,8 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,9 +32,9 @@ import org.junit.jupiter.api.BeforeEach;
  * @author Martin Armbruster
  * @author Lukas Burgey
  */
-public abstract class AbstractCITest implements CommitIntegration {
+public abstract class AbstractCITest extends CommitIntegrationController implements CommitIntegration {
     private static final Logger LOGGER = Logger.getLogger("cipm." + AbstractCITest.class.getSimpleName());
-    protected CommitIntegrationController controller;
+//    protected CommitIntegrationController controller;
 
     @BeforeEach
     public void setUpLogging() {
@@ -48,20 +50,19 @@ public abstract class AbstractCITest implements CommitIntegration {
     }
 
     @BeforeEach
-    public void setUp() throws IOException, GitAPIException {
-        controller = new CommitIntegrationController(this);
+    public void initialize() throws IOException, InvalidRemoteException, TransportException, GitAPIException {
+        super.initialize(this);
     }
 
     @AfterEach
-    public void tearDown() {
-        if (controller != null)
-            controller.dispose();
+    public void dispose() {
+        super.dispose();
     }
 
     protected void propagateMultipleCommits(String firstCommit, String lastCommit)
             throws IOException, InterruptedException {
         List<String> successfulCommits = new ArrayList<>();
-        var commits = convertToStringList(getRepoWrapper().getAllCommitsBetweenTwoCommits(firstCommit, lastCommit));
+        var commits = convertToStringList(getGitRepositoryWrapper().getAllCommitsBetweenTwoCommits(firstCommit, lastCommit));
         commits.add(0, firstCommit);
         int startIndex = 0;
         var oldCommit = commits.get(startIndex);
@@ -109,8 +110,7 @@ public abstract class AbstractCITest implements CommitIntegration {
     protected boolean executePropagationAndEvaluation(String oldCommit, String newCommit, int num) throws IOException {
         EvaluationDataContainer evalResult = new EvaluationDataContainer();
         EvaluationDataContainer.setGlobalContainer(evalResult);
-        String repoFile = controller.getVsumFacade()
-            .getPCMWrapper()
+        String repoFile = getVsumFacade().getPCMWrapper()
             .getRepository()
             .eResource()
             .getURI()
@@ -122,27 +122,25 @@ public abstract class AbstractCITest implements CommitIntegration {
 
         boolean result = false;
         try {
-            result = this.controller.propagateChanges(oldCommit, newCommit, true);
+            result = propagateChanges(oldCommit, newCommit, true);
             if (result) {
-                Resource javaModel = this.controller.getJavaModelResource();
-                Resource instrumentedModel = this.controller.getLastInstrumentedModelResource();
-                Path root = controller.getVsumFacade()
-                    .getFileSystemLayout()
+                Resource javaModel = getModelResource();
+                Resource instrumentedModel = getLastInstrumentedModelResource();
+                Path root = getVsumFacade().getFileSystemLayout()
                     .getRootPath();
                 Path copy = root.resolveSibling(root.getFileName()
                     .toString() + "-" + num + "-" + newCommit);
                 LOGGER.debug("Copying the propagated state.");
                 FileUtils.copyDirectory(root.toFile(), copy.toFile());
                 LOGGER.debug("Evaluating the instrumentation.");
-                new InstrumentationEvaluator().evaluateInstrumentationDependently(this.controller.getVsumFacade()
-                    .getInstrumentationModel(), javaModel, instrumentedModel,
-                        this.controller.getVsumFacade()
-                            .getVsum()
+                new InstrumentationEvaluator().evaluateInstrumentationDependently(
+                        getVsumFacade().getInstrumentationModel(), javaModel, instrumentedModel,
+                        getVsumFacade().getVsum()
                             .getCorrespondenceModel());
                 EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("DependentEvaluationResult.json"));
                 LOGGER.debug("Finished the evaluation.");
             }
-        } catch (IOException | GitAPIException e) {
+        } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -160,7 +158,7 @@ public abstract class AbstractCITest implements CommitIntegration {
      */
     @SuppressWarnings("restriction")
     protected void performIndependentEvaluation() throws IOException {
-        String[] commits = this.controller.loadCommits();
+        String[] commits = loadCommits();
         String oldCommit = commits[0];
         String newCommit = commits[1];
         LOGGER.debug("Evaluating the propagation " + oldCommit + "->" + newCommit);
@@ -169,31 +167,22 @@ public abstract class AbstractCITest implements CommitIntegration {
             .setOldCommit(oldCommit);
         evalResult.getChangeStatistic()
             .setNewCommit(newCommit);
-        Resource javaModel = this.controller.getJavaModelResource();
+        Resource javaModel = getModelResource();
         LOGGER.debug("Evaluating the Java model.");
         new JavaModelEvaluator().evaluateJavaModels(javaModel, getLanguageSpec().getFileLayout(getSettingsPath())
             .getLocalRepo(), evalResult.getJavaComparisonResult(),
-                this.controller.getCommitChangePropagator()
-                    .getFileSystemLayout()
+                getCommitChangePropagator().getFileSystemLayout()
                     .getModuleConfiguration());
         LOGGER.debug("Evaluating the instrumentation model.");
-        new IMUpdateEvaluator().evaluateIMUpdate(this.controller.getVsumFacade()
-            .getPCMWrapper()
-            .getRepository(),
-                this.controller.getVsumFacade()
-                    .getInstrumentationModel(),
-                evalResult.getImEvalResult(), this.getRootPath()
+        new IMUpdateEvaluator().evaluateIMUpdate(getVsumFacade().getPCMWrapper()
+            .getRepository(), getVsumFacade().getInstrumentationModel(), evalResult.getImEvalResult(),
+                this.getRootPath()
                     .toString());
         LOGGER.debug("Evaluating the instrumentation.");
-        new InstrumentationEvaluator().evaluateInstrumentationIndependently(this.controller.getVsumFacade()
-            .getInstrumentationModel(), javaModel,
-                this.controller.getCommitChangePropagator()
-                    .getFileSystemLayout(),
-                this.controller.getVsumFacade()
-                    .getVsum()
+        new InstrumentationEvaluator().evaluateInstrumentationIndependently(getVsumFacade().getInstrumentationModel(),
+                javaModel, getCommitChangePropagator().getFileSystemLayout(), getVsumFacade().getVsum()
                     .getCorrespondenceModel());
-        Path root = this.controller.getVsumFacade()
-            .getFileSystemLayout()
+        Path root = getVsumFacade().getFileSystemLayout()
             .getRootPath();
         EvaluationDataContainerReaderWriter.write(evalResult,
                 root.resolveSibling("EvaluationResult-" + newCommit + "-" + evalResult.getEvaluationTime() + ".json"));
