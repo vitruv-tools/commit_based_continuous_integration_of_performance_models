@@ -29,8 +29,7 @@ public class JavaCommitChangePropagator extends CommitChangePropagator {
             .getProperty(SettingKeys.PATH_TO_PREPROCESSING_SCRIPT));
         String absPath = possibleFile.getAbsolutePath();
         if (possibleFile.exists()) {
-            return ExternalCommandExecutionUtils.runScript(repoWrapper.getRepoPath()
-                .toFile(), absPath);
+            return ExternalCommandExecutionUtils.runScript(repoWrapper.getWorkTree(), absPath);
         } else {
             LOGGER.debug(absPath + " not found.");
         }
@@ -39,7 +38,7 @@ public class JavaCommitChangePropagator extends CommitChangePropagator {
 
     public boolean propagateCurrentCheckout() {
         LOGGER.debug("Delegating the change propagation to the JavaParserAndPropagatorUtility.");
-        JavaParserAndPropagatorUtils.parseAndPropagateJavaCode(repoWrapper.getRepoPath(), fileLayout.getModelFile(),
+        JavaParserAndPropagatorUtils.parseAndPropagateJavaCode(repoWrapper.getWorkTree().toPath(), fileLayout.getModelFile(),
                 vsum, fileLayout.getModuleConfiguration());
         // TODO howto determine if the propagation succeeded?
         return false;

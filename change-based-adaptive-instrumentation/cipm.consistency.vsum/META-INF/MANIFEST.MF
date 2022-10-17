@@ -4,7 +4,7 @@ Bundle-Name: VSUM for CIPM
 Bundle-SymbolicName: cipm.consistency.vsum
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: cipm.consistency.vsum
-Bundle-RequiredExecutionEnvironment: JavaSE-13
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: 
  tools.vitruv.framework.vsum,
  tools.vitruv.dsls.reactions.runtime,

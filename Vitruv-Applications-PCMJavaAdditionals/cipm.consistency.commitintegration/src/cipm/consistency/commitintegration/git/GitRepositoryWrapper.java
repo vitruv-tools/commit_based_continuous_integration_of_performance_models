@@ -114,10 +114,18 @@ public class GitRepositoryWrapper {
         return git != null;
     }
 
-    public Path getRepoPath() {
+    /**
+     * 
+     * @return The path where this repository is checked out
+     */
+    public File getWorkTree() {
         if (repository != null)
-            return repository.getDirectory().toPath();
+            return repository.getWorkTree();
         return null;
+    }
+    
+    public Repository getRepository() {
+        return repository;
     }
 
     /**

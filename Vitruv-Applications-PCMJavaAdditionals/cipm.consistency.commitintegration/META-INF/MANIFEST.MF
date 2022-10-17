@@ -14,12 +14,12 @@ Require-Bundle: org.apache.log4j,
  org.eclipse.jgit,
  org.emftext.language.java,
  org.apache.commons.io,
- tools.vitruv.framework.vsum,
  org.eclipse.xtend.lib,
  cipm.consistency.tools.evaluation.data,
  cipm.consistency.commitintegration.settings,
  cipm.consistency.vsum,
  cipm.consistency.models.instrumentation,
- cipm.consistency.designtime.instrumentation2
+ cipm.consistency.designtime.instrumentation2,
+ tools.vitruv.framework.vsum;bundle-version="3.0.0"
 Automatic-Module-Name: cipm.consistency.commitintegration
-Bundle-RequiredExecutionEnvironment: JavaSE-13
+Bundle-RequiredExecutionEnvironment: JavaSE-11

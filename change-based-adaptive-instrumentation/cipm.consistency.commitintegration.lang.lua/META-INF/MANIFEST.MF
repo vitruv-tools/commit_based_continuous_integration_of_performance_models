@@ -6,9 +6,15 @@ Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: LuaCommitIntegration
 Bundle-RequiredExecutionEnvironment: JavaSE-13
 Export-Package: cipm.consistency.commitintegration.lang.lua
+Import-Package: org.junit.jupiter.api.extension
 Require-Bundle: cipm.consistency.commitintegration,
  tools.vitruv.framework.vsum,
  org.eclipse.jgit,
  org.eclipse.xtend.lib,
  org.apache.log4j,
- cipm.consistency.tools.evaluation.data
+ cipm.consistency.tools.evaluation.data,
+ javax.inject,
+ org.xtext.lua,
+ org.eclipse.xtext.testing;bundle-version="2.28.0",
+ org.apache.commons.io,
+ org.xtext.lua.tests
