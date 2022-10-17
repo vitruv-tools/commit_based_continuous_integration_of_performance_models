@@ -24,6 +24,8 @@ Require-Bundle: cipm.consistency.commitintegration,
  cipm.consistency.tools.evaluation.data,
  cipm.consistency.commitintegration.settings,
  org.slf4j.api,
- org.junit
+ org.junit,
+ cipm.consistency.commitintegration.lang.java,
+ cipm.consistency.commitintegration.lang.lua
 Export-Package: cipm.consistency.vsum.test
 Import-Package: org.junit.jupiter.api

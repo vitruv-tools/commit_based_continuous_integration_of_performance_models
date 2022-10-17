@@ -1,4 +1,4 @@
-package cipm.consistency.commitintegration.lang.impl.lua;
+package cipm.consistency.commitintegration.lang.lua;
 
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import cipm.consistency.commitintegration.lang.CommitChangePropagator;

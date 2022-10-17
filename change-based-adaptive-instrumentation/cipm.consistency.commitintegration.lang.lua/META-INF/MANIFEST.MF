@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Commit Integration of Lua Code
+Bundle-SymbolicName: cipm.consistency.commitintegration.lang.lua
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: LuaCommitIntegration
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: cipm.consistency.commitintegration.lang.lua
+Require-Bundle: cipm.consistency.commitintegration,
+ tools.vitruv.framework.vsum,
+ org.eclipse.jgit,
+ org.eclipse.xtend.lib

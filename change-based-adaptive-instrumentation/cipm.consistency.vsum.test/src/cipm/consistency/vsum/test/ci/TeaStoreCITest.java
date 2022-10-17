@@ -5,7 +5,7 @@ import cipm.consistency.commitintegration.diff.util.pcm.PCMModelComparator;
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import cipm.consistency.commitintegration.git.impl.JavaDiffComputation;
 import cipm.consistency.commitintegration.lang.LanguageSpecification;
-import cipm.consistency.commitintegration.lang.impl.java.JavaLanguageSpecification;
+import cipm.consistency.commitintegration.lang.java.JavaLanguageSpecification;
 import java.io.IOException;
 import java.nio.file.Path;
 import org.eclipse.emf.common.util.URI;

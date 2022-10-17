@@ -2,7 +2,7 @@ package cipm.consistency.vsum.test.evaluator;
 
 import cipm.consistency.commitintegration.diff.util.ComparisonBasedJaccardCoefficientCalculator;
 import cipm.consistency.commitintegration.diff.util.JavaModelComparator;
-import cipm.consistency.commitintegration.lang.impl.java.JavaParserAndPropagatorUtils;
+import cipm.consistency.commitintegration.lang.java.JavaParserAndPropagatorUtils;
 import cipm.consistency.tools.evaluation.data.JavaEvaluationData;
 import java.nio.file.Path;
 import java.nio.file.Paths;

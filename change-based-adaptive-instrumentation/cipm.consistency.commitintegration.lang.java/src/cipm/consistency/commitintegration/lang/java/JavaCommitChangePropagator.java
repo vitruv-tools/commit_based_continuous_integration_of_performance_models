@@ -1,4 +1,4 @@
-package cipm.consistency.commitintegration.lang.impl.java;
+package cipm.consistency.commitintegration.lang.java;
 
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import cipm.consistency.commitintegration.lang.CommitChangePropagator;

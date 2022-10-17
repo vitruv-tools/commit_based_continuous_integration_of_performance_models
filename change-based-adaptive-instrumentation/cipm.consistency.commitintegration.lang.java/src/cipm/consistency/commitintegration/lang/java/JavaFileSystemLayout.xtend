@@ -1,4 +1,4 @@
-package cipm.consistency.commitintegration.lang.impl.java
+package cipm.consistency.commitintegration.lang.java
 
 import org.eclipse.xtend.lib.annotations.Accessors
 import cipm.consistency.commitintegration.lang.LanguageFileSystemLayout

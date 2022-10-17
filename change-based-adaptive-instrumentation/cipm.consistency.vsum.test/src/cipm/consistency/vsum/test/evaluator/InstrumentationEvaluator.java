@@ -4,7 +4,7 @@ import cipm.consistency.base.models.instrumentation.InstrumentationModel.Instrum
 import cipm.consistency.commitintegration.diff.util.JavaChangedMethodDetectorDiffPostProcessor;
 import cipm.consistency.commitintegration.diff.util.JavaModelComparator;
 import cipm.consistency.commitintegration.lang.LanguageFileSystemLayout;
-import cipm.consistency.commitintegration.lang.impl.java.JavaParserAndPropagatorUtils;
+import cipm.consistency.commitintegration.lang.java.JavaParserAndPropagatorUtils;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.InstrumentationEvaluationData;
 import java.nio.file.Files;
