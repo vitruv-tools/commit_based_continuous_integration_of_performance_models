@@ -136,7 +136,7 @@ public final class JavaParserAndPropagatorUtils {
 
 		// TODO the API changed
 		// -> use views + viewTypes
-//		vsum.propagateChangedState(all);
+		vsum.propagateChangedState(all);
 
 		// we need to compute the change delta ourselves as vitruv pivoted away from
 		// state-based changes

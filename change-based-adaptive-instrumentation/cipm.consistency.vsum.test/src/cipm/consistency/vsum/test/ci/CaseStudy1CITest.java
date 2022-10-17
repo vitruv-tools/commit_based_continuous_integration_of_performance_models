@@ -15,6 +15,7 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.junit.Assert;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -32,27 +33,24 @@ public class CaseStudy1CITest extends AbstractCITest {
 //    private static final String COMMIT_TAG_1_3 = "745469e55fad8a801a92b0be96dc009acbe7e3fb";
 //    private static final String COMMIT_TAG_1_3_1 = "de69e957597d20d4be17fc7db2a0aa2fb3a414f7";
 
-
-
     @Override
     public LanguageSpecification getLanguageSpec() {
         return new LuaLanguageSpecification();
     }
 
-
-    public GitRepositoryWrapper initializeGitRepositoryWrapper() throws InvalidRemoteException, TransportException, GitAPIException, IOException {
-        var gitWrapper = new GitRepositoryWrapper(getRootPath().resolve("localRepo"), getLanguageSpec(), new LuaDiffComputation());
+    public GitRepositoryWrapper initializeGitRepositoryWrapper()
+            throws InvalidRemoteException, TransportException, GitAPIException, IOException {
         var parentGitDir = Paths.get("../../.git");
         var submoduleName = "change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/caseStudy1";
-        gitWrapper.initFromLocalSubmodule(parentGitDir, submoduleName);
-        return gitWrapper;
+        return (new GitRepositoryWrapper(getLanguageSpec(), new LuaDiffComputation()))
+            .withLocalSubmodule(parentGitDir, submoduleName)
+            .initialize();
     }
-
 
     @Test
     public void testCaseStudy1_0Integration() throws Exception {
         // Integrates casestudy version 1.0.
-        executePropagationAndEvaluation(null, COMMIT_TAG_1_0_0, 0);
+        Assert.assertTrue(executePropagationAndEvaluation(null, COMMIT_TAG_1_0_0, 0));
 //		performIndependentEvaluation();
     }
 
@@ -64,113 +62,83 @@ public class CaseStudy1CITest extends AbstractCITest {
 //		performIndependentEvaluation();
     }
 
-
-
     /**
      * TODO More complex tests
      * 
-    @Disabled("Only one test case should run at once.")
-    @Test
-    public void testTeaStoreWithMultipleCommits1_0To1_1() throws GitAPIException, IOException, InterruptedException {
-        propagateMultipleCommits(COMMIT_TAG_1_0, COMMIT_TAG_1_1);
-    }
-
-    @Disabled("Only one test case should run at once.")
-    @Test
-    public void testTeaStore1_1Integration() throws Exception {
-        // Integrates TeaStore version 1.1.
-        executePropagationAndEvaluation(null, COMMIT_TAG_1_1, 0);
-//		performIndependentEvaluation();
-    }
-
-    @Disabled("Only one test case should run at once.")
-    @Test
-    public void testTeaStore1_1To1_2Propagation() throws Exception {
-        // Propagation of changes between TeaStore version 1.1 and 1.2.
-        executePropagationAndEvaluation(COMMIT_TAG_1_1, COMMIT_TAG_1_2, 1);
-//		performIndependentEvaluation();
-    }
-
-    @Disabled("Only one test case should run at once.")
-    @Test
-    public void testTeaStoreWithMultipleCommits1_1To_1_2() throws Exception {
-        propagateMultipleCommits(COMMIT_TAG_1_1, COMMIT_TAG_1_2);
-    }
-
-    @Disabled("Only one test case should run at once.")
-    @Test
-    public void testTeaStore1_2Integration() throws Exception {
-        // Integrates TeaStore version 1.2.
-        executePropagationAndEvaluation(null, COMMIT_TAG_1_2, 0);
-//		performIndependentEvaluation();
-    }
-
-    @Disabled("Only one test case should run at once.")
-    @Test
-    public void testTeaStore1_2To_1_2_1Propagation() throws Exception {
-        // Propagation of changes between TeaStore version 1.2 and 1.2.1.
-        executePropagationAndEvaluation(COMMIT_TAG_1_2, COMMIT_TAG_1_2_1, 1);
-//		performIndependentEvaluation();
-    }
-
-    @Disabled("Only one test case should run at once.")
-    @Test
-    public void testTeaStoreWithMultipleCommits1_2To1_2_1() throws GitAPIException, IOException, InterruptedException {
-        propagateMultipleCommits(COMMIT_TAG_1_2, COMMIT_TAG_1_2_1);
-    }
-
-    @Disabled("Only one test case should run at once.")
-    @Test
-    public void testTeaStore1_2_1Integration() throws Exception {
-        // Integrates TeaStore version 1.2.1.
-        executePropagationAndEvaluation(null, COMMIT_TAG_1_2_1, 0);
-//		performIndependentEvaluation();
-    }
-
-    @Disabled("Only one test case should run at once.")
-    @Test
-    public void testTeaStore1_2_1To_1_3Propagation() throws Exception {
-        // Propagation of changes between TeaStore version 1.2.1 and 1.3.
-        executePropagationAndEvaluation(COMMIT_TAG_1_2_1, COMMIT_TAG_1_3, 1);
-//		performIndependentEvaluation();
-    }
-
-    @Disabled("Only one test case should run at once.")
-    @Test
-    public void testTeaStoreWithMultipleCommits1_2_1To1_3() throws GitAPIException, IOException, InterruptedException {
-        propagateMultipleCommits(COMMIT_TAG_1_2_1, COMMIT_TAG_1_3);
-    }
-
-    @Disabled("Only one test case should run at once.")
-    @Test
-    public void testTeaStore1_3Integration() throws Exception {
-        // Integrates TeaStore version 1.3.
-        executePropagationAndEvaluation(null, COMMIT_TAG_1_3, 0);
-//		performIndependentEvaluation();
-    }
-
-    @Disabled("Only one test case should run at once.")
-    @Test
-    public void testTeaStore1_3To_1_3_1Propagation() throws Exception {
-        // Propagation of changes between TeaStore version 1.3 and 1.3.1.
-        executePropagationAndEvaluation(COMMIT_TAG_1_3, COMMIT_TAG_1_3_1, 1);
-//		performIndependentEvaluation();
-    }
-
-    @Disabled("Only one test case should run at once.")
-    @Test
-    public void testTeaStoreWithMultipleCommits1_3To1_3_1() throws GitAPIException, IOException, InterruptedException {
-        propagateMultipleCommits(COMMIT_TAG_1_3, COMMIT_TAG_1_3_1);
-    }
-
-    @Disabled("Only one test case should run at once.")
-    @Test
-    public void testTeaStore1_3_1Integration() throws Exception {
-        // Integrates TeaStore version 1.3.1.
-        executePropagationAndEvaluation(null, COMMIT_TAG_1_3_1, 0);
-//		performIndependentEvaluation();
-    }
-    */
+     * @Disabled("Only one test case should run at once.")
+     * 
+     * @Test public void testTeaStoreWithMultipleCommits1_0To1_1() throws GitAPIException,
+     *       IOException, InterruptedException { propagateMultipleCommits(COMMIT_TAG_1_0,
+     *       COMMIT_TAG_1_1); }
+     * 
+     *       @Disabled("Only one test case should run at once.")
+     * @Test public void testTeaStore1_1Integration() throws Exception { // Integrates TeaStore
+     *       version 1.1. executePropagationAndEvaluation(null, COMMIT_TAG_1_1, 0); //
+     *       performIndependentEvaluation(); }
+     * 
+     *       @Disabled("Only one test case should run at once.")
+     * @Test public void testTeaStore1_1To1_2Propagation() throws Exception { // Propagation of
+     *       changes between TeaStore version 1.1 and 1.2.
+     *       executePropagationAndEvaluation(COMMIT_TAG_1_1, COMMIT_TAG_1_2, 1); //
+     *       performIndependentEvaluation(); }
+     * 
+     *       @Disabled("Only one test case should run at once.")
+     * @Test public void testTeaStoreWithMultipleCommits1_1To_1_2() throws Exception {
+     *       propagateMultipleCommits(COMMIT_TAG_1_1, COMMIT_TAG_1_2); }
+     * 
+     *       @Disabled("Only one test case should run at once.")
+     * @Test public void testTeaStore1_2Integration() throws Exception { // Integrates TeaStore
+     *       version 1.2. executePropagationAndEvaluation(null, COMMIT_TAG_1_2, 0); //
+     *       performIndependentEvaluation(); }
+     * 
+     *       @Disabled("Only one test case should run at once.")
+     * @Test public void testTeaStore1_2To_1_2_1Propagation() throws Exception { // Propagation of
+     *       changes between TeaStore version 1.2 and 1.2.1.
+     *       executePropagationAndEvaluation(COMMIT_TAG_1_2, COMMIT_TAG_1_2_1, 1); //
+     *       performIndependentEvaluation(); }
+     * 
+     *       @Disabled("Only one test case should run at once.")
+     * @Test public void testTeaStoreWithMultipleCommits1_2To1_2_1() throws GitAPIException,
+     *       IOException, InterruptedException { propagateMultipleCommits(COMMIT_TAG_1_2,
+     *       COMMIT_TAG_1_2_1); }
+     * 
+     *       @Disabled("Only one test case should run at once.")
+     * @Test public void testTeaStore1_2_1Integration() throws Exception { // Integrates TeaStore
+     *       version 1.2.1. executePropagationAndEvaluation(null, COMMIT_TAG_1_2_1, 0); //
+     *       performIndependentEvaluation(); }
+     * 
+     *       @Disabled("Only one test case should run at once.")
+     * @Test public void testTeaStore1_2_1To_1_3Propagation() throws Exception { // Propagation of
+     *       changes between TeaStore version 1.2.1 and 1.3.
+     *       executePropagationAndEvaluation(COMMIT_TAG_1_2_1, COMMIT_TAG_1_3, 1); //
+     *       performIndependentEvaluation(); }
+     * 
+     *       @Disabled("Only one test case should run at once.")
+     * @Test public void testTeaStoreWithMultipleCommits1_2_1To1_3() throws GitAPIException,
+     *       IOException, InterruptedException { propagateMultipleCommits(COMMIT_TAG_1_2_1,
+     *       COMMIT_TAG_1_3); }
+     * 
+     *       @Disabled("Only one test case should run at once.")
+     * @Test public void testTeaStore1_3Integration() throws Exception { // Integrates TeaStore
+     *       version 1.3. executePropagationAndEvaluation(null, COMMIT_TAG_1_3, 0); //
+     *       performIndependentEvaluation(); }
+     * 
+     *       @Disabled("Only one test case should run at once.")
+     * @Test public void testTeaStore1_3To_1_3_1Propagation() throws Exception { // Propagation of
+     *       changes between TeaStore version 1.3 and 1.3.1.
+     *       executePropagationAndEvaluation(COMMIT_TAG_1_3, COMMIT_TAG_1_3_1, 1); //
+     *       performIndependentEvaluation(); }
+     * 
+     *       @Disabled("Only one test case should run at once.")
+     * @Test public void testTeaStoreWithMultipleCommits1_3To1_3_1() throws GitAPIException,
+     *       IOException, InterruptedException { propagateMultipleCommits(COMMIT_TAG_1_3,
+     *       COMMIT_TAG_1_3_1); }
+     * 
+     *       @Disabled("Only one test case should run at once.")
+     * @Test public void testTeaStore1_3_1Integration() throws Exception { // Integrates TeaStore
+     *       version 1.3.1. executePropagationAndEvaluation(null, COMMIT_TAG_1_3_1, 0); //
+     *       performIndependentEvaluation(); }
+     */
 
 //	@Test
     public void testTemplateForPCMRepositoryComparison() {

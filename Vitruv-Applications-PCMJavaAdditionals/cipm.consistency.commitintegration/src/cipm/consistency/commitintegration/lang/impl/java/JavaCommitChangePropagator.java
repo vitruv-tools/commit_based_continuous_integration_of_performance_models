@@ -63,7 +63,7 @@ public class JavaCommitChangePropagator extends CommitChangePropagator {
 			return false;
 		}
 		LOGGER.debug("Delegating the change propagation to the JavaParserAndPropagatorUtility.");
-		JavaParserAndPropagatorUtils.parseAndPropagateJavaCode(repoWrapper.getRootDirectory().toPath(),
+		JavaParserAndPropagatorUtils.parseAndPropagateJavaCode(repoWrapper.getRepoPath(),
 				fileLayout.getModelFile(), vsum, fileLayout.getModuleConfiguration());
 		LOGGER.debug("Finished the propagation of " + commitId);
 		return true;
@@ -74,7 +74,7 @@ public class JavaCommitChangePropagator extends CommitChangePropagator {
 				.getProperty(SettingKeys.PATH_TO_PREPROCESSING_SCRIPT));
 		String absPath = possibleFile.getAbsolutePath();
 		if (possibleFile.exists()) {
-			return ExternalCommandExecutionUtils.runScript(this.repoWrapper.getRootDirectory(), absPath);
+			return ExternalCommandExecutionUtils.runScript(repoWrapper.getRepoPath().toFile(), absPath);
 		} else {
 			LOGGER.debug(absPath + " not found.");
 		}

@@ -62,7 +62,8 @@ public abstract class AbstractCITest extends CommitIntegrationController impleme
     protected void propagateMultipleCommits(String firstCommit, String lastCommit)
             throws IOException, InterruptedException {
         List<String> successfulCommits = new ArrayList<>();
-        var commits = convertToStringList(getGitRepositoryWrapper().getAllCommitsBetweenTwoCommits(firstCommit, lastCommit));
+        var commits = convertToStringList(
+                getGitRepositoryWrapper().getAllCommitsBetweenTwoCommits(firstCommit, lastCommit));
         commits.add(0, firstCommit);
         int startIndex = 0;
         var oldCommit = commits.get(startIndex);
@@ -106,6 +107,7 @@ public abstract class AbstractCITest extends CommitIntegrationController impleme
      * @throws IOException
      *             if an IO operation cannot be performed.
      */
+//    @SuppressWarnings("restriction")
     @SuppressWarnings("restriction")
     protected boolean executePropagationAndEvaluation(String oldCommit, String newCommit, int num) throws IOException {
         EvaluationDataContainer evalResult = new EvaluationDataContainer();
@@ -126,12 +128,7 @@ public abstract class AbstractCITest extends CommitIntegrationController impleme
             if (result) {
                 Resource javaModel = getModelResource();
                 Resource instrumentedModel = getLastInstrumentedModelResource();
-                Path root = getVsumFacade().getFileSystemLayout()
-                    .getRootPath();
-                Path copy = root.resolveSibling(root.getFileName()
-                    .toString() + "-" + num + "-" + newCommit);
-                LOGGER.debug("Copying the propagated state.");
-                FileUtils.copyDirectory(root.toFile(), copy.toFile());
+                var copy = createFileSystemCopy(num + "-" + newCommit);
                 LOGGER.debug("Evaluating the instrumentation.");
                 new InstrumentationEvaluator().evaluateInstrumentationDependently(
                         getVsumFacade().getInstrumentationModel(), javaModel, instrumentedModel,
@@ -176,16 +173,13 @@ public abstract class AbstractCITest extends CommitIntegrationController impleme
         LOGGER.debug("Evaluating the instrumentation model.");
         new IMUpdateEvaluator().evaluateIMUpdate(getVsumFacade().getPCMWrapper()
             .getRepository(), getVsumFacade().getInstrumentationModel(), evalResult.getImEvalResult(),
-                this.getRootPath()
-                    .toString());
+                getRootPath().toString());
         LOGGER.debug("Evaluating the instrumentation.");
         new InstrumentationEvaluator().evaluateInstrumentationIndependently(getVsumFacade().getInstrumentationModel(),
                 javaModel, getCommitChangePropagator().getFileSystemLayout(), getVsumFacade().getVsum()
                     .getCorrespondenceModel());
-        Path root = getVsumFacade().getFileSystemLayout()
-            .getRootPath();
-        EvaluationDataContainerReaderWriter.write(evalResult,
-                root.resolveSibling("EvaluationResult-" + newCommit + "-" + evalResult.getEvaluationTime() + ".json"));
+        EvaluationDataContainerReaderWriter.write(evalResult, getRootPath()
+            .resolveSibling("EvaluationResult-" + newCommit + "-" + evalResult.getEvaluationTime() + ".json"));
         LOGGER.debug("Finished the evaluation.");
     }
 
@@ -214,6 +208,6 @@ public abstract class AbstractCITest extends CommitIntegrationController impleme
      * @return the path.
      */
     public Path getVsumPath() {
-        return getRootPath().resolve("vsum");
+        return getRootPath();
     };
 }

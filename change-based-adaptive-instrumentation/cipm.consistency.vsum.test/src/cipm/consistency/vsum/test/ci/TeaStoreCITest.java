@@ -13,6 +13,9 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.NoHeadException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -30,15 +33,10 @@ public class TeaStoreCITest extends AbstractCITest {
     private static final String COMMIT_TAG_1_3_1 = "de69e957597d20d4be17fc7db2a0aa2fb3a414f7";
 
     @Override
-    public GitRepositoryWrapper initializeGitRepositoryWrapper() {
-        var wrapper = new GitRepositoryWrapper(getRootPath().resolve("repo"), getLanguageSpec(), new JavaDiffComputation());
-        try {
-            wrapper.initFromRemoteRepository("https://github.com/DescartesResearch/TeaStore");
-        } catch (GitAPIException | IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return wrapper;
+    public GitRepositoryWrapper initializeGitRepositoryWrapper() throws NoHeadException, InvalidRemoteException, TransportException, IOException, GitAPIException {
+        return (new GitRepositoryWrapper(getLanguageSpec(), new JavaDiffComputation()))
+            .withRemoteRepositoryCopy(getRootPath().resolve("repo"), "https://github.com/DescartesResearch/TeaStore")
+            .initialize();
     }
 
     @Override
@@ -165,7 +163,7 @@ public class TeaStoreCITest extends AbstractCITest {
     }
 
     @Disabled("Was previously deactivated")
-	@Test
+    @Test
     public void testTemplateForPCMRepositoryComparison() {
         ResourceSet set = new ResourceSetImpl();
         Resource res1 = set.getResource(URI.createFileURI("path1"), true);

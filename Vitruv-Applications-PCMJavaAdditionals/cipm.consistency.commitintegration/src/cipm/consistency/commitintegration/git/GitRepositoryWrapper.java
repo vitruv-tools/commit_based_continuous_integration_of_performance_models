@@ -53,397 +53,472 @@ import org.eclipse.jgit.util.io.NullOutputStream;
  * @author Martin Armbruster
  */
 public class GitRepositoryWrapper {
-	private Git git;
-	private Repository repository;
-	private RevCommit latestCommit;
-	private File rootDirectory;
-	private String defaultBranch;
-	private LanguageSpecification languageSpec;
-	private DiffComputation diffComputation;
-	
-	/**
-	 * Creates a new Git repository wrapper with a local copy in <code>rootDirectory</code>.
-	 * 
-	 * @param rootDirectory local directory for a copy of the Git repository.
-	 */
-	public GitRepositoryWrapper(Path rootPath, LanguageSpecification langSpec, DiffComputation diffComputation) {
-		this.rootDirectory = rootPath.toFile();
-		this.languageSpec = langSpec;
-		this.diffComputation = diffComputation;
-	}
-	
-	/**
-	 * Initializes the Git repository from the given local directory.
-	 * 
-	 * @throws IOException if the given local directory does not contain a Git repository.
-	 * @throws GitAPIException if the result cannot be computed.
-	 * @throws NoHeadException if the repository has no head.
-	 */
-	public void initFromRootDirectory() throws IOException, NoHeadException, GitAPIException {
-		git = Git.open(rootDirectory);
-		repository = git.getRepository();
-		readInitialState();
-	}
-	
-	/**
-	 * Clones an existing remote Git repository into the given local repository.
-	 * 
-	 * @param uriToRemoteRepository URI to the remote repository.
-     * @throws GitAPIException if unable to compute a result.
-     * @throws InvalidRemoteException thrown when the remote repository is invalid.
-     * @throws TransportException thrown when the transport operation failed.
-	 * @throws IOException if the cloned repository cannot be read.
-	 */
-	public void initFromRemoteRepository(String uriToRemoteRepository)
-			throws InvalidRemoteException, TransportException, GitAPIException, IOException {
-		git = Git.cloneRepository().setURI(uriToRemoteRepository)
-		  .setDirectory(rootDirectory).setCloneAllBranches(true).call();
-		repository = this.git.getRepository();
-		readInitialState();
-	}
+    private Git git;
+    private Repository repository;
+    private RevCommit latestCommit;
+    private String defaultBranch;
+    private LanguageSpecification languageSpec;
+    private DiffComputation diffComputation;
+    private File repoDir;
 
-	public void initFromLocalSubmodule(Path parentRepoGitDir, String submoduleName)
-			throws InvalidRemoteException, TransportException, GitAPIException, IOException {
-	    var parentGit = Git.open(parentRepoGitDir.toFile());
-        repository  = SubmoduleWalk.getSubmoduleRepository(parentGit.getRepository(), submoduleName);
+    public GitRepositoryWrapper(LanguageSpecification langSpec, DiffComputation diffComputation) {
+        this.languageSpec = langSpec;
+        this.diffComputation = diffComputation;
+    }
+
+    public GitRepositoryWrapper withLocalDirectory(Path repoPath) throws IOException, NoHeadException, GitAPIException {
+        repoDir = repoPath.toFile();
+        git = Git.open(repoDir);
+        repository = git.getRepository();
+        return this;
+    }
+
+    public GitRepositoryWrapper withRemoteRepositoryCopy(Path targetPath, String uriToRemoteRepository)
+            throws InvalidRemoteException, TransportException, GitAPIException, IOException {
+        repoDir = targetPath.toFile();
+        git = Git.cloneRepository()
+            .setURI(uriToRemoteRepository)
+            .setDirectory(repoDir)
+            .setCloneAllBranches(true)
+            .call();
+        repository = this.git.getRepository();
+        return this;
+    }
+
+    public GitRepositoryWrapper withLocalSubmodule(Path parentRepoGitDir, String submoduleName)
+            throws InvalidRemoteException, TransportException, GitAPIException, IOException {
+        var parentGit = Git.open(parentRepoGitDir.toFile());
+        repository = SubmoduleWalk.getSubmoduleRepository(parentGit.getRepository(), submoduleName);
         git = new Git(repository);
-        readInitialState();
-	}
-	
-	private void readInitialState() throws IOException, NoHeadException, GitAPIException {
-		defaultBranch = repository.getBranch();
-		git.log().setMaxCount(1).call().forEach(c -> latestCommit = c);
-	}
-	
-	public boolean isInitialized() {
-		return git != null;
-	}
-	
-	/**
-	 * Closes the Git repository.
-	 */
-	public void closeRepository() {
-		git.close();
-		repository.close();
-	}
-	
-	/**
-	 * Performs the <code>git checkout</code> command. 
-	 * 
-	 * @param id the commit id or branch to checkout.
-	 * 
-	 * @exception RefAlreadyExistsException thrown when trying to create a Ref with the same name as an existing one.
-	 * @exception RefNotFoundException thrown when a Ref cannot be resolved.
-	 * @exception InvalidRefNameException thrown when an invalid Ref name was encountered.
-	 * @exception CheckoutConflictException thrown when a command cannot succeed because of unresolved conflicts.
-	 * @exception GitAPIException if unable to compute a result.
-	 */
-	public void checkout(String id) throws RefAlreadyExistsException, RefNotFoundException,
-			InvalidRefNameException, CheckoutConflictException, GitAPIException {
-		git.checkout().setName(id).call();
-		git.log().setMaxCount(1).call().forEach(c -> latestCommit = c);
-	}
-	
-	/**
-	 * Returns the commit for a commit id.
-	 * 
-	 * @param commitId the commit id.
-	 * @return the commit.
-	 * @throws AmbiguousObjectException 
-	 * @throws MissingObjectException 
-	 * @throws IncorrectObjectTypeException 
-	 * @throws RevisionSyntaxException 
-	 * @throws GitAPIException if the commit id is invalid.
-	 * @throws IOException if the repository cannot be read.
-	 */
-	public RevCommit getCommitForId(String commitId) throws RevisionSyntaxException, IncorrectObjectTypeException, MissingObjectException, AmbiguousObjectException, IOException {
-		if (commitId == null) {
-		    return null;
-		}
-		return repository.parseCommit(repository.resolve(commitId));
-	}
-	
-	/**
-	 * Returns all commits in the Git repository.
-	 * 
-	 * @return all commits.
-	 */
-	public List<RevCommit> getAllCommits() {
-		List<RevCommit> listOfCommits = new ArrayList<>();
-		try {
-			git.log().all().call().forEach(listOfCommits::add);
-		} catch (GitAPIException | IOException e) {
-		}
-		Collections.reverse(listOfCommits);
-		return listOfCommits;
-	}
-	
-	/**
-	 * Returns all commits from a given branch.
-	 * 
-	 * @param branchName the given branch.
-	 * @return all commits from the given branch.
-	 */
-	public List<RevCommit> getAllCommitsFromBranch(String branchName) {
-		List<RevCommit> listOfCommits = new ArrayList<>();
-		try {
-			git.log().add(repository.resolve(branchName)).call().forEach(listOfCommits::add);
-		} catch (RevisionSyntaxException | GitAPIException | IOException e) {
-		}
-		Collections.reverse(listOfCommits);
-		return listOfCommits;
-	}
-	
-	/**
-	 * Returns all commits between two particular commits.
-	 * 
-	 * @param startCommitHash start commit. 
-	 * @param endCommitHash end commit.
-	 * @return commits between two particular commits.
-	 */
-	public List<RevCommit> getAllCommitsBetweenTwoCommits(final String startCommitHash, final String endCommitHash) {
-		List<RevCommit> listOfCommits = new ArrayList<>();
-		try {
-			ObjectId refTo = repository.resolve(endCommitHash);
-			if (startCommitHash == null) {
-				git.log().add(refTo).call().forEach(listOfCommits::add);
-			} else {
-				ObjectId refFrom = repository.resolve(startCommitHash);
-				git.log().addRange(refFrom, refTo).call().forEach(listOfCommits::add);
-			}
-		} catch (IOException | GitAPIException e) {
-		}
-		Collections.reverse(listOfCommits);
-		return listOfCommits;
-	}
+        return this;
+    }
 
-	/**
-	 * Computes all {@link DiffEntry} between <code>oldRevCommit</code> and <code>newRevCommit</code> representing the changes between the two commits.
-	 * For more explanation of particular parts of the method <a href="https://www.codeaffine.com/2016/06/16/jgit-diff/">https://www.codeaffine.com</a>
-	 * 
-	 * @param oldRevCommit start commit (usually an older commit).
-	 * @param newRevCommit end commit (usually a newer commit).
-	 * @param onlyChangesOnJavaFiles If the flag is true, only changes on Java files will be detected. All changes on other file types will be ignored.
-	 * @param detectRenames If the flag is true, renames on files will be detected.
-	 * @return computed {@link List} with {@link DiffEntry}.
-	 * @throws IOException if an IO operation fails.
-	 * @throws IncorrectObjectTypeException if one of the given commits is invalid.
-	 */
-	public List<DiffEntry> computeDiffsBetweenTwoCommits(RevCommit oldRevCommit, RevCommit newRevCommit) throws IncorrectObjectTypeException, IOException {
+    public GitRepositoryWrapper initialize() throws IOException, NoHeadException, GitAPIException {
+        defaultBranch = repository.getBranch();
+        git.log()
+            .setMaxCount(1)
+            .call()
+            .forEach(c -> latestCommit = c);
+        return this;
+    }
 
-		ObjectReader treeReader = repository.newObjectReader();
-		
-		AbstractTreeIterator oldParser;
-		if (oldRevCommit != null) {
-			ObjectId oldTreeId = oldRevCommit.getTree().getId();
-			CanonicalTreeParser oldTreeParser = new CanonicalTreeParser();
-			oldTreeParser.reset(treeReader, oldTreeId);
-			oldParser = oldTreeParser;
-		} else {
-			oldParser = new EmptyTreeIterator();
-		}
-		
-		ObjectId newTreeId = newRevCommit.getTree().getId();
-		CanonicalTreeParser newTreeParser = new CanonicalTreeParser();
-		newTreeParser.reset(treeReader, newTreeId);
+    /**
+     * Closes the Git repository.
+     */
+    public void closeRepository() {
+        git.close();
+        repository.close();
+    }
 
-		OutputStream outputStream = NullOutputStream.INSTANCE;
-		DiffFormatter df = new DiffFormatter(outputStream) {
-			@Override
-			protected void writeAddedLine(RawText text, int line) {
-				var cs = EvaluationDataContainer.getGlobalContainer().getChangeStatistic();
-				cs.setNumberAddedLines(cs.getNumberAddedLines() + 1);
-			}
-			
-			@Override
-			protected void writeRemovedLine(RawText text, int line) {
-				var cs = EvaluationDataContainer.getGlobalContainer().getChangeStatistic();
-				cs.setNumberRemovedLines(cs.getNumberRemovedLines() + 1);
-			}
-		};
-		df.setRepository(repository);
-		
-		// Set filter to detect only changes on Java files if necessary. 
-		if (diffComputation.getOnlySourceFiles()) {
-			TreeFilter treeFilter = PathSuffixFilter.create("."+languageSpec.getSourceSuffix());
-			df.setPathFilter(treeFilter);
-		}
-		// Compute diffs between the commits.
-		List<DiffEntry> diffs = df.scan(oldParser, newTreeParser);
-		
-		// Detect renames on changed files if necessary.
-		if (diffComputation.getDetectRenames()) {
-			 RenameDetector rd = new RenameDetector(repository);
-			 rd.addAll(diffs);
-			 diffs = rd.compute();
-		}
-		
-		for (DiffEntry diff : diffs) {
-			df.format(diff);
-		}
-		df.close();
-		
-		EvaluationDataContainer.getGlobalContainer().getChangeStatistic().setNumberChangedJavaFiles(diffs.size());
-		
-		return diffs;
-	}
+    public boolean isInitialized() {
+        return git != null;
+    }
 
-	/**
-	 * Computes changes from the given {@link DiffEntry}.
-	 * An {@link EditList} contain numbers of lines which have to be added, removed, or replaced 
-	 * in the older file version in order to obtain the same content as in the newer file version. 
-	 * 
-	 * @param diff contains information about the changes on a file.
-	 * @return {@link EditList}
-	 * @throws MissingObjectException if the DiffEntry is missing.
-	 * @throws CorruptObjectException if the DiffEntry is invalid.
-	 * @throws IOException if an I/O exception occurs.
-	 */
-	public EditList computeEditListFromDiffEntry(DiffEntry diff)
-			throws CorruptObjectException, MissingObjectException, IOException {
-		OutputStream outputStream = NullOutputStream.INSTANCE;
-		DiffFormatter diffFormatter = new DiffFormatter(outputStream);
-		diffFormatter.setRepository(repository);
-		try {
-			FileHeader fileHeader = diffFormatter.toFileHeader(diff);
-			return fileHeader.toEditList();
-		} finally {
-			diffFormatter.close();
-		}
-	}
-	
-	/**
-	 * Returns the older version of file content in {@link String} format.
-	 * 
-	 * @param diff contains information about changes on a file.
-	 * @return older version of the file content.
-	 * @throws IOException if the diff cannot be read.
-	 * @throws MissingObjectException if the diff is missing.
-	 */
-	public String getOldContentOfFileFromDiffEntry(DiffEntry diff) throws MissingObjectException, IOException {
-		ObjectId oldObjectId = diff.getOldId().toObjectId();
+    public Path getRepoPath() {
+        if (repository != null)
+            return repository.getDirectory().toPath();
+        return null;
+    }
+
+    /**
+     * Performs the <code>git checkout</code> command.
+     * 
+     * @param id
+     *            the commit id or branch to checkout.
+     * 
+     * @exception RefAlreadyExistsException
+     *                thrown when trying to create a Ref with the same name as an existing one.
+     * @exception RefNotFoundException
+     *                thrown when a Ref cannot be resolved.
+     * @exception InvalidRefNameException
+     *                thrown when an invalid Ref name was encountered.
+     * @exception CheckoutConflictException
+     *                thrown when a command cannot succeed because of unresolved conflicts.
+     * @exception GitAPIException
+     *                if unable to compute a result.
+     */
+    public void checkout(String id) throws RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException,
+            CheckoutConflictException, GitAPIException {
+        git.checkout()
+            .setName(id)
+            .call();
+        git.log()
+            .setMaxCount(1)
+            .call()
+            .forEach(c -> latestCommit = c);
+    }
+
+    /**
+     * Returns the commit for a commit id.
+     * 
+     * @param commitId
+     *            the commit id.
+     * @return the commit.
+     * @throws AmbiguousObjectException
+     * @throws MissingObjectException
+     * @throws IncorrectObjectTypeException
+     * @throws RevisionSyntaxException
+     * @throws GitAPIException
+     *             if the commit id is invalid.
+     * @throws IOException
+     *             if the repository cannot be read.
+     */
+    public RevCommit getCommitForId(String commitId) throws RevisionSyntaxException, IncorrectObjectTypeException,
+            MissingObjectException, AmbiguousObjectException, IOException {
+        if (commitId == null) {
+            return null;
+        }
+        return repository.parseCommit(repository.resolve(commitId));
+    }
+
+    /**
+     * Returns all commits in the Git repository.
+     * 
+     * @return all commits.
+     */
+    public List<RevCommit> getAllCommits() {
+        List<RevCommit> listOfCommits = new ArrayList<>();
+        try {
+            git.log()
+                .all()
+                .call()
+                .forEach(listOfCommits::add);
+        } catch (GitAPIException | IOException e) {
+        }
+        Collections.reverse(listOfCommits);
+        return listOfCommits;
+    }
+
+    /**
+     * Returns all commits from a given branch.
+     * 
+     * @param branchName
+     *            the given branch.
+     * @return all commits from the given branch.
+     */
+    public List<RevCommit> getAllCommitsFromBranch(String branchName) {
+        List<RevCommit> listOfCommits = new ArrayList<>();
+        try {
+            git.log()
+                .add(repository.resolve(branchName))
+                .call()
+                .forEach(listOfCommits::add);
+        } catch (RevisionSyntaxException | GitAPIException | IOException e) {
+        }
+        Collections.reverse(listOfCommits);
+        return listOfCommits;
+    }
+
+    /**
+     * Returns all commits between two particular commits.
+     * 
+     * @param startCommitHash
+     *            start commit.
+     * @param endCommitHash
+     *            end commit.
+     * @return commits between two particular commits.
+     */
+    public List<RevCommit> getAllCommitsBetweenTwoCommits(final String startCommitHash, final String endCommitHash) {
+        List<RevCommit> listOfCommits = new ArrayList<>();
+        try {
+            ObjectId refTo = repository.resolve(endCommitHash);
+            if (startCommitHash == null) {
+                git.log()
+                    .add(refTo)
+                    .call()
+                    .forEach(listOfCommits::add);
+            } else {
+                ObjectId refFrom = repository.resolve(startCommitHash);
+                git.log()
+                    .addRange(refFrom, refTo)
+                    .call()
+                    .forEach(listOfCommits::add);
+            }
+        } catch (IOException | GitAPIException e) {
+        }
+        Collections.reverse(listOfCommits);
+        return listOfCommits;
+    }
+
+    /**
+     * Computes all {@link DiffEntry} between <code>oldRevCommit</code> and
+     * <code>newRevCommit</code> representing the changes between the two commits. For more
+     * explanation of particular parts of the method
+     * <a href="https://www.codeaffine.com/2016/06/16/jgit-diff/">https://www.codeaffine.com</a>
+     * 
+     * @param oldRevCommit
+     *            start commit (usually an older commit).
+     * @param newRevCommit
+     *            end commit (usually a newer commit).
+     * @param onlyChangesOnJavaFiles
+     *            If the flag is true, only changes on Java files will be detected. All changes on
+     *            other file types will be ignored.
+     * @param detectRenames
+     *            If the flag is true, renames on files will be detected.
+     * @return computed {@link List} with {@link DiffEntry}.
+     * @throws IOException
+     *             if an IO operation fails.
+     * @throws IncorrectObjectTypeException
+     *             if one of the given commits is invalid.
+     */
+    public List<DiffEntry> computeDiffsBetweenTwoCommits(RevCommit oldRevCommit, RevCommit newRevCommit)
+            throws IncorrectObjectTypeException, IOException {
+
+        ObjectReader treeReader = repository.newObjectReader();
+
+        AbstractTreeIterator oldParser;
+        if (oldRevCommit != null) {
+            ObjectId oldTreeId = oldRevCommit.getTree()
+                .getId();
+            CanonicalTreeParser oldTreeParser = new CanonicalTreeParser();
+            oldTreeParser.reset(treeReader, oldTreeId);
+            oldParser = oldTreeParser;
+        } else {
+            oldParser = new EmptyTreeIterator();
+        }
+
+        ObjectId newTreeId = newRevCommit.getTree()
+            .getId();
+        CanonicalTreeParser newTreeParser = new CanonicalTreeParser();
+        newTreeParser.reset(treeReader, newTreeId);
+
+        OutputStream outputStream = NullOutputStream.INSTANCE;
+        DiffFormatter df = new DiffFormatter(outputStream) {
+            @Override
+            protected void writeAddedLine(RawText text, int line) {
+                var cs = EvaluationDataContainer.getGlobalContainer()
+                    .getChangeStatistic();
+                cs.setNumberAddedLines(cs.getNumberAddedLines() + 1);
+            }
+
+            @Override
+            protected void writeRemovedLine(RawText text, int line) {
+                var cs = EvaluationDataContainer.getGlobalContainer()
+                    .getChangeStatistic();
+                cs.setNumberRemovedLines(cs.getNumberRemovedLines() + 1);
+            }
+        };
+        df.setRepository(repository);
+
+        // Set filter to detect only changes on Java files if necessary.
+        if (diffComputation.getOnlySourceFiles()) {
+            TreeFilter treeFilter = PathSuffixFilter.create("." + languageSpec.getSourceSuffix());
+            df.setPathFilter(treeFilter);
+        }
+        // Compute diffs between the commits.
+        List<DiffEntry> diffs = df.scan(oldParser, newTreeParser);
+
+        // Detect renames on changed files if necessary.
+        if (diffComputation.getDetectRenames()) {
+            RenameDetector rd = new RenameDetector(repository);
+            rd.addAll(diffs);
+            diffs = rd.compute();
+        }
+
+        for (DiffEntry diff : diffs) {
+            df.format(diff);
+        }
+        df.close();
+
+        EvaluationDataContainer.getGlobalContainer()
+            .getChangeStatistic()
+            .setNumberChangedJavaFiles(diffs.size());
+
+        return diffs;
+    }
+
+    /**
+     * Computes changes from the given {@link DiffEntry}. An {@link EditList} contain numbers of
+     * lines which have to be added, removed, or replaced in the older file version in order to
+     * obtain the same content as in the newer file version.
+     * 
+     * @param diff
+     *            contains information about the changes on a file.
+     * @return {@link EditList}
+     * @throws MissingObjectException
+     *             if the DiffEntry is missing.
+     * @throws CorruptObjectException
+     *             if the DiffEntry is invalid.
+     * @throws IOException
+     *             if an I/O exception occurs.
+     */
+    public EditList computeEditListFromDiffEntry(DiffEntry diff)
+            throws CorruptObjectException, MissingObjectException, IOException {
+        OutputStream outputStream = NullOutputStream.INSTANCE;
+        DiffFormatter diffFormatter = new DiffFormatter(outputStream);
+        diffFormatter.setRepository(repository);
+        try {
+            FileHeader fileHeader = diffFormatter.toFileHeader(diff);
+            return fileHeader.toEditList();
+        } finally {
+            diffFormatter.close();
+        }
+    }
+
+    /**
+     * Returns the older version of file content in {@link String} format.
+     * 
+     * @param diff
+     *            contains information about changes on a file.
+     * @return older version of the file content.
+     * @throws IOException
+     *             if the diff cannot be read.
+     * @throws MissingObjectException
+     *             if the diff is missing.
+     */
+    public String getOldContentOfFileFromDiffEntry(DiffEntry diff) throws MissingObjectException, IOException {
+        ObjectId oldObjectId = diff.getOldId()
+            .toObjectId();
         return readObjectToString(oldObjectId);
-	}
-	
-	/**
-	 * Returns the newer version of file content in {@link String} format.
-	 * 
-	 * @param diff contains information about changes on a file.
-	 * @return newer version of file content.
-	 * @throws IOException if the diff cannot be read.
-	 * @throws MissingObjectException if the diff is missing.
-	 */
-	public String getNewContentOfFileFromDiffEntry(DiffEntry diff) throws MissingObjectException, IOException {
-		ObjectId newObjectId = diff.getNewId().toObjectId();
+    }
+
+    /**
+     * Returns the newer version of file content in {@link String} format.
+     * 
+     * @param diff
+     *            contains information about changes on a file.
+     * @return newer version of file content.
+     * @throws IOException
+     *             if the diff cannot be read.
+     * @throws MissingObjectException
+     *             if the diff is missing.
+     */
+    public String getNewContentOfFileFromDiffEntry(DiffEntry diff) throws MissingObjectException, IOException {
+        ObjectId newObjectId = diff.getNewId()
+            .toObjectId();
         return readObjectToString(newObjectId);
-	}
-	
-	private String readObjectToString(ObjectId objId) throws MissingObjectException, IOException {
-		ObjectLoader loader = repository.open(objId);
-		return new String(loader.getBytes());
-	}
-	
-	/**
-	 * Returns the older version of file content in an {@link OutputStream}.
-	 * 
-	 * @param diff contains information about changes on a file.
-	 * @return older version of file content.
-	 * @throws IOException if the diff cannot be read.
-	 * @throws MissingObjectException if the diff cannot be found.
-	 */
-	public OutputStream getOldContentOfFileFromDiffEntryInOutputStream(DiffEntry diff)
-			throws MissingObjectException, IOException {
-		ObjectId oldObjectId = diff.getOldId().toObjectId();
+    }
+
+    private String readObjectToString(ObjectId objId) throws MissingObjectException, IOException {
+        ObjectLoader loader = repository.open(objId);
+        return new String(loader.getBytes());
+    }
+
+    /**
+     * Returns the older version of file content in an {@link OutputStream}.
+     * 
+     * @param diff
+     *            contains information about changes on a file.
+     * @return older version of file content.
+     * @throws IOException
+     *             if the diff cannot be read.
+     * @throws MissingObjectException
+     *             if the diff cannot be found.
+     */
+    public OutputStream getOldContentOfFileFromDiffEntryInOutputStream(DiffEntry diff)
+            throws MissingObjectException, IOException {
+        ObjectId oldObjectId = diff.getOldId()
+            .toObjectId();
         return readObjectAsOutputStream(oldObjectId);
- 	}
-	
- 	/**
-	 * Returns the newer version of file content in an {@link OutputStream}.
- 	 * 
-	 * @param diff contains information about changes on a file.
-	 * @return older version of file content.
- 	 * @throws IOException if the diff cannot be read.
- 	 * @throws MissingObjectException if the diff cannot be found.
-	 */
-	public OutputStream getNewContentOfFileFromDiffEntryInOutputStream(DiffEntry diff)
-			throws MissingObjectException, IOException {
-		ObjectId newObjectId = diff.getNewId().toObjectId();
+    }
+
+    /**
+     * Returns the newer version of file content in an {@link OutputStream}.
+     * 
+     * @param diff
+     *            contains information about changes on a file.
+     * @return older version of file content.
+     * @throws IOException
+     *             if the diff cannot be read.
+     * @throws MissingObjectException
+     *             if the diff cannot be found.
+     */
+    public OutputStream getNewContentOfFileFromDiffEntryInOutputStream(DiffEntry diff)
+            throws MissingObjectException, IOException {
+        ObjectId newObjectId = diff.getNewId()
+            .toObjectId();
         return readObjectAsOutputStream(newObjectId);
-	}
-	
-	private OutputStream readObjectAsOutputStream(ObjectId objId) throws MissingObjectException, IOException {
-		OutputStream oldContent = new ByteArrayOutputStream();
-		repository.open(objId).copyTo(oldContent);
+    }
+
+    private OutputStream readObjectAsOutputStream(ObjectId objId) throws MissingObjectException, IOException {
+        OutputStream oldContent = new ByteArrayOutputStream();
+        repository.open(objId)
+            .copyTo(oldContent);
         return oldContent;
-	}
-	
-	/**
-	 * Returns the {@link FileHeader} from the given <code>diff</code>.
-	 * 
-	 * @param diff the diff to obtain the {@link FileHeader} from.
-	 * @return the {@link FileHeader}.
-	 * @throws IOException if the diff cannot be read.
-	 */
-	public FileHeader getFileHeaderFromDiffEntry(DiffEntry diff) throws IOException {
-		OutputStream outputStream = NullOutputStream.INSTANCE;
-		DiffFormatter diffFormatter = new DiffFormatter(outputStream);
-		diffFormatter.setRepository(repository);
-		
-		try {
-			return diffFormatter.toFileHeader(diff);
-		} finally {
-			diffFormatter.close();
-		}
-	}
+    }
 
-	public RevCommit getLatestCommit() {
-		return latestCommit;
-	}
-	
-	public File getRootDirectory() {
-		return rootDirectory;
-	}
+    /**
+     * Returns the {@link FileHeader} from the given <code>diff</code>.
+     * 
+     * @param diff
+     *            the diff to obtain the {@link FileHeader} from.
+     * @return the {@link FileHeader}.
+     * @throws IOException
+     *             if the diff cannot be read.
+     */
+    public FileHeader getFileHeaderFromDiffEntry(DiffEntry diff) throws IOException {
+        OutputStream outputStream = NullOutputStream.INSTANCE;
+        DiffFormatter diffFormatter = new DiffFormatter(outputStream);
+        diffFormatter.setRepository(repository);
 
-	/**
-	 * Performs a <code>git fetch</code> in order to receive all new commits between the latest local commit
-	 * and the latest commit in the remote repository.
-	 * 
-	 * @return the list of all new commits.
-	 */
-	public List<RevCommit> fetchAndGetNewCommits() {
-		List<RevCommit> result = new ArrayList<>();
-		try {
-			git.fetch().call();
-			ObjectId curCommit = latestCommit.getId();
-			ObjectId lastCommit = repository.resolve("origin/" + defaultBranch);
-			git.log().addRange(curCommit, lastCommit).call().forEach(result::add);
-		} catch (GitAPIException | IOException e) {
-		}
-		Collections.reverse(result);
-		return result;
-	}
-	
-	/**
-	 * Performs a complete cleaning of the git repository, i. e., all untracked and ignored files are removed,
-	 * and all changes are reset to the last commit.
-	 * 
-	 * @throws GitAPIException if a Git operation cannot be performed.
-	 * @throws IOException if an IO operation cannot be performed.
-	 */
-	public void performCompleteClean() throws GitAPIException, IOException {
-		var files = this.rootDirectory.listFiles();
-		if (files != null) {
-			for (File innerFile : files) {
-				if (innerFile.getName().equals(".git")) {
-					continue;
-				}
-				if (innerFile.isDirectory()) {
-					FileUtils.deleteDirectory(innerFile);
-				} else if (innerFile.isFile()) {
-					innerFile.delete();
-				}
-			}
-		}
-		git.reset().setMode(ResetType.HARD).call();
-	}
+        try {
+            return diffFormatter.toFileHeader(diff);
+        } finally {
+            diffFormatter.close();
+        }
+    }
+
+    public RevCommit getLatestCommit() {
+        return latestCommit;
+    }
+
+//    public File getRootDirectory() {
+//        return rootDirectory;
+//    }
+
+    /**
+     * Performs a <code>git fetch</code> in order to receive all new commits between the latest
+     * local commit and the latest commit in the remote repository.
+     * 
+     * @return the list of all new commits.
+     */
+    public List<RevCommit> fetchAndGetNewCommits() {
+        List<RevCommit> result = new ArrayList<>();
+        try {
+            git.fetch()
+                .call();
+            ObjectId curCommit = latestCommit.getId();
+            ObjectId lastCommit = repository.resolve("origin/" + defaultBranch);
+            git.log()
+                .addRange(curCommit, lastCommit)
+                .call()
+                .forEach(result::add);
+        } catch (GitAPIException | IOException e) {
+        }
+        Collections.reverse(result);
+        return result;
+    }
+
+    /**
+     * Performs a complete cleaning of the git repository, i. e., all untracked and ignored files
+     * are removed, and all changes are reset to the last commit.
+     * 
+     * @throws GitAPIException
+     *             if a Git operation cannot be performed.
+     * @throws IOException
+     *             if an IO operation cannot be performed.
+     */
+    public void performCompleteClean() throws GitAPIException, IOException {
+        git.reset()
+            .setMode(ResetType.HARD)
+            .call();
+
+        if (repoDir == null)
+            return;
+
+        var files = this.repoDir.listFiles();
+        if (files != null) {
+            for (File innerFile : files) {
+                if (innerFile.getName()
+                    .equals(".git")) {
+                    continue;
+                }
+                if (innerFile.isDirectory()) {
+                    FileUtils.deleteDirectory(innerFile);
+                } else if (innerFile.isFile()) {
+                    innerFile.delete();
+                }
+            }
+        }
+    }
 }
