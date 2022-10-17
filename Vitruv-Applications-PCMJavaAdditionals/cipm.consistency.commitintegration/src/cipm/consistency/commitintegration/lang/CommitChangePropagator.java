@@ -1,11 +1,14 @@
 package cipm.consistency.commitintegration.lang;
 
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
 
@@ -147,16 +150,67 @@ public abstract class CommitChangePropagator {
     public boolean propagateChanges(String startId, String endId) throws GitAPIException, IOException {
         return propagateChanges(repoWrapper.getCommitForId(startId), repoWrapper.getCommitForId(endId));
     }
-
+	
 	/**
-	 * Propagates changes between two commits to the VSUM.
-	 * 
-	 * @param start the first commit.
-	 * @param end   the second commit.
-	 * @return true if the changes are successfully propagated. false indicates that
-	 *         there are no changes for Java files or the pre-processing failed.
-	 * @throws GitAPIException if there is an exception within the Git usage.
-	 * @throws IOException     if something from the repositories cannot be read.
+	 * Can be overwritten to do processing after every checkout
+	 * @return
 	 */
-	public abstract boolean propagateChanges(RevCommit start, RevCommit end) throws GitAPIException, IOException; 
+	protected boolean preprocessCheckout() {
+	    return true;
+	}
+
+    public boolean checkout(String commitId) {
+        LOGGER.debug("Checkout of " + commitId);
+        try {
+            repoWrapper.checkout(commitId);
+            if (!preprocessCheckout()) {
+                LOGGER.debug("The preprocessing failed. Aborting.");
+                return false;
+            }
+            return true;
+        } catch (GitAPIException e) {
+            LOGGER.error("Unable to checkout", e);
+        }
+        return false;
+    }
+	
+    /**
+     * Propagates changes between two commits to the VSUM.
+     * 
+     * @param start
+     *            the first commit.
+     * @param end
+     *            the second commit.
+     * @return true if the changes are successfully propagated. false indicates that there are no
+     *         changes for Java files or the pre-processing failed.
+     * @throws IncorrectObjectTypeException
+     * @throws IOException
+     *             if something from the repositories cannot be read.
+     */
+    public boolean propagateChanges(RevCommit start, RevCommit end) throws IncorrectObjectTypeException, IOException {
+        String commitId = end.getId()
+            .getName();
+        LOGGER.debug("Obtaining all differences.");
+        List<DiffEntry> diffs = repoWrapper.computeDiffsBetweenTwoCommits(start, end);
+        if (diffs.size() == 0) {
+            LOGGER.info("No source files changed for " + commitId + ": No propagation is performed.");
+            return false;
+        }
+        var cs = EvaluationDataContainer.getGlobalContainer()
+            .getChangeStatistic();
+        String oldId = start != null ? start.getId()
+            .getName() : null;
+        cs.setOldCommit(oldId != null ? oldId : "");
+        cs.setNewCommit(commitId);
+        cs.setNumberCommits(repoWrapper.getAllCommitsBetweenTwoCommits(oldId, commitId)
+            .size() + 1);
+
+        if (checkout(commitId) && propagateCurrentCheckout()) {
+            LOGGER.info("Successful propagation of " + commitId);
+            return true;
+        }
+        return false;
+    }
+
+	public abstract boolean propagateCurrentCheckout();
 }

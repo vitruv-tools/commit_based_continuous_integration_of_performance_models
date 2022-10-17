@@ -69,9 +69,9 @@ public abstract class CommitIntegrationState {
      * @param Suffix added to the root path of this integration
      * @throws IOException 
      */
-    public Path createFileSystemCopy(String nameSuffix) throws IOException {
-        LOGGER.debug("Creating copy of CommitIntegrationState");
-        Path copyPath = commitIntegration.getRootPath().resolveSibling("_" + nameSuffix);
+    protected Path createFileSystemCopy(String nameSuffix) throws IOException {
+        LOGGER.debug("Creating copy of CommitIntegrationState: " + nameSuffix);
+        Path copyPath = commitIntegration.getRootPath().resolveSibling(commitIntegration.getRootPath().getFileName().toString() + "_" + nameSuffix);
         FileUtils.copyDirectory(commitIntegration.getRootPath().toFile(), copyPath.toFile());
         return copyPath;
     }

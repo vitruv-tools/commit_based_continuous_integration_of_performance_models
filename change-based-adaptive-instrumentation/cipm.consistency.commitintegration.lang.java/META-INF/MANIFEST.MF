@@ -4,7 +4,7 @@ Bundle-Name: Commit Integration of Java Code
 Bundle-SymbolicName: cipm.consistency.commitintegration.lang.java
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: cipm.consistency.commitintegration.lang.java
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-13
 Export-Package: cipm.consistency.commitintegration.lang.java
 Require-Bundle: cipm.consistency.commitintegration,
  tools.vitruv.framework.vsum,

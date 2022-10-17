@@ -328,10 +328,15 @@ public abstract class CommitIntegrationController extends CommitIntegrationState
 
     @SuppressWarnings("restriction")
     public Resource getModelResource() {
-        return getVsumFacade().getVsum()
-            .getModelInstance(URI.createFileURI(getFileSystemLayout().getModelFile()
-                .toString()))
-            .getResource();
+        var uri = URI.createFileURI(getFileSystemLayout().getModelFile().toAbsolutePath()
+            .toString());
+        var model =getVsumFacade().getVsum()
+            .getModelInstance(uri);
+        if (model != null)
+            return model.getResource();
+
+        LOGGER.error(String.format("Model URI does not exist in vsum: %s", uri));
+        return null;
     }
 
     public Resource getLastInstrumentedModelResource() {

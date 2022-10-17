@@ -107,7 +107,6 @@ public abstract class AbstractCITest extends CommitIntegrationController impleme
      * @throws IOException
      *             if an IO operation cannot be performed.
      */
-//    @SuppressWarnings("restriction")
     @SuppressWarnings("restriction")
     protected boolean executePropagationAndEvaluation(String oldCommit, String newCommit, int num) throws IOException {
         EvaluationDataContainer evalResult = new EvaluationDataContainer();
@@ -126,12 +125,12 @@ public abstract class AbstractCITest extends CommitIntegrationController impleme
         try {
             result = propagateChanges(oldCommit, newCommit, true);
             if (result) {
-                Resource javaModel = getModelResource();
+                Resource codeModel = getModelResource();
                 Resource instrumentedModel = getLastInstrumentedModelResource();
                 var copy = createFileSystemCopy(num + "-" + newCommit);
                 LOGGER.debug("Evaluating the instrumentation.");
                 new InstrumentationEvaluator().evaluateInstrumentationDependently(
-                        getVsumFacade().getInstrumentationModel(), javaModel, instrumentedModel,
+                        getVsumFacade().getInstrumentationModel(), codeModel, instrumentedModel,
                         getVsumFacade().getVsum()
                             .getCorrespondenceModel());
                 EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("DependentEvaluationResult.json"));

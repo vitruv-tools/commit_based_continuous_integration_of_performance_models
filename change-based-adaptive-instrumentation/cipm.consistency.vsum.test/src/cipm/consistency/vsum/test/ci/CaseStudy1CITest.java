@@ -1,17 +1,11 @@
 package cipm.consistency.vsum.test.ci;
 
-import cipm.consistency.commitintegration.diff.util.ComparisonBasedJaccardCoefficientCalculator;
-import cipm.consistency.commitintegration.diff.util.pcm.PCMModelComparator;
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import cipm.consistency.commitintegration.git.impl.LuaDiffComputation;
 import cipm.consistency.commitintegration.lang.LanguageSpecification;
 import cipm.consistency.commitintegration.lang.lua.LuaLanguageSpecification;
 import java.io.IOException;
 import java.nio.file.Paths;
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
@@ -139,14 +133,4 @@ public class CaseStudy1CITest extends AbstractCITest {
      *       version 1.3.1. executePropagationAndEvaluation(null, COMMIT_TAG_1_3_1, 0); //
      *       performIndependentEvaluation(); }
      */
-
-//	@Test
-    public void testTemplateForPCMRepositoryComparison() {
-        ResourceSet set = new ResourceSetImpl();
-        Resource res1 = set.getResource(URI.createFileURI("path1"), true);
-        Resource res2 = set.getResource(URI.createFileURI("path2"), true);
-        var comp = PCMModelComparator.compareRepositoryModels(res1, res2);
-        var res = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comp);
-        System.out.println(res);
-    }
 }
