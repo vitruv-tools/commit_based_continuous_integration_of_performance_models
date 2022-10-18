@@ -27,9 +27,9 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
     @Inject
     Provider<XtextResourceSet> resourceSetProvider;
 
-    public LuaCommitChangePropagator(InternalVirtualModel vsum, GitRepositoryWrapper repoWrapper,
+    public LuaCommitChangePropagator(VsumFacade vsumFacade, GitRepositoryWrapper repoWrapper,
             LanguageFileSystemLayout fileLayout) {
-        super(vsum, repoWrapper, fileLayout);
+        super(vsumFacade, repoWrapper, fileLayout);
 
         // TODO Is this the correct way of doing the injecting? I heard that standalone was not
         // ideal, when within eclipse

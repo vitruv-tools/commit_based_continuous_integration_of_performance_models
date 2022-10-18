@@ -2,6 +2,7 @@ package cipm.consistency.commitintegration.lang;
 
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
+import cipm.consistency.vsum.VsumFacade;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,19 +11,17 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.revwalk.RevCommit;
-import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
 
-@SuppressWarnings("restriction")
 public abstract class CommitChangePropagator {
 	protected Logger LOGGER;
-    protected InternalVirtualModel vsum;
+    protected VsumFacade vsumFacade;
     protected GitRepositoryWrapper repoWrapper;
     protected LanguageFileSystemLayout fileLayout;
 
 
-    public CommitChangePropagator(InternalVirtualModel vsum, GitRepositoryWrapper repoWrapper, LanguageFileSystemLayout fileLayout) {
+    public CommitChangePropagator(VsumFacade vsumFacade, GitRepositoryWrapper repoWrapper, LanguageFileSystemLayout fileLayout) {
         LOGGER = Logger.getLogger(this.getClass().getPackageName());
-        this.vsum = vsum;
+        this.vsumFacade = vsumFacade;
         this.repoWrapper = repoWrapper;
         this.fileLayout = fileLayout;
     }

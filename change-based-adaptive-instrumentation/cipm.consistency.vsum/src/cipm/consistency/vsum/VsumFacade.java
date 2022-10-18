@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import mir.reactions.imUpdate.ImUpdateChangePropagationSpecification;
 import mir.reactions.luaPcm.LuaPcmChangePropagationSpecification;
@@ -53,7 +54,7 @@ public class VsumFacade {
     public VsumFacade(Path rootPath) {
         this.rootPath = rootPath;
     }
-    
+
     public void initialize() throws IOException {
         fileLayout = new FileSystemLayout(rootPath);
         loadOrCreateVsum();
@@ -142,6 +143,64 @@ public class VsumFacade {
         return pcm;
     }
 
+    /**
+     * Propagate a resource into the underlying vsum
+     * 
+     * @param resource
+     *            The propagated resource
+     * @param vsum
+     *            Optional, may be used to override the vsum to which the change is propagated
+     * @return The propagated changes
+     */
+    public List<PropagatedChange> propagateResource(Resource resource, InternalVirtualModel vsum) {
+        if (vsum == null) {
+            vsum = this.vsum;
+        }
+        var view = getView(vsum);
+        var propagatedChanges = new ArrayList<PropagatedChange>();
+
+        // TODO using the root is too fragile
+        // add resources by registering its root object in the change deriving view
+        LOGGER.debug(String.format("Propagating resource: %s", resource.toString()));
+        var rootEobject = resource.getAllContents()
+            .next();
+        try {
+            if (rootEobject != null) {
+                view.registerRoot(rootEobject, resource.getURI());
+
+                // immediately commit the change to prevent issues, when commiting multiple
+                // resources
+                var changes = view.commitChangesAndUpdate();
+                propagatedChanges.addAll(changes);
+
+                if (changes.size() == 0) {
+                    LOGGER.error("  -> No Propagated changes");
+                } else {
+                    LOGGER.debug(String.format("  -> %d change(s)", changes.size()));
+                }
+            } else {
+                LOGGER.debug(String.format("Resource does not contain an EObject: %s", resource.toString()));
+            }
+        } catch (IllegalStateException e) {
+            LOGGER.error(String.format("Unable to register root object of resource %s", resource.toString()), e);
+        }
+        return propagatedChanges;
+    }
+
+    public List<PropagatedChange> propagateResources(Collection<Resource> resources, InternalVirtualModel vsum) {
+        if (vsum == null) {
+            vsum = this.vsum;
+        }
+
+        final List<PropagatedChange> propagatedChanges = new ArrayList<PropagatedChange>();
+        for (Resource resource : resources) {
+            propagatedChanges.addAll(propagateResource(resource, vsum));
+        }
+
+        LOGGER.debug(String.format("Propagated %d changes into the VSUM", propagatedChanges.size()));
+        return propagatedChanges;
+    }
+
     private void createVsum(VirtualModelBuilder vsumBuilder) {
         // temporary vsum for the initialization
         LOGGER.info("Creating temporary VSUM");
@@ -154,9 +213,8 @@ public class VsumFacade {
         FileBackedModelUtil.synchronize(imm, fileLayout.getImPath()
             .toFile(), InstrumentationModel.class);
 
-        final var view = getView(tempVsum);
-        final List<PropagatedChange> propagatedChanges = new ArrayList<PropagatedChange>();
-        List.of(imm.eResource(), pcm.getRepository()
+        // propagate all resources into the new vsum
+        propagateResources(List.of(imm.eResource(), pcm.getRepository()
             .eResource(),
                 pcm.getResourceEnvironmentModel()
                     .eResource(),
@@ -165,36 +223,8 @@ public class VsumFacade {
                 pcm.getUsageModel()
                     .eResource(),
                 pcm.getAllocationModel()
-                    .eResource())
-            .forEach(resource -> {
-                // add resources by registering its root object in the change deriving view
-                LOGGER.debug(String.format("Registering resource: %s", resource.toString()));
-                var rootEobject = resource.getAllContents()
-                    .next();
-                try {
-                    if (rootEobject != null) {
-                        view.registerRoot(rootEobject, resource.getURI());
-
-                        // immediately commit the change to prevent issues, when commiting multiple
-                        // resources
-                        var changes = view.commitChangesAndUpdate();
-                        propagatedChanges.addAll(changes);
-
-                        if (changes.size() == 0) {
-                            LOGGER.debug("  -> No Propagated changes");
-                        } else {
-                            LOGGER.debug(String.format("  -> %d change(s)", changes.size()));
-                        }
-                    } else {
-                        LOGGER.debug(String.format("Resource does not contain an EObject: %s", resource.toString()));
-                    }
-                } catch (IllegalStateException e) {
-                    LOGGER.error(String.format("Unable to register root object of resource %s", resource.toString()),
-                            e);
-                }
-            });
-
-        LOGGER.debug(String.format("Propagated %d changes into the VSUM", propagatedChanges.size()));
+                    .eResource()),
+                tempVsum);
 
         // add correspondences between the models
         var correspondenceModel = tempVsum.getCorrespondenceModel();

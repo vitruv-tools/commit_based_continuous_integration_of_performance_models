@@ -39,7 +39,7 @@ public abstract class CommitIntegrationState {
     protected CommitChangePropagator initializePropagator(CommitIntegration commitIntegration, VsumFacade vsumFacade,
             GitRepositoryWrapper gitRepositoryWrapper) throws IOException {
         return commitIntegration.getLanguageSpec()
-            .getCommitChangePropagator(commitIntegration.getRootPath(), vsumFacade.getVsum(), gitRepositoryWrapper);
+            .getCommitChangePropagator(commitIntegration.getRootPath(), vsumFacade, gitRepositoryWrapper);
     }
 
     public void initialize(CommitIntegration commitIntegration)

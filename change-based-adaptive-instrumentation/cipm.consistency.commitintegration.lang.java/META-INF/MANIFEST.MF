@@ -15,4 +15,5 @@ Require-Bundle: cipm.consistency.commitintegration,
  org.emftext.language.java,
  jamopp.parser.jdt.singlefile,
  cipm.consistency.commitintegration.settings,
- jamopp.parser
+ jamopp.parser,
+ cipm.consistency.vsum
