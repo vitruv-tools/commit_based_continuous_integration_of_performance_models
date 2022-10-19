@@ -8,7 +8,7 @@ abstract class LanguageFileSystemLayout {
 	static final package String localRepoDirName = "local-repo-clone"
 	static final package String modelFileContainerDirName = "vsum-variant"
 	// TODO rename
-	static final package String modelFileName = "Java.javaxmi"
+	static final package String modelFileName = "Code.xmi"
 	static final package String instrumentationDirName = "instrumented"
 	static final package String moduleConfigurationFileName = "module-configuration.properties"
 	static final package String externalCallTargetPairsFileName = "external-call-target-pairs.json"

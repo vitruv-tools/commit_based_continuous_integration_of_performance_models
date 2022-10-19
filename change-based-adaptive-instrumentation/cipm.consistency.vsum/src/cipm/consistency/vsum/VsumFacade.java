@@ -51,6 +51,8 @@ public class VsumFacade {
     private InMemoryPCM pcm;
     private InstrumentationModel imm;
 
+    private boolean initialized = false;
+
     public VsumFacade(Path rootPath) {
         this.rootPath = rootPath;
     }
@@ -68,7 +70,7 @@ public class VsumFacade {
         // TODO From the docs: you receive a selector that allows you to select the elements you
         // want to have in your view.
 //        var viewSelector = theVsum.createSelector(viewType);
-        LOGGER.debug(String.format("View sees: %s", viewSelector.getSelectableElements()));
+//        LOGGER.debug(String.format("View sees: %s", viewSelector.getSelectableElements()));
 
         // Selecting all elements here
         viewSelector.getSelectableElements()
@@ -117,10 +119,10 @@ public class VsumFacade {
         var resourceEnvModel = ResourceenvironmentFactory.eINSTANCE.createResourceEnvironment();
         var usageModel = UsagemodelFactory.eINSTANCE.createUsageModel();
         var allocationModel = AllocationFactory.eINSTANCE.createAllocation();
-        // TODO if we set these two models here, the allocation model cannot be propagated into the vsum :/
+        // TODO if we set these two models here, the allocation model cannot be propagated into the
+        // vsum :/
 //        allocationModel.setSystem_Allocation(systemModel);
 //        allocationModel.setTargetResourceEnvironment_Allocation(resourceEnvModel);
-
 
         // build PCM
         final var filePCM = fileLayout.getFilePCM();
@@ -128,13 +130,17 @@ public class VsumFacade {
         // resync before allocation
         pcm.syncWithFilesystem(filePCM);
 
-        pcm.getAllocationModel().setSystem_Allocation(pcm.getSystem());
-        pcm.getAllocationModel().setTargetResourceEnvironment_Allocation(pcm.getResourceEnvironmentModel());
+        pcm.getAllocationModel()
+            .setSystem_Allocation(pcm.getSystem());
+        pcm.getAllocationModel()
+            .setTargetResourceEnvironment_Allocation(pcm.getResourceEnvironmentModel());
 
-        LOGGER.debug(String.format("SystemModel: %s", pcm.getSystem().eResource()
-            .getURI()));
-        LOGGER.debug(String.format("ResourceEnvModel: %s", pcm.getResourceEnvironmentModel().eResource()
-            .getURI()));
+//        LOGGER.debug(String.format("SystemModel: %s", pcm.getSystem()
+//            .eResource()
+//            .getURI()));
+//        LOGGER.debug(String.format("ResourceEnvModel: %s", pcm.getResourceEnvironmentModel()
+//            .eResource()
+//            .getURI()));
 
         // and save to disk
 //         TODO for this the pcm.save... method could be used. Whats the difference?
@@ -157,34 +163,37 @@ public class VsumFacade {
             vsum = this.vsum;
         }
         var view = getView(vsum);
-        var propagatedChanges = new ArrayList<PropagatedChange>();
 
         // TODO using the root is too fragile
         // add resources by registering its root object in the change deriving view
         LOGGER.debug(String.format("Propagating resource: %s", resource.toString()));
         var rootEobject = resource.getAllContents()
             .next();
-        try {
-            if (rootEobject != null) {
-                view.registerRoot(rootEobject, resource.getURI());
+        if (rootEobject == null) {
+            LOGGER.debug(String.format("Resource does not contain an EObject: %s", resource.toString()));
+            return null;
+        }
 
-                // immediately commit the change to prevent issues, when commiting multiple
-                // resources
+//        try {
+            view.registerRoot(rootEobject, resource.getURI());
+
+            // immediately commit the change to prevent issues, when commiting multiple
+            // resources
+            try {
                 var changes = view.commitChangesAndUpdate();
-                propagatedChanges.addAll(changes);
-
                 if (changes.size() == 0) {
                     LOGGER.error("  -> No Propagated changes");
                 } else {
                     LOGGER.debug(String.format("  -> %d change(s)", changes.size()));
                 }
-            } else {
-                LOGGER.debug(String.format("Resource does not contain an EObject: %s", resource.toString()));
+                return changes;
+            } catch (IllegalArgumentException e) {
+                LOGGER.error("Error commiting changes to VSUM", e);
             }
-        } catch (IllegalStateException e) {
-            LOGGER.error(String.format("Unable to register root object of resource %s", resource.toString()), e);
-        }
-        return propagatedChanges;
+//        } catch (IllegalStateException e) {
+//            LOGGER.error(String.format("Error propagating resource %s", resource.toString()), e);
+//        }
+        return null;
     }
 
     public List<PropagatedChange> propagateResources(Collection<Resource> resources, InternalVirtualModel vsum) {
@@ -231,13 +240,6 @@ public class VsumFacade {
         correspondenceModel.addCorrespondenceBetween(pcm.getRepository(), RepositoryPackage.Literals.REPOSITORY, null);
         correspondenceModel.addCorrespondenceBetween(imm, InstrumentationModelPackage.Literals.INSTRUMENTATION_MODEL,
                 null);
-
-        // TODO we cannot access the correspondence model view resource
-//        try {
-//            correspondenceModel.eResource()
-//                .save(null);
-//        } catch (IOException e) {
-//        }
 
         LOGGER.debug("Disposing temporary VSUM");
         tempVsum.dispose();
@@ -299,6 +301,8 @@ public class VsumFacade {
             .getResource();
         imm = (InstrumentationModel) resource.getContents()
             .get(0);
+
+        initialized = true;
     }
 
     public InternalVirtualModel getVsum() {

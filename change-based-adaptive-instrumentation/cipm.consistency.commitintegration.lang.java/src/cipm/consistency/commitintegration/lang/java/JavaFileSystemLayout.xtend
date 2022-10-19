@@ -12,7 +12,7 @@ import cipm.consistency.commitintegration.lang.LanguageFileSystemLayout
 class JavaFileSystemLayout extends LanguageFileSystemLayout {
 //	static final String localJavaRepoDirName = "local-repo-clone";
 //	static final String javaModelFileContainerDirName = "vsum-variant";
-//	static final String javaModelFileName = "Java.javaxmi";
+	protected static final String modelFileName = "Java.javaxmi";
 //	static final String instrumentationDirName = "instrumented";
 //	static final String moduleConfigurationFileName = "module-configuration.properties";
 //	static final String externalCallTargetPairsFileName = "external-call-target-pairs.json";
