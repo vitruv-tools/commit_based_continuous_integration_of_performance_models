@@ -89,12 +89,11 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
             var uri = URI.createFileURI(path.toAbsolutePath()
                 .toString());
 
-            LOGGER.debug(String.format("Loading resource: %s", printUri(uri)));
             Resource res = resourceSet.getResource(uri, true);
             if (res == null) {
                 LOGGER.error(String.format("Unable to load resource: %s", printUri(uri)));
             } else {
-                LOGGER.debug(String.format("Loading resource: %s", printUri(uri)));
+                LOGGER.debug(String.format("Loaded resource: %s", printUri(uri)));
             }
         }
 

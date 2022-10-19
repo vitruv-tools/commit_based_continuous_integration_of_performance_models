@@ -51,6 +51,8 @@ public class VsumFacade {
     private InMemoryPCM pcm;
     private InstrumentationModel imm;
 
+    // initialized is used as a breakpoint conditional
+    @SuppressWarnings("unused")
     private boolean initialized = false;
 
     public VsumFacade(Path rootPath) {
@@ -119,10 +121,11 @@ public class VsumFacade {
         var resourceEnvModel = ResourceenvironmentFactory.eINSTANCE.createResourceEnvironment();
         var usageModel = UsagemodelFactory.eINSTANCE.createUsageModel();
         var allocationModel = AllocationFactory.eINSTANCE.createAllocation();
+
         // TODO if we set these two models here, the allocation model cannot be propagated into the
         // vsum :/
-//        allocationModel.setSystem_Allocation(systemModel);
-//        allocationModel.setTargetResourceEnvironment_Allocation(resourceEnvModel);
+        allocationModel.setSystem_Allocation(systemModel);
+        allocationModel.setTargetResourceEnvironment_Allocation(resourceEnvModel);
 
         // build PCM
         final var filePCM = fileLayout.getFilePCM();
@@ -166,7 +169,8 @@ public class VsumFacade {
 
         // TODO using the root is too fragile
         // add resources by registering its root object in the change deriving view
-        LOGGER.debug(String.format("Propagating resource: %s", resource.toString()));
+        LOGGER.debug(String.format("Propagating resource: %s", resource.getURI()
+            .lastSegment()));
         var rootEobject = resource.getAllContents()
             .next();
         if (rootEobject == null) {
@@ -175,21 +179,21 @@ public class VsumFacade {
         }
 
 //        try {
-            view.registerRoot(rootEobject, resource.getURI());
+        view.registerRoot(rootEobject, resource.getURI());
 
-            // immediately commit the change to prevent issues, when commiting multiple
-            // resources
-            try {
-                var changes = view.commitChangesAndUpdate();
-                if (changes.size() == 0) {
-                    LOGGER.error("  -> No Propagated changes");
-                } else {
-                    LOGGER.debug(String.format("  -> %d change(s)", changes.size()));
-                }
-                return changes;
-            } catch (IllegalArgumentException e) {
-                LOGGER.error("Error commiting changes to VSUM", e);
+        // immediately commit the change to prevent issues, when commiting multiple
+        // resources
+        try {
+            var changes = view.commitChangesAndUpdate();
+            if (changes.size() == 0) {
+                LOGGER.error("  -> No Propagated changes");
+            } else {
+                LOGGER.debug(String.format("  -> %d change(s)", changes.size()));
             }
+            return changes;
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Error commiting changes to VSUM", e);
+        }
 //        } catch (IllegalStateException e) {
 //            LOGGER.error(String.format("Error propagating resource %s", resource.toString()), e);
 //        }
