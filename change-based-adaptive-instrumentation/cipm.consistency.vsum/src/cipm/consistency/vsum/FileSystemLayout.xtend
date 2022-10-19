@@ -56,8 +56,9 @@ class FileSystemLayout {
 		pcmUsageModelURI = URI.createFileURI(pcmUsageModelPath.toString());
 		pcmResourceEnvironmentPath = pcm.resolve(pcmResourceEnvironmentFileName).toAbsolutePath();
 		pcmResourceEnvironmentURI = URI.createFileURI(pcmResourceEnvironmentPath.toString());
-		pcm = rootDir.resolve(imDirName);
-		imPath = pcm.resolve(imFileName).toAbsolutePath();
+		// TODO what the hell was this doing?
+		var im = rootDir.resolve(imDirName);
+		imPath = im.resolve(imFileName).toAbsolutePath();
 		imURI = URI.createFileURI(imPath.toString());
 		javaPath = rootDir.resolve(javaDirName);
 		commitsPath = rootDir.resolve(commitsFileName);

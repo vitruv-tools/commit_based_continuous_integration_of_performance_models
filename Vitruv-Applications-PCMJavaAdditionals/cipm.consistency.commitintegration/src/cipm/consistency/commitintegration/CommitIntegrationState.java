@@ -48,11 +48,11 @@ public abstract class CommitIntegrationState {
         this.commitIntegration = commitIntegration;
         // the settings container needs to be initialized before everything else
         CommitIntegrationSettingsContainer.initialize(commitIntegration.getSettingsPath());
+        fileSystemLayout = commitIntegration.getLanguageSpec()
+            .getFileLayout(commitIntegration.getRootPath());
         gitRepositoryWrapper = initializeGitRepositoryWrapper();
         vsumFacade = initializeVsumFacade(commitIntegration.getVsumPath());
         commitChangePropagator = initializePropagator(commitIntegration, vsumFacade, gitRepositoryWrapper);
-        fileSystemLayout = commitIntegration.getLanguageSpec()
-            .getFileLayout(commitIntegration.getRootPath());
     }
 
     @SuppressWarnings("restriction")

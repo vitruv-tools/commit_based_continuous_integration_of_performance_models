@@ -69,11 +69,6 @@ public class VsumFacade {
         var viewType = ViewTypeFactory.createIdentityMappingViewType("myView");
         var viewSelector = viewType.createSelector(theVsum);
 
-        // TODO From the docs: you receive a selector that allows you to select the elements you
-        // want to have in your view.
-//        var viewSelector = theVsum.createSelector(viewType);
-//        LOGGER.debug(String.format("View sees: %s", viewSelector.getSelectableElements()));
-
         // Selecting all elements here
         viewSelector.getSelectableElements()
             .forEach(ele -> viewSelector.setSelected(ele, true));
@@ -105,16 +100,12 @@ public class VsumFacade {
 //		ExtendedPcmDomain pcmDomain = new ExtendedPcmDomainProvider().getDomain();
 //		pcmDomain.enableTransitiveChangePropagation();
 
-        return new VirtualModelBuilder()
-//				.withDomain(new AdjustedJavaDomainProvider().getDomain())
-//				.withDomain(pcmDomain)
-//				.withDomain(new InstrumentationModelDomainProvider().getDomain())
-            .withStorageFolder(fileLayout.getVsumPath())
+        return new VirtualModelBuilder().withStorageFolder(fileLayout.getVsumPath())
             .withUserInteractor(UserInteractionFactory.instance.createDialogUserInteractor())
             .withChangePropagationSpecifications(getChangePropagationSpecs());
     }
 
-    private InMemoryPCM createPCM() {
+    private InMemoryPCM createPCM() throws IOException {
         // Create models for the PCM
         var systemModel = SystemFactory.eINSTANCE.createSystem();
         var repoModel = RepositoryFactory.eINSTANCE.createRepository();
@@ -122,32 +113,16 @@ public class VsumFacade {
         var usageModel = UsagemodelFactory.eINSTANCE.createUsageModel();
         var allocationModel = AllocationFactory.eINSTANCE.createAllocation();
 
-        // TODO if we set these two models here, the allocation model cannot be propagated into the
-        // vsum :/
+        pcm = new InMemoryPCM(repoModel, systemModel, usageModel, allocationModel, resourceEnvModel);
+
+        // Create files and resources before binding the allocation
+        pcm.saveToFilesystem(fileLayout.getFilePCM());
+
+        // Bind the allocation
+        // This needs to occur after pcm.saveToFilej
         allocationModel.setSystem_Allocation(systemModel);
         allocationModel.setTargetResourceEnvironment_Allocation(resourceEnvModel);
-
-        // build PCM
-        final var filePCM = fileLayout.getFilePCM();
-        pcm = new InMemoryPCM(repoModel, systemModel, usageModel, allocationModel, resourceEnvModel);
-        // resync before allocation
-        pcm.syncWithFilesystem(filePCM);
-
-        pcm.getAllocationModel()
-            .setSystem_Allocation(pcm.getSystem());
-        pcm.getAllocationModel()
-            .setTargetResourceEnvironment_Allocation(pcm.getResourceEnvironmentModel());
-
-//        LOGGER.debug(String.format("SystemModel: %s", pcm.getSystem()
-//            .eResource()
-//            .getURI()));
-//        LOGGER.debug(String.format("ResourceEnvModel: %s", pcm.getResourceEnvironmentModel()
-//            .eResource()
-//            .getURI()));
-
-        // and save to disk
-//         TODO for this the pcm.save... method could be used. Whats the difference?
-        pcm.syncWithFilesystem(filePCM);
+        allocationModel.eResource().save(null);
 
         return pcm;
     }
@@ -167,19 +142,24 @@ public class VsumFacade {
         }
         var view = getView(vsum);
 
-        // TODO using the root is too fragile
         // add resources by registering its root object in the change deriving view
         LOGGER.debug(String.format("Propagating resource: %s", resource.getURI()
             .lastSegment()));
-        var rootEobject = resource.getAllContents()
-            .next();
+        var allContents = resource.getContents();
+        var rootEobject = allContents.get(0);
         if (rootEobject == null) {
             LOGGER.debug(String.format("Resource does not contain an EObject: %s", resource.toString()));
             return null;
         }
 
 //        try {
-        view.registerRoot(rootEobject, resource.getURI());
+
+//        // TODO the persistAtUri is the same as the Uri from the file pcm
+        var persistAtUri = resource.getURI();
+//        var persistAtUri = URI.createFileURI(rootPath.resolve("vsumPcm").resolve(resource.getURI().lastSegment()).toAbsolutePath().toString());
+
+        // this seems to extract the root eobject from from allContents
+        view.registerRoot(rootEobject, persistAtUri);
 
         // immediately commit the change to prevent issues, when commiting multiple
         // resources
@@ -200,6 +180,15 @@ public class VsumFacade {
         return null;
     }
 
+    /**
+     * Propagate multiple resources into the underlying vsum
+     * 
+     * @param resources
+     *            The resources which are to be propagated
+     * @param vsum
+     *            Optional, may be used to override the vsum to which the change is propagated
+     * @return The propagated changes
+     */
     public List<PropagatedChange> propagateResources(Collection<Resource> resources, InternalVirtualModel vsum) {
         if (vsum == null) {
             vsum = this.vsum;
@@ -214,7 +203,7 @@ public class VsumFacade {
         return propagatedChanges;
     }
 
-    private void createVsum(VirtualModelBuilder vsumBuilder) {
+    private void createVsum(VirtualModelBuilder vsumBuilder) throws IOException {
         // temporary vsum for the initialization
         LOGGER.info("Creating temporary VSUM");
         final var tempVsum = vsumBuilder.buildAndInitialize();
@@ -262,14 +251,13 @@ public class VsumFacade {
             createVsum(vsumBuilder);
         }
 
-        pcm = new InMemoryPCM();
-
         LOGGER.info("Loading VSUM");
         vsum = vsumBuilder.buildAndInitialize();
-        // TODO im trying to add the resources below via this view
         getView(vsum);
 
-        // load the in-memory PCM into the VSUM
+        LOGGER.info("Loading pcm from disk");
+//        pcm = InMemoryPCM.createFromFilesystem(fileLayout.getFilePCM());
+        pcm = new InMemoryPCM();
         LOGGER.info("Binding PCM models from VSUM");
         Resource resource = vsum.getModelInstance(fileLayout.getPcmRepositoryURI())
             .getResource();
@@ -291,14 +279,10 @@ public class VsumFacade {
         pcm.setUsageModel((UsageModel) resource.getContents()
             .get(0));
 
-        try {
-            resource = vsum.getModelInstance(fileLayout.getPcmAllocationURI())
-                .getResource();
-            pcm.setAllocationModel((Allocation) resource.getContents()
-                .get(0));
-        } catch (NullPointerException e) {
-            // TODO why is the allocation model sometimes missing?
-        }
+        resource = vsum.getModelInstance(fileLayout.getPcmAllocationURI())
+            .getResource();
+        pcm.setAllocationModel((Allocation) resource.getContents()
+            .get(0));
 
         LOGGER.info("Binding IMM");
         resource = vsum.getModelInstance(fileLayout.getImURI())
@@ -321,6 +305,11 @@ public class VsumFacade {
         return imm;
     }
 
+    /**
+     * The In memory pcm
+     * 
+     * @return The pcm or null if it the vsum is not yet loaded
+     */
     public InMemoryPCM getPCMWrapper() {
         return pcm;
     }
