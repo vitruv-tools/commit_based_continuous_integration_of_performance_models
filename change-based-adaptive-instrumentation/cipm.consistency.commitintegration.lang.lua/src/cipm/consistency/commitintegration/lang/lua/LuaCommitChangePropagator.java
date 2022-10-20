@@ -22,6 +22,7 @@ import org.eclipse.xtext.resource.XtextResourceSet;
 import org.xtext.lua.LuaStandaloneSetup;
 import org.xtext.lua.lua.Expression_Functioncall;
 import org.xtext.lua.lua.impl.Expression_VariableNameImpl;
+import tools.vitruv.change.composite.description.PropagatedChange;
 
 public class LuaCommitChangePropagator extends CommitChangePropagator {
 
@@ -46,6 +47,7 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
         var proxies = new ArrayList<EObject>();
         resource.getAllContents()
             .forEachRemaining(eObj -> {
+                // TODO this is a crude way of finding ref attributes
                 // proxies can only be variable- and function-names
                 if (eObj instanceof Expression_VariableNameImpl) {
                     var exp = (Expression_VariableNameImpl) eObj;
@@ -56,7 +58,7 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
                 } else if (eObj instanceof Expression_Functioncall) {
                     var exp = (Expression_Functioncall) eObj;
                     var ref = exp.getCalledFunction();
-                    if (ref.eIsProxy()) {
+                    if (ref != null && ref.eIsProxy()) {
                         proxies.add(ref);
                     }
                 }
@@ -113,7 +115,7 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
     }
 
     @Override
-    public boolean propagateCurrentCheckout() {
+    public List<PropagatedChange> propagateCurrentCheckout() throws IllegalArgumentException {
         LOGGER.info("Propagating the current worktree");
         var workTreeResourceSet = parseWorkTreeToResourceSet();
 
@@ -129,6 +131,9 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
         LOGGER.debug(String.format("Code model contains %d proxies: %s", proxies.size(), proxies.stream()
             .map(p -> p.toString())
             .collect(Collectors.joining(", "))));
+        if (proxies.size() > 0) {
+            throw new IllegalArgumentException("Cannot propagate code model which contains proxies");
+        }
 
         // Save the resource to disk
         // This is not needed for the propagation, but we do it anyway for debugging purposes
@@ -137,11 +142,11 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
 
         // and propagate into the vsum
         var propagatedChanges = vsumFacade.propagateResource(allModels, null);
-        if (propagatedChanges != null) {
+        if (propagatedChanges != null)
             LOGGER.info(String.format("Propagated %d changes", propagatedChanges.size()));
-            return propagatedChanges.size() > 0;
-        }
-        LOGGER.error("No propagated changes");
-        return false;
+        else
+            LOGGER.info("No propagated changes");
+
+        return propagatedChanges;
     }
 }

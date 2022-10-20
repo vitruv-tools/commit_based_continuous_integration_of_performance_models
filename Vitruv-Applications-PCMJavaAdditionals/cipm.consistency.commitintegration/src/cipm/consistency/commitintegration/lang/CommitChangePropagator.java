@@ -11,16 +11,18 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.revwalk.RevCommit;
+import tools.vitruv.change.composite.description.PropagatedChange;
 
 public abstract class CommitChangePropagator {
-	protected Logger LOGGER;
+    protected Logger LOGGER;
     protected VsumFacade vsumFacade;
     protected GitRepositoryWrapper repoWrapper;
     protected LanguageFileSystemLayout fileLayout;
 
-
-    public CommitChangePropagator(VsumFacade vsumFacade, GitRepositoryWrapper repoWrapper, LanguageFileSystemLayout fileLayout) {
-        LOGGER = Logger.getLogger(this.getClass().getPackageName());
+    public CommitChangePropagator(VsumFacade vsumFacade, GitRepositoryWrapper repoWrapper,
+            LanguageFileSystemLayout fileLayout) {
+        LOGGER = Logger.getLogger(this.getClass()
+            .getPackageName());
         this.vsumFacade = vsumFacade;
         this.repoWrapper = repoWrapper;
         this.fileLayout = fileLayout;
@@ -91,12 +93,14 @@ public abstract class CommitChangePropagator {
      *             if something from the repositories cannot be read.
      */
     public void propagateChanges(List<RevCommit> commits) throws GitAPIException, IOException {
+        List<List<PropagatedChange>> allPropagatedChanges = new ArrayList<>();
         if (commits.size() > 0) {
             RevCommit first = commits.remove(0);
             LOGGER.debug("Propagating " + commits.size() + " commits.");
             for (RevCommit next : commits) {
-                boolean result = propagateChanges(first, next);
-                if (result) {
+                var propagatedChanges = propagateChanges(first, next);
+                if (null != propagatedChanges) {
+                    allPropagatedChanges.add(propagatedChanges);
                     first = next;
                 }
             }
@@ -146,17 +150,18 @@ public abstract class CommitChangePropagator {
      * @throws IOException
      *             it the repository cannot be read.
      */
-    public boolean propagateChanges(String startId, String endId) throws GitAPIException, IOException {
+    public List<PropagatedChange> propagateChanges(String startId, String endId) throws GitAPIException, IOException {
         return propagateChanges(repoWrapper.getCommitForId(startId), repoWrapper.getCommitForId(endId));
     }
-	
-	/**
-	 * Can be overwritten to do processing after every checkout
-	 * @return
-	 */
-	protected boolean preprocessCheckout() {
-	    return true;
-	}
+
+    /**
+     * Can be overwritten to do processing after every checkout
+     * 
+     * @return
+     */
+    protected boolean preprocessCheckout() {
+        return true;
+    }
 
     public boolean checkout(String commitId) {
         LOGGER.debug("Checkout of " + commitId);
@@ -172,7 +177,7 @@ public abstract class CommitChangePropagator {
         }
         return false;
     }
-	
+
     /**
      * Propagates changes between two commits to the VSUM.
      * 
@@ -180,20 +185,20 @@ public abstract class CommitChangePropagator {
      *            the first commit.
      * @param end
      *            the second commit.
-     * @return true if the changes are successfully propagated. false indicates that there are no
-     *         changes for Java files or the pre-processing failed.
+     * @return A list of propagated changes (which may be empty) or {null}.
      * @throws IncorrectObjectTypeException
      * @throws IOException
      *             if something from the repositories cannot be read.
      */
-    public boolean propagateChanges(RevCommit start, RevCommit end) throws IncorrectObjectTypeException, IOException {
+    public List<PropagatedChange> propagateChanges(RevCommit start, RevCommit end)
+            throws IncorrectObjectTypeException, IOException, IllegalArgumentException {
         String commitId = end.getId()
             .getName();
         LOGGER.debug("Obtaining all differences.");
         List<DiffEntry> diffs = repoWrapper.computeDiffsBetweenTwoCommits(start, end);
         if (diffs.size() == 0) {
             LOGGER.info("No source files changed for " + commitId + ": No propagation is performed.");
-            return false;
+            return List.of();
         }
         var cs = EvaluationDataContainer.getGlobalContainer()
             .getChangeStatistic();
@@ -204,12 +209,11 @@ public abstract class CommitChangePropagator {
         cs.setNumberCommits(repoWrapper.getAllCommitsBetweenTwoCommits(oldId, commitId)
             .size() + 1);
 
-        if (checkout(commitId) && propagateCurrentCheckout()) {
-            LOGGER.info("Successful propagation of " + commitId);
-            return true;
+        if (checkout(commitId)) {
+            return propagateCurrentCheckout();
         }
-        return false;
+        return null;
     }
 
-	public abstract boolean propagateCurrentCheckout();
+    public abstract List<PropagatedChange> propagateCurrentCheckout() throws IllegalArgumentException;
 }

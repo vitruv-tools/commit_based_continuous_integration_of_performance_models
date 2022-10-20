@@ -8,6 +8,8 @@ import cipm.consistency.commitintegration.settings.SettingKeys;
 import cipm.consistency.commitintegration.util.ExternalCommandExecutionUtils;
 import cipm.consistency.vsum.VsumFacade;
 import java.io.File;
+import java.util.List;
+import tools.vitruv.change.composite.description.PropagatedChange;
 
 /**
  * This class propagates changes from Git commits to JaMoPP models within Vitruv by directly
@@ -35,11 +37,12 @@ public class JavaCommitChangePropagator extends CommitChangePropagator {
         return false;
     }
 
-    public boolean propagateCurrentCheckout() {
+    public List<PropagatedChange> propagateCurrentCheckout() {
         LOGGER.debug("Delegating the change propagation to the JavaParserAndPropagatorUtility.");
         JavaParserAndPropagatorUtils.parseAndPropagateJavaCode(repoWrapper.getWorkTree().toPath(), fileLayout.getModelFile(),
                 vsumFacade.getVsum(), fileLayout.getModuleConfiguration());
-        // TODO howto determine if the propagation succeeded?
-        return false;
+
+        // TODO The Jamopp stuff needs to be rewritten (it needs to return List<PropagatedChange>)
+        return null;
     }
 }

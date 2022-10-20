@@ -22,6 +22,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -123,8 +124,8 @@ public abstract class AbstractCITest extends CommitIntegrationController impleme
 
         boolean result = false;
         try {
-            result = propagateChanges(oldCommit, newCommit, true);
-            if (result) {
+            var propagatedChanges = propagateChanges(oldCommit, newCommit, true);
+            if (propagatedChanges != null) {
                 Resource codeModel = getModelResource();
                 Resource instrumentedModel = getLastInstrumentedModelResource();
                 var copy = createFileSystemCopy(num + "-" + newCommit);
@@ -136,9 +137,10 @@ public abstract class AbstractCITest extends CommitIntegrationController impleme
                 EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("DependentEvaluationResult.json"));
                 LOGGER.debug("Finished the evaluation.");
             }
-        } catch (IOException e) {
+        } catch (IOException | GitAPIException  e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+            Assert.fail(e.getMessage());
         }
         return result;
     }
