@@ -150,7 +150,8 @@ public abstract class CommitChangePropagator {
      * @throws IOException
      *             it the repository cannot be read.
      */
-    public List<PropagatedChange> propagateChanges(String startId, String endId) throws GitAPIException, IOException {
+    public List<PropagatedChange> propagateChanges(String startId, String endId)
+            throws GitAPIException, IOException, IllegalArgumentException {
         return propagateChanges(repoWrapper.getCommitForId(startId), repoWrapper.getCommitForId(endId));
     }
 
@@ -191,7 +192,7 @@ public abstract class CommitChangePropagator {
      *             if something from the repositories cannot be read.
      */
     public List<PropagatedChange> propagateChanges(RevCommit start, RevCommit end)
-            throws IncorrectObjectTypeException, IOException, IllegalArgumentException {
+            throws IncorrectObjectTypeException, IOException {
         String commitId = end.getId()
             .getName();
         LOGGER.debug("Obtaining all differences.");
@@ -215,5 +216,5 @@ public abstract class CommitChangePropagator {
         return null;
     }
 
-    public abstract List<PropagatedChange> propagateCurrentCheckout() throws IllegalArgumentException;
+    public abstract List<PropagatedChange> propagateCurrentCheckout();
 }

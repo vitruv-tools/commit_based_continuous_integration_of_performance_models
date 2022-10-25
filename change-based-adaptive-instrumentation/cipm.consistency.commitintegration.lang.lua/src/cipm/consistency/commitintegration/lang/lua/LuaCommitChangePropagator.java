@@ -36,6 +36,10 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
             LanguageFileSystemLayout fileLayout) {
         super(vsumFacade, repoWrapper, fileLayout);
 
+        // set the platform path
+//        var platformPath = fileLayout.getModelFileContainer().toString();
+//        new org.eclipse.emf.mwe.utils.StandaloneSetup().setPlatformUri(platformPath);
+
         // TODO Is this the correct way of doing the injecting? I heard that standalone was not
         // ideal, when within eclipse
         Injector injector = new LuaStandaloneSetup().createInjectorAndDoEMFRegistration();
@@ -110,43 +114,64 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
 //                var uri = resource.getURI();
                 merge.getContents()
                     .addAll(resource.getContents());
+                merge.getErrors()
+                    .addAll(resource.getErrors());
             });
         return merge;
     }
 
-    @Override
-    public List<PropagatedChange> propagateCurrentCheckout() throws IllegalArgumentException {
-        LOGGER.info("Propagating the current worktree");
-        var workTreeResourceSet = parseWorkTreeToResourceSet();
-
-        // store the complete resource set in one resource and
-        LOGGER.debug("Merging resource set into one resource");
-        var allModelsUri = URI.createFileURI(getFileSystemLayout().getModelFile()
-            .toAbsolutePath()
-            .toString());
-        var allModels = mergeResourceSet(workTreeResourceSet, allModelsUri);
-
-        // The models may contain proxies -> Currently we only log them
-        var proxies = findProxiesInResource(allModels);
-        LOGGER.debug(String.format("Code model contains %d proxies: %s", proxies.size(), proxies.stream()
-            .map(p -> p.toString())
-            .collect(Collectors.joining(", "))));
+    private boolean checkPropagationPreconditions(Resource res) {
+        // The models may contain proxies
+        var proxies = findProxiesInResource(res);
         if (proxies.size() > 0) {
-            throw new IllegalArgumentException("Cannot propagate code model which contains proxies");
+            LOGGER.error(String.format("Code model contains %d proxies: %s", proxies.size(), proxies.stream()
+                .map(p -> p.toString())
+                .collect(Collectors.joining(", "))));
+            return false;
         }
 
-        // Save the resource to disk
-        // This is not needed for the propagation, but we do it anyway for debugging purposes
-//        try {
-//            allModels.save(null);
+        if (res.getErrors()
+            .size() > 0) {
+            LOGGER.error(String.format("Code model contains %d errors:", res.getErrors()
+                .size()));
+            var i = 0;
+            for (var error : res.getErrors()) {
+                LOGGER.error(String.format("%d: %s", i, error.getMessage()));
+                i++;
+            }
+            return false;
+        }
 
-        // and propagate into the vsum
-        var propagatedChanges = vsumFacade.propagateResource(allModels, null);
+        return true;
+    }
+
+    private List<PropagatedChange> propagateResource(Resource resource) {
+        if (!checkPropagationPreconditions(resource))
+            return null;
+
+        var propagatedChanges = vsumFacade.propagateResource(resource);
         if (propagatedChanges != null)
             LOGGER.info(String.format("Propagated %d changes", propagatedChanges.size()));
         else
             LOGGER.info("No propagated changes");
 
         return propagatedChanges;
+    }
+
+    @Override
+    public List<PropagatedChange> propagateCurrentCheckout() {
+        LOGGER.info("Propagating the current worktree");
+        // parse all lua files into one resource set
+        var workTreeResourceSet = parseWorkTreeToResourceSet();
+
+        // store the complete resource set in one resource
+        LOGGER.debug("Merging resource set into one resource");
+        var allModelsUri = URI.createFileURI(getFileSystemLayout().getModelFile()
+            .toAbsolutePath()
+            .toString());
+        var allModels = mergeResourceSet(workTreeResourceSet, allModelsUri);
+
+        // and propagate into the vsum
+        return propagateResource(allModels);
     }
 }

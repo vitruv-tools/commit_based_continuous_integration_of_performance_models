@@ -132,6 +132,17 @@ public class VsumFacade {
      * 
      * @param resource
      *            The propagated resource
+     * @return The propagated changes
+     */
+    public List<PropagatedChange> propagateResource(Resource resource) {
+        return propagateResource(resource, null);
+    }
+
+    /**
+     * Propagate a resource into the underlying vsum
+     * 
+     * @param resource
+     *            The propagated resource
      * @param vsum
      *            Optional, may be used to override the vsum to which the change is propagated
      * @return The propagated changes
