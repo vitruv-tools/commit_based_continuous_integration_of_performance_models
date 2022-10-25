@@ -122,7 +122,6 @@ public abstract class AbstractCITest extends CommitIntegrationController impleme
         FileUtils.copyFile(new File(repoFile), new File(this.getRootPath()
             .toString(), "Repository_" + num + "_mu.repository"));
 
-        boolean result = false;
         try {
             var propagatedChanges = propagateChanges(oldCommit, newCommit, true);
             if (propagatedChanges != null) {
@@ -136,13 +135,14 @@ public abstract class AbstractCITest extends CommitIntegrationController impleme
                             .getCorrespondenceModel());
                 EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("DependentEvaluationResult.json"));
                 LOGGER.debug("Finished the evaluation.");
+                return true;
             }
         } catch (IOException | GitAPIException  e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
             Assert.fail(e.getMessage());
         }
-        return result;
+        return false;
     }
 
     /**
