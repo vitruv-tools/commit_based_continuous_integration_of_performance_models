@@ -15,13 +15,14 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
 import org.xtext.lua.LuaStandaloneSetup;
+import org.xtext.lua.lua.Chunk;
 import org.xtext.lua.lua.Expression_Functioncall;
 import org.xtext.lua.lua.impl.Expression_VariableNameImpl;
+import org.xtext.lua.lua.impl.SuperChunkImpl;
 import tools.vitruv.change.composite.description.PropagatedChange;
 
 public class LuaCommitChangePropagator extends CommitChangePropagator {
@@ -106,16 +107,42 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
         return resourceSet;
     }
 
+    /**
+     * Merges all chunks of the resource set into one SuperChunk and puts it in a separate resource for propagation
+     * @param rs
+     * @param targetUri
+     * @return
+     */
     private Resource mergeResourceSet(ResourceSetImpl rs, URI targetUri) {
-        ResourceSet next = new ResourceSetImpl();
-        Resource merge = next.createResource(targetUri);
+        var mergeRs = resourceSetProvider.get();
+        var merge = mergeRs.createResource(targetUri);
+
+        // we use this custom class as a container for all the chunks
+        var superChunk = new SuperChunkImpl();
+        merge.getContents()
+            .add(superChunk);
+
         rs.getResources()
             .forEach(resource -> {
-//                var uri = resource.getURI();
-                merge.getContents()
-                    .addAll(resource.getContents());
+                // also merge errors into the new resource
                 merge.getErrors()
                     .addAll(resource.getErrors());
+
+                if (resource.getContents()
+                    .size() == 0) {
+                    LOGGER.error(String.format("Resource has no contents: %s", resource.getURI()));
+                    return;
+                }
+                var eObj = resource.getContents()
+                    .get(0);
+                if (!(eObj instanceof Chunk)) {
+                    LOGGER.error(String.format("Resource does not contain a chunk: %s", resource.getURI()));
+                    return;
+                }
+
+                // merge chunks
+                superChunk.getChunks()
+                    .add((Chunk) eObj);
             });
         return merge;
     }
@@ -164,14 +191,13 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
         // parse all lua files into one resource set
         var workTreeResourceSet = parseWorkTreeToResourceSet();
 
-        // store the complete resource set in one resource
         LOGGER.debug("Merging resource set into one resource");
-        var allModelsUri = URI.createFileURI(getFileSystemLayout().getModelFile()
+        var mergeUri = URI.createFileURI(getFileSystemLayout().getModelFile()
             .toAbsolutePath()
             .toString());
-        var allModels = mergeResourceSet(workTreeResourceSet, allModelsUri);
+        var merge = mergeResourceSet(workTreeResourceSet, mergeUri);
 
         // and propagate into the vsum
-        return propagateResource(allModels);
+        return propagateResource(merge);
     }
 }

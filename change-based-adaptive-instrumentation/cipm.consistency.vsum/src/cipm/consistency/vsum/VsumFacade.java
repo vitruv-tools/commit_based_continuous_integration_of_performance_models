@@ -122,7 +122,8 @@ public class VsumFacade {
         // This needs to occur after pcm.saveToFilej
         allocationModel.setSystem_Allocation(systemModel);
         allocationModel.setTargetResourceEnvironment_Allocation(resourceEnvModel);
-        allocationModel.eResource().save(null);
+        allocationModel.eResource()
+            .save(null);
 
         return pcm;
     }
@@ -147,48 +148,34 @@ public class VsumFacade {
      *            Optional, may be used to override the vsum to which the change is propagated
      * @return The propagated changes
      */
-    public List<PropagatedChange> propagateResource(Resource resource, InternalVirtualModel vsum) {
+    private List<PropagatedChange> propagateResource(Resource resource, InternalVirtualModel vsum) {
         if (vsum == null) {
             vsum = this.vsum;
         }
-        var view = getView(vsum);
-
         // add resources by registering its root object in the change deriving view
         LOGGER.debug(String.format("Propagating resource: %s", resource.getURI()
             .lastSegment()));
-        var allContents = resource.getContents();
-        var rootEobject = allContents.get(0);
-        if (rootEobject == null) {
-            LOGGER.debug(String.format("Resource does not contain an EObject: %s", resource.toString()));
-            return null;
+
+        if (resource.getContents()
+            .size() == 0) {
+            LOGGER.debug(String.format("Not propagating empty resource: %s", resource.getURI()));
+            return List.of();
         }
 
-//        try {
+        var view = getView(vsum);
+        var rootEObject = resource.getContents()
+            .get(0);
 
-//        // TODO the persistAtUri is the same as the Uri from the file pcm
-        var persistAtUri = resource.getURI();
-//        var persistAtUri = URI.createFileURI(rootPath.resolve("vsumPcm").resolve(resource.getURI().lastSegment()).toAbsolutePath().toString());
+        // this also extracts the rootEObject from the resource
+        view.registerRoot(rootEObject, resource.getURI());
 
-        // this seems to extract the root eobject from from allContents
-        view.registerRoot(rootEobject, persistAtUri);
-
-        // immediately commit the change to prevent issues, when commiting multiple
-        // resources
-        try {
-            var changes = view.commitChangesAndUpdate();
-            if (changes.size() == 0) {
-                LOGGER.error("  -> No Propagated changes");
-            } else {
-                LOGGER.debug(String.format("  -> %d change(s)", changes.size()));
-            }
-            return changes;
-        } catch (IllegalArgumentException e) {
-            LOGGER.error("Error commiting changes to VSUM", e);
+        var propagatedChanges = view.commitChangesAndUpdate();
+        if (propagatedChanges.size() == 0) {
+            LOGGER.error("  -> No Propagated changes");
+        } else {
+            LOGGER.debug(String.format("  -> %d change(s)", propagatedChanges.size()));
         }
-//        } catch (IllegalStateException e) {
-//            LOGGER.error(String.format("Error propagating resource %s", resource.toString()), e);
-//        }
-        return null;
+        return propagatedChanges;
     }
 
     /**
@@ -200,7 +187,7 @@ public class VsumFacade {
      *            Optional, may be used to override the vsum to which the change is propagated
      * @return The propagated changes
      */
-    public List<PropagatedChange> propagateResources(Collection<Resource> resources, InternalVirtualModel vsum) {
+    private List<PropagatedChange> propagateResources(Collection<Resource> resources, InternalVirtualModel vsum) {
         if (vsum == null) {
             vsum = this.vsum;
         }
