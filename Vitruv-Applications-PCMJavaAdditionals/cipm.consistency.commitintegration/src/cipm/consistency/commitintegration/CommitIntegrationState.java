@@ -20,7 +20,7 @@ import org.eclipse.jgit.api.errors.TransportException;
  *
  */
 public abstract class CommitIntegrationState {
-    private final Logger LOGGER = Logger.getLogger("cipm.consistency.commitintegration.CommitIntegrationState");
+    private final Logger LOGGER = Logger.getLogger("CommitIntegrationState");
     private CommitIntegration commitIntegration;
     private VsumFacade vsumFacade;
     private GitRepositoryWrapper gitRepositoryWrapper;
@@ -31,7 +31,7 @@ public abstract class CommitIntegrationState {
             throws IOException, InvalidRemoteException, TransportException, GitAPIException;
 
     protected VsumFacade initializeVsumFacade(Path vsumPath) throws IOException {
-        var vsumFacade = new VsumFacade(vsumPath);
+        VsumFacade vsumFacade = new VsumFacade(vsumPath);
         vsumFacade.initialize();
         return vsumFacade;
     }

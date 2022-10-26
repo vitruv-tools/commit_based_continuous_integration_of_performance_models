@@ -110,15 +110,17 @@ public abstract class AbstractCITest extends CommitIntegrationController impleme
     protected boolean executePropagationAndEvaluation(String oldCommit, String newCommit, int num) throws IOException {
         EvaluationDataContainer evalResult = new EvaluationDataContainer();
         EvaluationDataContainer.setGlobalContainer(evalResult);
-        String repoFile = getVsumFacade().getPCMWrapper()
-            .getRepository()
-            .eResource()
-            .getURI()
-            .toFileString();
-        FileUtils.copyFile(new File(repoFile), new File(this.getRootPath()
-            .toString(), "Repository.repository"));
-        FileUtils.copyFile(new File(repoFile), new File(this.getRootPath()
-            .toString(), "Repository_" + num + "_mu.repository"));
+
+        // TODO this is currently not needed i think
+//        String repoFile = getVsumFacade().getPCMWrapper()
+//            .getRepository()
+//            .eResource()
+//            .getURI()
+//            .toFileString();
+//        FileUtils.copyFile(new File(repoFile), new File(this.getRootPath()
+//            .toString(), "Repository.repository"));
+//        FileUtils.copyFile(new File(repoFile), new File(this.getRootPath()
+//            .toString(), "Repository_" + num + "_mu.repository"));
 
         try {
             var propagatedChanges = propagateChanges(oldCommit, newCommit, true);

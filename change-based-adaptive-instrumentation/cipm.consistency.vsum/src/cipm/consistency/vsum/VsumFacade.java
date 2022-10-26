@@ -11,11 +11,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import mir.reactions.imUpdate.ImUpdateChangePropagationSpecification;
 import mir.reactions.luaPcm.LuaPcmChangePropagationSpecification;
 import org.apache.log4j.Logger;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.allocation.AllocationFactory;
@@ -129,6 +129,29 @@ public class VsumFacade {
     }
 
     /**
+     * TODO this does not work at all!
+     * @param eObjects
+     * @return
+     */
+    @Deprecated
+    public List<PropagatedChange> propagateEObjects(List<EObject> eObjects) {
+        var view = getView(vsum);
+
+        for (var eObj : eObjects) {
+            var persistAtUri = eObj.eResource().getURI();
+            view.registerRoot(eObj, persistAtUri);
+        }
+
+        var propagatedChanges = view.commitChangesAndUpdate();
+        if (propagatedChanges.size() == 0) {
+            LOGGER.error("  -> No Propagated changes");
+        } else {
+            LOGGER.debug(String.format("  -> %d change(s)", propagatedChanges.size()));
+        }
+        return propagatedChanges;
+    }
+
+    /**
      * Propagate a resource into the underlying vsum
      * 
      * @param resource
@@ -179,7 +202,7 @@ public class VsumFacade {
     }
 
     /**
-     * Propagate multiple resources into the underlying vsum
+     * Propagate multiple independent resources into the underlying vsum
      * 
      * @param resources
      *            The resources which are to be propagated
@@ -187,7 +210,7 @@ public class VsumFacade {
      *            Optional, may be used to override the vsum to which the change is propagated
      * @return The propagated changes
      */
-    private List<PropagatedChange> propagateResources(Collection<Resource> resources, InternalVirtualModel vsum) {
+    private List<PropagatedChange> propagateResources(List<Resource> resources, InternalVirtualModel vsum) {
         if (vsum == null) {
             vsum = this.vsum;
         }

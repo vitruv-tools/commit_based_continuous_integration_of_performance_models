@@ -15,20 +15,18 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
 import org.xtext.lua.LuaStandaloneSetup;
 import org.xtext.lua.lua.Chunk;
+import org.xtext.lua.lua.ChunkSet;
 import org.xtext.lua.lua.Expression_Functioncall;
-import org.xtext.lua.lua.impl.Expression_VariableNameImpl;
-import org.xtext.lua.lua.impl.SuperChunkImpl;
+import org.xtext.lua.lua.Expression_VariableName;
+import org.xtext.lua.lua.LuaFactory;
 import tools.vitruv.change.composite.description.PropagatedChange;
 
 public class LuaCommitChangePropagator extends CommitChangePropagator {
-
-//    @Inject
-//    ParseHelper<Chunk> chunkParseHelper;
 
     @Inject
     Provider<XtextResourceSet> resourceSetProvider;
@@ -54,8 +52,8 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
             .forEachRemaining(eObj -> {
                 // TODO this is a crude way of finding ref attributes
                 // proxies can only be variable- and function-names
-                if (eObj instanceof Expression_VariableNameImpl) {
-                    var exp = (Expression_VariableNameImpl) eObj;
+                if (eObj instanceof Expression_VariableName) {
+                    var exp = (Expression_VariableName) eObj;
                     var ref = exp.getRef();
                     if (ref.eIsProxy()) {
                         proxies.add(ref);
@@ -108,25 +106,30 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
     }
 
     /**
-     * Merges all chunks of the resource set into one SuperChunk and puts it in a separate resource for propagation
+     * Merges all chunks of the resource set into one SuperChunk and puts it in a separate resource
+     * for propagation
+     * 
      * @param rs
      * @param targetUri
      * @return
      */
-    private Resource mergeResourceSet(ResourceSetImpl rs, URI targetUri) {
+    private Resource mergeResourceSetToChunkSet(ResourceSet rs, URI targetUri) {
         var mergeRs = resourceSetProvider.get();
         var merge = mergeRs.createResource(targetUri);
 
         // we use this custom class as a container for all the chunks
-        var superChunk = new SuperChunkImpl();
+//        var superChunk = new SuperChunkImpl();
+        ChunkSet chunkSet = LuaFactory.eINSTANCE.createChunkSet();
         merge.getContents()
-            .add(superChunk);
+            .add(chunkSet);
 
         rs.getResources()
             .forEach(resource -> {
-                // also merge errors into the new resource
+                // also merge errors and warnings into the new resource
                 merge.getErrors()
                     .addAll(resource.getErrors());
+                merge.getWarnings()
+                    .addAll(resource.getWarnings());
 
                 if (resource.getContents()
                     .size() == 0) {
@@ -141,8 +144,39 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
                 }
 
                 // merge chunks
-                superChunk.getChunks()
+                chunkSet.getChunks()
                     .add((Chunk) eObj);
+            });
+        return merge;
+    }
+
+    private Resource mergeResourceSetToResource(ResourceSet rs, URI targetUri) {
+        var mergeRs = resourceSetProvider.get();
+        var merge = mergeRs.createResource(targetUri);
+
+        rs.getResources()
+            .forEach(resource -> {
+                // also merge errors and warnings into the new resource
+                merge.getErrors()
+                    .addAll(resource.getErrors());
+                merge.getWarnings()
+                    .addAll(resource.getWarnings());
+
+                if (resource.getContents()
+                    .size() == 0) {
+                    LOGGER.error(String.format("Resource has no contents: %s", resource.getURI()));
+                    return;
+                }
+                var eObj = resource.getContents()
+                    .get(0);
+                if (!(eObj instanceof Chunk)) {
+                    LOGGER.error(String.format("Resource does not contain a chunk: %s", resource.getURI()));
+                    return;
+                }
+
+                // merge chunks
+                merge.getContents()
+                    .add(eObj);
             });
         return merge;
     }
@@ -176,13 +210,31 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
         if (!checkPropagationPreconditions(resource))
             return null;
 
-        var propagatedChanges = vsumFacade.propagateResource(resource);
-        if (propagatedChanges != null)
-            LOGGER.info(String.format("Propagated %d changes", propagatedChanges.size()));
-        else
-            LOGGER.info("No propagated changes");
+        return vsumFacade.propagateResource(resource);
+    }
 
-        return propagatedChanges;
+    @Deprecated
+    private List<PropagatedChange> propagateResourceSet(ResourceSet rs, URI targetUri) {
+        LOGGER.debug("Merging resource set into one resource for propagation");
+        var merge = mergeResourceSetToResource(rs, targetUri);
+
+        if (!checkPropagationPreconditions(merge))
+            return null;
+
+        var chunks = merge.getContents()
+            .stream()
+            .map(r -> r.eContents()
+                .get(0))
+            .collect(Collectors.toList());
+
+        return vsumFacade.propagateEObjects(chunks);
+    }
+
+    private List<PropagatedChange> propagateResourceSetUsingChunkSet(ResourceSet resourceSet, URI targetUri) {
+        LOGGER.debug("Merging ResourceSet into a ChunkSet for propagation");
+        var chunkSetResource = mergeResourceSetToChunkSet(resourceSet, targetUri);
+
+        return propagateResource(chunkSetResource);
     }
 
     @Override
@@ -191,13 +243,10 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
         // parse all lua files into one resource set
         var workTreeResourceSet = parseWorkTreeToResourceSet();
 
-        LOGGER.debug("Merging resource set into one resource");
-        var mergeUri = URI.createFileURI(getFileSystemLayout().getModelFile()
+        var targetUri = URI.createFileURI(getFileSystemLayout().getModelFile()
             .toAbsolutePath()
             .toString());
-        var merge = mergeResourceSet(workTreeResourceSet, mergeUri);
-
-        // and propagate into the vsum
-        return propagateResource(merge);
+        
+        return propagateResourceSetUsingChunkSet(workTreeResourceSet, targetUri);
     }
 }
