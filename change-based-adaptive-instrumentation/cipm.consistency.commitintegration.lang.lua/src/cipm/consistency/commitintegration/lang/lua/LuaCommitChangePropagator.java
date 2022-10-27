@@ -39,8 +39,6 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
 //        var platformPath = fileLayout.getModelFileContainer().toString();
 //        new org.eclipse.emf.mwe.utils.StandaloneSetup().setPlatformUri(platformPath);
 
-        // TODO Is this the correct way of doing the injecting? I heard that standalone was not
-        // ideal, when within eclipse
         Injector injector = new LuaStandaloneSetup().createInjectorAndDoEMFRegistration();
         injector.injectMembers(this);
     }
@@ -150,37 +148,6 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
         return merge;
     }
 
-    private Resource mergeResourceSetToResource(ResourceSet rs, URI targetUri) {
-        var mergeRs = resourceSetProvider.get();
-        var merge = mergeRs.createResource(targetUri);
-
-        rs.getResources()
-            .forEach(resource -> {
-                // also merge errors and warnings into the new resource
-                merge.getErrors()
-                    .addAll(resource.getErrors());
-                merge.getWarnings()
-                    .addAll(resource.getWarnings());
-
-                if (resource.getContents()
-                    .size() == 0) {
-                    LOGGER.error(String.format("Resource has no contents: %s", resource.getURI()));
-                    return;
-                }
-                var eObj = resource.getContents()
-                    .get(0);
-                if (!(eObj instanceof Chunk)) {
-                    LOGGER.error(String.format("Resource does not contain a chunk: %s", resource.getURI()));
-                    return;
-                }
-
-                // merge chunks
-                merge.getContents()
-                    .add(eObj);
-            });
-        return merge;
-    }
-
     private boolean checkPropagationPreconditions(Resource res) {
         // The models may contain proxies
         var proxies = findProxiesInResource(res);
@@ -188,18 +155,6 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
             LOGGER.error(String.format("Code model contains %d proxies: %s", proxies.size(), proxies.stream()
                 .map(p -> p.toString())
                 .collect(Collectors.joining(", "))));
-            return false;
-        }
-
-        if (res.getErrors()
-            .size() > 0) {
-            LOGGER.error(String.format("Code model contains %d errors:", res.getErrors()
-                .size()));
-            var i = 0;
-            for (var error : res.getErrors()) {
-                LOGGER.error(String.format("%d: %s", i, error.getMessage()));
-                i++;
-            }
             return false;
         }
 
@@ -211,23 +166,6 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
             return null;
 
         return vsumFacade.propagateResource(resource);
-    }
-
-    @Deprecated
-    private List<PropagatedChange> propagateResourceSet(ResourceSet rs, URI targetUri) {
-        LOGGER.debug("Merging resource set into one resource for propagation");
-        var merge = mergeResourceSetToResource(rs, targetUri);
-
-        if (!checkPropagationPreconditions(merge))
-            return null;
-
-        var chunks = merge.getContents()
-            .stream()
-            .map(r -> r.eContents()
-                .get(0))
-            .collect(Collectors.toList());
-
-        return vsumFacade.propagateEObjects(chunks);
     }
 
     private List<PropagatedChange> propagateResourceSetUsingChunkSet(ResourceSet resourceSet, URI targetUri) {

@@ -15,7 +15,6 @@ import java.util.List;
 import mir.reactions.imUpdate.ImUpdateChangePropagationSpecification;
 import mir.reactions.luaPcm.LuaPcmChangePropagationSpecification;
 import org.apache.log4j.Logger;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.allocation.AllocationFactory;
@@ -128,28 +127,61 @@ public class VsumFacade {
         return pcm;
     }
 
-    /**
-     * TODO this does not work at all!
-     * @param eObjects
-     * @return
-     */
-    @Deprecated
-    public List<PropagatedChange> propagateEObjects(List<EObject> eObjects) {
-        var view = getView(vsum);
-
-        for (var eObj : eObjects) {
-            var persistAtUri = eObj.eResource().getURI();
-            view.registerRoot(eObj, persistAtUri);
+    private boolean checkPropagationPreconditions(Resource res) {
+        if (res.getContents().size() == 0) {
+            LOGGER.error(String.format("Resource has no contents: %s", res.getURI()));
+            return false;
         }
 
-        var propagatedChanges = view.commitChangesAndUpdate();
-        if (propagatedChanges.size() == 0) {
-            LOGGER.error("  -> No Propagated changes");
-        } else {
-            LOGGER.debug(String.format("  -> %d change(s)", propagatedChanges.size()));
+        if (res.getErrors()
+            .size() > 0) {
+            LOGGER.error(String.format("Resource contains %d errors:", res.getErrors()
+                .size()));
+            var i = 0;
+            for (var error : res.getErrors()) {
+                LOGGER.error(String.format("%d: %s", i, error.getMessage()));
+                i++;
+            }
+            return false;
         }
-        return propagatedChanges;
+
+        // warnings are only logged, they don't prevent propagation
+        if (res.getWarnings()
+            .size() > 0) {
+            LOGGER.debug(String.format("Resource contains %d warnings:", res.getWarnings()
+                .size()));
+            var i = 0;
+            for (var warning : res.getWarnings()) {
+                LOGGER.debug(String.format("%d: %s", i, warning.getMessage()));
+                i++;
+            }
+        }
+
+        return true;
     }
+
+//    /**
+//     * TODO this does not work at all!
+//     * @param eObjects
+//     * @return
+//     */
+//    @Deprecated
+//    public List<PropagatedChange> propagateEObjects(List<EObject> eObjects) {
+//        var view = getView(vsum);
+//
+//        for (var eObj : eObjects) {
+//            var persistAtUri = eObj.eResource().getURI();
+//            view.registerRoot(eObj, persistAtUri);
+//        }
+//
+//        var propagatedChanges = view.commitChangesAndUpdate();
+//        if (propagatedChanges.size() == 0) {
+//            LOGGER.error("  -> No Propagated changes");
+//        } else {
+//            LOGGER.debug(String.format("  -> %d change(s)", propagatedChanges.size()));
+//        }
+//        return propagatedChanges;
+//    }
 
     /**
      * Propagate a resource into the underlying vsum
@@ -175,6 +207,12 @@ public class VsumFacade {
         if (vsum == null) {
             vsum = this.vsum;
         }
+        
+        if (!checkPropagationPreconditions(resource)) {
+            LOGGER.error(String.format("Not propagating resource because of missing preconditions: %s", resource.getURI()));
+            return null;
+        }
+        
         // add resources by registering its root object in the change deriving view
         LOGGER.debug(String.format("Propagating resource: %s", resource.getURI()
             .lastSegment()));
