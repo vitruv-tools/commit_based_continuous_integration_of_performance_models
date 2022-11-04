@@ -20,7 +20,7 @@ class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpec
 	val Code2SeffFactory code2SeffFactory;
 
 	new(Code2SeffFactory code2SEFFfactory) {
-		this(code2SEFFfactory, MetamodelDescriptor.with(Set.of("http://www.xtext.org/lua/Lua")),
+		this(code2SEFFfactory, MetamodelDescriptor.with(Set.of("http://www.emftext.org/java")),
 			MetamodelDescriptor.with(Set.of("http://palladiosimulator.org/PalladioComponentModel/5.2")));
 	}
 
@@ -29,7 +29,7 @@ class Java2PcmMethodBodyChangePreprocessor extends AbstractChangePropagationSpec
 		this.code2SeffFactory = code2SEFFfactory
 	}
 
-	override propagateChange(EChange change, EditableCorrespondenceModelView<Correspondence> correspondenceModelView,
+	override void propagateChange(EChange change, EditableCorrespondenceModelView<Correspondence> correspondenceModelView,
 		ResourceAccess resourceAccess) {
 		if (doesHandleChange(change, correspondenceModelView)) {
 			val attrChange = change as ReplaceSingleValuedEAttribute<?, ?>;

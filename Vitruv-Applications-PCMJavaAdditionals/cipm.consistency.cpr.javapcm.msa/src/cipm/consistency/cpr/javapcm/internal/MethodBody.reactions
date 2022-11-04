@@ -8,11 +8,9 @@ reactions: methodBody
 in reaction to changes in java
 execute actions in pcm
 
-
 // The currently used change propagation rules for the changes on method bodies are defined 
 // in the ExtendedJava2PcmMethodBodyChangePreprocessor.
 // Otherwise, you can define change propagation rules for changes on method bodies here.
-
 import classifierBody
 
 reaction AddedMethodCall {
@@ -29,20 +27,17 @@ routine createOrFindCallTarget(java::MethodCall methCall, java::Method method) {
 		require absence of pcm::OperationSignature corresponding to method
 		require absence of pcm::ResourceDemandingSEFF corresponding to method
 	}
-	action {
-		call {
-			val classifier = method.containingConcreteClassifier
-			if (callCom !== com && InternalUtils.isExternalCall(
-					method, correspondenceModel, com)) {
-				createInterface(classifier)
-				createOrFindPCMSignature(method)
-				if (classifier instanceof org.emftext.language.java.classifiers.Class) {
-					createOrFindOperationProvidedRole(classifier, classifier)
-					// Required role
-					if (method instanceof ClassMethod) {
-						createSEFF(method, classifier, method)
-						// SEFF reconstruction
-					}
+	update {
+		val classifier = method.containingConcreteClassifier
+		if (callCom !== com && InternalUtils.isExternalCall(method, correspondenceModel, com)) {
+			createInterface(classifier)
+			createOrFindPCMSignature(method)
+			if (classifier instanceof org.emftext.language.java.classifiers.Class) {
+				createOrFindOperationProvidedRole(classifier, classifier)
+				// Required role
+				if (method instanceof ClassMethod) {
+					createSEFF(method, classifier, method)
+				// SEFF reconstruction
 				}
 			}
 		}

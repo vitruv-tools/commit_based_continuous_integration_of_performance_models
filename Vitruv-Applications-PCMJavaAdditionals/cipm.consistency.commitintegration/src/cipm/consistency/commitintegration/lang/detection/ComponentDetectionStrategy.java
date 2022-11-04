@@ -1,4 +1,4 @@
-package cipm.consistency.commitintegration.detection;
+package cipm.consistency.commitintegration.lang.detection;
 
 import java.nio.file.Path;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -15,9 +15,9 @@ public interface ComponentDetectionStrategy {
 	 * @param res       the Resource containing the Java model.
 	 * @param file      path to the Java file corresponding to the Java model in the
 	 *                  Resource.
-	 * @param container path to the repository which contains the complete project
+	 * @param projectRoot path to the repository which contains the complete project
 	 *                  and source code.
 	 * @param candidate the storage of the module candidates.
 	 */
-	public void detectComponent(Resource res, Path file, Path container, ModuleCandidates candidate);
+	public void detectComponent(Resource res, Path projectRoot, ModuleCandidates candidate);
 }

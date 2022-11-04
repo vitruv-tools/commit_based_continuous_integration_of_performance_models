@@ -13,10 +13,10 @@ import org.palladiosimulator.pcm.repository.Interface;
 import org.palladiosimulator.pcm.repository.OperationRequiredRole;
 import org.palladiosimulator.pcm.repository.PrimitiveDataType;
 import org.palladiosimulator.pcm.repository.RepositoryComponent;
-
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended.CommitIntegrationCodeToSeffFactory;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff.FunctionClassificationStrategyForPackageMapping;
-import tools.vitruv.change.correspondence.model.CorrespondenceModel;
+import tools.vitruv.change.correspondence.Correspondence;
+import tools.vitruv.change.correspondence.view.EditableCorrespondenceModelView;
 
 /**
  * An internal utility class.
@@ -47,15 +47,15 @@ public final class InternalUtils {
 	 * Checks if a call to a method is an external call.
 	 * 
 	 * @param method the method to check.
-	 * @param cm the correspondence model.
+	 * @param cmv the correspondence model.
 	 * @param com basic component in which the call occurs.
 	 * @return true if a call to the method is an external call.
 	 */
-	public static boolean isExternalCall(Method method, CorrespondenceModel cm, BasicComponent com) {
+	public static boolean isExternalCall(Method method, EditableCorrespondenceModelView<? extends Correspondence> cmv, BasicComponent com) {
 		var factory = new CommitIntegrationCodeToSeffFactory();
 		class LocalStrategy extends FunctionClassificationStrategyForPackageMapping {
 			public LocalStrategy() {
-				super(factory.createBasicComponentFinding(), cm, com);
+				super(factory.createBasicComponentFinding(), cmv, com);
 			}
 
 			@Override

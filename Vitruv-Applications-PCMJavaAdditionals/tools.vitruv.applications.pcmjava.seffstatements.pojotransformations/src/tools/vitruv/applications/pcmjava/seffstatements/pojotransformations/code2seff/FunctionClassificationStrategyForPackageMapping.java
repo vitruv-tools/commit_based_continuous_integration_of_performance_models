@@ -1,7 +1,6 @@
 package tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff;
 
 import java.util.Set;
-
 import org.apache.log4j.Logger;
 import org.emftext.language.java.members.ClassMethod;
 import org.emftext.language.java.members.Method;
@@ -9,11 +8,11 @@ import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.palladiosimulator.pcm.repository.OperationSignature;
 import org.somox.gast2seff.visitors.AbstractFunctionClassificationStrategy;
 import org.somox.gast2seff.visitors.MethodCallFinder;
-
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
 import tools.vitruv.applications.util.temporary.other.UriUtil;
-import tools.vitruv.change.correspondence.model.CorrespondenceModel;
-import tools.vitruv.change.correspondence.model.CorrespondenceModelUtil;
+import tools.vitruv.change.correspondence.Correspondence;
+import tools.vitruv.change.correspondence.view.CorrespondenceModelView;
+import tools.vitruv.change.correspondence.view.util.CorrespondenceModelViewUtil;
 
 /**
  * FunctionClassificationStrategy for the simple package mapping Strategy.
@@ -27,14 +26,14 @@ public class FunctionClassificationStrategyForPackageMapping extends AbstractFun
             .getLogger(FunctionClassificationStrategyForPackageMapping.class.getSimpleName());
 
     private final BasicComponentFinding basicComponentFinding;
-    private final CorrespondenceModel correspondenceModel;
+    private final CorrespondenceModelView<? extends Correspondence> correspondenceModelView;
     private final BasicComponent myBasicComponent;
 
     public FunctionClassificationStrategyForPackageMapping(final BasicComponentFinding basicComponentFinding,
-            final CorrespondenceModel ci, final BasicComponent myBasicComponent) {
+            final CorrespondenceModelView<? extends Correspondence> cmv, final BasicComponent myBasicComponent) {
         super(new MethodCallFinder());
         this.basicComponentFinding = basicComponentFinding;
-        this.correspondenceModel = ci;
+        this.correspondenceModelView = cmv;
         this.myBasicComponent = myBasicComponent;
     }
 
@@ -49,14 +48,14 @@ public class FunctionClassificationStrategyForPackageMapping extends AbstractFun
                     + ". Method call is not considered as as external call");
             return false;
         }
-        final Set<OperationSignature> correspondingSignatures = CorrespondenceModelUtil
-                .getCorrespondingEObjects(this.correspondenceModel, method, OperationSignature.class);
+        final Set<OperationSignature> correspondingSignatures = CorrespondenceModelViewUtil
+                .getCorrespondingEObjects(this.correspondenceModelView, method, OperationSignature.class);
         if (null != correspondingSignatures && !correspondingSignatures.isEmpty()) {
             return true;
         }
         if (method instanceof ClassMethod) {
             final BasicComponent basicComponent = this.basicComponentFinding.findBasicComponentForMethod(method,
-                    this.correspondenceModel);
+                    this.correspondenceModelView);
             if (null == basicComponent || basicComponent.getId().equals(this.myBasicComponent.getId())) {
                 return false;
             }
@@ -72,7 +71,7 @@ public class FunctionClassificationStrategyForPackageMapping extends AbstractFun
     @Override
     protected boolean isLibraryCall(final Method method) {
         final BasicComponent basicComponentOfMethod = this.basicComponentFinding.findBasicComponentForMethod(method,
-                this.correspondenceModel);
+                this.correspondenceModelView);
         if (null == basicComponentOfMethod) {
             return true;
         }

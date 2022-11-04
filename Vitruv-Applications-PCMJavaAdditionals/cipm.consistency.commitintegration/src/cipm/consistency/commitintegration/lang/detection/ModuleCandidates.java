@@ -1,4 +1,4 @@
-package cipm.consistency.commitintegration.detection;
+package cipm.consistency.commitintegration.lang.detection;
 
 import java.util.EnumMap;
 import java.util.HashMap;

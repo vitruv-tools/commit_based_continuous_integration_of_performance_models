@@ -1,4 +1,4 @@
-package cipm.consistency.commitintegration.detection;
+package cipm.consistency.commitintegration.lang.detection;
 
 /**
  * Represents the possible states of a module.

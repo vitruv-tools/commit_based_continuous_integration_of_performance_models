@@ -2,7 +2,6 @@ package tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.cod
 
 import java.util.List;
 import java.util.Set;
-
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -14,10 +13,10 @@ import org.emftext.language.java.containers.JavaRoot;
 import org.emftext.language.java.containers.Package;
 import org.emftext.language.java.members.Method;
 import org.palladiosimulator.pcm.repository.BasicComponent;
-
-import tools.vitruv.change.correspondence.model.CorrespondenceModelUtil;
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
-import tools.vitruv.change.correspondence.model.CorrespondenceModel;
+import tools.vitruv.change.correspondence.Correspondence;
+import tools.vitruv.change.correspondence.view.CorrespondenceModelView;
+import tools.vitruv.change.correspondence.view.util.CorrespondenceModelViewUtil;
 
 /**
  * Finds the component for a method if the the simple package mapping structure is used.
@@ -41,7 +40,7 @@ public class BasicComponentForPackageMappingFinder implements BasicComponentFind
      * component by finding the BasicComponent of the parent component.
      */
     @Override
-    public BasicComponent findBasicComponentForMethod(final Method newMethod, final CorrespondenceModel ci) {
+    public BasicComponent findBasicComponentForMethod(final Method newMethod, final CorrespondenceModelView<Correspondence> ci) {
         final CompilationUnit cu = newMethod.getContainingCompilationUnit();
         if (null == cu) {
             LOGGER.info("Could not find basic component for method " + newMethod
@@ -79,20 +78,20 @@ public class BasicComponentForPackageMappingFinder implements BasicComponentFind
      * hierarchy and returns the first matching basic component.
      *
      * @param jaMoPPPackage the package model to investigate.
-     * @param ci the current correspondence model.
+     * @param cmv the current correspondence model.
      * @return the first matching basic component.
      */
     private BasicComponent findCorrespondingBasicComponentForPackage(final Package jaMoPPPackage,
-            final CorrespondenceModel ci) {
+            final CorrespondenceModelView<Correspondence> cmv) {
         if (0 == jaMoPPPackage.getNamespaces().size()) {
             return null;
         }
-        final Set<BasicComponent> correspondingComponents = CorrespondenceModelUtil
-                .getCorrespondingEObjects(ci, jaMoPPPackage, BasicComponent.class);
+        final Set<BasicComponent> correspondingComponents = CorrespondenceModelViewUtil
+                .getCorrespondingEObjects(cmv, jaMoPPPackage, BasicComponent.class);
         if (null == correspondingComponents || correspondingComponents.isEmpty()) {
 
             jaMoPPPackage.getNamespaces().remove(jaMoPPPackage.getNamespaces().size() - 1);
-            return this.findCorrespondingBasicComponentForPackage(jaMoPPPackage, ci);
+            return this.findCorrespondingBasicComponentForPackage(jaMoPPPackage, cmv);
         }
         return correspondingComponents.iterator().next();
     }

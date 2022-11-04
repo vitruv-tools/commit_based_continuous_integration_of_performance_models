@@ -4,10 +4,10 @@ Bundle-Name: Commit-Based Integration of Source Code
 Bundle-SymbolicName: cipm.consistency.commitintegration
 Bundle-Version: 1.0.0.qualifier
 Export-Package: cipm.consistency.commitintegration,
- cipm.consistency.commitintegration.detection,
  cipm.consistency.commitintegration.git,
  cipm.consistency.commitintegration.git.impl,
  cipm.consistency.commitintegration.lang,
+ cipm.consistency.commitintegration.lang.detection,
  cipm.consistency.commitintegration.lang.impl,
  cipm.consistency.commitintegration.util
 Require-Bundle: org.apache.log4j,

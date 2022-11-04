@@ -1,6 +1,7 @@
 package cipm.consistency.commitintegration.lang;
 
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
+import cipm.consistency.commitintegration.lang.detection.ComponentDetector;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.vsum.VsumFacade;
 import java.io.IOException;
@@ -18,14 +19,16 @@ public abstract class CommitChangePropagator {
     protected VsumFacade vsumFacade;
     protected GitRepositoryWrapper repoWrapper;
     protected LanguageFileSystemLayout fileLayout;
+    protected ComponentDetector componentDetector;
 
     public CommitChangePropagator(VsumFacade vsumFacade, GitRepositoryWrapper repoWrapper,
-            LanguageFileSystemLayout fileLayout) {
+            LanguageFileSystemLayout fileLayout, ComponentDetector componentDetector) {
         LOGGER = Logger.getLogger("cipm." + this.getClass()
             .getSimpleName());
         this.vsumFacade = vsumFacade;
         this.repoWrapper = repoWrapper;
         this.fileLayout = fileLayout;
+        this.componentDetector = componentDetector;
     }
 
     public LanguageFileSystemLayout getFileSystemLayout() {

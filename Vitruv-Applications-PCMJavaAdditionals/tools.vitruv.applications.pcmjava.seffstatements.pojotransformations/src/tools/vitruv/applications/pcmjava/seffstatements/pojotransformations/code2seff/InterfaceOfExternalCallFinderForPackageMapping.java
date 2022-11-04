@@ -1,7 +1,6 @@
 package tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff;
 
 import java.util.Set;
-
 import org.apache.log4j.Logger;
 import org.emftext.language.java.members.Method;
 import org.emftext.language.java.statements.Statement;
@@ -12,9 +11,9 @@ import org.palladiosimulator.pcm.repository.OperationSignature;
 import org.palladiosimulator.pcm.repository.RequiredRole;
 import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import org.somox.gast2seff.visitors.InterfaceOfExternalCallFinding;
-
-import tools.vitruv.change.correspondence.model.CorrespondenceModel;
-import tools.vitruv.change.correspondence.model.CorrespondenceModelUtil;
+import tools.vitruv.change.correspondence.Correspondence;
+import tools.vitruv.change.correspondence.view.CorrespondenceModelView;
+import tools.vitruv.change.correspondence.view.util.CorrespondenceModelViewUtil;
 
 /**
  * Class realizes a InterfaceOfExternalCallFinding for the simple package mapping
@@ -27,12 +26,12 @@ public class InterfaceOfExternalCallFinderForPackageMapping implements Interface
     private static final Logger LOGGER = Logger
             .getLogger(InterfaceOfExternalCallFinderForPackageMapping.class.getSimpleName());
 
-    private final CorrespondenceModel correspondenceModel;
+    private final CorrespondenceModelView<Correspondence> correspondenceModelView;
     private final BasicComponent myBasicComponent;
 
-    public InterfaceOfExternalCallFinderForPackageMapping(final CorrespondenceModel correspondenceModel,
+    public InterfaceOfExternalCallFinderForPackageMapping(final CorrespondenceModelView<Correspondence> correspondenceModel,
             final BasicComponent myBasicComponent) {
-        this.correspondenceModel = correspondenceModel;
+        this.correspondenceModelView = correspondenceModel;
         this.myBasicComponent = myBasicComponent;
 
     }
@@ -76,13 +75,13 @@ public class InterfaceOfExternalCallFinderForPackageMapping implements Interface
      * @return the corresponding OperationSignature.
      */
     private OperationSignature queryInterfaceOperation(final Method invokedMethod) {
-        final Set<OperationSignature> correspondingOpSigs = CorrespondenceModelUtil
-                .getCorrespondingEObjects(this.correspondenceModel, invokedMethod, OperationSignature.class);
+        final Set<OperationSignature> correspondingOpSigs = CorrespondenceModelViewUtil
+                .getCorrespondingEObjects(this.correspondenceModelView, invokedMethod, OperationSignature.class);
         if (null != correspondingOpSigs && 0 < correspondingOpSigs.size()) {
             return correspondingOpSigs.iterator().next();
         }
-        final Set<ResourceDemandingSEFF> correspondingRDSEFFs = CorrespondenceModelUtil
-                .getCorrespondingEObjects(this.correspondenceModel, invokedMethod,
+        final Set<ResourceDemandingSEFF> correspondingRDSEFFs = CorrespondenceModelViewUtil
+                .getCorrespondingEObjects(this.correspondenceModelView, invokedMethod,
                         ResourceDemandingSEFF.class);
         if (null != correspondingRDSEFFs && 0 < correspondingRDSEFFs.size()) {
             for (final ResourceDemandingSEFF seff : correspondingRDSEFFs) {

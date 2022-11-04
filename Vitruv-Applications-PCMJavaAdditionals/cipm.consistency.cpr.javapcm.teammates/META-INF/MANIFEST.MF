@@ -10,20 +10,14 @@ Require-Bundle: org.emftext.language.java,
  tools.vitruv.dsls.reactions.runtime,
  org.eclipse.xtend.lib,
  org.eclipse.xtend.lib.macro,
- tools.vitruv.change.change,
  tools.vitruv.applications.pcmjava.seffstatements.pojotransformations,
  tools.vitruv.applications.pcmjava.seffstatements,
  tools.vitruv.applications.pcmjava.seffstatements.extended,
- cipm.consistency.domains.java,
  tools.vitruv.applications.pcmjava.seffstatements.finegrained,
  cipm.consistency.commitintegration.settings,
- cipm.consistency.domains.pcm,
  cipm.consistency.cpr.javaim,
  cipm.consistency.cpr.javapcm.msa,
- tools.vitruv.change.domains,
  org.palladiosimulator.pcm,
- tools.vitruv.applications.pcmjava.util,
- tools.vitruv.domains.java,
- tools.vitruv.domains.pcm
+ tools.vitruv.applications.pcmjava.util
 Automatic-Module-Name: cipm.consistency.cpr.javapcm.teammates
 Bundle-RequiredExecutionEnvironment: JavaSE-11

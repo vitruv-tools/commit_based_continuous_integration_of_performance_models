@@ -1,8 +1,6 @@
 package tools.vitruv.applications.pcmjava.seffstatements.code2seff;
 
-import java.util.List;
 import java.util.Set;
-
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
@@ -25,13 +23,7 @@ import org.somox.gast2seff.visitors.ResourceDemandingBehaviourForClassMethodFind
 import org.somox.gast2seff.visitors.VisitorUtils;
 import org.somox.sourcecodedecorator.SourceCodeDecoratorRepository;
 import org.somox.sourcecodedecorator.SourcecodedecoratorFactory;
-
-import com.google.common.base.Supplier;
-import com.google.common.collect.Lists;
-
 import tools.vitruv.change.correspondence.Correspondence;
-import tools.vitruv.change.correspondence.model.CorrespondenceModel;
-import tools.vitruv.change.correspondence.view.CorrespondenceModelView;
 import tools.vitruv.change.correspondence.view.EditableCorrespondenceModelView;
 import tools.vitruv.change.interaction.UserInteractor;
 

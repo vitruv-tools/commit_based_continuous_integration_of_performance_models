@@ -2,22 +2,22 @@ package cipm.consistency.cpr.javapcm.teammates.seff;
 
 import org.emftext.language.java.members.Method;
 import org.palladiosimulator.pcm.repository.BasicComponent;
-
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff.FunctionClassificationStrategyForPackageMapping;
 import tools.vitruv.applications.util.temporary.other.UriUtil;
-import tools.vitruv.change.correspondence.model.CorrespondenceModel;
+import tools.vitruv.change.correspondence.Correspondence;
+import tools.vitruv.change.correspondence.view.EditableCorrespondenceModelView;
 
 public class TeammatesFunctionClassificationStrategy extends FunctionClassificationStrategyForPackageMapping {
     private final BasicComponentFinding basicComponentFinding;
-    private final CorrespondenceModel correspondenceModel;
+    private final EditableCorrespondenceModelView<Correspondence> correspondenceModel;
     private final BasicComponent myBasicComponent;
 
     public TeammatesFunctionClassificationStrategy(final BasicComponentFinding basicComponentFinding,
-            final CorrespondenceModel ci, final BasicComponent myBasicComponent) {
-        super(basicComponentFinding, ci, myBasicComponent);
+            final EditableCorrespondenceModelView<Correspondence> cmv, final BasicComponent myBasicComponent) {
+        super(basicComponentFinding, cmv, myBasicComponent);
         this.basicComponentFinding = basicComponentFinding;
-        this.correspondenceModel = ci;
+        this.correspondenceModel = cmv;
         this.myBasicComponent = myBasicComponent;
     }
 
