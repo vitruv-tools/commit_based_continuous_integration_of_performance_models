@@ -1,8 +1,8 @@
 package cipm.consistency.commitintegration.lang.java;
 
-import cipm.consistency.commitintegration.detection.BuildFileBasedComponentDetectionStrategy;
-import cipm.consistency.commitintegration.detection.ComponentDetectionStrategy;
-import cipm.consistency.commitintegration.detection.ComponentModuleDetector;
+import cipm.consistency.commitintegration.lang.detection.ComponentDetectionStrategy;
+import cipm.consistency.commitintegration.lang.detection.java.JavaBuildFileBasedComponentDetectionStrategy;
+import cipm.consistency.commitintegration.lang.detection.java.JavaComponentModuleDetector;
 import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
 import cipm.consistency.commitintegration.settings.SettingKeys;
 import jamopp.options.ParserOptions;
@@ -33,7 +33,7 @@ import tools.vitruv.framework.vsum.VirtualModel;
  */
 public final class JavaParserAndPropagatorUtils {
 	private static final Logger LOGGER = Logger.getLogger("cipm." + JavaParserAndPropagatorUtils.class.getSimpleName());
-	private static Configuration config = new Configuration(true, new BuildFileBasedComponentDetectionStrategy());
+	private static Configuration config = new Configuration(true, new JavaBuildFileBasedComponentDetectionStrategy());
 
 	private JavaParserAndPropagatorUtils() {
 	}
@@ -82,7 +82,7 @@ public final class JavaParserAndPropagatorUtils {
 		LOGGER.debug("Parsed " + resourceSet.getResources().size() + " files.");
 
 		// 2. Filter the resources and create modules for components.
-		ComponentModuleDetector detector = new ComponentModuleDetector();
+		JavaComponentModuleDetector detector = new JavaComponentModuleDetector();
 		for (var strat : config.strategies) {
 			detector.addComponentDetectionStrategy(strat);
 		}

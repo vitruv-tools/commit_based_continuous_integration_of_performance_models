@@ -2,10 +2,10 @@ package tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended;
 
 import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.somox.gast2seff.visitors.AbstractFunctionClassificationStrategy;
-
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff.PojoJava2PcmCodeToSeffFactory;
-import tools.vitruv.change.correspondence.model.CorrespondenceModel;
+import tools.vitruv.change.correspondence.Correspondence;
+import tools.vitruv.change.correspondence.view.EditableCorrespondenceModelView;
 
 /**
  * Provides a CodeToSeffFactory implementation for the commit-based integration.
@@ -20,8 +20,8 @@ public class CommitIntegrationCodeToSeffFactory extends PojoJava2PcmCodeToSeffFa
 	
 	@Override
 	public AbstractFunctionClassificationStrategy createAbstractFunctionClassificationStrategy(
-			BasicComponentFinding componentFinding, CorrespondenceModel cm,
+			BasicComponentFinding componentFinding, EditableCorrespondenceModelView<Correspondence> cmv,
 			BasicComponent com) {
-		return new FunctionClassificationStrategyForCommitIntegration(componentFinding, cm, com);
+		return new FunctionClassificationStrategyForCommitIntegration(componentFinding, cmv, com);
 	}
 }

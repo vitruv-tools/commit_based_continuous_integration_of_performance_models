@@ -9,10 +9,9 @@ import tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended.Exten
 import tools.vitruv.change.atomic.EChange
 import tools.vitruv.change.atomic.feature.attribute.ReplaceSingleValuedEAttribute
 import tools.vitruv.change.correspondence.Correspondence
+import tools.vitruv.change.correspondence.view.EditableCorrespondenceModelView
 import tools.vitruv.change.interaction.UserInteractor
 import tools.vitruv.change.propagation.ResourceAccess
-import tools.vitruv.change.correspondence.model.CorrespondenceModel
-import java.util.List
 
 /**
  * Propagates changes in method bodies to the extended instrumentation model.
@@ -26,20 +25,20 @@ class Java2ImChangePropagationSpecification extends ExtendedJava2PcmMethodBodyCh
 // no actions for which instrumentation points can be generated. As a result, to ensure that the temporal constraint is
 // met, the propagation rules for Java->IM extend the rules for Java->PCM and are executed after them.
 	
-	override propagateChange(EChange change, CorrespondenceModel correspondenceModel, ResourceAccess resourceAccess) {
-		super.propagateChange(change, correspondenceModel, resourceAccess)
-		if (super.doesHandleChange(change, correspondenceModel)) {
+	override void propagateChange(EChange change, EditableCorrespondenceModelView<Correspondence> correspondenceModelView, ResourceAccess resourceAccess) {
+		super.propagateChange(change, correspondenceModelView, resourceAccess)
+		if (super.doesHandleChange(change, correspondenceModelView)) {
 			val attrChange = change as ReplaceSingleValuedEAttribute<?, ?>;
 			val meth = attrChange.affectedEObject as Method;
-			executeJava2ImTransformation(correspondenceModel, userInteractor, meth)
+			executeJava2ImTransformation(correspondenceModelView, userInteractor, meth)
 		}
 	}
 	
-	private def executeJava2ImTransformation(CorrespondenceModel correspondenceModel,
+	private def executeJava2ImTransformation(EditableCorrespondenceModelView<Correspondence> correspondenceModelView,
 		UserInteractor userInteracting, Method newMethod) {
 		
-		val correspondingSEFFs = correspondenceModel.getCorrespondingEObjects(Correspondence, List.of(newMethod), null)
-		val im = correspondenceModel.getCorrespondingEObjects(Correspondence, List.of(InstrumentationModelPackage.Literals.INSTRUMENTATION_MODEL), null) as InstrumentationModel
+		val correspondingSEFFs = correspondenceModelView.getCorrespondingEObjects(newMethod, null)
+		val im = correspondenceModelView.getCorrespondingEObjects(InstrumentationModelPackage.Literals.INSTRUMENTATION_MODEL, null) as InstrumentationModel
 		
 		if (!correspondingSEFFs.empty) {
 			val seff = correspondingSEFFs.last as ResourceDemandingSEFF

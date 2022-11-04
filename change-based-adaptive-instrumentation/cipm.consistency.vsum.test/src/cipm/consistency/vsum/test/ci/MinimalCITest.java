@@ -2,8 +2,6 @@ package cipm.consistency.vsum.test.ci;
 
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import cipm.consistency.commitintegration.git.impl.LuaDiffComputation;
-import cipm.consistency.commitintegration.lang.LanguageSpecification;
-import cipm.consistency.commitintegration.lang.lua.LuaLanguageSpecification;
 import java.io.IOException;
 import java.nio.file.Paths;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -17,23 +15,13 @@ import org.junit.jupiter.api.Test;
  * 
  * @author Martin Armbruster
  */
-public class MinimalCITest extends AbstractCITest {
-
-    @Override
-    public LanguageSpecification getLanguageSpec() {
-        return new LuaLanguageSpecification();
-    }
+public class MinimalCITest extends AppSpaceCITest {
 
     public GitRepositoryWrapper initializeGitRepositoryWrapper()
             throws InvalidRemoteException, TransportException, GitAPIException, IOException {
         var workTreePath = Paths.get("ciTestRepos/minimalLuaApp");
         return (new GitRepositoryWrapper(getLanguageSpec(), new LuaDiffComputation())).withLocalDirectory(workTreePath)
             .initialize();
-    }
-
-    private String getLatestCommitId() {
-        return getGitRepositoryWrapper().getLatestCommit()
-            .getName();
     }
 
     @Test

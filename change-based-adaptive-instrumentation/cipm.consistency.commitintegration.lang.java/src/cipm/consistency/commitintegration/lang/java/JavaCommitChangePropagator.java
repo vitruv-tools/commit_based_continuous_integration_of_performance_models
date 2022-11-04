@@ -3,6 +3,7 @@ package cipm.consistency.commitintegration.lang.java;
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import cipm.consistency.commitintegration.lang.CommitChangePropagator;
 import cipm.consistency.commitintegration.lang.LanguageFileSystemLayout;
+import cipm.consistency.commitintegration.lang.detection.ComponentDetector;
 import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
 import cipm.consistency.commitintegration.settings.SettingKeys;
 import cipm.consistency.commitintegration.util.ExternalCommandExecutionUtils;
@@ -20,8 +21,8 @@ import tools.vitruv.change.composite.description.PropagatedChange;
  */
 public class JavaCommitChangePropagator extends CommitChangePropagator {
     public JavaCommitChangePropagator(VsumFacade vsumFacade, GitRepositoryWrapper repoWrapper,
-            LanguageFileSystemLayout fileLayout) {
-        super(vsumFacade, repoWrapper, fileLayout);
+            LanguageFileSystemLayout fileLayout, ComponentDetector componentDetector) {
+        super(vsumFacade, repoWrapper, fileLayout, componentDetector);
     }
 
     @Override
@@ -39,8 +40,8 @@ public class JavaCommitChangePropagator extends CommitChangePropagator {
 
     public List<PropagatedChange> propagateCurrentCheckout() {
         LOGGER.debug("Delegating the change propagation to the JavaParserAndPropagatorUtility.");
-        JavaParserAndPropagatorUtils.parseAndPropagateJavaCode(repoWrapper.getWorkTree().toPath(), fileLayout.getModelFile(),
-                vsumFacade.getVsum(), fileLayout.getModuleConfiguration());
+        JavaParserAndPropagatorUtils.parseAndPropagateJavaCode(repoWrapper.getWorkTree()
+            .toPath(), fileLayout.getModelFile(), vsumFacade.getVsum(), fileLayout.getModuleConfiguration());
 
         // TODO The Jamopp stuff needs to be rewritten (it needs to return List<PropagatedChange>)
         return null;

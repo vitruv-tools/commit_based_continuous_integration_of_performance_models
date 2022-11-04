@@ -3,6 +3,7 @@ package cipm.consistency.commitintegration.lang.lua;
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import cipm.consistency.commitintegration.lang.CommitChangePropagator;
 import cipm.consistency.commitintegration.lang.LanguageFileSystemLayout;
+import cipm.consistency.commitintegration.lang.detection.ComponentDetector;
 import cipm.consistency.vsum.VsumFacade;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -32,8 +33,8 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
     Provider<XtextResourceSet> resourceSetProvider;
 
     public LuaCommitChangePropagator(VsumFacade vsumFacade, GitRepositoryWrapper repoWrapper,
-            LanguageFileSystemLayout fileLayout) {
-        super(vsumFacade, repoWrapper, fileLayout);
+            LanguageFileSystemLayout fileLayout, ComponentDetector componentDetector) {
+        super(vsumFacade, repoWrapper, fileLayout, componentDetector);
 
         // set the platform path
 //        var platformPath = fileLayout.getModelFileContainer().toString();
@@ -180,6 +181,11 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
         LOGGER.info("Propagating the current worktree");
         // parse all lua files into one resource set
         var workTreeResourceSet = parseWorkTreeToResourceSet();
+        
+        
+        // TODO do something with the detected modules
+        var candidates = componentDetector.detectComponents(workTreeResourceSet, repoWrapper.getWorkTree().toPath());
+        
 
         var targetUri = URI.createFileURI(getFileSystemLayout().getModelFile()
             .toAbsolutePath()

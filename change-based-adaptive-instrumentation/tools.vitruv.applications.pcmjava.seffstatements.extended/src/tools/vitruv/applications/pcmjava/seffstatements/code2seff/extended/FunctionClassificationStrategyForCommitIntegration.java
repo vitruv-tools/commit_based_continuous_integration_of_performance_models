@@ -1,14 +1,14 @@
 package tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended;
 
+import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
+import cipm.consistency.commitintegration.settings.SettingKeys;
 import org.emftext.language.java.LogicalJavaURIGenerator;
 import org.emftext.language.java.members.Method;
 import org.palladiosimulator.pcm.repository.BasicComponent;
-
-import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
-import cipm.consistency.commitintegration.settings.SettingKeys;
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff.FunctionClassificationStrategyForPackageMapping;
-import tools.vitruv.change.correspondence.model.CorrespondenceModel;
+import tools.vitruv.change.correspondence.Correspondence;
+import tools.vitruv.change.correspondence.view.EditableCorrespondenceModelView;
 
 /**
  * A function classification strategy for the commit-based integration.
@@ -19,8 +19,8 @@ public class FunctionClassificationStrategyForCommitIntegration
 		extends FunctionClassificationStrategyForPackageMapping {
 
 	public FunctionClassificationStrategyForCommitIntegration(BasicComponentFinding basicComponentFinding,
-			CorrespondenceModel ci, BasicComponent myBasicComponent) {
-		super(basicComponentFinding, ci, myBasicComponent);
+			EditableCorrespondenceModelView<Correspondence> cmv, BasicComponent myBasicComponent) {
+		super(basicComponentFinding, cmv, myBasicComponent);
 	}
 
 	/**

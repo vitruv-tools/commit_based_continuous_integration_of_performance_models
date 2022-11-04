@@ -2,21 +2,53 @@
 import "http://www.xtext.org/lua/Lua" as lua
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
 
-
 reactions: luaPcm
 in reaction to changes in lua
 execute actions in pcm
 
-reaction Function {
-	after element lua::Statement_Declaration inserted in lua::Block[statements]
-	call {
-		// TODO
-	}
-}
 
 
+//reaction AddedDeclaration {
+//	after element lua::Statement_Declaration inserted in lua::Block[statements]
+//	call {
+//		// TODO
+//	}
+//}
 
-
+//reaction AddedMethodCall {
+//	after element java::Method inserted in java::MethodCall[target]
+//	call {
+//		createOrFindCallTarget(affectedEObject, newValue)
+//	}
+//}
+//
+//routine createOrFindCallTarget(java::MethodCall methCall, java::Method method) {
+//	match {
+//		val callCom = retrieve pcm::BasicComponent corresponding to methCall.containingConcreteClassifier
+//		val com = retrieve pcm::BasicComponent corresponding to method.containingConcreteClassifier
+//		require absence of pcm::OperationSignature corresponding to method
+//		require absence of pcm::ResourceDemandingSEFF corresponding to method
+//	}
+//	call {
+//			val classifier = method.containingConcreteClassifier
+//			if (callCom !== com && InternalUtils.isExternalCall(
+//					method, correspondenceModel, com)) {
+//				createInterface(classifier)
+//				createOrFindPCMSignature(method)
+//				if (classifier instanceof org.emftext.language.java.classifiers.Class) {
+//					createOrFindOperationProvidedRole(classifier, classifier)
+//					// Required role
+//					if (method instanceof ClassMethod) {
+//						createSEFF(method, classifier, method)
+//						// SEFF reconstruction
+//					}
+//				}
+//			}
+//	}
+//}
+//
+//
+//
 //reaction AddedSEFF {
 //	after element pcm::ResourceDemandingSEFF inserted in pcm::BasicComponent[serviceEffectSpecifications__BasicComponent]
 //	call {
