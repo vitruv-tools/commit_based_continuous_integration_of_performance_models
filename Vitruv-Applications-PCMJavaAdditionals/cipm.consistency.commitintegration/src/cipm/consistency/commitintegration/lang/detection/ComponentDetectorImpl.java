@@ -1,11 +1,13 @@
 package cipm.consistency.commitintegration.lang.detection;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import tools.vitruv.change.interaction.InternalUserInteractor;
 import tools.vitruv.change.interaction.UserInteractionFactory;
@@ -40,12 +42,17 @@ public class ComponentDetectorImpl implements ComponentDetector {
             .put(k, state));
     }
 
+    protected List<ModuleState> getEnabledModuleStates() {
+        return List.of(ModuleState.REGULAR_COMPONENT,
+                ModuleState.PART_OF_COMPONENT, ModuleState.NO_COMPONENT);
+    }
+
     protected void resolveModuleCandidates(ModuleCandidates candidates, Path configPath) {
         InternalUserInteractor userInteractor = UserInteractionFactory.instance.createDialogUserInteractor();
-    
+
         // Apply the stored configuration on the found modules.
         var modCandidates = new HashMap<>(candidates.getModulesInState(ModuleState.COMPONENT_CANDIDATE));
-    
+
         ModuleConfiguration config = new ModuleConfiguration(configPath);
         // Decide the state for component candidates.
         modCandidates.forEach((k, v) -> {
@@ -74,20 +81,20 @@ public class ComponentDetectorImpl implements ComponentDetector {
         updateConfig(config, candidates, ModuleState.REGULAR_COMPONENT);
         updateConfig(config, candidates, ModuleState.NO_COMPONENT);
         // Ask the developer to decide the type of the remaining component candidates.
+        
+        var stateList = getEnabledModuleStates();
+        var stateNames = stateList.stream().map(s -> s.toString()).collect(Collectors.toList());
         modCandidates = new HashMap<>(candidates.getModulesInState(ModuleState.COMPONENT_CANDIDATE));
         modCandidates.forEach((k, v) -> {
             int r = userInteractor.getSingleSelectionDialogBuilder()
-                .message("Detected the potential component / module" + k + ". Which type of a component is it?")
-                .choices(List.of("Microservice component", "Regular component", "Part of another component",
-                        "No component"))
+                .message("Detected the potential component / module: " + k + "\nWhich type of a component is it?")
+//                .choices(List.of("Microservice component", "Regular component", "Part of another component",
+//                        "No component"))
+                .choices(stateNames)
                 .startInteraction();
             ModuleState newState;
-            if (r == 0) {
-                newState = ModuleState.MICROSERVICE_COMPONENT;
-            } else if (r == 1) {
-                newState = ModuleState.REGULAR_COMPONENT;
-            } else if (r == 2) {
-                newState = ModuleState.PART_OF_COMPONENT;
+            if (0 <= r && r < stateList.size()) {
+                newState = stateList.get(r);
             } else {
                 newState = ModuleState.NO_COMPONENT;
             }
@@ -95,7 +102,7 @@ public class ComponentDetectorImpl implements ComponentDetector {
             config.getModuleClassification()
                 .put(k, newState);
         });
-    
+
         // Ask the developer to decide which module is part of which other module.
         modCandidates = new HashMap<>(candidates.getModulesInState(ModuleState.PART_OF_COMPONENT));
         modCandidates.forEach((k, v) -> {
@@ -123,9 +130,14 @@ public class ComponentDetectorImpl implements ComponentDetector {
             config.getSubModuleMapping()
                 .put(k, newMod);
         });
-        config.save();
+        try {
+            config.save();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
-    
+
     public ModuleCandidates detectModules(ResourceSet resourceSet, Path projectRoot, Path configPath) {
         var candidates = detectModuleCandidates(resourceSet, projectRoot);
         resolveModuleCandidates(candidates, configPath);

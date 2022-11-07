@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.jgit.errors.SearchForReuseTimeout;
 
 /**
  * Stores the module candidates.

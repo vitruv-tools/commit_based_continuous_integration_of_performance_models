@@ -20,8 +20,8 @@ public abstract class LuaLanguageSpecification implements LanguageSpecification 
 
     @Override
     public LanguageFileSystemLayout getFileLayout(Path root) {
-        // TODO Auto-generated method stub
-        return new LuaLanguageFileSystemLayout(root.resolve("lua"));
+        var luaDirPath = root.resolve("lua");
+        return new LuaLanguageFileSystemLayout(luaDirPath);
     }
 
     @Override

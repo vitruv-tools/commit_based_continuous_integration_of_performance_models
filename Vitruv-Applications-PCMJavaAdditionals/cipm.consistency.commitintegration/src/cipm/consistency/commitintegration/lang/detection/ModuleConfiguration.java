@@ -78,8 +78,9 @@ public class ModuleConfiguration {
 
 	/**
 	 * Stores the configuration.
+	 * @throws IOException 
 	 */
-	public void save() {
+	public void save() throws IOException {
 		Properties p = new Properties();
 		moduleClassification.forEach((k, v) -> {
 			if (v == ModuleState.PART_OF_COMPONENT) {
@@ -91,6 +92,7 @@ public class ModuleConfiguration {
 		try (BufferedWriter writer = Files.newBufferedWriter(configPath)) {
 			p.store(writer, null);
 		} catch (IOException e) {
+		    throw e;
 		}
 	}
 }

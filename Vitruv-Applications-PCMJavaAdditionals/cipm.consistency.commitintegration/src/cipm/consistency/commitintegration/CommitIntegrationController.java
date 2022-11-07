@@ -72,7 +72,7 @@ public abstract class CommitIntegrationController extends CommitIntegrationState
             throws IOException, GitAPIException {
         {
             var parent = getVsumFacade().getFileSystemLayout()
-                .getCommitsPath()
+                .getCommitsFilePath()
                 .toAbsolutePath()
                 .getParent();
             if (Files.notExists(parent)) {
@@ -80,7 +80,7 @@ public abstract class CommitIntegrationController extends CommitIntegrationState
             }
         }
         try (BufferedWriter writer = Files.newBufferedWriter(getVsumFacade().getFileSystemLayout()
-            .getCommitsPath())) {
+            .getCommitsFilePath())) {
             if (oldCommit != null) {
                 writer.write(oldCommit + "\n");
             }
@@ -187,7 +187,7 @@ public abstract class CommitIntegrationController extends CommitIntegrationState
     private Resource performInstrumentation(Path instrumentationDirectory, boolean performFullInstrumentation) {
         Resource javaModel = getModelResource();
         return CodeInstrumenter.instrument(getVsumFacade().getInstrumentationModel(), getVsumFacade().getVsum()
-            .getCorrespondenceModel(), javaModel, instrumentationDirectory, getFileSystemLayout().getLocalRepo(),
+            .getCorrespondenceModel(), javaModel, instrumentationDirectory, getFileSystemLayout().getLocalRepoDir(),
                 !performFullInstrumentation);
     }
 
@@ -309,7 +309,7 @@ public abstract class CommitIntegrationController extends CommitIntegrationState
     public String[] loadCommits() {
         try {
             var lines = Files.readAllLines(getVsumFacade().getFileSystemLayout()
-                .getCommitsPath());
+                .getCommitsFilePath());
             String[] result = new String[2];
             if (lines.size() == 1) {
                 result[1] = lines.get(0);

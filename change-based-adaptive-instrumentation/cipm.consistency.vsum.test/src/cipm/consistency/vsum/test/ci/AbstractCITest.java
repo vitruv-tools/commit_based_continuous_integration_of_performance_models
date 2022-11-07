@@ -168,7 +168,7 @@ public abstract class AbstractCITest extends CommitIntegrationController impleme
         Resource javaModel = getModelResource();
         LOGGER.debug("Evaluating the Java model.");
         new JavaModelEvaluator().evaluateJavaModels(javaModel, getLanguageSpec().getFileLayout(getSettingsPath())
-            .getLocalRepo(), evalResult.getJavaComparisonResult(),
+            .getLocalRepoDir(), evalResult.getJavaComparisonResult(),
                 getCommitChangePropagator().getFileSystemLayout()
                     .getModuleConfiguration());
         LOGGER.debug("Evaluating the instrumentation model.");

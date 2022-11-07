@@ -16,17 +16,22 @@ import org.eclipse.xtend.lib.annotations.Accessors
 class FileSystemLayout {
 	static final String vsumDirName = "vsum";
 	static final String pcmDirName = "pcm";
+	static final String imDirName = "im";
+//	static final String javaDirName = "java";
+
 	static final String pcmRepositoryFileName = "Repository.repository";
 	static final String pcmSystemFileName = "System.system";
 	static final String pcmAllocationFileName = "Allocation.allocation";
 	static final String pcmUsageModelFileName = "Usage.usagemodel";
 	static final String pcmResourceEnvironmentFileName = "ResourceEnvironment.resourceenvironment";
-	static final String imDirName = "im";
 	static final String imFileName = "InstrumentationModel.imm";
-	static final String javaDirName = "java";
 	static final String commitsFileName = ".commits";
-	Path rootPath;
-	Path vsumPath;
+
+	Path rootDirPath;
+	Path vsumDirPath;
+	Path pcmDirPath;
+	Path imDirPath;
+
 	Path pcmRepositoryPath;
 	URI pcmRepositoryURI;
 	Path pcmSystemPath;
@@ -37,31 +42,35 @@ class FileSystemLayout {
 	URI pcmUsageModelURI;
 	Path pcmResourceEnvironmentPath;
 	URI pcmResourceEnvironmentURI;
-	Path imPath;
+	Path imFilePath;
 	URI imURI;
 	Path javaPath;
-	Path commitsPath;
+	Path commitsFilePath;
 	
-	new(Path rootDir) {
-		rootPath = rootDir;
-		vsumPath = rootDir.resolve(vsumDirName);
-		var pcm = rootDir.resolve(pcmDirName);
-		pcmRepositoryPath = pcm.resolve(pcmRepositoryFileName).toAbsolutePath();
+	new(Path rootDirPath) {
+		this.rootDirPath = rootDirPath;
+		if (!rootDirPath.toFile().exists()) {
+			Files.createDirectories(rootDirPath);
+		}
+
+		vsumDirPath = rootDirPath.resolve(vsumDirName);
+		pcmDirPath = rootDirPath.resolve(pcmDirName);
+		imDirPath = rootDirPath.resolve(imDirName);
+
+		pcmRepositoryPath = pcmDirPath.resolve(pcmRepositoryFileName).toAbsolutePath();
 		pcmRepositoryURI = URI.createFileURI(pcmRepositoryPath.toString());
-		pcmSystemPath = pcm.resolve(pcmSystemFileName).toAbsolutePath();
+		pcmSystemPath = pcmDirPath.resolve(pcmSystemFileName).toAbsolutePath();
 		pcmSystemURI = URI.createFileURI(pcmSystemPath.toString());
-		pcmAllocationPath = pcm.resolve(pcmAllocationFileName).toAbsolutePath();
+		pcmAllocationPath = pcmDirPath.resolve(pcmAllocationFileName).toAbsolutePath();
 		pcmAllocationURI = URI.createFileURI(pcmAllocationPath.toString());
-		pcmUsageModelPath = pcm.resolve(pcmUsageModelFileName).toAbsolutePath();
+		pcmUsageModelPath = pcmDirPath.resolve(pcmUsageModelFileName).toAbsolutePath();
 		pcmUsageModelURI = URI.createFileURI(pcmUsageModelPath.toString());
-		pcmResourceEnvironmentPath = pcm.resolve(pcmResourceEnvironmentFileName).toAbsolutePath();
+		pcmResourceEnvironmentPath = pcmDirPath.resolve(pcmResourceEnvironmentFileName).toAbsolutePath();
 		pcmResourceEnvironmentURI = URI.createFileURI(pcmResourceEnvironmentPath.toString());
-		// TODO what the hell was this doing?
-		var im = rootDir.resolve(imDirName);
-		imPath = im.resolve(imFileName).toAbsolutePath();
-		imURI = URI.createFileURI(imPath.toString());
-		javaPath = rootDir.resolve(javaDirName);
-		commitsPath = rootDir.resolve(commitsFileName);
+		imFilePath = imDirPath.resolve(imFileName).toAbsolutePath();
+		imURI = URI.createFileURI(imFilePath.toString());
+//		javaPath = rootDirPath.resolve(javaDirName);
+		commitsFilePath = rootDirPath.resolve(commitsFileName);
 	}
 
 	def LocalFilesystemPCM getFilePCM() {
@@ -75,13 +84,13 @@ class FileSystemLayout {
 	}
 	
 	def deleteVsum() {
-		Files.walk(vsumPath).sorted(Comparator.reverseOrder()).forEach[
+		Files.walk(vsumDirPath).sorted(Comparator.reverseOrder()).forEach[
 			it.toFile.delete
 		]
 	}
 
 	def delete() {
-		Files.walk(rootPath).sorted(Comparator.reverseOrder()).forEach[
+		Files.walk(rootDirPath).sorted(Comparator.reverseOrder()).forEach[
 			it.toFile.delete
 		]
 	}

@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import mir.reactions.imUpdate.ImUpdateChangePropagationSpecification;
 import mir.reactions.luaPcm.LuaPcmChangePropagationSpecification;
 import org.apache.log4j.Logger;
@@ -99,7 +100,7 @@ public class VsumFacade {
 //		ExtendedPcmDomain pcmDomain = new ExtendedPcmDomainProvider().getDomain();
 //		pcmDomain.enableTransitiveChangePropagation();
 
-        return new VirtualModelBuilder().withStorageFolder(fileLayout.getVsumPath())
+        return new VirtualModelBuilder().withStorageFolder(fileLayout.getVsumDirPath())
             .withUserInteractor(UserInteractionFactory.instance.createDialogUserInteractor())
             .withChangePropagationSpecifications(getChangePropagationSpecs());
     }
@@ -128,7 +129,8 @@ public class VsumFacade {
     }
 
     private boolean checkPropagationPreconditions(Resource res) {
-        if (res.getContents().size() == 0) {
+        if (res.getContents()
+            .size() == 0) {
             LOGGER.error(String.format("Resource has no contents: %s", res.getURI()));
             return false;
         }
@@ -207,12 +209,13 @@ public class VsumFacade {
         if (vsum == null) {
             vsum = this.vsum;
         }
-        
+
         if (!checkPropagationPreconditions(resource)) {
-            LOGGER.error(String.format("Not propagating resource because of missing preconditions: %s", resource.getURI()));
+            LOGGER.error(
+                    String.format("Not propagating resource because of missing preconditions: %s", resource.getURI()));
             return null;
         }
-        
+
         // add resources by registering its root object in the change deriving view
         LOGGER.debug(String.format("Propagating resource: %s", resource.getURI()
             .lastSegment()));
@@ -271,7 +274,7 @@ public class VsumFacade {
 
         // build IMM
         imm = InstrumentationModelFactory.eINSTANCE.createInstrumentationModel();
-        FileBackedModelUtil.synchronize(imm, fileLayout.getImPath()
+        FileBackedModelUtil.synchronize(imm, fileLayout.getImFilePath()
             .toFile(), InstrumentationModel.class);
 
         // propagate all resources into the new vsum
@@ -299,8 +302,17 @@ public class VsumFacade {
 
     private void loadOrCreateVsum() throws IOException {
         var vsumBuilder = getVsumBuilder();
-        boolean overwrite = true;
-        boolean filesExistent = Files.exists(fileLayout.getRootPath());
+//        boolean overwrite = true;
+        boolean overwrite = false;
+        boolean filesExistent = !List
+            .of(fileLayout.getPcmRepositoryPath(), fileLayout.getPcmResourceEnvironmentPath(),
+                    fileLayout.getPcmUsageModelPath(), fileLayout.getPcmAllocationPath(), fileLayout.getPcmSystemPath())
+            .stream()
+            .map(p -> p.toFile()
+                .isFile())
+            .collect(Collectors.toList())
+            .contains(false);
+
         if (overwrite && filesExistent) {
             LOGGER.info("Deleting existing models (VSUM, PCM, IMM, ..)");
             fileLayout.delete();
