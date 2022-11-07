@@ -4,6 +4,7 @@ import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import cipm.consistency.commitintegration.lang.CommitChangePropagator;
 import cipm.consistency.commitintegration.lang.LanguageFileSystemLayout;
 import cipm.consistency.commitintegration.lang.detection.ComponentDetector;
+import cipm.consistency.commitintegration.lang.detection.ModuleState;
 import cipm.consistency.vsum.VsumFacade;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -184,7 +185,11 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
         
         
         // TODO do something with the detected modules
-        var candidates = componentDetector.detectComponents(workTreeResourceSet, repoWrapper.getWorkTree().toPath());
+        var modulesCandidates = componentDetector.detectModules(workTreeResourceSet, repoWrapper.getWorkTree().toPath(), fileLayout.getModuleConfiguration());
+        if (modulesCandidates != null) {
+            var actualModules = modulesCandidates.getModulesInState(ModuleState.REGULAR_COMPONENT);
+            LOGGER.debug(String.format("Detected %d module(s)", actualModules.size()));
+        }
         
 
         var targetUri = URI.createFileURI(getFileSystemLayout().getModelFile()

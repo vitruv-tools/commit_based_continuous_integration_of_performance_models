@@ -15,6 +15,11 @@ public interface ComponentDetector {
      * 
      * @return Candidates for modules
      */
-    ModuleCandidates detectComponents(ResourceSet resourceSet, Path projectRoot);
+    ModuleCandidates detectModuleCandidates(ResourceSet resourceSet, Path projectRoot);
+    
 
+    /**
+     * Like detectModuleCandidates but also resolves candidates to modules by using a configuration and user interaction 
+     */
+    public ModuleCandidates detectModules(ResourceSet resourceSet, Path projectRoot, Path configPath);
 }

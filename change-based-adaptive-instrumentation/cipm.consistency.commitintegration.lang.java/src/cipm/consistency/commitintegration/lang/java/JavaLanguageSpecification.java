@@ -5,6 +5,7 @@ import cipm.consistency.commitintegration.lang.CommitChangePropagator;
 import cipm.consistency.commitintegration.lang.LanguageFileSystemLayout;
 import cipm.consistency.commitintegration.lang.LanguageSpecification;
 import cipm.consistency.commitintegration.lang.detection.ComponentDetectionStrategy;
+import cipm.consistency.commitintegration.lang.detection.ComponentDetectorImpl;
 import cipm.consistency.commitintegration.lang.detection.java.JavaComponentModuleDetector;
 import cipm.consistency.vsum.VsumFacade;
 import java.nio.file.Path;
@@ -24,7 +25,7 @@ public class JavaLanguageSpecification implements LanguageSpecification  {
 
     @Override
     public CommitChangePropagator getCommitChangePropagator(Path root, VsumFacade vsumFacade, GitRepositoryWrapper repoWrapper) {
-        var componentDetector = new JavaComponentModuleDetector();
+        ComponentDetectorImpl componentDetector = new JavaComponentModuleDetector();
         for (var strategy : getComponentDetectionStrategies()) {
             componentDetector.addComponentDetectionStrategy(strategy);
         }
