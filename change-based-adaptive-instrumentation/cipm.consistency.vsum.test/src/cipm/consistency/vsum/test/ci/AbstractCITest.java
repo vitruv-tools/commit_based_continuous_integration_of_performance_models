@@ -15,6 +15,7 @@ import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.apache.log4j.spi.LoggingEvent;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
@@ -23,6 +24,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import tools.vitruv.change.composite.description.PropagatedChange;
 
 /**
  * An abstract superclass for test cases providing the setup.
@@ -32,23 +34,45 @@ import org.junit.jupiter.api.BeforeEach;
  * @author Lukas Burgey
  */
 public abstract class AbstractCITest extends CommitIntegrationController implements CommitIntegration {
-    private static final Logger LOGGER = Logger.getLogger("cipm." + AbstractCITest.class.getSimpleName());
-//    protected CommitIntegrationController controller;
+    private static final Logger LOGGER = Logger.getLogger(AbstractCITest.class.getName());
+
+    private class TrimmingLogFormat extends PatternLayout {
+        private List<String> trim;
+
+        public TrimmingLogFormat(String format, List<String> trim) {
+            super(format);
+            this.trim = trim;
+        }
+
+        @Override
+        public String format(LoggingEvent event) {
+            String msg = super.format(event);
+            for (var t : trim) {
+                msg = msg.replace(t, "[..]");
+            }
+            return msg;
+        }
+    }
 
     @BeforeEach
     public void setUpLogging() {
         // set log levels of the framework
-        Logger.getLogger("cipm").setLevel(Level.ALL);
-        Logger.getLogger("jamopp").setLevel(Level.ALL);
-        Logger.getLogger("tools.vitruv").setLevel(Level.INFO);
-        Logger.getLogger("mir").setLevel(Level.INFO); // mir belongs to vitruv
-        Logger.getLogger("org.xtext.lua").setLevel(Level.INFO);
-        
-        var rootLogger =Logger.getRootLogger();
+        Logger.getLogger("cipm")
+            .setLevel(Level.ALL);
+        Logger.getLogger("jamopp")
+            .setLevel(Level.ALL);
+        Logger.getLogger("tools.vitruv")
+            .setLevel(Level.WARN);
+        Logger.getLogger("mir")
+            .setLevel(Level.INFO); // mir belongs to vitruv
+        Logger.getLogger("org.xtext.lua")
+            .setLevel(Level.INFO);
+
+        var rootLogger = Logger.getRootLogger();
         rootLogger.setLevel(Level.ALL);
         rootLogger.removeAllAppenders();
-//        ConsoleAppender ap = new ConsoleAppender(new PatternLayout("[%d{DATE}] %-5p: %c - %m%n"),
-        var logFormat = new PatternLayout("%-5p: %c  %m%n");
+        var toTrim = List.of(System.getProperty("user.dir"), "cipm.consistency");
+        var logFormat = new TrimmingLogFormat("%-5p: %c  %m%n", toTrim);
         ConsoleAppender ap = new ConsoleAppender(logFormat, ConsoleAppender.SYSTEM_OUT);
         rootLogger.addAppender(ap);
     }
@@ -96,6 +120,20 @@ public abstract class AbstractCITest extends CommitIntegrationController impleme
         return result;
     }
 
+    protected void assertSuccessfulPropagation(String oldCommit, String newCommit) {
+        List<PropagatedChange> propagatedChanges = null;
+        try {
+            propagatedChanges = propagateChanges(oldCommit, newCommit, true);
+        } catch (IOException | GitAPIException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            Assert.fail(e.getMessage());
+        }
+        if (propagatedChanges == null) {
+            Assert.fail("propagatedChanges must not be null");
+        }
+    }
+
     /**
      * Propagates changes between two commits and performs a partial evaluation on the result.
      * 
@@ -127,27 +165,19 @@ public abstract class AbstractCITest extends CommitIntegrationController impleme
 //        FileUtils.copyFile(new File(repoFile), new File(this.getRootPath()
 //            .toString(), "Repository_" + num + "_mu.repository"));
 
-        try {
-            var propagatedChanges = propagateChanges(oldCommit, newCommit, true);
-            if (propagatedChanges != null) {
-                Resource codeModel = getModelResource();
-                Resource instrumentedModel = getLastInstrumentedModelResource();
-                var copy = createFileSystemCopy(num + "-" + newCommit);
-                LOGGER.debug("Evaluating the instrumentation.");
-                new InstrumentationEvaluator().evaluateInstrumentationDependently(
-                        getVsumFacade().getInstrumentationModel(), codeModel, instrumentedModel,
-                        getVsumFacade().getVsum()
-                            .getCorrespondenceModel());
-                EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("DependentEvaluationResult.json"));
-                LOGGER.debug("Finished the evaluation.");
-                return true;
-            }
-        } catch (IOException | GitAPIException  e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            Assert.fail(e.getMessage());
-        }
-        return false;
+        assertSuccessfulPropagation(oldCommit, newCommit);
+
+        Resource codeModel = getModelResource();
+        Resource instrumentedModel = getLastInstrumentedModelResource();
+
+        var copy = createFileSystemCopy(num + "-" + newCommit);
+        LOGGER.debug("Evaluating the instrumentation.");
+        new InstrumentationEvaluator().evaluateInstrumentationDependently(getVsumFacade().getInstrumentationModel(),
+                codeModel, instrumentedModel, getVsumFacade().getVsum()
+                    .getCorrespondenceModel());
+        EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("DependentEvaluationResult.json"));
+        LOGGER.debug("Finished the evaluation.");
+        return true;
     }
 
     /**

@@ -7,7 +7,6 @@ import java.nio.file.Paths;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
-import org.junit.Assert;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +31,8 @@ public class CaseStudy1CITest extends AppSpaceCITest {
     @Test
     public void testCaseStudy1_0Integration() throws Exception {
         // Integrates casestudy version 1.0.
-        Assert.assertTrue(executePropagationAndEvaluation(null, COMMIT_TAG_1_0_0, 0));
+        assertSuccessfulPropagation(null, COMMIT_TAG_1_0_0);
+//        Assert.assertTrue(executePropagationAndEvaluation(null, COMMIT_TAG_1_0_0, 0));
 //		performIndependentEvaluation();
     }
 
@@ -40,7 +40,8 @@ public class CaseStudy1CITest extends AppSpaceCITest {
     @Test
     public void testTeaStore1_0To1_1Propagation() throws Exception {
         // Propagation of changes between version 0.1.0 and 1.0.0
-        executePropagationAndEvaluation(COMMIT_TAG_0_1_0, COMMIT_TAG_1_0_0, 1);
+//        assertSuccessfulPropagation(COMMIT_TAG_1_0_0, COMMIT_TAG_0_1_0);
+//        executePropagationAndEvaluation(COMMIT_TAG_0_1_0, COMMIT_TAG_1_0_0, 1);
 //		performIndependentEvaluation();
     }
 

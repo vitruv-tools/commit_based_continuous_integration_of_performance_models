@@ -76,8 +76,8 @@ routine checkBasicComponentRemovalForModule(lua::Component component) {
 	}
 }
 
-routine removeComponent(pcm::RepositoryComponent com) {
+routine removeComponent(pcm::RepositoryComponent component) {
 	update {
-		com.removeObject
+		component.removeObject
 	}
 }

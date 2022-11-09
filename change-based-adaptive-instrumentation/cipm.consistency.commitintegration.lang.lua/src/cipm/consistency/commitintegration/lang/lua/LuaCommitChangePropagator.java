@@ -162,10 +162,6 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
                     LOGGER.error(String.format("Resource does not contain a chunk: %s", resource.getURI()));
                     return;
                 }
-
-//                // merge chunks
-//                componentSet.getComponents()
-//                    .add((Chunk) eObj);
             });
 
         // detect components in the resources
@@ -230,12 +226,6 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
 
         return vsumFacade.propagateResource(resource, uri);
     }
-
-//    private List<PropagatedChange> propagateResourceSetUsingChunkSet(ResourceSet resourceSet, URI targetUri) {
-//        var chunkSetResource = resolveResourceSetToComponents(resourceSet, targetUri);
-//        return propagateResource(chunkSetResource, targetUri);
-//    }
-
     @Override
     public List<PropagatedChange> propagateCurrentCheckout() {
         LOGGER.info("Propagating the current worktree");

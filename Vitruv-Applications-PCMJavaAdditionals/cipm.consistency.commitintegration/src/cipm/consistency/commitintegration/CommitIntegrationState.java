@@ -20,7 +20,7 @@ import org.eclipse.jgit.api.errors.TransportException;
  *
  */
 public abstract class CommitIntegrationState {
-    private final Logger LOGGER = Logger.getLogger("CommitIntegrationState");
+    private final Logger LOGGER = Logger.getLogger(CommitIntegration.class.getName());
     private CommitIntegration commitIntegration;
     private VsumFacade vsumFacade;
     private GitRepositoryWrapper gitRepositoryWrapper;

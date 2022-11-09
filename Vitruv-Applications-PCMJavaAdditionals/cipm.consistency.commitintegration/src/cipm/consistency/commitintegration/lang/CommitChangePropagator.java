@@ -23,8 +23,8 @@ public abstract class CommitChangePropagator {
 
     public CommitChangePropagator(VsumFacade vsumFacade, GitRepositoryWrapper repoWrapper,
             LanguageFileSystemLayout fileLayout, ComponentDetector componentDetector) {
-        LOGGER = Logger.getLogger("cipm." + this.getClass()
-            .getSimpleName());
+        LOGGER = Logger.getLogger(this.getClass()
+            .getName());
         this.vsumFacade = vsumFacade;
         this.repoWrapper = repoWrapper;
         this.fileLayout = fileLayout;

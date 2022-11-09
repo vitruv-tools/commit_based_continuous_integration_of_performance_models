@@ -42,7 +42,9 @@ import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
  */
 @SuppressWarnings("restriction")
 public class VsumFacade {
-    private static final Logger LOGGER = Logger.getLogger("cipm.VSUMFacade");
+    private static final Logger LOGGER = Logger.getLogger(VsumFacade.class.getName());
+    private static final boolean ALWAYS_RECREATE_VSUM = false;
+
     private Path rootPath;
     private FileSystemLayout fileLayout;
 
@@ -218,13 +220,14 @@ public class VsumFacade {
      *            Optional, may be used to override the vsum to which the change is propagated
      * @return The propagated changes
      */
-    private List<PropagatedChange> propagateResource(Resource resource, URI targetUri, InternalVirtualModel vsum) {
+    private List<PropagatedChange> propagateResource(Resource resource, URI _targetUri, InternalVirtualModel vsum) {
         if (vsum == null) {
             vsum = this.vsum;
         }
-        if (targetUri == null) {
-            targetUri = resource.getURI();
+        if (_targetUri == null) {
+            _targetUri = resource.getURI();
         }
+        final URI targetUri = _targetUri;
 
         if (!checkPropagationPreconditions(resource)) {
             LOGGER.error(
@@ -243,17 +246,31 @@ public class VsumFacade {
         }
 
         var view = getView(vsum);
-        var rootEObject = resource.getContents()
+        var newRootEobject = resource.getContents()
             .get(0);
 
-        // this also extracts the rootEObject from the resource
-        view.registerRoot(rootEObject, targetUri);
+        var roots = view.getRootObjects();
+        var possiblyExistingRoot = roots.stream()
+            .filter(root -> root.eResource()
+                .getURI() == targetUri)
+            .findAny();
+        if (possiblyExistingRoot.isPresent()) {
+            LOGGER.debug(String.format("Replacing old root object (%s) at %s", newRootEobject.getClass(), targetUri));
+            // replace the existing root with the new one
+            var existingContents = possiblyExistingRoot.get().eResource().getContents();
+            existingContents.remove(0);
+            existingContents.add(newRootEobject);
+        } else {
+            LOGGER.debug(String.format("Registering new root object (%s) at %s", newRootEobject.getClass(), targetUri));
+            // or register the new root at the view
+            view.registerRoot(newRootEobject, targetUri);
+        }
 
         var propagatedChanges = view.commitChangesAndUpdate();
         if (propagatedChanges.size() == 0) {
-            LOGGER.error("  -> No Propagated changes");
+            LOGGER.info("-> No Propagated changes");
         } else {
-            LOGGER.debug(String.format("  -> %d change(s)", propagatedChanges.size()));
+            LOGGER.info(String.format("-> %d change(s)", propagatedChanges.size()));
         }
         return propagatedChanges;
     }
@@ -280,8 +297,8 @@ public class VsumFacade {
         LOGGER.debug(String.format("Propagated %d changes into the VSUM", propagatedChanges.size()));
         return propagatedChanges;
     }
-    
-    private void initializeCorrespondenceModel() {
+
+//    private void initializeCorrespondenceModel() {
 
         // add correspondences between the models
 //        var correspondenceModel = tempVsum.getCorrespondenceModel();
@@ -308,8 +325,8 @@ public class VsumFacade {
 //            .add(pcm.getRepository());
 //        reactionsCorrespondence.getRightEObjects()
 //            .add();
-        
-    }
+
+//    }
 
     private void createVsum(VirtualModelBuilder vsumBuilder) throws IOException {
         // temporary vsum for the initialization
@@ -335,9 +352,9 @@ public class VsumFacade {
                 pcm.getAllocationModel()
                     .eResource()),
                 tempVsum);
-        
+
         // set correspondences, so reactions can locate e.g. PCMs repository model
-        initializeCorrespondenceModel();
+//        initializeCorrespondenceModel();
 
         LOGGER.debug("Disposing temporary VSUM");
         tempVsum.dispose();
@@ -345,8 +362,7 @@ public class VsumFacade {
 
     private void loadOrCreateVsum() throws IOException {
         var vsumBuilder = getVsumBuilder();
-//        boolean overwrite = true;
-        boolean overwrite = true;
+        boolean overwrite = ALWAYS_RECREATE_VSUM;
         boolean filesExistent = !List
             .of(fileLayout.getPcmRepositoryPath(), fileLayout.getPcmResourceEnvironmentPath(),
                     fileLayout.getPcmUsageModelPath(), fileLayout.getPcmAllocationPath(), fileLayout.getPcmSystemPath())
@@ -357,7 +373,7 @@ public class VsumFacade {
             .contains(false);
 
         if (overwrite && filesExistent) {
-            LOGGER.info("Deleting existing models (VSUM, PCM, IMM, ..)");
+            LOGGER.info("VSUM OVERRIDE ENABLED! Deleting existing models (VSUM, PCM, IMM, ..)");
             fileLayout.delete();
         }
         if (overwrite || !filesExistent) {
@@ -372,7 +388,7 @@ public class VsumFacade {
         LOGGER.info("Loading pcm from disk");
 //        pcm = InMemoryPCM.createFromFilesystem(fileLayout.getFilePCM());
         pcm = new InMemoryPCM();
-        LOGGER.info("Binding PCM models from VSUM");
+        LOGGER.debug("Binding PCM models from VSUM");
         Resource resource = vsum.getModelInstance(fileLayout.getPcmRepositoryURI())
             .getResource();
         pcm.setRepository((Repository) resource.getContents()

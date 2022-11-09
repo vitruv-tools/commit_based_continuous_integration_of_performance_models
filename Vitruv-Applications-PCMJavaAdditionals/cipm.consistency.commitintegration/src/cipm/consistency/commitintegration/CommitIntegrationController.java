@@ -32,7 +32,7 @@ import tools.vitruv.change.composite.description.PropagatedChange;
  */
 // TODO the controller really should not extend CommitIntegrationState!!!
 public abstract class CommitIntegrationController extends CommitIntegrationState {
-    private static final Logger LOGGER = Logger.getLogger("cipm." + CommitIntegrationController.class.getSimpleName());
+    private static final Logger LOGGER = Logger.getLogger(CommitIntegrationController.class.getName());
     private Resource instrumentedModel;
 
     /**

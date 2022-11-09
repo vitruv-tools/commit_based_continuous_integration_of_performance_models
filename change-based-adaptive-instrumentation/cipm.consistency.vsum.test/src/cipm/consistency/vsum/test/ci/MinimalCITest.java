@@ -26,8 +26,9 @@ public class MinimalCITest extends AppSpaceCITest {
 
     @Test
     public void testCaseMinimalLuaApp() throws Exception {
-        var result = executePropagationAndEvaluation(null, getLatestCommitId(), 0);
-        Assert.assertTrue(result);
+        assertSuccessfulPropagation(null, getLatestCommitId());
+//        var result = executePropagationAndEvaluation(null, getLatestCommitId(), 0);
+//        Assert.assertTrue(result);
     }
 
 }

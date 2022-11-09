@@ -47,8 +47,8 @@ abstract class LanguageFileSystemLayout {
 		instrumentationDir = root.resolve(instrumentationDirName)
 		parsedDirPath = root.resolve(parsedDirName)
 
-		modelFilePath = modelDir.resolve(modelFileName)
-		parsedFilePath = parsedDirPath.resolve(parsedFileName)
+		modelFilePath = modelDir.resolve(modelFileName).toAbsolutePath()
+		parsedFilePath = parsedDirPath.resolve(parsedFileName).toAbsolutePath()
 		moduleConfigurationPath = root.resolve(moduleConfigurationFileName)
 		externalCallTargetPairsFilePath = root.resolve(externalCallTargetPairsFileName)
 		
