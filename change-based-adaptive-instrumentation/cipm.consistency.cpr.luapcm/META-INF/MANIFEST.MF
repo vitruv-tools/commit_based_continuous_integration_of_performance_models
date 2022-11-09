@@ -1,11 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Consistency Preservation Rules from the lua model to the PCM
-Bundle-SymbolicName: cipm.consistency.cpr.luacpm;singleton:=true
+Bundle-SymbolicName: cipm.consistency.cpr.luapcm;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Export-Package: cipm.consistency.cpr.luapcm,
- mir.reactions.luaPcm,
- mir.routines.luaPcm
+ mir.reactions.luaPcm
 Require-Bundle: org.apache.log4j,
  org.eclipse.emf.ecore,
  org.eclipse.core.resources,

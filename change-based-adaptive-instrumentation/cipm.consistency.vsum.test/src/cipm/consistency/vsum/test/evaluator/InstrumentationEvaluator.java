@@ -88,8 +88,8 @@ public class InstrumentationEvaluator {
         insEvalData.setExpectedLowerStatementDifferenceCount(countExpectedStatements(im, cmv, true));
         insEvalData.setExpectedUpperStatementDifferenceCount(countExpectedStatements(im, cmv, false));
         Resource reloadedModel = JavaParserAndPropagatorUtils
-            .parseJavaCodeIntoOneModel(fileLayout.getInstrumentationDir(), fileLayout.getModelFile()
-                .resolveSibling("ins.javaxmi"), fileLayout.getModuleConfiguration());
+            .parseJavaCodeIntoOneModel(fileLayout.getInstrumentationDir(), fileLayout.getModelFilePath()
+                .resolveSibling("ins.javaxmi"), fileLayout.getModuleConfigurationPath());
         var potentialProxies = EcoreUtil.ProxyCrossReferencer.find(reloadedModel);
 
         int javaStatements = countStatements(javaModel);

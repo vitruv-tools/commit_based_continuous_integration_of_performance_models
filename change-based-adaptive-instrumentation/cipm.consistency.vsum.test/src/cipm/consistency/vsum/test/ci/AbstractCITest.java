@@ -37,15 +37,20 @@ public abstract class AbstractCITest extends CommitIntegrationController impleme
 
     @BeforeEach
     public void setUpLogging() {
-        Logger logger = Logger.getLogger("cipm");
-        logger.setLevel(Level.ALL);
-        logger = Logger.getLogger("jamopp");
-        logger.setLevel(Level.ALL);
-        logger = Logger.getRootLogger();
-        logger.removeAllAppenders();
+        // set log levels of the framework
+        Logger.getLogger("cipm").setLevel(Level.ALL);
+        Logger.getLogger("jamopp").setLevel(Level.ALL);
+        Logger.getLogger("tools.vitruv").setLevel(Level.INFO);
+        Logger.getLogger("mir").setLevel(Level.INFO); // mir belongs to vitruv
+        Logger.getLogger("org.xtext.lua").setLevel(Level.INFO);
+        
+        var rootLogger =Logger.getRootLogger();
+        rootLogger.setLevel(Level.ALL);
+        rootLogger.removeAllAppenders();
 //        ConsoleAppender ap = new ConsoleAppender(new PatternLayout("[%d{DATE}] %-5p: %c - %m%n"),
-        ConsoleAppender ap = new ConsoleAppender(new PatternLayout("%-5p: %c - %m%n"), ConsoleAppender.SYSTEM_OUT);
-        logger.addAppender(ap);
+        var logFormat = new PatternLayout("%-5p: %c  %m%n");
+        ConsoleAppender ap = new ConsoleAppender(logFormat, ConsoleAppender.SYSTEM_OUT);
+        rootLogger.addAppender(ap);
     }
 
     @BeforeEach
@@ -170,7 +175,7 @@ public abstract class AbstractCITest extends CommitIntegrationController impleme
         new JavaModelEvaluator().evaluateJavaModels(javaModel, getLanguageSpec().getFileLayout(getSettingsPath())
             .getLocalRepoDir(), evalResult.getJavaComparisonResult(),
                 getCommitChangePropagator().getFileSystemLayout()
-                    .getModuleConfiguration());
+                    .getModuleConfigurationPath());
         LOGGER.debug("Evaluating the instrumentation model.");
         new IMUpdateEvaluator().evaluateIMUpdate(getVsumFacade().getPCMWrapper()
             .getRepository(), getVsumFacade().getInstrumentationModel(), evalResult.getImEvalResult(),

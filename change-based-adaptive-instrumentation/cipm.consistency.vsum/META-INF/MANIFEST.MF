@@ -12,5 +12,6 @@ Require-Bundle:
  cipm.consistency.models.instrumentation,
  cipm.consistency.cpr.pcmim,
  cipm.consistency.commitintegration.settings,
- cipm.consistency.cpr.luacpm
+ cipm.consistency.cpr.pcminit,
+ cipm.consistency.cpr.luapcm
 Export-Package: cipm.consistency.vsum

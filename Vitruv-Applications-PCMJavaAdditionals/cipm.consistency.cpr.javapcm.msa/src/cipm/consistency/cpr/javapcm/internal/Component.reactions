@@ -29,7 +29,7 @@ routine createOrFindArchitecturalElementBasedOnModule(java::ConcreteClassifier c
 		if (!pcmComponent.isPresent) {
 			createBasicComponent(module)
 		}
-		addCorrespondenceForPcmComponentAndClassifierBasedOnModule(classifier, module)
+		AddCorrespondenceForPcmComponentAndChunkBasedOnModuleRoutine(classifier, module)
 	}
 }
 
@@ -47,7 +47,7 @@ routine createBasicComponent(java::Module module) {
 	}
 }
 
-routine addCorrespondenceForPcmComponentAndClassifierBasedOnModule(java::ConcreteClassifier classifier, java::Module module) {
+routine AddCorrespondenceForPcmComponentAndChunkBasedOnModuleRoutine(java::ConcreteClassifier classifier, java::Module module) {
 	match {
 		val pcmComponent = retrieve pcm::RepositoryComponent corresponding to module
 	}

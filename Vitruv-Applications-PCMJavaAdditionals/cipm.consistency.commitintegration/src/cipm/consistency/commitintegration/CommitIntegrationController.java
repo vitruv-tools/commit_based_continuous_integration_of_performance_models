@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import tools.vitruv.change.composite.description.PropagatedChange;
@@ -325,15 +324,13 @@ public abstract class CommitIntegrationController extends CommitIntegrationState
 
     @SuppressWarnings("restriction")
     public Resource getModelResource() {
-        var uri = URI.createFileURI(getFileSystemLayout().getModelFile()
-            .toAbsolutePath()
-            .toString());
+        var modelUri = getFileSystemLayout().getModelFileUri();
         var model = getVsumFacade().getVsum()
-            .getModelInstance(uri);
+            .getModelInstance(modelUri);
         if (model != null)
             return model.getResource();
 
-        LOGGER.error(String.format("Model URI does not exist in vsum: %s", uri));
+        LOGGER.error(String.format("Model URI does not exist in vsum: %s", modelUri));
         return null;
     }
 

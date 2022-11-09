@@ -2,14 +2,17 @@ package cipm.consistency.commitintegration.lang.lua;
 
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import cipm.consistency.commitintegration.lang.CommitChangePropagator;
-import cipm.consistency.commitintegration.lang.LanguageFileSystemLayout;
 import cipm.consistency.commitintegration.lang.detection.ComponentDetector;
 import cipm.consistency.commitintegration.lang.detection.ModuleState;
 import cipm.consistency.vsum.VsumFacade;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,7 +25,7 @@ import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
 import org.xtext.lua.LuaStandaloneSetup;
 import org.xtext.lua.lua.Chunk;
-import org.xtext.lua.lua.ChunkSet;
+import org.xtext.lua.lua.ComponentSet;
 import org.xtext.lua.lua.Expression_Functioncall;
 import org.xtext.lua.lua.Expression_VariableName;
 import org.xtext.lua.lua.LuaFactory;
@@ -34,7 +37,7 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
     Provider<XtextResourceSet> resourceSetProvider;
 
     public LuaCommitChangePropagator(VsumFacade vsumFacade, GitRepositoryWrapper repoWrapper,
-            LanguageFileSystemLayout fileLayout, ComponentDetector componentDetector) {
+            LuaLanguageFileSystemLayout fileLayout, ComponentDetector componentDetector) {
         super(vsumFacade, repoWrapper, fileLayout, componentDetector);
 
         // set the platform path
@@ -105,6 +108,23 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
         return resourceSet;
     }
 
+    private Resource getCleanResource(URI uri) {
+        var rs = resourceSetProvider.get();
+
+        var path = Path.of(uri.toFileString());
+        if (path.toFile().exists()) {
+            LOGGER.debug(String.format("Deleting backed up resource: %s", uri));
+            var backupPath = Path.of(uri.toFileString()+".bak");
+            try {
+                Files.move(path, backupPath, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+            }
+        }
+
+        var res = rs.createResource(uri);
+        return res;
+    }
+
     /**
      * Merges all chunks of the resource set into one SuperChunk and puts it in a separate resource
      * for propagation
@@ -112,16 +132,16 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
      * @param rs
      * @param targetUri
      * @return
+     * @throws IOException 
      */
-    private Resource mergeResourceSetToChunkSet(ResourceSet rs, URI targetUri) {
-        var mergeRs = resourceSetProvider.get();
-        var merge = mergeRs.createResource(targetUri);
+    private Resource resolveResourceSetToComponents(ResourceSet rs, URI targetUri) {
+        LOGGER.debug("Resolving ResourceSet into a ComponentSet");
+        var merge = getCleanResource(targetUri);
 
-        // we use this custom class as a container for all the chunks
-//        var superChunk = new SuperChunkImpl();
-        ChunkSet chunkSet = LuaFactory.eINSTANCE.createChunkSet();
+        // we use this custom class as a container for all the components
+        ComponentSet componentSet = LuaFactory.eINSTANCE.createComponentSet();
         merge.getContents()
-            .add(chunkSet);
+            .add(componentSet);
 
         rs.getResources()
             .forEach(resource -> {
@@ -143,10 +163,45 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
                     return;
                 }
 
-                // merge chunks
-                chunkSet.getChunks()
-                    .add((Chunk) eObj);
+//                // merge chunks
+//                componentSet.getComponents()
+//                    .add((Chunk) eObj);
             });
+
+        // detect components in the resources
+        var modulesCandidates = componentDetector.detectModules(rs, repoWrapper.getWorkTree()
+            .toPath(), fileLayout.getModuleConfigurationPath());
+        if (modulesCandidates != null) {
+            var actualModules = modulesCandidates.getModulesInState(ModuleState.REGULAR_COMPONENT);
+            LOGGER.debug(String.format("Detected %d components", actualModules.size()));
+
+            actualModules.forEach((componentName, resources) -> {
+
+                // Create a component and add in to the component set
+                var component = LuaFactory.eINSTANCE.createComponent();
+                component.setName(componentName);
+
+                var chunksOfThisComponent = resources.stream()
+                    .map(r -> r.getContents())
+                    .filter(cl -> cl.size() > 0)
+                    .map(cl -> cl.get(0))
+                    .filter(eo -> (eo instanceof Chunk))
+                    .map(eo -> (Chunk) eo)
+                    .collect(Collectors.toList());
+
+                component.getChunks()
+                    .addAll(chunksOfThisComponent);
+                componentSet.getComponents()
+                    .add(component);
+            });
+
+        }
+
+        try {
+            merge.save(null);
+        } catch (IOException e) {
+            LOGGER.error(String.format("Cannot write new resource: %s", targetUri));
+        }
         return merge;
     }
 
@@ -163,19 +218,23 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
         return true;
     }
 
-    private List<PropagatedChange> propagateResource(Resource resource) {
+    /**
+     * 
+     * @param resource The resource which is to be propagated
+     * @param uri The uri which us used to persist the resource during propagation
+     * @return
+     */
+    private List<PropagatedChange> propagateResource(Resource resource, URI uri) {
         if (!checkPropagationPreconditions(resource))
             return null;
 
-        return vsumFacade.propagateResource(resource);
+        return vsumFacade.propagateResource(resource, uri);
     }
 
-    private List<PropagatedChange> propagateResourceSetUsingChunkSet(ResourceSet resourceSet, URI targetUri) {
-        LOGGER.debug("Merging ResourceSet into a ChunkSet for propagation");
-        var chunkSetResource = mergeResourceSetToChunkSet(resourceSet, targetUri);
-
-        return propagateResource(chunkSetResource);
-    }
+//    private List<PropagatedChange> propagateResourceSetUsingChunkSet(ResourceSet resourceSet, URI targetUri) {
+//        var chunkSetResource = resolveResourceSetToComponents(resourceSet, targetUri);
+//        return propagateResource(chunkSetResource, targetUri);
+//    }
 
     @Override
     public List<PropagatedChange> propagateCurrentCheckout() {
@@ -183,19 +242,12 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
         // parse all lua files into one resource set
         var workTreeResourceSet = parseWorkTreeToResourceSet();
         
+        // where the processed resource is stored prior to propagation
+        var storeUri = getFileSystemLayout().getParsedFileUri();
+        var processedResource = resolveResourceSetToComponents(workTreeResourceSet, storeUri);
         
-        // TODO do something with the detected modules
-        var modulesCandidates = componentDetector.detectModules(workTreeResourceSet, repoWrapper.getWorkTree().toPath(), fileLayout.getModuleConfiguration());
-        if (modulesCandidates != null) {
-            var actualModules = modulesCandidates.getModulesInState(ModuleState.REGULAR_COMPONENT);
-            LOGGER.debug(String.format("Detected %d module(s)", actualModules.size()));
-        }
-        
-
-        var targetUri = URI.createFileURI(getFileSystemLayout().getModelFile()
-            .toAbsolutePath()
-            .toString());
-        
-        return propagateResourceSetUsingChunkSet(workTreeResourceSet, targetUri);
+        // the uri which is used during the propagation
+        var propagationUri = getFileSystemLayout().getModelFileUri();
+        return propagateResource(processedResource, propagationUri);
     }
 }

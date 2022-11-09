@@ -33,6 +33,7 @@ public class ModuleCandidates {
      * @param cu
      *            Resource with the classifier in the module.
      */
+    @Deprecated
     public void addModuleClassifier(ModuleState state, String moduleName, Resource cu) {
         Map<String, Set<Resource>> classMap = getModulesInState(state);
         Set<Resource> classSet;

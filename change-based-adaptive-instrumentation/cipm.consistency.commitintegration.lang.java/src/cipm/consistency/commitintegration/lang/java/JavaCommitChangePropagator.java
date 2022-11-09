@@ -41,7 +41,7 @@ public class JavaCommitChangePropagator extends CommitChangePropagator {
     public List<PropagatedChange> propagateCurrentCheckout() {
         LOGGER.debug("Delegating the change propagation to the JavaParserAndPropagatorUtility.");
         JavaParserAndPropagatorUtils.parseAndPropagateJavaCode(repoWrapper.getWorkTree()
-            .toPath(), fileLayout.getModelFile(), vsumFacade.getVsum(), fileLayout.getModuleConfiguration());
+            .toPath(), fileLayout.getModelFilePath(), vsumFacade.getVsum(), fileLayout.getModuleConfigurationPath());
 
         // TODO The Jamopp stuff needs to be rewritten (it needs to return List<PropagatedChange>)
         return null;

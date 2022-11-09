@@ -10,7 +10,7 @@ public class AppSpaceComponentDetectionStrategy extends BuildFileBasedComponentD
     @Override
     protected ModuleState checkDirectoryForComponent(Path parent) {
         if (checkSiblingExistence(parent, APP_MANIFEST_FILE_NAME)) {
-            return ModuleState.COMPONENT_CANDIDATE;
+            return ModuleState.REGULAR_COMPONENT;
         }
         return null;
     }

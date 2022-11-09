@@ -17,31 +17,37 @@ class FileSystemLayout {
 	static final String vsumDirName = "vsum";
 	static final String pcmDirName = "pcm";
 	static final String imDirName = "im";
-//	static final String javaDirName = "java";
 
 	static final String pcmRepositoryFileName = "Repository.repository";
 	static final String pcmSystemFileName = "System.system";
 	static final String pcmAllocationFileName = "Allocation.allocation";
 	static final String pcmUsageModelFileName = "Usage.usagemodel";
 	static final String pcmResourceEnvironmentFileName = "ResourceEnvironment.resourceenvironment";
+	
+	static final String vsumCorrespondenceModelName = "correspondence.correspondence"
+
 	static final String imFileName = "InstrumentationModel.imm";
 	static final String commitsFileName = ".commits";
 
-	Path rootDirPath;
-	Path vsumDirPath;
-	Path pcmDirPath;
-	Path imDirPath;
+	Path rootDirPath
+	Path vsumDirPath
+	Path pcmDirPath
+	Path imDirPath
 
-	Path pcmRepositoryPath;
-	URI pcmRepositoryURI;
-	Path pcmSystemPath;
-	URI pcmSystemURI;
-	Path pcmAllocationPath;
-	URI pcmAllocationURI;
-	Path pcmUsageModelPath;
-	URI pcmUsageModelURI;
-	Path pcmResourceEnvironmentPath;
-	URI pcmResourceEnvironmentURI;
+	Path pcmRepositoryPath
+	URI pcmRepositoryURI
+	Path pcmSystemPath
+	URI pcmSystemURI
+	Path pcmAllocationPath
+	URI pcmAllocationURI
+	Path pcmUsageModelPath
+	URI pcmUsageModelURI
+	Path pcmResourceEnvironmentPath
+	URI pcmResourceEnvironmentURI
+	
+	Path vsumCorrespondenceModelPath
+	URI vsumCorrespondenceModelUri
+
 	Path imFilePath;
 	URI imURI;
 	Path javaPath;
@@ -67,8 +73,13 @@ class FileSystemLayout {
 		pcmUsageModelURI = URI.createFileURI(pcmUsageModelPath.toString());
 		pcmResourceEnvironmentPath = pcmDirPath.resolve(pcmResourceEnvironmentFileName).toAbsolutePath();
 		pcmResourceEnvironmentURI = URI.createFileURI(pcmResourceEnvironmentPath.toString());
+		
+		vsumCorrespondenceModelPath = vsumDirPath.resolve(vsumCorrespondenceModelName)
+		vsumCorrespondenceModelUri = URI.createFileURI(vsumCorrespondenceModelPath.toString());
+
 		imFilePath = imDirPath.resolve(imFileName).toAbsolutePath();
 		imURI = URI.createFileURI(imFilePath.toString());
+
 //		javaPath = rootDirPath.resolve(javaDirName);
 		commitsFilePath = rootDirPath.resolve(commitsFileName);
 	}

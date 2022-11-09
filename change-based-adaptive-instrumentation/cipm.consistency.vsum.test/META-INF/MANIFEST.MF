@@ -4,28 +4,22 @@ Bundle-Name: Tests for the Evaluation of CIPM
 Bundle-SymbolicName: cipm.consistency.vsum.test
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: cipm.consistency.vsum.test
-Bundle-RequiredExecutionEnvironment: JavaSE-13
 Require-Bundle: cipm.consistency.commitintegration,
+ org.eclipse.xtext.xbase.lib,
  org.apache.log4j,
- cipm.consistency.vsum,
  org.eclipse.jgit,
  tools.vitruv.framework.vsum,
  org.eclipse.emf.compare,
- jamopp.resource,
  org.emftext.language.java,
- org.palladiosimulator.pcm,
  cipm.consistency.models.instrumentation,
- com.google.gson,
- org.apache.commons.io,
  cipm.consistency.base.shared,
- org.eclipse.xtext.xbase.lib,
- cipm.consistency.designtime.instrumentation2,
  cipm.consistency.commitintegration.diff.util,
  cipm.consistency.tools.evaluation.data,
  cipm.consistency.commitintegration.settings,
- org.slf4j.api,
  org.junit,
  cipm.consistency.commitintegration.lang.java,
- cipm.consistency.commitintegration.lang.lua
+ cipm.consistency.commitintegration.lang.lua,
+ cipm.consistency.vsum
 Export-Package: cipm.consistency.vsum.test
 Import-Package: org.junit.jupiter.api
+Bundle-RequiredExecutionEnvironment: JavaSE-13

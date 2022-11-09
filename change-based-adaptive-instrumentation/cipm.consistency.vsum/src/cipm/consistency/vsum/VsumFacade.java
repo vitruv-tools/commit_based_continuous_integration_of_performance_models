@@ -2,26 +2,25 @@ package cipm.consistency.vsum;
 
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelFactory;
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage;
 import cipm.consistency.base.shared.FileBackedModelUtil;
 import cipm.consistency.base.shared.pcm.InMemoryPCM;
 import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
 import cipm.consistency.commitintegration.settings.SettingKeys;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import mir.reactions.imUpdate.ImUpdateChangePropagationSpecification;
 import mir.reactions.luaPcm.LuaPcmChangePropagationSpecification;
+import mir.reactions.pcmInit.PcmInitChangePropagationSpecification;
 import org.apache.log4j.Logger;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.palladiosimulator.pcm.allocation.Allocation;
 import org.palladiosimulator.pcm.allocation.AllocationFactory;
 import org.palladiosimulator.pcm.repository.Repository;
 import org.palladiosimulator.pcm.repository.RepositoryFactory;
-import org.palladiosimulator.pcm.repository.RepositoryPackage;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceEnvironment;
 import org.palladiosimulator.pcm.resourceenvironment.ResourceenvironmentFactory;
 import org.palladiosimulator.pcm.system.SystemFactory;
@@ -84,6 +83,7 @@ public class VsumFacade {
 
         // the lua->pcm spec is always added
         changePropagationSpecs.add(new LuaPcmChangePropagationSpecification());
+        changePropagationSpecs.add(new PcmInitChangePropagationSpecification());
 
         boolean useImUpdateChangeSpec = CommitIntegrationSettingsContainer.getSettingsContainer()
             .getPropertyAsBoolean(SettingKeys.PERFORM_FINE_GRAINED_SEFF_RECONSTRUCTION)
@@ -193,7 +193,20 @@ public class VsumFacade {
      * @return The propagated changes
      */
     public List<PropagatedChange> propagateResource(Resource resource) {
-        return propagateResource(resource, null);
+        return propagateResource(resource, null, null);
+    }
+
+    /**
+     * Propagate a resource into the underlying vsum
+     * 
+     * @param resource
+     *            The propagated resource
+     * @param targetUri
+     *            The uri where vitruv persists the propagated resource
+     * @return The propagated changes
+     */
+    public List<PropagatedChange> propagateResource(Resource resource, URI targetUri) {
+        return propagateResource(resource, targetUri, null);
     }
 
     /**
@@ -205,9 +218,12 @@ public class VsumFacade {
      *            Optional, may be used to override the vsum to which the change is propagated
      * @return The propagated changes
      */
-    private List<PropagatedChange> propagateResource(Resource resource, InternalVirtualModel vsum) {
+    private List<PropagatedChange> propagateResource(Resource resource, URI targetUri, InternalVirtualModel vsum) {
         if (vsum == null) {
             vsum = this.vsum;
+        }
+        if (targetUri == null) {
+            targetUri = resource.getURI();
         }
 
         if (!checkPropagationPreconditions(resource)) {
@@ -231,7 +247,7 @@ public class VsumFacade {
             .get(0);
 
         // this also extracts the rootEObject from the resource
-        view.registerRoot(rootEObject, resource.getURI());
+        view.registerRoot(rootEObject, targetUri);
 
         var propagatedChanges = view.commitChangesAndUpdate();
         if (propagatedChanges.size() == 0) {
@@ -258,11 +274,41 @@ public class VsumFacade {
 
         final List<PropagatedChange> propagatedChanges = new ArrayList<PropagatedChange>();
         for (Resource resource : resources) {
-            propagatedChanges.addAll(propagateResource(resource, vsum));
+            propagatedChanges.addAll(propagateResource(resource, null, vsum));
         }
 
         LOGGER.debug(String.format("Propagated %d changes into the VSUM", propagatedChanges.size()));
         return propagatedChanges;
+    }
+    
+    private void initializeCorrespondenceModel() {
+
+        // add correspondences between the models
+//        var correspondenceModel = tempVsum.getCorrespondenceModel();
+//        var repoCorrespondence = correspondenceModel.addCorrespondenceBetween(pcm.getRepository(), RepositoryPackage.Literals.REPOSITORY, null);
+//        var resource = repoCorrespondence.eResource();
+//        resource.save(null);
+//        correspondenceModel.removeCorrespondencesBetween(pcm.getRepository(), RepositoryPackage.Literals.REPOSITORY, null);
+
+//        correspondenceModel.addCorrespondenceBetween(imm, InstrumentationModelPackage.Literals.INSTRUMENTATION_MODEL,
+//                null);
+
+        // persist the changes in the correspondence model
+//        var correspondenceModel = CorrespondenceModelFactory
+//            .createPersistableCorrespondenceModel(fileLayout.getVsumCorrespondenceModelUri());
+//        
+//        
+////        var foo = () -> (new CorrespondenceFactoryImpl()).createReactionsCorrespondence();
+//
+//        correspondenceModel.save();
+//        correspondenceModel.addCorrespondenceBetween(pcm.getRepository(), RepositoryPackage.Literals.REPOSITORY, null,
+//                () -> { return (new CorrespondenceFactoryImpl()).createReactionsCorrespondence();});
+
+//        reactionsCorrespondence.getLeftEObjects()
+//            .add(pcm.getRepository());
+//        reactionsCorrespondence.getRightEObjects()
+//            .add();
+        
     }
 
     private void createVsum(VirtualModelBuilder vsumBuilder) throws IOException {
@@ -289,12 +335,9 @@ public class VsumFacade {
                 pcm.getAllocationModel()
                     .eResource()),
                 tempVsum);
-
-        // add correspondences between the models
-        var correspondenceModel = tempVsum.getCorrespondenceModel();
-        correspondenceModel.addCorrespondenceBetween(pcm.getRepository(), RepositoryPackage.Literals.REPOSITORY, null);
-        correspondenceModel.addCorrespondenceBetween(imm, InstrumentationModelPackage.Literals.INSTRUMENTATION_MODEL,
-                null);
+        
+        // set correspondences, so reactions can locate e.g. PCMs repository model
+        initializeCorrespondenceModel();
 
         LOGGER.debug("Disposing temporary VSUM");
         tempVsum.dispose();
@@ -303,7 +346,7 @@ public class VsumFacade {
     private void loadOrCreateVsum() throws IOException {
         var vsumBuilder = getVsumBuilder();
 //        boolean overwrite = true;
-        boolean overwrite = false;
+        boolean overwrite = true;
         boolean filesExistent = !List
             .of(fileLayout.getPcmRepositoryPath(), fileLayout.getPcmResourceEnvironmentPath(),
                     fileLayout.getPcmUsageModelPath(), fileLayout.getPcmAllocationPath(), fileLayout.getPcmSystemPath())

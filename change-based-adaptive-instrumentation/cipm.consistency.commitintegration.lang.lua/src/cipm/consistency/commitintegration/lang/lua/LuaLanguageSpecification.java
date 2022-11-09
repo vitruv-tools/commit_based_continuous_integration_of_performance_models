@@ -27,7 +27,7 @@ public abstract class LuaLanguageSpecification implements LanguageSpecification 
     @Override
     public CommitChangePropagator getCommitChangePropagator(Path root, VsumFacade vsumFacade,
             GitRepositoryWrapper repoWrapper) {
-        return new LuaCommitChangePropagator(vsumFacade, repoWrapper, getFileLayout(root), createComponentDetector());
+        return new LuaCommitChangePropagator(vsumFacade, repoWrapper, (LuaLanguageFileSystemLayout) getFileLayout(root), createComponentDetector());
     }
     
     private ComponentDetector createComponentDetector() {
