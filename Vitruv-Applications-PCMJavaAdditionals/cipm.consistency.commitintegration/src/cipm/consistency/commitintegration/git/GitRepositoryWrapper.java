@@ -1,6 +1,5 @@
 package cipm.consistency.commitintegration.git;
 
-import cipm.consistency.commitintegration.lang.LanguageSpecification;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -57,13 +56,13 @@ public class GitRepositoryWrapper {
     private Repository repository;
     private RevCommit latestCommit;
     private String defaultBranch;
-    private LanguageSpecification languageSpec;
-    private DiffComputation diffComputation;
+    private String sourceFileExt;
+    private boolean detectRenames;
     private File repoDir;
 
-    public GitRepositoryWrapper(LanguageSpecification langSpec, DiffComputation diffComputation) {
-        this.languageSpec = langSpec;
-        this.diffComputation = diffComputation;
+    public GitRepositoryWrapper(String sourceFileExt, boolean detectRenames) {
+        this.sourceFileExt = sourceFileExt;
+        this.detectRenames = detectRenames;
     }
 
     public GitRepositoryWrapper withLocalDirectory(Path repoPath) throws IOException, NoHeadException, GitAPIException {
@@ -106,8 +105,12 @@ public class GitRepositoryWrapper {
      * Closes the Git repository.
      */
     public void closeRepository() {
-        git.close();
-        repository.close();
+        if (git != null) {
+            git.close();
+        }
+        if (repository != null) {
+            repository.close();
+        }
     }
 
     public boolean isInitialized() {
@@ -309,15 +312,15 @@ public class GitRepositoryWrapper {
         df.setRepository(repository);
 
         // Set filter to detect only changes on Java files if necessary.
-        if (diffComputation.getOnlySourceFiles()) {
-            TreeFilter treeFilter = PathSuffixFilter.create("." + languageSpec.getSourceSuffix());
+        if (sourceFileExt != null) {
+            TreeFilter treeFilter = PathSuffixFilter.create("." + sourceFileExt);
             df.setPathFilter(treeFilter);
         }
         // Compute diffs between the commits.
         List<DiffEntry> diffs = df.scan(oldParser, newTreeParser);
 
         // Detect renames on changed files if necessary.
-        if (diffComputation.getDetectRenames()) {
+        if (detectRenames) {
             RenameDetector rd = new RenameDetector(repository);
             rd.addAll(diffs);
             diffs = rd.compute();

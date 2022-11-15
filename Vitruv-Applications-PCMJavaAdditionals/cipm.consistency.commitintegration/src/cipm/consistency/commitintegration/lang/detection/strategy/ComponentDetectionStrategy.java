@@ -1,5 +1,6 @@
-package cipm.consistency.commitintegration.lang.detection;
+package cipm.consistency.commitintegration.lang.detection.strategy;
 
+import cipm.consistency.commitintegration.lang.detection.ComponentCandidates;
 import java.nio.file.Path;
 import org.eclipse.emf.ecore.resource.Resource;
 
@@ -19,5 +20,5 @@ public interface ComponentDetectionStrategy {
 	 *                  and source code.
 	 * @param candidate the storage of the module candidates.
 	 */
-	public void detectComponent(Resource res, Path projectRoot, ModuleCandidates candidate);
+	public void detectComponent(Resource res, Path projectRoot, ComponentCandidates candidate);
 }

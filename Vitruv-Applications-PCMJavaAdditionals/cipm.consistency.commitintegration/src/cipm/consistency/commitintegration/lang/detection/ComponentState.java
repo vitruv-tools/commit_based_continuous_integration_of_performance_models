@@ -5,7 +5,7 @@ package cipm.consistency.commitintegration.lang.detection;
  * 
  * @author Martin Armbruster
  */
-public enum ModuleState {
+public enum ComponentState {
 	/**
 	 * Presents a Microservice component.
 	 */

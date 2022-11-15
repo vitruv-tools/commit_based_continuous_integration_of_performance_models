@@ -51,7 +51,7 @@ public class DeploymentUtility extends TeaStoreCITest {
 
 	@Test
 	public void preparePCMModels() {
-		preparedPCM = getVsumFacade().getPCMWrapper().copyDeep();
+		preparedPCM = getVsum().getPCMWrapper().copyDeep();
 		eliminateDuplicatedInterfaceNames();
 		addResourceDemand();
 		createSystemModel();

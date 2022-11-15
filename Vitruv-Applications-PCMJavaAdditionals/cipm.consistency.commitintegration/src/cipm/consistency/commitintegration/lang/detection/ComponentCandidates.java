@@ -9,16 +9,16 @@ import java.util.stream.Collectors;
 import org.eclipse.emf.ecore.resource.Resource;
 
 /**
- * Stores the module candidates.
+ * Stores the component candidates.
  * 
  * @author Martin Armbruster
  */
-public class ModuleCandidates {
-    private EnumMap<ModuleState, Map<String, Set<Resource>>> candidates;
+public class ComponentCandidates {
+    private EnumMap<ComponentState, Map<String, Set<Resource>>> candidates;
 
-    public ModuleCandidates() {
-        candidates = new EnumMap<>(ModuleState.class);
-        for (var value : ModuleState.values()) {
+    public ComponentCandidates() {
+        candidates = new EnumMap<>(ComponentState.class);
+        for (var value : ComponentState.values()) {
             candidates.put(value, new HashMap<>());
         }
     }
@@ -33,8 +33,9 @@ public class ModuleCandidates {
      * @param cu
      *            Resource with the classifier in the module.
      */
+    // TODO Burgey: the java stuff uses this, but i don't need it, so im not refactoring it.
     @Deprecated
-    public void addModuleClassifier(ModuleState state, String moduleName, Resource cu) {
+    public void addModuleClassifier(ComponentState state, String moduleName, Resource cu) {
         Map<String, Set<Resource>> classMap = getModulesInState(state);
         Set<Resource> classSet;
         if (classMap.containsKey(moduleName)) {
@@ -53,7 +54,7 @@ public class ModuleCandidates {
      *            the state for which all modules are returned.
      * @return all modules in the specified state.
      */
-    public Map<String, Set<Resource>> getModulesInState(ModuleState state) {
+    public Map<String, Set<Resource>> getModulesInState(ComponentState state) {
         return candidates.get(state);
     }
 
@@ -67,7 +68,7 @@ public class ModuleCandidates {
      * @param moduleName
      *            the name of the module.
      */
-    public void updateState(ModuleState oldState, ModuleState newState, String moduleName) {
+    public void updateState(ComponentState oldState, ComponentState newState, String moduleName) {
         Map<String, Set<Resource>> map = getModulesInState(oldState);
         Set<Resource> classes = map.remove(moduleName);
         map = getModulesInState(newState);
@@ -82,7 +83,7 @@ public class ModuleCandidates {
      * @param moduleName
      *            name of the module.
      */
-    public void removeModule(ModuleState state, String moduleName) {
+    public void removeModule(ComponentState state, String moduleName) {
         Map<String, Set<Resource>> map = getModulesInState(state);
         map.remove(moduleName);
     }
@@ -94,7 +95,7 @@ public class ModuleCandidates {
      *            name of the module.
      * @return the state of the module.
      */
-    public ModuleState getStateOfModule(String modName) {
+    public ComponentState getStateOfModule(String modName) {
         for (var entry : candidates.entrySet()) {
             for (var subEntry : entry.getValue()
                 .entrySet()) {

@@ -1,7 +1,7 @@
 package cipm.consistency.commitintegration.lang.detection.java;
 
-import cipm.consistency.commitintegration.lang.detection.BuildFileBasedComponentDetectionStrategy;
-import cipm.consistency.commitintegration.lang.detection.ModuleState;
+import cipm.consistency.commitintegration.lang.detection.ComponentState;
+import cipm.consistency.commitintegration.lang.detection.strategy.BuildFileBasedComponentDetectionStrategy;
 import java.nio.file.Path;
 
 /**
@@ -15,13 +15,13 @@ public class JavaBuildFileBasedComponentDetectionStrategy extends BuildFileBased
     private static final String DOCKERFILE_FILE_NAME = "Dockerfile";
 
     @Override
-    protected ModuleState checkDirectoryForComponent(Path parent) {
+    protected ComponentState checkDirectoryForComponent(Path parent) {
         if (checkBuildFileExistence(parent)) {
             boolean dockerFileExists = checkSiblingExistence(parent, DOCKERFILE_FILE_NAME);
             if (dockerFileExists) {
-                return ModuleState.MICROSERVICE_COMPONENT;
+                return ComponentState.MICROSERVICE_COMPONENT;
             }
-            return ModuleState.COMPONENT_CANDIDATE;
+            return ComponentState.COMPONENT_CANDIDATE;
         }
         return null;
     }

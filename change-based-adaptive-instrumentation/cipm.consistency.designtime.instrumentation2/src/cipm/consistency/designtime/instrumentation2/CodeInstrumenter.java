@@ -22,6 +22,7 @@ import org.emftext.language.java.statements.Statement;
 import org.emftext.language.java.statements.StatementListContainer;
 import tools.vitruv.change.correspondence.Correspondence;
 import tools.vitruv.change.correspondence.view.CorrespondenceModelView;
+import tools.vitruv.change.correspondence.view.EditableCorrespondenceModelView;
 
 /**
  * An instrumenter for the source code based on the instrumentation points in
@@ -36,7 +37,7 @@ public final class CodeInstrumenter {
 	}
 
 	public static <C extends Correspondence> Resource instrument(InstrumentationModel im,
-			CorrespondenceModelView<C> cmv, Resource javaModel, Path output, Path input, boolean adaptive) {
+			EditableCorrespondenceModelView<C> cmv, Resource javaModel, Path output, Path input, boolean adaptive) {
 		LOGGER.debug("Executing the " + (adaptive ? "adaptive" : "full") + " instrumentation.");
 		LOGGER.debug("Copying the Java model.");
 		ResourceSet targetSet = new ResourceSetImpl();

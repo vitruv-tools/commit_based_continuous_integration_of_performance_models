@@ -1,15 +1,17 @@
-package cipm.consistency.commitintegration.lang.detection;
+package cipm.consistency.commitintegration.lang.detection.strategy;
 
+import cipm.consistency.commitintegration.lang.detection.ComponentCandidates;
+import cipm.consistency.commitintegration.lang.detection.ComponentState;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.eclipse.emf.ecore.resource.Resource;
 
 public abstract class BuildFileBasedComponentDetectionStrategy implements ComponentDetectionStrategy {
 
-    protected abstract ModuleState checkDirectoryForComponent(Path parent);
+    protected abstract ComponentState checkDirectoryForComponent(Path parent);
 
     @Override
-    public void detectComponent(Resource res, Path container, ModuleCandidates candidate) {
+    public void detectComponent(Resource res, Path container, ComponentCandidates candidate) {
         if (!res.getURI().isFile()) {
             return;
         }

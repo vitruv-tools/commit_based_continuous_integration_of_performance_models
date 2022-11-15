@@ -1,13 +1,13 @@
 package cipm.consistency.vsum.test.ci;
 
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
-import cipm.consistency.commitintegration.git.impl.LuaDiffComputation;
 import java.io.IOException;
 import java.nio.file.Paths;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
-import org.junit.Assert;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -16,11 +16,21 @@ import org.junit.jupiter.api.Test;
  * @author Martin Armbruster
  */
 public class MinimalCITest extends AppSpaceCITest {
+    @BeforeEach
+    public void initialize() throws InvalidRemoteException, TransportException, IOException, GitAPIException {
+        super.initialize(this);
+    }
 
-    public GitRepositoryWrapper initializeGitRepositoryWrapper()
+    @AfterEach
+    public void dispose() {
+        state.dispose();
+    }
+
+    @Override
+    public GitRepositoryWrapper getGitRepositoryWrapper()
             throws InvalidRemoteException, TransportException, GitAPIException, IOException {
         var workTreePath = Paths.get("ciTestRepos/minimalLuaApp");
-        return (new GitRepositoryWrapper(getLanguageSpec(), new LuaDiffComputation())).withLocalDirectory(workTreePath)
+        return super.getGitRepositoryWrapper().withLocalDirectory(workTreePath)
             .initialize();
     }
 

@@ -1,8 +1,8 @@
 package cipm.consistency.commitintegration.lang.java;
 
-import cipm.consistency.commitintegration.lang.detection.ComponentDetectionStrategy;
 import cipm.consistency.commitintegration.lang.detection.java.JavaBuildFileBasedComponentDetectionStrategy;
 import cipm.consistency.commitintegration.lang.detection.java.JavaComponentModuleDetector;
+import cipm.consistency.commitintegration.lang.detection.strategy.ComponentDetectionStrategy;
 import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
 import cipm.consistency.commitintegration.settings.SettingKeys;
 import jamopp.options.ParserOptions;

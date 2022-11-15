@@ -10,8 +10,6 @@ Require-Bundle:
  tools.vitruv.dsls.reactions.runtime,
  cipm.consistency.base.shared,
  cipm.consistency.models.instrumentation,
- cipm.consistency.cpr.pcmim,
  cipm.consistency.commitintegration.settings,
- cipm.consistency.cpr.pcminit,
- cipm.consistency.cpr.luapcm
+ cipm.consistency.models
 Export-Package: cipm.consistency.vsum

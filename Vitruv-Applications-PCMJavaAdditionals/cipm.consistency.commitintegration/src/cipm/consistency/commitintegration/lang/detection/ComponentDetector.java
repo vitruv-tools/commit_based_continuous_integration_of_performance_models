@@ -1,5 +1,6 @@
 package cipm.consistency.commitintegration.lang.detection;
 
+import cipm.consistency.commitintegration.lang.detection.strategy.ComponentDetectionStrategy;
 import java.nio.file.Path;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 
@@ -15,11 +16,11 @@ public interface ComponentDetector {
      * 
      * @return Candidates for modules
      */
-    ModuleCandidates detectModuleCandidates(ResourceSet resourceSet, Path projectRoot);
+    ComponentCandidates detectModuleCandidates(ResourceSet resourceSet, Path projectRoot);
     
 
     /**
      * Like detectModuleCandidates but also resolves candidates to modules by using a configuration and user interaction 
      */
-    public ModuleCandidates detectModules(ResourceSet resourceSet, Path projectRoot, Path configPath);
+    public ComponentCandidates detectModules(ResourceSet resourceSet, Path projectRoot, Path configPath);
 }

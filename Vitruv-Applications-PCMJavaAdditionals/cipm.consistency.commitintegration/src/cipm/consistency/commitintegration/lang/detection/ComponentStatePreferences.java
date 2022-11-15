@@ -15,10 +15,10 @@ import java.util.Properties;
  * 
  * @author Martin Armbruster
  */
-public class ModuleConfiguration {
+public class ComponentStatePreferences {
 	private static final String SEPARATOR = "/";
 	private Path configPath;
-	private HashMap<String, ModuleState> moduleClassification = new HashMap<>();
+	private HashMap<String, ComponentState> moduleClassification = new HashMap<>();
 	private HashMap<String, String> subModuleMapping = new HashMap<>();
 
 	/**
@@ -27,7 +27,7 @@ public class ModuleConfiguration {
 	 * @param configPath path to a file in which the configuration is stored and
 	 *                   loaded from.
 	 */
-	public ModuleConfiguration(Path configPath) {
+	public ComponentStatePreferences(Path configPath) {
 		this.configPath = configPath;
 		load(configPath);
 	}
@@ -41,10 +41,10 @@ public class ModuleConfiguration {
 					String key = (String) k;
 					String val = p.getProperty(key);
 					if (val.contains(SEPARATOR)) {
-						moduleClassification.put(key, ModuleState.PART_OF_COMPONENT);
+						moduleClassification.put(key, ComponentState.PART_OF_COMPONENT);
 						subModuleMapping.put(key, val.split(SEPARATOR)[1]);
 					} else {
-						moduleClassification.put(key, ModuleState.valueOf(val));
+						moduleClassification.put(key, ComponentState.valueOf(val));
 					}
 				});
 			} catch (IOException e) {
@@ -62,7 +62,7 @@ public class ModuleConfiguration {
 	 * 
 	 * @return the classification.
 	 */
-	public Map<String, ModuleState> getModuleClassification() {
+	public Map<String, ComponentState> getModuleClassification() {
 		return moduleClassification;
 	}
 
@@ -83,7 +83,7 @@ public class ModuleConfiguration {
 	public void save() throws IOException {
 		Properties p = new Properties();
 		moduleClassification.forEach((k, v) -> {
-			if (v == ModuleState.PART_OF_COMPONENT) {
+			if (v == ComponentState.PART_OF_COMPONENT) {
 				p.setProperty(k, v.name() + SEPARATOR + subModuleMapping.get(k));
 			} else {
 				p.setProperty(k, v.name());

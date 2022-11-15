@@ -1,6 +1,6 @@
 package cipm.consistency.commitintegration.lang.detection.java.teammates;
 
-import cipm.consistency.commitintegration.lang.detection.ModuleState;
+import cipm.consistency.commitintegration.lang.detection.ComponentState;
 import cipm.consistency.commitintegration.lang.detection.java.PackageBasedComponentDetectionStrategy;
 
 /**
@@ -11,10 +11,10 @@ import cipm.consistency.commitintegration.lang.detection.java.PackageBasedCompon
 public class TEAMMATESComponentDetectionStrategy extends PackageBasedComponentDetectionStrategy {
 	@Override
 	protected void initializeMappings() {
-		this.addPackageModuleMapping("teammates\\.common\\..*?", "teammates.common", ModuleState.REGULAR_COMPONENT);
-		this.addPackageModuleMapping("teammates\\.logic\\.api\\..*?", "teammates.logic", ModuleState.REGULAR_COMPONENT);
-		this.addPackageModuleMapping("teammates\\.storage\\.api\\..*?", "teammates.storage", ModuleState.REGULAR_COMPONENT);
+		this.addPackageModuleMapping("teammates\\.common\\..*?", "teammates.common", ComponentState.REGULAR_COMPONENT);
+		this.addPackageModuleMapping("teammates\\.logic\\.api\\..*?", "teammates.logic", ComponentState.REGULAR_COMPONENT);
+		this.addPackageModuleMapping("teammates\\.storage\\.api\\..*?", "teammates.storage", ComponentState.REGULAR_COMPONENT);
 		// TODO: Replace Microservice component with Servlet-based component.
-		this.addPackageModuleMapping("teammates\\.ui\\..*?", "teammates.ui", ModuleState.MICROSERVICE_COMPONENT);
+		this.addPackageModuleMapping("teammates\\.ui\\..*?", "teammates.ui", ComponentState.MICROSERVICE_COMPONENT);
 	}
 }

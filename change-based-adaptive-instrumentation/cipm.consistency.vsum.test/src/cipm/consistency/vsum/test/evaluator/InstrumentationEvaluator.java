@@ -1,10 +1,11 @@
 package cipm.consistency.vsum.test.evaluator;
 
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
+import cipm.consistency.commitintegration.CommitIntegrationController;
 import cipm.consistency.commitintegration.diff.util.JavaChangedMethodDetectorDiffPostProcessor;
 import cipm.consistency.commitintegration.diff.util.JavaModelComparator;
-import cipm.consistency.commitintegration.lang.LanguageFileSystemLayout;
 import cipm.consistency.commitintegration.lang.java.JavaParserAndPropagatorUtils;
+import cipm.consistency.models.CodeModel;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.InstrumentationEvaluationData;
 import java.nio.file.Files;
@@ -28,7 +29,7 @@ import tools.vitruv.change.correspondence.view.CorrespondenceModelView;
  * 
  * @author Martin Armbruster
  */
-public class InstrumentationEvaluator {
+public class InstrumentationEvaluator <CM extends CodeModel> extends CommitIntegrationController<CM> {
     private final int numberAdditionalStatements = 10;
     private final int numberServiceStatements = 7;
     private final int numberStatementsPerParameter = 1;

@@ -1,8 +1,8 @@
 package cipm.consistency.commitintegration.lang.detection.java;
 
 import cipm.consistency.commitintegration.lang.detection.ComponentDetectorImpl;
-import cipm.consistency.commitintegration.lang.detection.ModuleCandidates;
-import cipm.consistency.commitintegration.lang.detection.ModuleState;
+import cipm.consistency.commitintegration.lang.detection.ComponentCandidates;
+import cipm.consistency.commitintegration.lang.detection.ComponentState;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
@@ -23,8 +23,8 @@ import org.emftext.language.java.containers.Origin;
 public final class JavaComponentModuleDetector extends ComponentDetectorImpl {
 
     @Override
-    public ModuleCandidates detectModuleCandidates(ResourceSet resourceSet, Path dir) {
-        ModuleCandidates candidates = new ModuleCandidates();
+    public ComponentCandidates detectModuleCandidates(ResourceSet resourceSet, Path dir) {
+        ComponentCandidates candidates = new ComponentCandidates();
         for (Resource resource : resourceSet.getResources()) {
             if (resource.getContents()
                 .isEmpty()) {
@@ -62,14 +62,14 @@ public final class JavaComponentModuleDetector extends ComponentDetectorImpl {
      *            path to the module configuration.
      */
     public void detectComponentsAndCreateModules(ResourceSet resourceSet, Path projectRoot, Path configPath) {
-        ModuleCandidates candidates = detectModuleCandidates(resourceSet, projectRoot);
+        ComponentCandidates candidates = detectModuleCandidates(resourceSet, projectRoot);
 
         // resolve the module candidates using config and user interaction
         resolveModuleCandidates(candidates, configPath);
 
         // At last, create the modules.
-        createModules(candidates.getModulesInState(ModuleState.MICROSERVICE_COMPONENT), resourceSet, Origin.FILE);
-        createModules(candidates.getModulesInState(ModuleState.REGULAR_COMPONENT), resourceSet, Origin.ARCHIVE);
+        createModules(candidates.getModulesInState(ComponentState.MICROSERVICE_COMPONENT), resourceSet, Origin.FILE);
+        createModules(candidates.getModulesInState(ComponentState.REGULAR_COMPONENT), resourceSet, Origin.ARCHIVE);
     }
 
     /**

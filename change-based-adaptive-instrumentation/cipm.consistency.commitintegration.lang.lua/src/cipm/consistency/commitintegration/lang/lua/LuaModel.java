@@ -1,22 +1,22 @@
 package cipm.consistency.commitintegration.lang.lua;
 
-import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
-import cipm.consistency.commitintegration.lang.CommitChangePropagator;
 import cipm.consistency.commitintegration.lang.detection.ComponentDetector;
-import cipm.consistency.commitintegration.lang.detection.ModuleState;
-import cipm.consistency.vsum.VsumFacade;
+import cipm.consistency.commitintegration.lang.detection.ComponentDetectorImpl;
+import cipm.consistency.commitintegration.lang.detection.ComponentState;
+import cipm.consistency.commitintegration.lang.detection.strategy.ComponentDetectionStrategy;
+import cipm.consistency.models.CodeModel;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -29,23 +29,37 @@ import org.xtext.lua.lua.ComponentSet;
 import org.xtext.lua.lua.Expression_Functioncall;
 import org.xtext.lua.lua.Expression_VariableName;
 import org.xtext.lua.lua.LuaFactory;
-import tools.vitruv.change.composite.description.PropagatedChange;
 
-public class LuaCommitChangePropagator extends CommitChangePropagator {
-
+public class LuaModel implements CodeModel {
+    private static final Logger LOGGER = Logger.getLogger(LuaModel.class.getName());
+    private LuaDirLayout dirLayout;
+    private Resource modelResource;
+    private ComponentDetector componentDetector;
+    
     @Inject
     Provider<XtextResourceSet> resourceSetProvider;
 
-    public LuaCommitChangePropagator(VsumFacade vsumFacade, GitRepositoryWrapper repoWrapper,
-            LuaLanguageFileSystemLayout fileLayout, ComponentDetector componentDetector) {
-        super(vsumFacade, repoWrapper, fileLayout, componentDetector);
 
-        // set the platform path
-//        var platformPath = fileLayout.getModelFileContainer().toString();
-//        new org.eclipse.emf.mwe.utils.StandaloneSetup().setPlatformUri(platformPath);
-
+    public LuaModel() {
         Injector injector = new LuaStandaloneSetup().createInjectorAndDoEMFRegistration();
         injector.injectMembers(this);
+
+        this.componentDetector = new ComponentDetectorImpl();
+        this.dirLayout = new LuaDirLayout();
+    }
+
+
+    @Override
+    public void initialize(Path dirPath) {
+        // todo find a way to initialize the work tree
+        // this.workTree = workTree;
+        this.dirLayout.initialize(dirPath);
+    }
+
+    public void setComponentDetectionStrategies(List<ComponentDetectionStrategy> strategies) {
+        for (var strat : strategies) {
+            this.componentDetector.addComponentDetectionStrategy(strat);
+        }
     }
 
     private List<EObject> findProxiesInResource(Resource resource) {
@@ -72,20 +86,13 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
         return proxies;
     }
 
-    private String printUri(URI uri) {
-        var anchorPath = repoWrapper.getWorkTree()
-            .toPath();
-        var uriPath = Paths.get(uri.path());
-        return anchorPath.relativize(uriPath)
-            .toString();
-    }
-
-    private XtextResourceSet parseWorkTreeToResourceSet() {
+    private XtextResourceSet parseDirToResourceSet(Path sourceCodeDirPath) {
+        LOGGER.info("Parsing source code directory");
         // get a resource from the provider
         var resourceSet = resourceSetProvider.get();
         resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
 
-        var iterator = FileUtils.iterateFiles(repoWrapper.getWorkTree(), null, true);
+        var iterator = FileUtils.iterateFiles(sourceCodeDirPath.toFile(), null, true);
         while (iterator.hasNext()) {
             var file = iterator.next();
             var path = file.toPath();
@@ -99,9 +106,9 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
 
             Resource res = resourceSet.getResource(uri, true);
             if (res == null) {
-                LOGGER.error(String.format("Unable to load resource: %s", printUri(uri)));
+                LOGGER.error(String.format("Unable to load resource: %s", uri));
             } else {
-                LOGGER.debug(String.format("Loaded resource: %s", printUri(uri)));
+                LOGGER.debug(String.format("Loaded resource: %s", uri));
             }
         }
 
@@ -112,9 +119,10 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
         var rs = resourceSetProvider.get();
 
         var path = Path.of(uri.toFileString());
-        if (path.toFile().exists()) {
+        if (path.toFile()
+            .exists()) {
             LOGGER.debug(String.format("Deleting backed up resource: %s", uri));
-            var backupPath = Path.of(uri.toFileString()+".bak");
+            var backupPath = Path.of(uri.toFileString() + ".bak");
             try {
                 Files.move(path, backupPath, StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
@@ -132,9 +140,9 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
      * @param rs
      * @param targetUri
      * @return
-     * @throws IOException 
+     * @throws IOException
      */
-    private Resource resolveResourceSetToComponents(ResourceSet rs, URI targetUri) {
+    private ComponentSet resolveResourceSetToComponents(Path workTree, ResourceSet rs, URI targetUri) {
         LOGGER.debug("Resolving ResourceSet into a ComponentSet");
         var merge = getCleanResource(targetUri);
 
@@ -165,10 +173,9 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
             });
 
         // detect components in the resources
-        var modulesCandidates = componentDetector.detectModules(rs, repoWrapper.getWorkTree()
-            .toPath(), fileLayout.getModuleConfigurationPath());
+        var modulesCandidates = componentDetector.detectModules(rs, workTree, dirLayout.getModuleConfigurationPath());
         if (modulesCandidates != null) {
-            var actualModules = modulesCandidates.getModulesInState(ModuleState.REGULAR_COMPONENT);
+            var actualModules = modulesCandidates.getModulesInState(ComponentState.REGULAR_COMPONENT);
             LOGGER.debug(String.format("Detected %d components", actualModules.size()));
 
             actualModules.forEach((componentName, resources) -> {
@@ -198,7 +205,7 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
         } catch (IOException e) {
             LOGGER.error(String.format("Cannot write new resource: %s", targetUri));
         }
-        return merge;
+        return componentSet;
     }
 
     private boolean checkPropagationPreconditions(Resource res) {
@@ -214,30 +221,68 @@ public class LuaCommitChangePropagator extends CommitChangePropagator {
         return true;
     }
 
-    /**
-     * 
-     * @param resource The resource which is to be propagated
-     * @param uri The uri which us used to persist the resource during propagation
-     * @return
-     */
-    private List<PropagatedChange> propagateResource(Resource resource, URI uri) {
-        if (!checkPropagationPreconditions(resource))
-            return null;
+//    /**
+//     * 
+//     * @param resource The resource which is to be propagated
+//     * @param uri The uri which us used to persist the resource during propagation
+//     * @return
+//     */
+//    private List<PropagatedChange> propagateResource(Resource resource, URI uri) {
+//        if (!checkPropagationPreconditions(resource))
+//            return null;
+//
+//        return vsumFacade.propagateResource(resource, uri);
+//    }
+//
+//    public List<PropagatedChange> propagateCurrentCheckout() {
+//        LOGGER.info("Propagating the current worktree");
+//        // parse all lua files into one resource set
+//        var workTreeResourceSet = parseWorkTreeToResourceSet();
+//        
+//        // where the processed resource is stored prior to propagation
+//        var storeUri = fileLayout.getParsedFileUri();
+//        var processedResource = resolveResourceSetToComponents(workTreeResourceSet, storeUri);
+//        
+//        // the uri which is used during the propagation
+//        var propagationUri = fileLayout.getModelFileUri();
+//        return propagateResource(processedResource, propagationUri);
+//    }
 
-        return vsumFacade.propagateResource(resource, uri);
-    }
     @Override
-    public List<PropagatedChange> propagateCurrentCheckout() {
+    public Resource parseSourceCodeDir(Path sourceCodeDir) {
         LOGGER.info("Propagating the current worktree");
         // parse all lua files into one resource set
-        var workTreeResourceSet = parseWorkTreeToResourceSet();
-        
+        var workTreeResourceSet = parseDirToResourceSet(sourceCodeDir);
+
         // where the processed resource is stored prior to propagation
-        var storeUri = getFileSystemLayout().getParsedFileUri();
-        var processedResource = resolveResourceSetToComponents(workTreeResourceSet, storeUri);
-        
-        // the uri which is used during the propagation
-        var propagationUri = getFileSystemLayout().getModelFileUri();
-        return propagateResource(processedResource, propagationUri);
+        var storeUri = dirLayout.getParsedFileUri();
+        var componentSet = resolveResourceSetToComponents(sourceCodeDir, workTreeResourceSet, storeUri);
+
+        if (!checkPropagationPreconditions(componentSet.eResource())) {
+            throw new IllegalStateException();
+        }
+
+        return componentSet.eResource();
+    }
+
+    public boolean existsOnDisk() {
+        return dirLayout.getModelFilePath()
+            .toFile()
+            .exists();
+    }
+
+    @Override
+    public LuaDirLayout getDirLayout() {
+        return dirLayout;
+    }
+
+    @Override
+    public List<Resource> getResources() {
+        return List.of(modelResource);
+    }
+    
+    @Override
+    public Resource getResource() {
+        return modelResource;
     }
 }
