@@ -1,9 +1,7 @@
 package cipm.consistency.vsum;
 
 import cipm.consistency.models.Model;
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
@@ -45,15 +43,17 @@ public class VsumFacadeImpl implements VsumFacade {
         loadOrCreateVsum();
         loadModels(models);
     }
-    
+
     private void loadModelResource(Resource res) {
         var loaded = vsum.getModelInstance(res.getURI());
         if (loaded == null) {
-            LOGGER.info(String.format("Propagating new resource: %s", res.getURI().toString()));
+            LOGGER.trace(String.format("Propagating new resource: %s", res.getURI()
+                .toString()));
             // When propagating loaded pcm resources this causes a weird error:
             this.propagateResource(res);
         } else {
-//            LOGGER.debug(String.format("Resource already loaded: %s", res.getURI().toString()));
+            LOGGER.trace(String.format("Resource already loaded: %s", res.getURI()
+                .toString()));
         }
     }
 
@@ -67,7 +67,7 @@ public class VsumFacadeImpl implements VsumFacade {
                     loadModelResource(resource);
                 }
             }
-            
+
             // single resource
             var resource = model.getResource();
             if (resource != null) {
@@ -76,7 +76,6 @@ public class VsumFacadeImpl implements VsumFacade {
         }
         return null;
     }
-
 
     private void loadOrCreateVsum() {
         var vsumBuilder = getVsumBuilder();
@@ -232,7 +231,7 @@ public class VsumFacadeImpl implements VsumFacade {
                 .getURI() == targetUri)
             .findAny();
         if (possiblyExistingRoot.isPresent()) {
-            LOGGER.debug(String.format("Replacing old root object (%s) at %s", newRootEobject.getClass(), targetUri));
+            LOGGER.trace(String.format("Replacing old root object (%s) at %s", newRootEobject.getClass(), targetUri));
             // replace the existing root with the new one
             var existingContents = possiblyExistingRoot.get()
                 .eResource()
@@ -240,7 +239,7 @@ public class VsumFacadeImpl implements VsumFacade {
             existingContents.remove(0);
             existingContents.add(newRootEobject);
         } else {
-            LOGGER.debug(String.format("Registering new root object (%s) at %s", newRootEobject.getClass(), targetUri));
+            LOGGER.trace(String.format("Registering new root object (%s) at %s", newRootEobject.getClass(), targetUri));
             // or register the new root at the view
             view.registerRoot(newRootEobject, targetUri);
         }

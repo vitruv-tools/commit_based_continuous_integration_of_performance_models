@@ -29,6 +29,7 @@ public interface CommitIntegration <CM extends CodeModel> {
      */
     public List<ChangePropagationSpecification> getChangeSpecs();
 
+    // TODO we could remove this method from the interface
     public List<ComponentDetectionStrategy> getComponentDetectionStrategies();
 
     /**

@@ -34,7 +34,6 @@ public class ComponentCandidates {
      *            Resource with the classifier in the module.
      */
     // TODO Burgey: the java stuff uses this, but i don't need it, so im not refactoring it.
-    @Deprecated
     public void addModuleClassifier(ComponentState state, String moduleName, Resource cu) {
         Map<String, Set<Resource>> classMap = getModulesInState(state);
         Set<Resource> classSet;
