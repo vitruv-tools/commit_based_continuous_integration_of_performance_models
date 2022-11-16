@@ -40,10 +40,8 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
     protected void assertSuccessfulPropagation(String oldCommit, String newCommit) {
         List<PropagatedChange> propagatedChanges = null;
         try {
-//            propagatedChanges = propagateChanges(oldCommit, newCommit, true);
             propagatedChanges = propagateChanges(oldCommit, newCommit);
         } catch (IOException | GitAPIException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             Assert.fail(e.getMessage());
         }
@@ -90,11 +88,11 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
 
         var copy = state.createFileSystemCopy(num + "-" + newCommit);
         LOGGER.debug("Evaluating the instrumentation.");
-        new InstrumentationEvaluator().evaluateInstrumentationDependently(state.getIm()
+        new InstrumentationEvaluator.evaluateInstrumentationDependently(state.getImFacade()
             .getModel(),
-                state.getCodeModel()
+                state.getCodeModelFacade()
                     .getResource(),
-                instrumentedModel, state.getVsum()
+                instrumentedModel, state.getVsumFacade()
                     .getVsum()
                     .getCorrespondenceModel());
         EvaluationDataContainerReaderWriter.write(evalResult, copy.resolve("DependentEvaluationResult.json"));
@@ -241,7 +239,6 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
             return getGitRepositoryWrapper().getLatestCommit()
                 .getName();
         } catch (GitAPIException | IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;

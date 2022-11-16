@@ -3,20 +3,20 @@ package cipm.consistency.models.im;
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelFactory;
 import cipm.consistency.base.shared.FileBackedModelUtil;
-import cipm.consistency.models.Model;
+import cipm.consistency.models.ModelFacade;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
-public class IM implements Model {
+public class ImFacade implements ModelFacade {
     
     InstrumentationModel im;
-    IMDirLayout dirLayout;
+    ImDirLayout dirLayout;
     
-    public IM() {
-        dirLayout = new IMDirLayout();
+    public ImFacade() {
+        dirLayout = new ImDirLayout();
     }
 
     @Override
@@ -66,7 +66,7 @@ public class IM implements Model {
     }
 
     @Override
-    public IMDirLayout getDirLayout() {
+    public ImDirLayout getDirLayout() {
         return dirLayout;
     }
 

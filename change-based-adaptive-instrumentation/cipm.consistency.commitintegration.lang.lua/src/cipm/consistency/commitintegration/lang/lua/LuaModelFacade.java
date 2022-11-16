@@ -4,7 +4,7 @@ import cipm.consistency.commitintegration.lang.detection.ComponentDetector;
 import cipm.consistency.commitintegration.lang.detection.ComponentDetectorImpl;
 import cipm.consistency.commitintegration.lang.detection.ComponentState;
 import cipm.consistency.commitintegration.lang.detection.strategy.ComponentDetectionStrategy;
-import cipm.consistency.models.CodeModel;
+import cipm.consistency.models.CodeModelFacade;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
@@ -30,17 +30,20 @@ import org.xtext.lua.lua.Expression_Functioncall;
 import org.xtext.lua.lua.Expression_VariableName;
 import org.xtext.lua.lua.LuaFactory;
 
-public class LuaModel implements CodeModel {
-    private static final Logger LOGGER = Logger.getLogger(LuaModel.class.getName());
+public class LuaModelFacade implements CodeModelFacade {
+    private static final Logger LOGGER = Logger.getLogger(LuaModelFacade.class.getName());
     private LuaDirLayout dirLayout;
-    private Resource modelResource;
     private ComponentDetector componentDetector;
+    
+    // TODO tracking the last component set is a bit ugly here
+    private ComponentSet currentComponentSet;
+    private Resource currentResource;
     
     @Inject
     Provider<XtextResourceSet> resourceSetProvider;
 
 
-    public LuaModel() {
+    public LuaModelFacade() {
         Injector injector = new LuaStandaloneSetup().createInjectorAndDoEMFRegistration();
         injector.injectMembers(this);
 
@@ -256,13 +259,14 @@ public class LuaModel implements CodeModel {
 
         // where the processed resource is stored prior to propagation
         var storeUri = dirLayout.getParsedFileUri();
-        var componentSet = resolveResourceSetToComponents(sourceCodeDir, workTreeResourceSet, storeUri);
+        currentComponentSet = resolveResourceSetToComponents(sourceCodeDir, workTreeResourceSet, storeUri);
 
-        if (!checkPropagationPreconditions(componentSet.eResource())) {
+        if (!checkPropagationPreconditions(currentComponentSet.eResource())) {
             throw new IllegalStateException();
         }
-
-        return componentSet.eResource();
+        
+        currentResource = currentComponentSet.eResource();
+        return currentResource;
     }
 
     public boolean existsOnDisk() {
@@ -276,13 +280,18 @@ public class LuaModel implements CodeModel {
         return dirLayout;
     }
 
+    public ComponentSet getCurrentComponentSet() {
+        return currentComponentSet;
+    }
+
+
     @Override
     public List<Resource> getResources() {
-        return List.of(modelResource);
+        return null;
     }
     
     @Override
     public Resource getResource() {
-        return modelResource;
+        return currentResource;
     }
 }

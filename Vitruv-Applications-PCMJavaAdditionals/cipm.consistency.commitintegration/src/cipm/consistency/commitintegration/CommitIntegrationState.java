@@ -2,9 +2,9 @@ package cipm.consistency.commitintegration;
 
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
-import cipm.consistency.models.CodeModel;
-import cipm.consistency.models.im.IM;
-import cipm.consistency.models.pcm.PCM;
+import cipm.consistency.models.CodeModelFacade;
+import cipm.consistency.models.im.ImFacade;
+import cipm.consistency.models.pcm.PcmFacade;
 import cipm.consistency.vsum.VsumFacade;
 import cipm.consistency.vsum.VsumFacadeImpl;
 import java.io.IOException;
@@ -22,23 +22,23 @@ import org.eclipse.jgit.api.errors.TransportException;
  * @author Lukas Burgey
  *
  */
-public class CommitIntegrationState<CM extends CodeModel> {
+public class CommitIntegrationState<CM extends CodeModelFacade> {
     private final Logger LOGGER = Logger.getLogger(CommitIntegration.class.getName());
 
     private CommitIntegration<CM> commitIntegration;
 
     private CommitIntegrationDirLayout dirLayout;
     private GitRepositoryWrapper gitRepositoryWrapper;
-    private VsumFacade vsum;
-    private PCM pcm;
-    private IM im;
-    private CM codeModel;
+    private VsumFacade vsumFacade;
+    private PcmFacade pcmFacade;
+    private ImFacade imFacade;
+    private CM codeModelFacade;
 
     public CommitIntegrationState() {
         dirLayout = new CommitIntegrationDirLayout();
-        vsum = new VsumFacadeImpl();
-        pcm = new PCM();
-        im = new IM();
+        vsumFacade = new VsumFacadeImpl();
+        pcmFacade = new PcmFacade();
+        imFacade = new ImFacade();
 
         // the codeModel is initialized in initialize()
     }
@@ -65,19 +65,20 @@ public class CommitIntegrationState<CM extends CodeModel> {
         gitRepositoryWrapper = commitIntegration.getGitRepositoryWrapper();
 
         // initialize models
-        pcm.initialize(dirLayout.getPcmDirPath());
-        im.initialize(dirLayout.getImDirPath());
-        codeModel = commitIntegration.createCodeModel();
-        codeModel.initialize(dirLayout.getCodeDirPath());
+        pcmFacade.initialize(dirLayout.getPcmDirPath());
+        imFacade.initialize(dirLayout.getImDirPath());
+        
+        codeModelFacade = commitIntegration.getCodeModelFacadeSupplier().get();
+        codeModelFacade.initialize(dirLayout.getCodeDirPath());
         
         // initialize the vsum
-        vsum.initialize(dirLayout.getVsumDirPath(), List.of(pcm, im), commitIntegration.getChangeSpecs());
+        vsumFacade.initialize(dirLayout.getVsumDirPath(), List.of(pcmFacade, imFacade), commitIntegration.getChangeSpecs());
     }
 
     @SuppressWarnings("restriction")
     public void dispose() {
         LOGGER.info("Disposing of the CommitIntegrationState");
-        vsum.getVsum()
+        vsumFacade.getVsum()
             .dispose();
         gitRepositoryWrapper.closeRepository();
     }
@@ -104,20 +105,20 @@ public class CommitIntegrationState<CM extends CodeModel> {
         return gitRepositoryWrapper;
     }
 
-    public VsumFacade getVsum() {
-        return vsum;
+    public VsumFacade getVsumFacade() {
+        return vsumFacade;
     }
 
-    public PCM getPcm() {
-        return pcm;
+    public PcmFacade getPcmFacade() {
+        return pcmFacade;
     }
 
-    public IM getIm() {
-        return im;
+    public ImFacade getImFacade() {
+        return imFacade;
     }
 
-    public CM getCodeModel() {
-        return codeModel;
+    public CM getCodeModelFacade() {
+        return codeModelFacade;
     }
 
     public CommitIntegrationDirLayout getDirLayout() {

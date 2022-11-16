@@ -1,8 +1,8 @@
 package cipm.consistency.commitintegration;
 
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
-import cipm.consistency.commitintegration.lang.detection.strategy.ComponentDetectionStrategy;
-import cipm.consistency.models.CodeModel;
+import cipm.consistency.models.CodeModelFacade;
+import com.google.common.base.Supplier;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -16,7 +16,7 @@ import tools.vitruv.change.propagation.ChangePropagationSpecification;
  * 
  * @author Lukas Burgey
  */
-public interface CommitIntegration <CM extends CodeModel> {
+public interface CommitIntegration <CM extends CodeModelFacade> {
     /**
      * 
      * @return The root path of this commit integration. All other paths should be resolved to this path or subpaths
@@ -29,9 +29,6 @@ public interface CommitIntegration <CM extends CodeModel> {
      */
     public List<ChangePropagationSpecification> getChangeSpecs();
 
-    // TODO we could remove this method from the interface
-    public List<ComponentDetectionStrategy> getComponentDetectionStrategies();
-
     /**
      * 
      * @return The git repository wrapper instance that is used for the commit integration
@@ -42,5 +39,9 @@ public interface CommitIntegration <CM extends CodeModel> {
      */
     public GitRepositoryWrapper getGitRepositoryWrapper() throws InvalidRemoteException, TransportException, GitAPIException, IOException;
     
-    public CM createCodeModel();
+    /**
+     * 
+     * @return A supplier to instantiate the generic code model
+     */
+    public Supplier<CM> getCodeModelFacadeSupplier();
 }

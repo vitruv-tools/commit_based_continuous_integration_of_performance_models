@@ -12,7 +12,6 @@ class CommitIntegrationDirLayout extends ModelDirLayoutImpl {
 	static String pcmDirName = "pcm"
 	static String codeDirName = "code"
 	
-	
 	static String commitsFileName = "commits"
 	static String settingsFileName = "settings.settings"
 	

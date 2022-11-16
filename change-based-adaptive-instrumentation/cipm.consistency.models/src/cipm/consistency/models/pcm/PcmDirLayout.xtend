@@ -7,7 +7,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
 import cipm.consistency.models.ModelDirLayoutImpl
 
 @Accessors
-class PCMDirLayout extends ModelDirLayoutImpl {
+class PcmDirLayout extends ModelDirLayoutImpl {
 	static final String pcmRepositoryFileName = "Repository.repository";
 	static final String pcmSystemFileName = "System.system";
 	static final String pcmAllocationFileName = "Allocation.allocation";

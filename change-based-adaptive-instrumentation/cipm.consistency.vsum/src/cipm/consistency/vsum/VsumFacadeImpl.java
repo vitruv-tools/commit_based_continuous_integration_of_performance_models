@@ -1,12 +1,14 @@
 package cipm.consistency.vsum;
 
-import cipm.consistency.models.Model;
+import cipm.consistency.models.ModelFacade;
 import java.nio.file.Path;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import tools.vitruv.change.composite.description.PropagatedChange;
+import tools.vitruv.change.correspondence.Correspondence;
+import tools.vitruv.change.correspondence.view.EditableCorrespondenceModelView;
 import tools.vitruv.change.interaction.UserInteractionFactory;
 import tools.vitruv.change.propagation.ChangePropagationSpecification;
 import tools.vitruv.framework.views.CommittableView;
@@ -37,7 +39,7 @@ public class VsumFacadeImpl implements VsumFacade {
         dirLayout = new VsumDirLayout();
     }
 
-    public void initialize(Path rootPath, List<Model> models, List<ChangePropagationSpecification> changeSpecs) {
+    public void initialize(Path rootPath, List<ModelFacade> models, List<ChangePropagationSpecification> changeSpecs) {
         dirLayout.initialize(rootPath);
         this.changeSpecs = changeSpecs;
         loadOrCreateVsum();
@@ -58,7 +60,7 @@ public class VsumFacadeImpl implements VsumFacade {
     }
 
     @Override
-    public List<PropagatedChange> loadModels(List<Model> models) {
+    public List<PropagatedChange> loadModels(List<ModelFacade> models) {
         for (var model : models) {
             // multiple resources
             var resources = model.getResources();
@@ -261,5 +263,13 @@ public class VsumFacadeImpl implements VsumFacade {
     @Override
     public VsumDirLayout getDirLayout() {
         return dirLayout;
+    }
+
+    @Override
+    public EditableCorrespondenceModelView<Correspondence> getCorrespondenceView() {
+        if (vsum != null) {
+            return vsum.getCorrespondenceModel();
+        }
+        return null;
     }
 }

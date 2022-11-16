@@ -1,6 +1,6 @@
 package cipm.consistency.commitintegration;
 
-import cipm.consistency.models.CodeModel;
+import cipm.consistency.models.CodeModelFacade;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,7 +22,7 @@ import tools.vitruv.change.composite.description.PropagatedChange;
  * @author Martin Armbruster
  * @author Lukas Burgey
  */
-public abstract class CommitIntegrationController<CM extends CodeModel> {
+public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
     private static final Logger LOGGER = Logger.getLogger(CommitIntegrationController.class.getName());
     protected CommitIntegrationState<CM> state;
 
@@ -37,8 +37,8 @@ public abstract class CommitIntegrationController<CM extends CodeModel> {
      */
     public List<PropagatedChange> propagateCurrentCheckout() {
         var workTree = state.getGitRepositoryWrapper().getWorkTree().toPath();
-        var resource = state.getCodeModel().parseSourceCodeDir(workTree);
-        return state.getVsum().propagateResource(resource);
+        var resource = state.getCodeModelFacade().parseSourceCodeDir(workTree);
+        return state.getVsumFacade().propagateResource(resource);
     }
     
     /**

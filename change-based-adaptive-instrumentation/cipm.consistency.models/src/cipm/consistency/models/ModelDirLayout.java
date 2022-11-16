@@ -4,7 +4,9 @@ import java.nio.file.Path;
 
 public interface ModelDirLayout {
     
-    void initialize(Path rootPath);
+    void initialize(Path rootDirPath);
+    
+    Path getRootDirPath();
     
     void delete();
 

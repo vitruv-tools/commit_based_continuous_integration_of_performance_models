@@ -2,7 +2,7 @@ package cipm.consistency.models.pcm;
 
 import cipm.consistency.base.shared.ModelUtil;
 import cipm.consistency.base.shared.pcm.InMemoryPCM;
-import cipm.consistency.models.Model;
+import cipm.consistency.models.ModelFacade;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -20,14 +20,14 @@ import org.palladiosimulator.pcm.system.SystemFactory;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.usagemodel.UsagemodelFactory;
 
-public class PCM implements Model {
-    private static final Logger LOGGER = Logger.getLogger(PCM.class.getName());
+public class PcmFacade implements ModelFacade {
+    private static final Logger LOGGER = Logger.getLogger(PcmFacade.class.getName());
 
     private InMemoryPCM pcm;
-    private PCMDirLayout fileLayout;
+    private PcmDirLayout fileLayout;
 
-    public PCM() {
-        fileLayout = new PCMDirLayout();
+    public PcmFacade() {
+        fileLayout = new PcmDirLayout();
     }
 
     @Override
@@ -129,7 +129,7 @@ public class PCM implements Model {
         return null;
     }
 
-    public PCMDirLayout getDirLayout() {
+    public PcmDirLayout getDirLayout() {
         return fileLayout;
     }
 

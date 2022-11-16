@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.util.List;
 import org.eclipse.emf.ecore.resource.Resource;
 
-public interface Model {
+public interface ModelFacade {
     
     public void initialize(Path rootPath);
     

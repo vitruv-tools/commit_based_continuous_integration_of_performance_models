@@ -3,10 +3,7 @@ package cipm.consistency.models
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.Comparator
-import org.eclipse.xtend.lib.annotations.Accessors
-import cipm.consistency.models.ModelDirLayout
 
-@Accessors
 class ModelDirLayoutImpl implements ModelDirLayout {
 	protected Path rootDirPath
 
@@ -26,5 +23,9 @@ class ModelDirLayoutImpl implements ModelDirLayout {
 	def clean() {
 		delete()
 		initialize(rootDirPath)
+	}
+	
+	override getRootDirPath() {
+		return rootDirPath;
 	}
 }

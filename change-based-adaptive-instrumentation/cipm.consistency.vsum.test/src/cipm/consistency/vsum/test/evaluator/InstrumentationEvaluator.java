@@ -2,13 +2,13 @@ package cipm.consistency.vsum.test.evaluator;
 
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.commitintegration.CommitIntegrationController;
+import cipm.consistency.commitintegration.CommitIntegrationState;
 import cipm.consistency.commitintegration.diff.util.JavaChangedMethodDetectorDiffPostProcessor;
 import cipm.consistency.commitintegration.diff.util.JavaModelComparator;
 import cipm.consistency.commitintegration.lang.java.JavaParserAndPropagatorUtils;
-import cipm.consistency.models.CodeModel;
+import cipm.consistency.commitintegration.lang.lua.LuaModelFacade;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.InstrumentationEvaluationData;
-import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Set;
 import org.eclipse.emf.ecore.EObject;
@@ -29,7 +29,7 @@ import tools.vitruv.change.correspondence.view.CorrespondenceModelView;
  * 
  * @author Martin Armbruster
  */
-public class InstrumentationEvaluator <CM extends CodeModel> extends CommitIntegrationController<CM> {
+public class InstrumentationEvaluator extends CommitIntegrationController<LuaModelFacade> {
     private final int numberAdditionalStatements = 10;
     private final int numberServiceStatements = 7;
     private final int numberStatementsPerParameter = 1;
@@ -79,21 +79,34 @@ public class InstrumentationEvaluator <CM extends CodeModel> extends CommitInteg
      * @param cm
      *            the correspondence model.
      */
-    public void evaluateInstrumentationIndependently(InstrumentationModel im, Resource javaModel,
-            LanguageFileSystemLayout fileLayout, CorrespondenceModelView<Correspondence> cmv) {
-        if (Files.notExists(fileLayout.getInstrumentationDir())) {
-            return;
-        }
+    public void evaluateInstrumentationIndependently(CommitIntegrationState<LuaModelFacade> state) {
+        
+//    public void evaluateInstrumentationIndependently(InstrumentationModel im, Resource javaModel,
+//            CommitIntegrationState<LuaModel> state, CorrespondenceModelView<Correspondence> cmv) {
+        
+        var im = state.getImFacade().getModel();
+        var cmv = state.getVsumFacade().getCorrespondenceView();
+        var codeModel = state.getCodeModelFacade().getResource();
+        
+        
         InstrumentationEvaluationData insEvalData = EvaluationDataContainer.getGlobalContainer()
             .getInstrumentationData();
         insEvalData.setExpectedLowerStatementDifferenceCount(countExpectedStatements(im, cmv, true));
         insEvalData.setExpectedUpperStatementDifferenceCount(countExpectedStatements(im, cmv, false));
-        Resource reloadedModel = JavaParserAndPropagatorUtils
-            .parseJavaCodeIntoOneModel(fileLayout.getInstrumentationDir(), fileLayout.getModelFilePath()
-                .resolveSibling("ins.javaxmi"), fileLayout.getModuleConfigurationPath());
+        Resource reloadedModel = JavaParserAndPropagatorUtils.parseJavaCodeIntoOneModel(state.getImFacade()
+            .getDirLayout()
+            .getInstrumentationDirPath(),
+                state.getCodeModelFacade()
+                    .getDirLayout()
+                    .getRootDirPath()
+                    .resolve("ins.javaxmi"),
+                state.getCodeModelFacade()
+                    .getDirLayout()
+                    .getModuleConfigurationPath());
+
         var potentialProxies = EcoreUtil.ProxyCrossReferencer.find(reloadedModel);
 
-        int javaStatements = countStatements(javaModel);
+        int javaStatements = countStatements(codeModel);
         int instrumStatements = countStatements(reloadedModel);
         insEvalData.setReloadedStatementDifferenceCount(instrumStatements - javaStatements);
         if (!potentialProxies.isEmpty()) {

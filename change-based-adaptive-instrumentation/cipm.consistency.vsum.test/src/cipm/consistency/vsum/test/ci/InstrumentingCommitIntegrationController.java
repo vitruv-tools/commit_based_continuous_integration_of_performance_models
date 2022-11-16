@@ -5,7 +5,7 @@ import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsCont
 import cipm.consistency.commitintegration.settings.SettingKeys;
 import cipm.consistency.commitintegration.util.ExternalCommandExecutionUtils;
 import cipm.consistency.designtime.instrumentation2.CodeInstrumenter;
-import cipm.consistency.models.CodeModel;
+import cipm.consistency.models.CodeModelFacade;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -28,7 +28,8 @@ import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import tools.vitruv.change.composite.description.PropagatedChange;
 
-public abstract class InstrumentingCommitIntegrationController <CM extends CodeModel> extends CommitIntegrationController<CM> {
+public abstract class InstrumentingCommitIntegrationController<CM extends CodeModelFacade>
+        extends CommitIntegrationController<CM> {
     private static final Logger LOGGER = Logger.getLogger(InstrumentingCommitIntegrationController.class.getName());
     Resource instrumentedModel;
 
@@ -106,20 +107,20 @@ public abstract class InstrumentingCommitIntegrationController <CM extends CodeM
         }
 
         long overallTimer = System.currentTimeMillis();
-        state.getIm()
+        state.getImFacade()
             .getDirLayout()
             .clean();
-        var insDir = state.getIm()
+        var insDir = state.getImFacade()
             .getDirLayout()
             .getRootDirPath();
 
         // Deactivate all action instrumentation points.
-        state.getIm()
+        state.getImFacade()
             .getModel()
             .getPoints()
             .forEach(sip -> sip.getActionInstrumentationPoints()
                 .forEach(aip -> aip.setActive(false)));
-        state.getIm()
+        state.getImFacade()
             .saveToDisk();
 
         long fineTimer = System.currentTimeMillis();
@@ -144,7 +145,7 @@ public abstract class InstrumentingCommitIntegrationController <CM extends CodeM
 //         filler.fillExternalCalls();
 
             boolean hasChangedIM = false;
-            for (var sip : state.getIm()
+            for (var sip : state.getImFacade()
                 .getModel()
                 .getPoints()) {
                 for (var aip : sip.getActionInstrumentationPoints()) {
@@ -189,7 +190,7 @@ public abstract class InstrumentingCommitIntegrationController <CM extends CodeM
      * @return the instrumented code model as a copy of the code model in the V-SUM.
      */
     public Resource instrumentCode(boolean performFullInstrumentation) {
-        Path insDir = state.getIm()
+        Path insDir = state.getImFacade()
             .getDirLayout()
             .getRootDirPath();
         removeInstrumentationDirectory(insDir);
@@ -209,12 +210,12 @@ public abstract class InstrumentingCommitIntegrationController <CM extends CodeM
 
     @SuppressWarnings("restriction")
     private Resource performInstrumentation(Path instrumentationDirectory, boolean performFullInstrumentation) {
-        return CodeInstrumenter.instrument(state.getIm()
+        return CodeInstrumenter.instrument(state.getImFacade()
             .getModel(),
-                state.getVsum()
+                state.getVsumFacade()
                     .getVsum()
                     .getCorrespondenceModel(),
-                state.getCodeModel()
+                state.getCodeModelFacade()
                     .getResource(),
                 instrumentationDirectory, state.getGitRepositoryWrapper()
                     .getWorkTree()
@@ -229,7 +230,7 @@ public abstract class InstrumentingCommitIntegrationController <CM extends CodeM
      *             if an IO operation fails.
      */
     public void compileAndDeployInstrumentedCode() throws IOException {
-        Path instrumentationCodeDir = state.getIm()
+        Path instrumentationCodeDir = state.getImFacade()
             .getDirLayout()
             .getRootDirPath();
         if (Files.exists(instrumentationCodeDir)) {
@@ -331,8 +332,6 @@ public abstract class InstrumentingCommitIntegrationController <CM extends CodeM
 //             });
 //     }
     }
-
-
 
 // @SuppressWarnings("restriction")
 // public Resource getModelResource() {
