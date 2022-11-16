@@ -5,6 +5,7 @@
 [submodule "Vitruv-Domains-ComponentBasedSystems"]
 	path = Vitruv-Domains-ComponentBasedSystems
 	url = https://github.com/HansMartinA/Vitruv-Domains-ComponentBasedSystems
+	branch = master
 [submodule "Vitruv-Applications-ComponentBasedSystems"]
 	path = Vitruv-Applications-ComponentBasedSystems
 	url = https://github.com/HansMartinA/Vitruv-Applications-ComponentBasedSystems
