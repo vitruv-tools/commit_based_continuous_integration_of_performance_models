@@ -12,13 +12,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.xtext.resource.XtextResource;
@@ -26,8 +23,6 @@ import org.eclipse.xtext.resource.XtextResourceSet;
 import org.xtext.lua.LuaStandaloneSetup;
 import org.xtext.lua.lua.Chunk;
 import org.xtext.lua.lua.ComponentSet;
-import org.xtext.lua.lua.Expression_Functioncall;
-import org.xtext.lua.lua.Expression_VariableName;
 import org.xtext.lua.lua.LuaFactory;
 
 public class LuaModelFacade implements CodeModelFacade {
@@ -65,29 +60,6 @@ public class LuaModelFacade implements CodeModelFacade {
         }
     }
 
-    private List<EObject> findProxiesInResource(Resource resource) {
-        // The models may contain proxies
-        var proxies = new ArrayList<EObject>();
-        resource.getAllContents()
-            .forEachRemaining(eObj -> {
-                // TODO this is a crude way of finding ref attributes
-                // proxies can only be variable- and function-names
-                if (eObj instanceof Expression_VariableName) {
-                    var exp = (Expression_VariableName) eObj;
-                    var ref = exp.getRef();
-                    if (ref.eIsProxy()) {
-                        proxies.add(ref);
-                    }
-                } else if (eObj instanceof Expression_Functioncall) {
-                    var exp = (Expression_Functioncall) eObj;
-                    var ref = exp.getCalledFunction();
-                    if (ref != null && ref.eIsProxy()) {
-                        proxies.add(ref);
-                    }
-                }
-            });
-        return proxies;
-    }
 
     private XtextResourceSet parseDirToResourceSet(Path sourceCodeDirPath) {
         LOGGER.info("Parsing source code directory");
@@ -187,16 +159,27 @@ public class LuaModelFacade implements CodeModelFacade {
                 var component = LuaFactory.eINSTANCE.createComponent();
                 component.setName(componentName);
 
-                var chunksOfThisComponent = resources.stream()
-                    .map(r -> r.getContents())
-                    .filter(cl -> cl.size() > 0)
-                    .map(cl -> cl.get(0))
-                    .filter(eo -> (eo instanceof Chunk))
-                    .map(eo -> (Chunk) eo)
-                    .collect(Collectors.toList());
-
-                component.getChunks()
-                    .addAll(chunksOfThisComponent);
+//                var chunksOfThisComponent = resources.stream()
+//                    .map(r -> r.getContents())
+//                    .filter(cl -> cl.size() > 0)
+//                    .map(cl -> cl.get(0))
+//                    .filter(eo -> (eo instanceof Chunk))
+//                    .map(eo -> (Chunk) eo)
+//                    .collect(Collectors.toList());
+                
+                for (var resource: resources) {
+                    if (resource.getContents().size() > 0) {
+                        var eObj = resource.getContents().get(0);
+                        if (eObj instanceof Chunk) {
+                            var namedChunk = LuaFactory.eINSTANCE.createNamedChunk();
+                            namedChunk.setChunk((Chunk) eObj);
+                            var chunkName = resource.getURI().lastSegment();
+                            namedChunk.setName(chunkName);
+                            component.getChunks().add(namedChunk);
+                        }
+                    }
+                    
+                }
                 componentSet.getComponents()
                     .add(component);
             });
@@ -211,46 +194,6 @@ public class LuaModelFacade implements CodeModelFacade {
         return componentSet;
     }
 
-    private boolean checkPropagationPreconditions(Resource res) {
-        // The models may contain proxies
-        var proxies = findProxiesInResource(res);
-        if (proxies.size() > 0) {
-            LOGGER.error(String.format("Code model contains %d proxies: %s", proxies.size(), proxies.stream()
-                .map(p -> p.toString())
-                .collect(Collectors.joining(", "))));
-            return false;
-        }
-
-        return true;
-    }
-
-//    /**
-//     * 
-//     * @param resource The resource which is to be propagated
-//     * @param uri The uri which us used to persist the resource during propagation
-//     * @return
-//     */
-//    private List<PropagatedChange> propagateResource(Resource resource, URI uri) {
-//        if (!checkPropagationPreconditions(resource))
-//            return null;
-//
-//        return vsumFacade.propagateResource(resource, uri);
-//    }
-//
-//    public List<PropagatedChange> propagateCurrentCheckout() {
-//        LOGGER.info("Propagating the current worktree");
-//        // parse all lua files into one resource set
-//        var workTreeResourceSet = parseWorkTreeToResourceSet();
-//        
-//        // where the processed resource is stored prior to propagation
-//        var storeUri = fileLayout.getParsedFileUri();
-//        var processedResource = resolveResourceSetToComponents(workTreeResourceSet, storeUri);
-//        
-//        // the uri which is used during the propagation
-//        var propagationUri = fileLayout.getModelFileUri();
-//        return propagateResource(processedResource, propagationUri);
-//    }
-
     @Override
     public Resource parseSourceCodeDir(Path sourceCodeDir) {
         LOGGER.info("Propagating the current worktree");
@@ -260,10 +203,6 @@ public class LuaModelFacade implements CodeModelFacade {
         // where the processed resource is stored prior to propagation
         var storeUri = dirLayout.getParsedFileUri();
         currentComponentSet = resolveResourceSetToComponents(sourceCodeDir, workTreeResourceSet, storeUri);
-
-        if (!checkPropagationPreconditions(currentComponentSet.eResource())) {
-            throw new IllegalStateException();
-        }
         
         currentResource = currentComponentSet.eResource();
         return currentResource;

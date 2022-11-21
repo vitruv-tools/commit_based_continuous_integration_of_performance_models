@@ -5,12 +5,14 @@ reactions: chunk
 in reaction to changes in lua
 execute actions in pcm
 
+import commonInterface
 import component
 
-reaction AddedChunk {
-	after element lua::Chunk inserted in lua::Component[chunks]
+reaction AddedNamedChunk {
+	after element lua::NamedChunk inserted in lua::Component[chunks]
 	call {
-		createOrFindArchitecturalElement(newValue)
+		assertInterfaceExiststenceForNamedChunk(newValue)
+		assertComponentExistenceForChunk(newValue.chunk)
 //		decideInterfaceCreation(newValue)
 //		createOrFindOperationProvidedRole(newValue, newValue)
 //		checkClassifierForImportedRequiredRoles(newValue)

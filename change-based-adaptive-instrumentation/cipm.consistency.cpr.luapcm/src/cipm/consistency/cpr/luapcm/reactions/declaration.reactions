@@ -1,4 +1,4 @@
-import org.xtext.lua.lua.Referenceable
+import org.xtext.lua.lua.Statement_Global_Function_Declaration
 
 import "http://www.xtext.org/lua/Lua" as lua
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
@@ -7,17 +7,13 @@ reactions: declaration
 in reaction to changes in lua
 execute actions in pcm
 
-import component
 import commonSignature
 
 reaction AddedDeclaration {
-	// TODO Statement_Declaration does not seem to contain the refble name, which makes it useless
-//	after element lua::Statement_Declaration inserted in lua::Block[statements]
-	after element lua::Referenceable inserted in lua::Block[statements]
+	after element lua::Statement_Global_Function_Declaration inserted in lua::Block[statements]
 	call {
-		if (!newValue.local) {
-			createOrFindPCMSignature(newValue)
-		}
+		createOrFindPCMSignature(newValue)
+		assertSeffForFunction(newValue)
 //		createSeffFromImplementingInterfaces(newValue, affectedEObject)
 //		createSeffFromClassInterface(newValue, affectedEObject)
 	}
@@ -25,9 +21,11 @@ reaction AddedDeclaration {
 
 
 reaction AddedParameter {
-	after element lua::Referenceable inserted in lua::ContainsBlock[arguments]
+	after element lua::Referenceable inserted in lua::Function[arguments]
 	call {
 		// TODO shouldn't this be a "create or find"?
-		createParameter(newValue, affectedEObject.eContainer as Referenceable)
+		if (affectedEObject.eContainer instanceof Statement_Global_Function_Declaration) {
+			createParameter(newValue, affectedEObject.eContainer as Statement_Global_Function_Declaration)
+		}
 	}
 }

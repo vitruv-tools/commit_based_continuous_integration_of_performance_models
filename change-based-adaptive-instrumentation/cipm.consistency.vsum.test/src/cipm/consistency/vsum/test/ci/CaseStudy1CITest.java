@@ -1,5 +1,6 @@
 package cipm.consistency.vsum.test.ci;
 
+import cipm.consistency.commitintegration.CommitIntegrationState;
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -22,7 +23,9 @@ public class CaseStudy1CITest extends AppSpaceCITest {
     
     @BeforeEach
     public void initialize() throws InvalidRemoteException, TransportException, IOException, GitAPIException {
-        super.initialize(this);
+        this.state = new CommitIntegrationState<>();
+        var overwrite = true;
+        state.initialize(this, overwrite);
     }
 
     @AfterEach

@@ -2,12 +2,13 @@ package cipm.consistency.cpr.luapcm.internal;
 
 import org.xtext.lua.lua.Chunk;
 import org.xtext.lua.lua.Component;
+import org.xtext.lua.lua.NamedChunk;
 
-///**
-// * An internal utility class for the CPRs from the PCM to the extended IM.
-// * 
-// * @author Martin Armbruster
-// */
+/**
+ * An internal utility class for the CPRs from the PCM to the extended IM.
+ * 
+ * @author Lukas Burgey
+ */
 public class InternalUtils {
 //	/**
 //	 * Finds the parent ResourceDemandingSEFF for a ResourceDemandingBehaviour which is a ResourceDemandingSEFF,
@@ -29,11 +30,14 @@ public class InternalUtils {
 //		}
 //		return null;
 //	}
-    
+
     public static Component getComponentOfChunk(Chunk chunk) {
         var parent = chunk.eContainer();
-        if (parent instanceof Component) {
-            return (Component) parent;
+        if (parent instanceof NamedChunk) {
+            var grandparent = parent.eContainer();
+            if (grandparent instanceof Component) {
+                return (Component) grandparent;
+            }
         }
         return null;
     }

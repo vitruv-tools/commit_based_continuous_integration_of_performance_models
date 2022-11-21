@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
  * 
  * @author Martin Armbruster
  */
-public class TeaStoreCITest extends AbstractCITest {
+public class TeaStoreCITest extends InstrumentingCommitIntegrationController {
     private static final String COMMIT_TAG_1_0 = "b0d046e178dbaab7e045de57c01795ce5d1dac92";
     private static final String COMMIT_TAG_1_1 = "77733d9c6ab6680c6cc460c631cd408a588a595c";
     private static final String COMMIT_TAG_1_2 = "53c6efa1dca64a87e536d8c5a3dcc3c12ad933b5";

@@ -3,9 +3,11 @@ package cipm.consistency.vsum;
 import cipm.consistency.models.ModelFacade;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import tools.vitruv.change.composite.description.PropagatedChange;
 import tools.vitruv.change.correspondence.Correspondence;
 import tools.vitruv.change.correspondence.view.EditableCorrespondenceModelView;
@@ -158,6 +160,15 @@ public class VsumFacadeImpl implements VsumFacade {
                 LOGGER.debug(String.format("%d: %s", i, warning.getMessage()));
                 i++;
             }
+        }
+        
+        var rootEObject = res.getContents().get(0);
+        var potentialProxies = EcoreUtil.ProxyCrossReferencer.find(rootEObject);
+        if (!potentialProxies.isEmpty()) {
+            var proxies = potentialProxies.keySet();
+            var proxyNames = proxies.stream().map(p -> p.toString()).collect(Collectors.joining(", "));
+            LOGGER.error(String.format("Resoruce contains %d proxies: %s", proxies.size(), proxyNames));
+            return false;
         }
 
         return true;

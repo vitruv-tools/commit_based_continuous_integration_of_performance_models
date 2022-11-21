@@ -20,13 +20,11 @@ import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Assert;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import tools.vitruv.change.composite.description.PropagatedChange;
 
 public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController {
     private static final Logger LOGGER = Logger.getLogger(AppSpaceCommitIntegrationController.class.getName());
-
 
     private List<String> convertToStringList(List<RevCommit> commits) {
         List<String> result = new ArrayList<>();
@@ -144,31 +142,32 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
             .setOldCommit(oldCommit);
         evalResult.getChangeStatistic()
             .setNewCommit(newCommit);
-        Resource javaModel = state.getCodeModel()
+        Resource javaModel = state.getCodeModelFacade()
             .getResource();
         LOGGER.debug("Evaluating the Java model.");
         new JavaModelEvaluator().evaluateJavaModels(javaModel, state.getDirLayout()
             .getSettingsFilePath(),
-                state.getCodeModel()
+                state.getCodeModelFacade()
                     .getDirLayout()
                     .getLocalRepoDir(),
-                evalResult.getJavaComparisonResult(), state.getCodeModel()
+                evalResult.getJavaComparisonResult(), state.getCodeModelFacade()
                     .getDirLayout()
                     .getModuleConfigurationPath());
 
         LOGGER.debug("Evaluating the instrumentation model.");
-        new IMUpdateEvaluator().evaluateIMUpdate(state.getPcm()
+        new IMUpdateEvaluator().evaluateIMUpdate(state.getPcmFacade()
             .getInMemoryPCM()
             .getRepository(),
-                state.getIm()
+                state.getImFacade()
                     .getModel(),
                 evalResult.getImEvalResult(), getRootPath().toString());
         LOGGER.debug("Evaluating the instrumentation.");
-        new InstrumentationEvaluator().evaluateInstrumentationIndependently(state.getIm()
-            .getModel(), javaModel, getCommitChangePropagator().getFileSystemLayout(),
-                state.getVsum()
-                    .getVsum()
-                    .getCorrespondenceModel());
+//        new InstrumentationEvaluator().evaluateInstrumentationIndependently(state.getIm()
+//            .getModel(), javaModel, getCommitChangePropagator().getFileSystemLayout(),
+//                state.getVsum()
+//                    .getVsum()
+//                    .getCorrespondenceModel());
+        new InstrumentationEvaluator().evaluateInstrumentationIndependently(state);
         EvaluationDataContainerReaderWriter.write(evalResult, getRootPath()
             .resolveSibling("EvaluationResult-" + newCommit + "-" + evalResult.getEvaluationTime() + ".json"));
         LOGGER.debug("Finished the evaluation.");

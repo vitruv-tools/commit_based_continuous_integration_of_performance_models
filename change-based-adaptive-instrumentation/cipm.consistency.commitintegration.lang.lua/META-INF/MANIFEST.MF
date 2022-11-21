@@ -16,6 +16,7 @@ Require-Bundle: cipm.consistency.commitintegration,
  javax.inject,
  org.eclipse.xtext.testing;bundle-version="2.28.0",
  org.apache.commons.io,
- org.xtext.lua,
- org.xtext.lua.tests,
- cipm.consistency.models
+ org.xtext.lua;visibility:=reexport,
+ org.xtext.lua.tests;visibility:=reexport,
+ cipm.consistency.models,
+ org.apache.log4j
