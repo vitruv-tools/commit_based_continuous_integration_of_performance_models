@@ -9,7 +9,6 @@ import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -17,13 +16,13 @@ import org.junit.jupiter.api.Test;
  * 
  * @author Martin Armbruster
  */
-public class CaseStudy1CITest extends AppSpaceCITest {
-    private static final String COMMIT_TAG_0_1_0 = "fce1b9f12c0719451141078cdc7785e866fdb12f";
-    private static final String COMMIT_TAG_1_0_0 = "c771106f9e81ec996c982afb8689c43240471fc4";
-    
+public class MinimalCaseStudyTest extends AppSpaceCITest {
+    private static final String COMMIT_1 = "842ec92f3406da965a5f9e7f468eb80eeb287b04";
+    private static final String COMMIT_2 = "f63d05a18a5dd36f29e7312d797f2806d935e3a3";
+
     @BeforeEach
     public void initialize() throws InvalidRemoteException, TransportException, IOException, GitAPIException {
-        this.state = new CommitIntegrationState<>();
+        state = new CommitIntegrationState<>();
         var overwrite = true;
         state.initialize(this, overwrite);
     }
@@ -32,32 +31,33 @@ public class CaseStudy1CITest extends AppSpaceCITest {
     public void dispose() {
         state.dispose();
     }
-    
 
+    @Override
     public GitRepositoryWrapper getGitRepositoryWrapper()
             throws InvalidRemoteException, TransportException, GitAPIException, IOException {
         var parentGitDir = Paths.get("../../.git");
-        var submoduleName = "change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/caseStudy1";
+        var submoduleName = "change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/minimalCaseStudy";
         return super.getGitRepositoryWrapper()
             .withLocalSubmodule(parentGitDir, submoduleName)
             .initialize();
     }
 
     @Test
-    public void testCaseStudy1_0Integration() throws Exception {
-        // Integrates casestudy version 1.0.
-        assertSuccessfulPropagation(null, COMMIT_TAG_1_0_0);
-//        Assert.assertTrue(executePropagationAndEvaluation(null, COMMIT_TAG_1_0_0, 0));
-//		performIndependentEvaluation();
+    public void test_minimal_2() throws Exception {
+        assertSuccessfulPropagation(null, COMMIT_2);
+//        var result = executePropagationAndEvaluation(null, getLatestCommitId(), 0);
+//        Assert.assertTrue(result);
     }
 
-    @Disabled("Only one test case should run at once.")
     @Test
-    public void testTeaStore1_0To1_1Propagation() throws Exception {
-        // Propagation of changes between version 0.1.0 and 1.0.0
-//        assertSuccessfulPropagation(COMMIT_TAG_1_0_0, COMMIT_TAG_0_1_0);
-//        executePropagationAndEvaluation(COMMIT_TAG_0_1_0, COMMIT_TAG_1_0_0, 1);
-//		performIndependentEvaluation();
+    public void test_minimal_1_2() throws Exception {
+        assertSuccessfulPropagation(null, COMMIT_1);
+        assertSuccessfulPropagation(COMMIT_1, COMMIT_2);
     }
 
+    @Test
+    public void test_minimal_2_2() throws Exception {
+        assertSuccessfulPropagation(null, COMMIT_2);
+        assertSuccessfulPropagation(COMMIT_2, COMMIT_2);
+    }
 }
