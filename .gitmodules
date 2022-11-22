@@ -20,6 +20,3 @@
 [submodule "change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/caseStudy1"]
 	path = change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/caseStudy1
 	url = ssh://git.scc.kit.edu/luaCIPM/caseStudy1
-[submodule "change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/MinimalCaseStudy"]
-	path = change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/MinimalCaseStudy
-	url = ssh://git.scc.kit.edu/luaCIPM/MinimalCaseStudy
