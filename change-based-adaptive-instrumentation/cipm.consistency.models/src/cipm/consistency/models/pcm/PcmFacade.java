@@ -3,7 +3,6 @@ package cipm.consistency.models.pcm;
 import cipm.consistency.base.shared.ModelUtil;
 import cipm.consistency.base.shared.pcm.InMemoryPCM;
 import cipm.consistency.models.ModelFacade;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,7 +38,6 @@ public class PcmFacade implements ModelFacade {
     private void loadOrCreateModelResources() {
         if (!existsOnDisk()) {
             createModelResources();
-            saveToDisk();
         } else {
             loadFromDisk();
 
@@ -67,14 +65,14 @@ public class PcmFacade implements ModelFacade {
         
         
         // save again for the allocation model
-//        saveToDisk();
-        try {
-            allocationModel.eResource()
-                .save(null);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        saveToDisk();
+//        try {
+//            allocationModel.eResource()
+//                .save(null);
+//        } catch (IOException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
     }
 
     private boolean existsOnDisk() {

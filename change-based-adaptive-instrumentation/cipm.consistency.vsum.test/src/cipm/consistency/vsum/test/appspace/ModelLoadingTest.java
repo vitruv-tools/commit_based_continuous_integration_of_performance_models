@@ -1,4 +1,4 @@
-package cipm.consistency.vsum.test.ci;
+package cipm.consistency.vsum.test.appspace;
 
 import cipm.consistency.commitintegration.CommitIntegrationState;
 import cipm.consistency.commitintegration.lang.lua.LuaModelFacade;

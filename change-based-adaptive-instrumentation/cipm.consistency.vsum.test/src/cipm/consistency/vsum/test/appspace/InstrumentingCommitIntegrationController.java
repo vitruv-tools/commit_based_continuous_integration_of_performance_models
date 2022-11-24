@@ -1,4 +1,4 @@
-package cipm.consistency.vsum.test.ci;
+package cipm.consistency.vsum.test.appspace;
 
 import cipm.consistency.commitintegration.CommitIntegrationController;
 import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
@@ -22,16 +22,14 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.errors.IncorrectObjectTypeException;
-import org.eclipse.jgit.revwalk.RevCommit;
 import tools.vitruv.change.composite.description.PropagatedChange;
 
 public abstract class InstrumentingCommitIntegrationController<CM extends CodeModelFacade>
         extends CommitIntegrationController<CM> {
     private static final Logger LOGGER = Logger.getLogger(InstrumentingCommitIntegrationController.class.getName());
     Resource instrumentedModel;
+    
+    private boolean storeInstrumentedModel = false;
 
     /**
      * Propagates changes between two commits to the VSUM.
@@ -45,32 +43,32 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
      * @throws IOException
      *             if something from the repositories cannot be read.
      */
-    public List<PropagatedChange> propagateChanges(RevCommit start, RevCommit end)
-            throws IncorrectObjectTypeException, IOException {
-        String commitId = end.getId()
-            .getName();
-        LOGGER.debug("Obtaining all differences.");
-        List<DiffEntry> diffs = state.getGitRepositoryWrapper()
-            .computeDiffsBetweenTwoCommits(start, end);
-        if (diffs.size() == 0) {
-            LOGGER.info("No source files changed for " + commitId + ": No propagation is performed.");
-            return List.of();
-        }
-        var cs = EvaluationDataContainer.getGlobalContainer()
-            .getChangeStatistic();
-        String oldId = start != null ? start.getId()
-            .getName() : null;
-        cs.setOldCommit(oldId != null ? oldId : "");
-        cs.setNewCommit(commitId);
-        cs.setNumberCommits(state.getGitRepositoryWrapper()
-            .getAllCommitsBetweenTwoCommits(oldId, commitId)
-            .size() + 1);
-
-        if (checkout(commitId)) {
-            return propagateCurrentCheckout();
-        }
-        return null;
-    }
+//    protected List<PropagatedChange> propagateChanges(String start, String end)
+//            throws IncorrectObjectTypeException, IOException {
+//        String commitId = end.getId()
+//            .getName();
+//        LOGGER.debug("Obtaining all differences.");
+//        List<DiffEntry> diffs = state.getGitRepositoryWrapper()
+//            .computeDiffsBetweenTwoCommits(start, end);
+//        if (diffs.size() == 0) {
+//            LOGGER.info("No source files changed for " + commitId + ": No propagation is performed.");
+//            return List.of();
+//        }
+//        var cs = EvaluationDataContainer.getGlobalContainer()
+//            .getChangeStatistic();
+//        String oldId = start != null ? start.getId()
+//            .getName() : null;
+//        cs.setOldCommit(oldId != null ? oldId : "");
+//        cs.setNewCommit(commitId);
+//        cs.setNumberCommits(state.getGitRepositoryWrapper()
+//            .getAllCommitsBetweenTwoCommits(oldId, commitId)
+//            .size() + 1);
+//
+//        if (checkout(commitId)) {
+//            return propagateCurrentCheckout();
+//        }
+//        return null;
+//    }
 
     /**
      * Propagates the changes between two commits.
@@ -84,11 +82,10 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
      * @return true if the propagation was successful. false otherwise.
      * @throws IOException
      *             if an IO operation fails.
-     * @throws GitAPIException
-     *             if a Git operation fails.
      */
-    public List<PropagatedChange> propagateChanges(String oldCommit, String newCommit, boolean storeInstrumentedModel)
-            throws IOException, GitAPIException {
+    @Override
+    protected List<PropagatedChange> propagateChanges(String oldCommit, String newCommit)
+            throws IOException {
         {
             var parent = state.getDirLayout()
                 .getCommitsFilePath()
@@ -126,7 +123,7 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
         long fineTimer = System.currentTimeMillis();
 
         // Propagate the changes.
-        var propagatedChanges = propagateChanges(oldCommit, newCommit);
+        var propagatedChanges = super.propagateChanges(oldCommit, newCommit);
 
         fineTimer = System.currentTimeMillis() - fineTimer;
         EvaluationDataContainer.getGlobalContainer()
@@ -348,4 +345,8 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
 // public Resource getLastInstrumentedModelResource() {
 //     return instrumentedModel;
 // }
+    
+    public void setStoreInstrumentedModel(boolean store) {
+        storeInstrumentedModel = store;
+    }
 }

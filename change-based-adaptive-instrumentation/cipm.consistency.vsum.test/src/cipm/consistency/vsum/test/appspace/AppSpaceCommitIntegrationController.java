@@ -1,6 +1,7 @@
-package cipm.consistency.vsum.test.ci;
+package cipm.consistency.vsum.test.appspace;
 
 import cipm.consistency.commitintegration.CommitIntegration;
+import cipm.consistency.commitintegration.CommitIntegrationController;
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import cipm.consistency.commitintegration.lang.detection.strategy.ComponentDetectionStrategy;
 import cipm.consistency.commitintegration.lang.lua.LuaModelFacade;
@@ -16,7 +17,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import tools.vitruv.change.propagation.ChangePropagationSpecification;
 
-public abstract class AppSpaceCommitIntegrationController extends InstrumentingCommitIntegrationController<LuaModelFacade>
+public abstract class AppSpaceCommitIntegrationController extends CommitIntegrationController<LuaModelFacade>
         implements CommitIntegration<LuaModelFacade> {
 
     @Override

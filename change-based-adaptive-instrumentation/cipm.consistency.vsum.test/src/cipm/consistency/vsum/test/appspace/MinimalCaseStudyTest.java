@@ -1,12 +1,12 @@
-package cipm.consistency.vsum.test.ci;
+package cipm.consistency.vsum.test.appspace;
 
-import cipm.consistency.commitintegration.CommitIntegrationState;
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import java.io.IOException;
 import java.nio.file.Paths;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,9 +22,7 @@ public class MinimalCaseStudyTest extends AppSpaceCITest {
 
     @BeforeEach
     public void initialize() throws InvalidRemoteException, TransportException, IOException, GitAPIException {
-        state = new CommitIntegrationState<>();
-        var overwrite = true;
-        state.initialize(this, overwrite);
+        super.initialize(this);
     }
 
     @AfterEach
@@ -51,13 +49,15 @@ public class MinimalCaseStudyTest extends AppSpaceCITest {
 
     @Test
     public void test_minimal_1_2() throws Exception {
-        assertSuccessfulPropagation(null, COMMIT_1);
-        assertSuccessfulPropagation(COMMIT_1, COMMIT_2);
+        // two subsequent propagations
+        assertSuccessfulPropagation(null, COMMIT_1, COMMIT_2);
     }
 
     @Test
     public void test_minimal_2_2() throws Exception {
-        assertSuccessfulPropagation(null, COMMIT_2);
-        assertSuccessfulPropagation(COMMIT_2, COMMIT_2);
+        // propagating the same version twice
+        var propagatedChanges = assertSuccessfulPropagation(null, COMMIT_2, COMMIT_2);
+        var lastPropagationResult = propagatedChanges.get(propagatedChanges.size() - 1);
+        Assert.assertTrue(lastPropagationResult.isEmpty());
     }
 }

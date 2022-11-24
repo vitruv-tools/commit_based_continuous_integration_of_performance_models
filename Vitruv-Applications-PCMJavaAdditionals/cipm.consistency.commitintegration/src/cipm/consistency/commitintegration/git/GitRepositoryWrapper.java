@@ -126,7 +126,7 @@ public class GitRepositoryWrapper {
             return repository.getWorkTree();
         return null;
     }
-    
+
     public Repository getRepository() {
         return repository;
     }
@@ -174,11 +174,7 @@ public class GitRepositoryWrapper {
      * @throws IOException
      *             if the repository cannot be read.
      */
-    public RevCommit getCommitForId(String commitId) throws RevisionSyntaxException, IncorrectObjectTypeException,
-            MissingObjectException, AmbiguousObjectException, IOException {
-        if (commitId == null) {
-            return null;
-        }
+    public RevCommit getCommitForId(String commitId) throws RevisionSyntaxException, IOException {
         return repository.parseCommit(repository.resolve(commitId));
     }
 
@@ -261,18 +257,19 @@ public class GitRepositoryWrapper {
      *            start commit (usually an older commit).
      * @param newRevCommit
      *            end commit (usually a newer commit).
-     * @param onlyChangesOnJavaFiles
-     *            If the flag is true, only changes on Java files will be detected. All changes on
-     *            other file types will be ignored.
-     * @param detectRenames
-     *            If the flag is true, renames on files will be detected.
      * @return computed {@link List} with {@link DiffEntry}.
      * @throws IOException
      *             if an IO operation fails.
      * @throws IncorrectObjectTypeException
      *             if one of the given commits is invalid.
      */
-    public List<DiffEntry> computeDiffsBetweenTwoCommits(RevCommit oldRevCommit, RevCommit newRevCommit)
+    public List<DiffEntry> computeDiffsBetweenTwoCommits(String firstCommitId, String secondCommitId) throws RevisionSyntaxException, IOException, IncorrectObjectTypeException {
+        var firstCommit = this.getCommitForId(firstCommitId);
+        var secondCommit = this.getCommitForId(secondCommitId);
+        return computeDiffsBetweenTwoCommits(firstCommit, secondCommit);
+    }
+
+    private List<DiffEntry> computeDiffsBetweenTwoCommits(RevCommit oldRevCommit, RevCommit newRevCommit)
             throws IncorrectObjectTypeException, IOException {
 
         ObjectReader treeReader = repository.newObjectReader();

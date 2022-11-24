@@ -51,13 +51,7 @@ public class VsumFacadeImpl implements VsumFacade {
     private void loadModelResource(Resource res) {
         var loaded = vsum.getModelInstance(res.getURI());
         if (loaded == null) {
-            LOGGER.trace(String.format("Propagating new resource: %s", res.getURI()
-                .toString()));
-            // When propagating loaded pcm resources this causes a weird error:
             this.propagateResource(res);
-        } else {
-            LOGGER.trace(String.format("Resource already loaded: %s", res.getURI()
-                .toString()));
         }
     }
 
@@ -131,6 +125,26 @@ public class VsumFacadeImpl implements VsumFacade {
             .withChangePropagationSpecifications(changeSpecs);
     }
 
+    private void checkResourceForProxies(Resource res) {
+        // try to resolve all proxies before checking for unresolved ones
+        EcoreUtil.resolveAll(res);
+        
+
+        var rootEObject = res.getContents()
+            .get(0);
+        var potentialProxies = EcoreUtil.ProxyCrossReferencer.find(rootEObject);
+        if (!potentialProxies.isEmpty()) {
+            var proxies = potentialProxies.keySet();
+            var proxyNames = proxies.stream()
+                .map(p -> p.toString())
+                .collect(Collectors.joining(", "));
+
+            var errorMsg = String.format("Resource contains %d proxies: %s", proxies.size(), proxyNames);
+            LOGGER.error(errorMsg);
+            throw new IllegalStateException(errorMsg);
+        }
+    }
+
     private boolean checkPropagationPreconditions(Resource res) {
         if (res.getContents()
             .size() == 0) {
@@ -161,16 +175,7 @@ public class VsumFacadeImpl implements VsumFacade {
                 i++;
             }
         }
-        
-        var rootEObject = res.getContents().get(0);
-        var potentialProxies = EcoreUtil.ProxyCrossReferencer.find(rootEObject);
-        if (!potentialProxies.isEmpty()) {
-            var proxies = potentialProxies.keySet();
-            var proxyNames = proxies.stream().map(p -> p.toString()).collect(Collectors.joining(", "));
-            LOGGER.error(String.format("Resoruce contains %d proxies: %s", proxies.size(), proxyNames));
-            return false;
-        }
-
+        checkResourceForProxies(res);
         return true;
     }
 
@@ -218,15 +223,17 @@ public class VsumFacadeImpl implements VsumFacade {
         }
         final URI targetUri = _targetUri;
 
+        // try to resolve all proxies in the resource
+        EcoreUtil.resolveAll(resource);
+
         if (!checkPropagationPreconditions(resource)) {
             LOGGER.error(
                     String.format("Not propagating resource because of missing preconditions: %s", resource.getURI()));
             return null;
         }
 
-        // add resources by registering its root object in the change deriving view
-        LOGGER.debug(String.format("Propagating resource: %s", resource.getURI()
-            .lastSegment()));
+        LOGGER.trace(String.format("Propagating resource: %s", resource.getURI()
+            .toString()));
 
         if (resource.getContents()
             .size() == 0) {

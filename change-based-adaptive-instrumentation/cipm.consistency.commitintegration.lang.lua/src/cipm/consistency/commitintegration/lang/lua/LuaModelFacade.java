@@ -29,14 +29,13 @@ public class LuaModelFacade implements CodeModelFacade {
     private static final Logger LOGGER = Logger.getLogger(LuaModelFacade.class.getName());
     private LuaDirLayout dirLayout;
     private ComponentDetector componentDetector;
-    
+
     // TODO tracking the last component set is a bit ugly here
     private ComponentSet currentComponentSet;
     private Resource currentResource;
-    
+
     @Inject
     Provider<XtextResourceSet> resourceSetProvider;
-
 
     public LuaModelFacade() {
         Injector injector = new LuaStandaloneSetup().createInjectorAndDoEMFRegistration();
@@ -45,7 +44,6 @@ public class LuaModelFacade implements CodeModelFacade {
         this.componentDetector = new ComponentDetectorImpl();
         this.dirLayout = new LuaDirLayout();
     }
-
 
     @Override
     public void initialize(Path dirPath) {
@@ -59,7 +57,6 @@ public class LuaModelFacade implements CodeModelFacade {
             this.componentDetector.addComponentDetectionStrategy(strat);
         }
     }
-
 
     private XtextResourceSet parseDirToResourceSet(Path sourceCodeDirPath) {
         LOGGER.info("Parsing source code directory");
@@ -166,19 +163,23 @@ public class LuaModelFacade implements CodeModelFacade {
 //                    .filter(eo -> (eo instanceof Chunk))
 //                    .map(eo -> (Chunk) eo)
 //                    .collect(Collectors.toList());
-                
-                for (var resource: resources) {
-                    if (resource.getContents().size() > 0) {
-                        var eObj = resource.getContents().get(0);
+
+                for (var resource : resources) {
+                    if (resource.getContents()
+                        .size() > 0) {
+                        var eObj = resource.getContents()
+                            .get(0);
                         if (eObj instanceof Chunk) {
                             var namedChunk = LuaFactory.eINSTANCE.createNamedChunk();
                             namedChunk.setChunk((Chunk) eObj);
-                            var chunkName = resource.getURI().lastSegment();
+                            var chunkName = resource.getURI()
+                                .lastSegment();
                             namedChunk.setName(chunkName);
-                            component.getChunks().add(namedChunk);
+                            component.getChunks()
+                                .add(namedChunk);
                         }
                     }
-                    
+
                 }
                 componentSet.getComponents()
                     .add(component);
@@ -203,7 +204,7 @@ public class LuaModelFacade implements CodeModelFacade {
         // where the processed resource is stored prior to propagation
         var storeUri = dirLayout.getParsedFileUri();
         currentComponentSet = resolveResourceSetToComponents(sourceCodeDir, workTreeResourceSet, storeUri);
-        
+
         currentResource = currentComponentSet.eResource();
         return currentResource;
     }
@@ -223,12 +224,11 @@ public class LuaModelFacade implements CodeModelFacade {
         return currentComponentSet;
     }
 
-
     @Override
     public List<Resource> getResources() {
         return null;
     }
-    
+
     @Override
     public Resource getResource() {
         return currentResource;

@@ -1,4 +1,4 @@
-package cipm.consistency.vsum.test.ci;
+package cipm.consistency.vsum.test.appspace;
 
 import cipm.consistency.commitintegration.CommitIntegrationState;
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
@@ -60,17 +60,13 @@ public class CaseStudy1Test extends AppSpaceCITest {
 
     @Test
     public void test_100_100_integration() throws Exception {
-
-        // Integrates casestudy version 1.0.
-        assertSuccessfulPropagation(null, COMMIT_TAG_1_0_0);
-
-        var propagated = propagateChanges(null, COMMIT_TAG_1_0_0);
-        Assert.assertTrue(propagated.size() == 0);
+        var propagatedChanges = assertSuccessfulPropagation(null, COMMIT_TAG_1_0_0, COMMIT_TAG_1_0_0);
+        var lastPropagationResult = propagatedChanges.get(propagatedChanges.size() - 1);
+        Assert.assertTrue(lastPropagationResult.isEmpty());
     }
 
     @Test
     public void test_010_100_integration() throws Exception {
-        assertSuccessfulPropagation(null, COMMIT_TAG_0_1_0);
-        assertSuccessfulPropagation(null, COMMIT_TAG_1_0_0);
+        assertSuccessfulPropagation(null, COMMIT_TAG_0_1_0, COMMIT_TAG_1_0_0);
     }
 }

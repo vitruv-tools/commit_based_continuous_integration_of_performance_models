@@ -1,4 +1,4 @@
-package cipm.consistency.vsum.test.ci;
+package cipm.consistency.vsum.test.appspace;
 
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
@@ -6,6 +6,7 @@ import cipm.consistency.vsum.test.evaluator.IMUpdateEvaluator;
 import cipm.consistency.vsum.test.evaluator.InstrumentationEvaluator;
 import cipm.consistency.vsum.test.evaluator.JavaModelEvaluator;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,8 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,26 +29,31 @@ import tools.vitruv.change.composite.description.PropagatedChange;
 public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController {
     private static final Logger LOGGER = Logger.getLogger(AppSpaceCommitIntegrationController.class.getName());
 
-    private List<String> convertToStringList(List<RevCommit> commits) {
-        List<String> result = new ArrayList<>();
-        for (RevCommit com : commits) {
-            result.add(com.getId()
-                .getName());
+    protected boolean forceEmptyPropagation = true;
+
+    @Override
+    protected boolean prePropagationChecks(String firstCommitId, String secondCommitId) {
+        if (forceEmptyPropagation) {
+            return true;
         }
-        return result;
+        return super.prePropagationChecks(firstCommitId, secondCommitId);
     }
 
-    protected void assertSuccessfulPropagation(String oldCommit, String newCommit) {
-        List<PropagatedChange> propagatedChanges = null;
+    protected List<List<PropagatedChange>> assertSuccessfulPropagation(String... commitIds) {
+        List<List<PropagatedChange>> allChanges;
         try {
-            propagatedChanges = propagateChanges(oldCommit, newCommit);
+            allChanges = propagateChanges(commitIds);
+            for (var changes : allChanges) {
+                if (changes == null) {
+                    Assert.fail("PropagatedChanges may not be null");
+                }
+            }
+            return allChanges;
         } catch (IOException | GitAPIException e) {
             e.printStackTrace();
             Assert.fail(e.getMessage());
         }
-        if (propagatedChanges == null) {
-            Assert.fail("propagatedChanges must not be null");
-        }
+        return null;
     }
 
     /**
@@ -84,7 +92,7 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
 //        Resource codeModel = getModelResource();
 //        Resource codeModel = state.getCodeModel().getResources();
 
-        var copy = state.createFileSystemCopy(num + "-" + newCommit);
+        var copy = state.createCopyWithTimeStamp(num + "-" + newCommit);
         LOGGER.debug("Evaluating the instrumentation.");
         new InstrumentationEvaluator.evaluateInstrumentationDependently(state.getImFacade()
             .getModel(),
@@ -98,27 +106,51 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
         return true;
     }
 
-    protected void propagateMultipleCommits(String firstCommit, String lastCommit)
-            throws IOException, InterruptedException, InvalidRemoteException, TransportException, GitAPIException {
-        List<String> successfulCommits = new ArrayList<>();
-        var commits = convertToStringList(
-                getGitRepositoryWrapper().getAllCommitsBetweenTwoCommits(firstCommit, lastCommit));
-        commits.add(0, firstCommit);
-        int startIndex = 0;
-        var oldCommit = commits.get(startIndex);
-        successfulCommits.add(oldCommit);
-        for (int idx = startIndex + 1; idx < commits.size(); idx++) {
-            var newCommit = commits.get(idx);
-            boolean result = executePropagationAndEvaluation(oldCommit, newCommit, idx);
-            if (result) {
-                oldCommit = newCommit;
-                successfulCommits.add(oldCommit);
-                break;
+    // I don't think i need the next method
+//    protected void propagateMultipleCommits(String firstCommit, String lastCommit)
+//            throws IOException, InterruptedException, InvalidRemoteException, TransportException, GitAPIException {
+//        List<String> successfulCommits = new ArrayList<>();
+//        var commits = convertToStringList(
+//                getGitRepositoryWrapper().getAllCommitsBetweenTwoCommits(firstCommit, lastCommit));
+//        commits.add(0, firstCommit);
+//        int startIndex = 0;
+//        var oldCommit = commits.get(startIndex);
+//        successfulCommits.add(oldCommit);
+//        for (int idx = startIndex + 1; idx < commits.size(); idx++) {
+//            var newCommit = commits.get(idx);
+//            boolean result = executePropagationAndEvaluation(oldCommit, newCommit, idx);
+//            if (result) {
+//                oldCommit = newCommit;
+//                successfulCommits.add(oldCommit);
+//                break;
+//            }
+//            Thread.sleep(1000);
+//        }
+//        for (String c : successfulCommits) {
+//            LOGGER.debug("Successful propagated: " + c);
+//        }
+//    }
+    /**
+     * Loads the propagated commits.
+     * 
+     * @return an empty array if the commits cannot be loaded. Otherwise, the first index contains
+     *         the start commit (possibly null for the initial commit), and the second index
+     *         contains the target commit.
+     */
+    public String[] loadCommits() {
+        try {
+            var lines = Files.readAllLines(state.getDirLayout()
+                .getCommitsFilePath());
+            String[] result = new String[2];
+            if (lines.size() == 1) {
+                result[1] = lines.get(0);
+            } else {
+                result[0] = lines.get(0);
+                result[1] = lines.get(1);
             }
-            Thread.sleep(1000);
-        }
-        for (String c : successfulCommits) {
-            LOGGER.debug("Successful propagated: " + c);
+            return result;
+        } catch (IOException e) {
+            return new String[0];
         }
     }
 

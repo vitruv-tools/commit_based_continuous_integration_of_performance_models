@@ -9,6 +9,7 @@ import cipm.consistency.vsum.VsumFacade;
 import cipm.consistency.vsum.VsumFacadeImpl;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -23,7 +24,7 @@ import org.eclipse.jgit.api.errors.TransportException;
  *
  */
 public class CommitIntegrationState<CM extends CodeModelFacade> {
-    private final Logger LOGGER = Logger.getLogger(CommitIntegration.class.getName());
+    private final Logger LOGGER = Logger.getLogger(CommitIntegrationState.class.getName());
 
     private CommitIntegration<CM> commitIntegration;
 
@@ -43,7 +44,8 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         // the codeModel is initialized in initialize()
     }
 
-    public void initialize(CommitIntegration<CM> commitIntegration) throws InvalidRemoteException, TransportException, IOException, GitAPIException {
+    public void initialize(CommitIntegration<CM> commitIntegration)
+            throws InvalidRemoteException, TransportException, IOException, GitAPIException {
         initialize(commitIntegration, false);
     }
 
@@ -52,7 +54,7 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         LOGGER.info("Initializing the CommitIntegrationState");
         this.commitIntegration = commitIntegration;
         dirLayout.initialize(commitIntegration.getRootPath());
-        
+
         // delete the directory layout if we are overwriting
         if (overwrite) {
             LOGGER.info(String.format("Deleting CommitIntegrationState at %s", commitIntegration.getRootPath()));
@@ -67,12 +69,14 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         // initialize models
         pcmFacade.initialize(dirLayout.getPcmDirPath());
         imFacade.initialize(dirLayout.getImDirPath());
-        
-        codeModelFacade = commitIntegration.getCodeModelFacadeSupplier().get();
+
+        codeModelFacade = commitIntegration.getCodeModelFacadeSupplier()
+            .get();
         codeModelFacade.initialize(dirLayout.getCodeDirPath());
-        
+
         // initialize the vsum
-        vsumFacade.initialize(dirLayout.getVsumDirPath(), List.of(pcmFacade, imFacade), commitIntegration.getChangeSpecs());
+        vsumFacade.initialize(dirLayout.getVsumDirPath(), List.of(pcmFacade, imFacade),
+                commitIntegration.getChangeSpecs());
     }
 
     @SuppressWarnings("restriction")
@@ -83,6 +87,30 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         gitRepositoryWrapper.closeRepository();
     }
 
+    public Path createCopyWithTimeStamp() {
+        return createCopyWithTimeStamp("");
+    }
+
+    public Path createCopyWithTimeStamp(String tag) {
+        var fileName = commitIntegration.getRootPath()
+            .getFileName()
+            .toString();
+
+        fileName += "_" + LocalDateTime.now()
+            .toString();
+
+        if (!tag.equals("")) {
+            fileName += "_" + tag;
+        }
+
+        try {
+            return createCopy(fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     /**
      * Copies the files of this integration to a target path
      * 
@@ -90,12 +118,12 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
      *            added to the root path of this integration
      * @throws IOException
      */
-    public Path createFileSystemCopy(String nameSuffix) throws IOException {
-        LOGGER.debug("Creating copy of CommitIntegrationState: " + nameSuffix);
+    private Path createCopy(String fileName) throws IOException {
+        LOGGER.debug("Creating copy of CommitIntegrationState: " + fileName);
+
         Path copyPath = commitIntegration.getRootPath()
-            .resolveSibling(commitIntegration.getRootPath()
-                .getFileName()
-                .toString() + "_" + nameSuffix);
+            .resolveSibling(fileName);
+
         FileUtils.copyDirectory(commitIntegration.getRootPath()
             .toFile(), copyPath.toFile());
         return copyPath;
@@ -123,5 +151,9 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
 
     public CommitIntegrationDirLayout getDirLayout() {
         return dirLayout;
+    }
+    
+    public CommitIntegration<CM> getCommitIntegration() {
+        return commitIntegration;
     }
 }
