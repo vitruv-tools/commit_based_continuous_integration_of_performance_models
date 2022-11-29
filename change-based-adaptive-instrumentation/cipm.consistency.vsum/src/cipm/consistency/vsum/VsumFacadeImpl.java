@@ -1,6 +1,7 @@
 package cipm.consistency.vsum;
 
 import cipm.consistency.models.ModelFacade;
+import cipm.consistency.vsum.changederivation.CustomStateBasedChangeResolutionStrategy;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +17,7 @@ import tools.vitruv.change.propagation.ChangePropagationSpecification;
 import tools.vitruv.framework.views.CommittableView;
 import tools.vitruv.framework.views.ViewTypeFactory;
 import tools.vitruv.framework.views.changederivation.DefaultStateBasedChangeResolutionStrategy;
+import tools.vitruv.framework.views.changederivation.StateBasedChangeResolutionStrategy;
 import tools.vitruv.framework.vsum.VirtualModelBuilder;
 import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
 
@@ -46,6 +48,8 @@ public class VsumFacadeImpl implements VsumFacade {
         this.changeSpecs = changeSpecs;
         loadOrCreateVsum();
         loadModels(models);
+
+        initialized = true;
     }
 
     private void loadModelResource(Resource res) {
@@ -81,7 +85,13 @@ public class VsumFacadeImpl implements VsumFacade {
         LOGGER.info("Loading VSUM");
         vsum = vsumBuilder.buildAndInitialize();
         getView(vsum);
-        initialized = true;
+    }
+    
+    protected StateBasedChangeResolutionStrategy getStateBasedChangeResolutionStrategy(boolean useCustom) {
+        if (useCustom) {
+            return new CustomStateBasedChangeResolutionStrategy();
+        }
+        return new DefaultStateBasedChangeResolutionStrategy();
     }
 
     private CommittableView getView(InternalVirtualModel theVsum) {
@@ -92,9 +102,10 @@ public class VsumFacadeImpl implements VsumFacade {
         viewSelector.getSelectableElements()
             .forEach(ele -> viewSelector.setSelected(ele, true));
 
-        var resolutionStrategy = new DefaultStateBasedChangeResolutionStrategy();
+        var resolutionStrategy = getStateBasedChangeResolutionStrategy(true);
         var view = viewSelector.createView()
             .withChangeDerivingTrait(resolutionStrategy);
+
         return view;
     }
 

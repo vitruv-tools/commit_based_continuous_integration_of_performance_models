@@ -25,29 +25,27 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
     private static final Logger LOGGER = Logger.getLogger(CommitIntegrationController.class.getName());
     protected CommitIntegrationState<CM> state;
 
-    // the state is fresh if no propagations were made against it
-    private boolean stateIsFresh = false;
-
     public void initialize(CommitIntegration<CM> commitIntegration)
             throws InvalidRemoteException, TransportException, IOException, GitAPIException {
         state = new CommitIntegrationState<CM>();
         state.initialize(commitIntegration);
-        stateIsFresh = true;
     }
 
     /**
      * Disposes the integration state if it is not fresh
+     * 
      * @throws InvalidRemoteException
      * @throws TransportException
      * @throws IOException
      * @throws GitAPIException
      */
     protected void reinitialize() throws InvalidRemoteException, TransportException, IOException, GitAPIException {
-        if (!stateIsFresh) {
+        if (!state.isFresh()) {
+            LOGGER.info("Reinitializing commitintegration");
             var ci = state.getCommitIntegration();
+            state.getDirLayout().delete();
             state.dispose();
             state.initialize(ci, true);
-            stateIsFresh = true;
         }
     }
 
@@ -56,17 +54,18 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
      * @return The changes which were propagated when propagating the current checked out version
      */
     private List<PropagatedChange> propagateCurrentCheckout() {
-        state.createCopyWithTimeStamp("before_propagation");
         var workTree = state.getGitRepositoryWrapper()
             .getWorkTree()
             .toPath();
         var resource = state.getCodeModelFacade()
             .parseSourceCodeDir(workTree);
-        
-        
-        stateIsFresh = false;
-        return state.getVsumFacade()
+
+        var propagatedChanges = state.getVsumFacade()
             .propagateResource(resource);
+        
+        state.createCopyWithTimeStamp(String.format("after_propagation_of_%d_changes", propagatedChanges.size()));
+
+        return propagatedChanges;
     }
 
     /**

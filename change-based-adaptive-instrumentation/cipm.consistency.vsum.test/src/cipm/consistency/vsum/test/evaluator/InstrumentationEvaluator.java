@@ -7,10 +7,12 @@ import cipm.consistency.commitintegration.diff.util.JavaChangedMethodDetectorDif
 import cipm.consistency.commitintegration.diff.util.JavaModelComparator;
 import cipm.consistency.commitintegration.lang.java.JavaParserAndPropagatorUtils;
 import cipm.consistency.commitintegration.lang.lua.LuaModelFacade;
+import cipm.consistency.models.CodeModelFacade;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.InstrumentationEvaluationData;
 import java.util.HashSet;
 import java.util.Set;
+import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -29,7 +31,7 @@ import tools.vitruv.change.correspondence.view.CorrespondenceModelView;
  * 
  * @author Martin Armbruster
  */
-public class InstrumentationEvaluator extends CommitIntegrationController<LuaModelFacade> {
+public class InstrumentationEvaluator <CM extends CodeModelFacade> extends CommitIntegrationController<CM> {
     private final int numberAdditionalStatements = 10;
     private final int numberServiceStatements = 7;
     private final int numberStatementsPerParameter = 1;
@@ -52,15 +54,14 @@ public class InstrumentationEvaluator extends CommitIntegrationController<LuaMod
      * @param cm
      *            the correspondence model.
      */
-    public void evaluateInstrumentationDependently(InstrumentationModel im, Resource javaModel,
-            Resource instrumentedModel, CorrespondenceModelView<Correspondence> cmv) {
+    public void evaluateInstrumentationDependently(CommitIntegrationState<CM> state) {
         if (instrumentedModel == null || instrumentedModel.getContents()
             .isEmpty()) {
             return;
         }
         InstrumentationEvaluationData insEvalData = EvaluationDataContainer.getGlobalContainer()
             .getInstrumentationData();
-        int javaStatements = countStatements(javaModel);
+        int javaStatements = countStatements(codeModel);
         int instrumStatements = countStatements(instrumentedModel);
         insEvalData.setExpectedLowerStatementDifferenceCount(countExpectedStatements(im, cmv, true));
         insEvalData.setExpectedUpperStatementDifferenceCount(countExpectedStatements(im, cmv, false));
@@ -79,7 +80,7 @@ public class InstrumentationEvaluator extends CommitIntegrationController<LuaMod
      * @param cm
      *            the correspondence model.
      */
-    public void evaluateInstrumentationIndependently(CommitIntegrationState<LuaModelFacade> state) {
+    public void evaluateInstrumentationIndependently(CommitIntegrationState<CM> state) {
         
 //    public void evaluateInstrumentationIndependently(InstrumentationModel im, Resource javaModel,
 //            CommitIntegrationState<LuaModel> state, CorrespondenceModelView<Correspondence> cmv) {
@@ -114,8 +115,7 @@ public class InstrumentationEvaluator extends CommitIntegrationController<LuaMod
                 .add("Reloaded model contains proxy objects.");
             return;
         }
-        var postProcessor = new JavaChangedMethodDetectorDiffPostProcessor();
-        JavaModelComparator.compareJavaModels(reloadedModel, javaModel, null, null, postProcessor);
+        compareModels(reloadedModel, codeModel);
         Set<Method> changed = new HashSet<>(postProcessor.getChangedMethods());
         insEvalData.setNumberChangedMethods(changed.size());
         for (var sip : im.getPoints()) {
@@ -132,6 +132,18 @@ public class InstrumentationEvaluator extends CommitIntegrationController<LuaMod
             insEvalData.getUnmatchedChangedMethods()
                 .add(convertToString(m));
         }
+    }
+    
+    private void compareModels(Resource reloadedModel, Resource codeModel) {
+        // TODO lua case
+        if (reloadedModel instanceof Notifier) {
+            var javaReloadedModel = (Notifier) reloadedModel;
+            var javaCodeModel = (Notifier) codeModel;
+
+            var postProcessor = new JavaChangedMethodDetectorDiffPostProcessor();
+            JavaModelComparator.compareJavaModels(javaReloadedModel, javaCodeModel, null, null, postProcessor);
+        }
+        
     }
 
     private int countStatements(Resource model) {

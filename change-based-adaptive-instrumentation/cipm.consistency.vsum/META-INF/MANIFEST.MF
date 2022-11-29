@@ -11,5 +11,15 @@ Require-Bundle:
  cipm.consistency.base.shared,
  cipm.consistency.models.instrumentation,
  cipm.consistency.commitintegration.settings,
- cipm.consistency.models
+ cipm.consistency.models,
+ org.eclipse.emf.compare;bundle-version="3.5.3",
+ edu.kit.ipd.sdq.commons.util.emf;bundle-version="2.0.0",
+ tools.vitruv.framework.views,
+ org.splevo.diffing;bundle-version="1.0.0",
+ org.splevo.jamopp.diffing;bundle-version="1.0.0",
+ org.splevo.jamopp.extraction;bundle-version="1.0.0",
+ org.splevo.extraction;bundle-version="1.0.0",
+ org.splevo.commons;bundle-version="1.0.0",
+ org.xtext.lua;bundle-version="1.0.0"
 Export-Package: cipm.consistency.vsum
+Import-Package: org.eclipse.xtext

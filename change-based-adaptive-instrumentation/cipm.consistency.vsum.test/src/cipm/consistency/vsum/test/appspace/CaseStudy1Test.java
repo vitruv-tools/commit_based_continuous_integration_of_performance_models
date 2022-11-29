@@ -31,7 +31,7 @@ public class CaseStudy1Test extends AppSpaceCITest {
 
     @AfterEach
     public void dispose() {
-        state.createCopyWithTimeStamp("after_testrun");
+//        state.createCopyWithTimeStamp("after_testrun");
         state.dispose();
     }
     

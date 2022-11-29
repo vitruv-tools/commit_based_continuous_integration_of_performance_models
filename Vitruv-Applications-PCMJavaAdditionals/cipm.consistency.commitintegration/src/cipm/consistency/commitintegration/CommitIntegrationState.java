@@ -25,6 +25,8 @@ import org.eclipse.jgit.api.errors.TransportException;
  */
 public class CommitIntegrationState<CM extends CodeModelFacade> {
     private final Logger LOGGER = Logger.getLogger(CommitIntegrationState.class.getName());
+    
+    private String tag = "";
 
     private CommitIntegration<CM> commitIntegration;
 
@@ -34,6 +36,9 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
     private PcmFacade pcmFacade;
     private ImFacade imFacade;
     private CM codeModelFacade;
+    
+    // if this state was previously used to propagate something
+    private boolean _isFresh = false;
 
     public CommitIntegrationState() {
         dirLayout = new CommitIntegrationDirLayout();
@@ -60,6 +65,7 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
             LOGGER.info(String.format("Deleting CommitIntegrationState at %s", commitIntegration.getRootPath()));
             dirLayout.delete();
             dirLayout.initialize(commitIntegration.getRootPath());
+            _isFresh = true;
         }
 
         // the settings container needs to be initialized before everything else
@@ -91,16 +97,20 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         return createCopyWithTimeStamp("");
     }
 
-    public Path createCopyWithTimeStamp(String tag) {
+    public Path createCopyWithTimeStamp(String description) {
         var fileName = commitIntegration.getRootPath()
             .getFileName()
             .toString();
+        
+        if (tag != "") {
+            fileName += "_" + tag;
+        }
 
         fileName += "_" + LocalDateTime.now()
             .toString();
 
-        if (!tag.equals("")) {
-            fileName += "_" + tag;
+        if (!description.equals("")) {
+            fileName += "_" + description;
         }
 
         try {
@@ -155,5 +165,17 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
     
     public CommitIntegration<CM> getCommitIntegration() {
         return commitIntegration;
+    }
+    
+    public boolean isFresh() {
+        return _isFresh;
+    }
+    
+    public void setNotFresh() {
+        _isFresh = false;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 }
