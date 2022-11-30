@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -205,8 +206,10 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
      * @return the path.
      */
     public Path getRootPath() {
-        return Path.of("testData", "tests", this.getClass()
+        var parent = Path.of("testData", "tests");
+        var rootPath = parent.resolve(this.getClass()
             .getSimpleName());
+        return rootPath;
     };
 
     /**

@@ -1,7 +1,6 @@
 import org.eclipse.xtext.EcoreUtil2
 import org.xtext.lua.lua.Component
 import org.xtext.lua.lua.NamedChunk
-
 import static extension edu.kit.ipd.sdq.commons.util.org.palladiosimulator.pcm.repository.ParameterUtil.*
 
 import "http://www.xtext.org/lua/Lua" as lua
@@ -39,7 +38,6 @@ routine createOrFindPcmSignature(lua::Statement_Global_Function_Declaration func
 //		]
 //	}
 //}
-
 routine assertSeffForFunction(lua::Statement_Global_Function_Declaration functionDeclaration) {
 	match {
 		require absence of pcm::ResourceDemandingSEFF corresponding to functionDeclaration
@@ -75,11 +73,11 @@ routine assertSeffForFunction(lua::Statement_Global_Function_Declaration functio
 //		}
 //	}
 //}
-
 routine createSEFF(lua::Statement_Global_Function_Declaration functionDeclaration) {
 	match {
 		val operationSignature = retrieve pcm::OperationSignature corresponding to functionDeclaration
-		val basicComponent = retrieve pcm::BasicComponent corresponding to EcoreUtil2.getContainerOfType(functionDeclaration, Component)
+		val basicComponent = retrieve pcm::BasicComponent corresponding to EcoreUtil2.getContainerOfType(
+			functionDeclaration, Component)
 	}
 	create {
 		val rdseff = new pcm::ResourceDemandingSEFF
@@ -133,30 +131,33 @@ routine changeParameterName(String newName, lua::Referenceable functionParameter
 //			correspondenceModel, userInteractor, repository, javaMethod.typeReference.arrayDimension)
 //	}
 //}
-
-
-routine checkRemovalOfOperationSignature(lua::Statement_Global_Function_Declaration functionDeclaration) {
+routine removeCorrespondingOperationSignature(lua::Statement_Global_Function_Declaration functionDeclaration) {
 	match {
-		val operationSignature = retrieve pcm::OperationSignature corresponding to functionDeclaration
+		val operationSignature = retrieve optional pcm::OperationSignature corresponding to functionDeclaration
 	}
 	update {
-		for (param : functionDeclaration.function.arguments) {
-//			if (param instanceof OrdinaryParameter) {
-			deleteParameter(param)
-//			}
+		if (!operationSignature.empty) {
+			if (functionDeclaration.function !== null) {
+				for (param : functionDeclaration.function.arguments) {
+					deleteParameter(param)
+				}
+			}
+			// TODO
+			// Should the corresponding SEFFs still exist?
+			// Should the references to the removed OperationSignature in all rdseff.describedService__SEFF also be removed?
+			removeObject(operationSignature.get)
 		}
-		// Should the corresponding SEFFs still exist?
-		// Should the references to the removed OperationSignature in all rdseff.describedService__SEFF also be removed?
-		removeObject(operationSignature)
 	}
 }
 
-routine checkRemovalOfSEFF(lua::Referenceable functionDeclaration) {
+routine removeCorrespondingSeff(lua::Statement_Global_Function_Declaration functionDeclaration) {
 	match {
-		val seff = retrieve pcm::ResourceDemandingSEFF corresponding to functionDeclaration
+		val seff = retrieve optional pcm::ResourceDemandingSEFF corresponding to functionDeclaration
 	}
 	update {
-		removeObject(seff)
+		if (!seff.empty) {
+			removeObject(seff.get)
+		}
 	}
 }
 

@@ -18,3 +18,11 @@ reaction AddedNamedChunk {
 //		checkClassifierForImportedRequiredRoles(newValue)
 	}
 }
+
+reaction RemovedNamedChunk {
+	after element lua::NamedChunk removed from lua::Component[chunks]
+	call {
+		removeInterface(oldValue)
+		checkBasicComponentRemoval(oldValue.chunk)
+	}
+}

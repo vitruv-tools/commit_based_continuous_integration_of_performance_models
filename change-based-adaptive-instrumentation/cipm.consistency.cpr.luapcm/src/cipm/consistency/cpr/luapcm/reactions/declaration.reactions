@@ -19,6 +19,14 @@ reaction AddedDeclaration {
 	}
 }
 
+reaction RemovedDeclaration {
+	after element lua::Statement_Global_Function_Declaration removed from lua::Block[statements]
+	call {
+		removeCorrespondingOperationSignature(oldValue)
+		removeCorrespondingSeff(oldValue)
+	}
+}
+
 
 reaction AddedParameter {
 	after element lua::Referenceable inserted in lua::Function[arguments]
@@ -27,5 +35,12 @@ reaction AddedParameter {
 		if (affectedEObject.eContainer instanceof Statement_Global_Function_Declaration) {
 			createParameter(newValue, affectedEObject.eContainer as Statement_Global_Function_Declaration)
 		}
+	}
+}
+
+reaction RemovedParameter {
+	after element lua::Referenceable removed from lua::Function[arguments]
+	call {
+		deleteParameter(oldValue)
 	}
 }
