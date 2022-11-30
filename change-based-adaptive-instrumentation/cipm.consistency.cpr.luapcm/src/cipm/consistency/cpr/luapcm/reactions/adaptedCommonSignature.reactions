@@ -11,7 +11,7 @@ reactions: commonSignature
 in reaction to changes in lua
 execute actions in pcm
 
-routine createOrFindPCMSignature(lua::Statement_Global_Function_Declaration functionDeclaration) {
+routine createOrFindPcmSignature(lua::Statement_Global_Function_Declaration functionDeclaration) {
 	match {
 		val pcmInterface = retrieve pcm::OperationInterface corresponding to EcoreUtil2.getContainerOfType(
 			functionDeclaration, NamedChunk)

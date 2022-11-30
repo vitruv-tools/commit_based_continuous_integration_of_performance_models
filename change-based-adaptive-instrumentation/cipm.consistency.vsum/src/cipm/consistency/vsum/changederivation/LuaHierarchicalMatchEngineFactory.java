@@ -10,37 +10,27 @@ import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.match.DefaultMatchEngine;
 import org.eclipse.emf.compare.match.IMatchEngine;
-import org.eclipse.emf.compare.match.resource.IResourceMatcher;
+import org.eclipse.emf.compare.match.impl.MatchEngineFactoryImpl;
 import org.eclipse.emf.compare.match.resource.StrategyResourceMatcher;
 import org.eclipse.emf.compare.scope.IComparisonScope;
 import org.eclipse.emf.compare.utils.EqualityHelper;
 import org.eclipse.emf.compare.utils.IEqualityHelper;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
-import org.eclipse.xtext.EcoreUtil2;
 import org.splevo.diffing.match.HierarchicalMatchEngine;
 import org.splevo.diffing.match.HierarchicalMatchEngine.EqualityStrategy;
 import org.splevo.diffing.match.HierarchicalMatchEngine.IgnoreStrategy;
-import org.splevo.diffing.match.HierarchicalMatchEngineFactory;
 import org.splevo.diffing.match.HierarchicalStrategyResourceMatcher;
 import org.splevo.diffing.util.NormalizationUtil;
 import org.splevo.jamopp.diffing.match.JaMoPPEqualityStrategy;
 import org.splevo.jamopp.diffing.match.JaMoPPIgnoreStrategy;
 import org.splevo.jamopp.diffing.scope.PackageIgnoreChecker;
 import org.splevo.jamopp.diffing.similarity.SimilarityChecker;
-import org.xtext.lua.lua.ComponentSet;
 
-public class LuaHierarchicalMatchEngineFactory extends HierarchicalMatchEngineFactory {
-
-    public LuaHierarchicalMatchEngineFactory(IEqualityHelper equalityHelper, EqualityStrategy equalityStrategy,
-            IgnoreStrategy ignoreStrategy, IResourceMatcher resourceMatcher) {
-        super(equalityHelper, equalityStrategy, ignoreStrategy, resourceMatcher);
-        // TODO Auto-generated constructor stub
-    }
+public class LuaHierarchicalMatchEngineFactory extends MatchEngineFactoryImpl {
 
     public LuaHierarchicalMatchEngineFactory() {
-        super(null, null, null, null);
+        super();
     }
 
     /**
@@ -62,17 +52,19 @@ public class LuaHierarchicalMatchEngineFactory extends HierarchicalMatchEngineFa
      *            The map of configurations.
      * @return The prepared checker.
      */
+//    private SimilarityChecker initSimilarityChecker(Map<String, String> diffingOptions) {
+////        String configString = diffingOptions.get(OPTION_JAVA_CLASSIFIER_NORMALIZATION);
+//        String configString = null;
+//        LinkedHashMap<Pattern, String> classifierNorms = NormalizationUtil.loadRemoveNormalizations(configString, null);
+//        LinkedHashMap<Pattern, String> compUnitNorms = NormalizationUtil.loadRemoveNormalizations(configString, ".lua");
+//
+////        String configStringPackage = diffingOptions.get(OPTION_JAVA_PACKAGE_NORMALIZATION);
+//        String configStringPackage = null;
+//        LinkedHashMap<Pattern, String> packageNorms = NormalizationUtil.loadReplaceNormalizations(configStringPackage);
+//
+//        return new SimilarityChecker(classifierNorms, compUnitNorms, packageNorms);
     private SimilarityChecker initSimilarityChecker(Map<String, String> diffingOptions) {
-//        String configString = diffingOptions.get(OPTION_JAVA_CLASSIFIER_NORMALIZATION);
-        String configString = null;
-        LinkedHashMap<Pattern, String> classifierNorms = NormalizationUtil.loadRemoveNormalizations(configString, null);
-        LinkedHashMap<Pattern, String> compUnitNorms = NormalizationUtil.loadRemoveNormalizations(configString, ".lua");
-
-//        String configStringPackage = diffingOptions.get(OPTION_JAVA_PACKAGE_NORMALIZATION);
-        String configStringPackage = null;
-        LinkedHashMap<Pattern, String> packageNorms = NormalizationUtil.loadReplaceNormalizations(configStringPackage);
-
-        return new SimilarityChecker(classifierNorms, compUnitNorms, packageNorms);
+        return new LuaSimilarityChecker();
     }
 
     /**
@@ -116,17 +108,23 @@ public class LuaHierarchicalMatchEngineFactory extends HierarchicalMatchEngineFa
     @Override
     public IMatchEngine getMatchEngine() {
         var packageIgnoreChecker = new PackageIgnoreChecker(List.of());
-
         Map<String, String> diffingOptions = Map.of();
+
         SimilarityChecker similarityChecker = initSimilarityChecker(diffingOptions);
+
         IEqualityHelper equalityHelper = initEqualityHelper(similarityChecker);
+
         EqualityStrategy equalityStrategy = new JaMoPPEqualityStrategy(similarityChecker);
+//        EqualityStrategy equalityStrategy = new LuaEqualityStrategy(similarityChecker);
+
         IgnoreStrategy ignoreStrategy = new JaMoPPIgnoreStrategy(packageIgnoreChecker);
+
         StrategyResourceMatcher resourceMatcher = initResourceMatcher(diffingOptions);
+
         return new HierarchicalMatchEngine(equalityHelper, equalityStrategy, ignoreStrategy, resourceMatcher);
     }
 
-    private boolean containsLuaComponentSet(Notifier not) {
+    private boolean containsCodeModel(Notifier not) {
         if (not instanceof XMIResourceImpl) {
             var xmi = (XMIResourceImpl) not;
             if (xmi.getURI()
@@ -140,7 +138,7 @@ public class LuaHierarchicalMatchEngineFactory extends HierarchicalMatchEngineFa
 
     @Override
     public boolean isMatchEngineFactoryFor(IComparisonScope scope) {
-        if (containsLuaComponentSet(scope.getLeft()) || containsLuaComponentSet(scope.getRight())) {
+        if (containsCodeModel(scope.getLeft()) || containsCodeModel(scope.getRight())) {
             return true;
         }
         return false;

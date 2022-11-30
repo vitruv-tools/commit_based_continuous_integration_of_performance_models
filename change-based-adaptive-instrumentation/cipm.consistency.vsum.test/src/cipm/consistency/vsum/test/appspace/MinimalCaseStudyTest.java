@@ -73,4 +73,11 @@ public class MinimalCaseStudyTest extends AppSpaceCITest {
         var propagatedChanges = assertSuccessfulPropagation(null, COMMIT_2, COMMIT_PROBLEM);
         Assert.assertTrue("Two changes exist", propagatedChanges.size() == 2);
     }
+
+    @Test
+    public void test_minimal_1_2_3() throws Exception {
+        // propagating the same version twice
+        var propagatedChanges = assertSuccessfulPropagation(null, COMMIT_1, COMMIT_2, COMMIT_PROBLEM);
+        Assert.assertTrue("Three changes exist", propagatedChanges.size() == 3);
+    }
 }

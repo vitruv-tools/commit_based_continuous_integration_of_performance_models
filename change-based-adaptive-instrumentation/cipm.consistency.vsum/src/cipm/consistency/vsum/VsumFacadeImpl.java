@@ -1,7 +1,7 @@
 package cipm.consistency.vsum;
 
 import cipm.consistency.models.ModelFacade;
-import cipm.consistency.vsum.changederivation.CustomStateBasedChangeResolutionStrategy;
+import cipm.consistency.vsum.changederivation.HierarchicalStateBasedChangeResolutionStrategy;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,8 +16,6 @@ import tools.vitruv.change.interaction.UserInteractionFactory;
 import tools.vitruv.change.propagation.ChangePropagationSpecification;
 import tools.vitruv.framework.views.CommittableView;
 import tools.vitruv.framework.views.ViewTypeFactory;
-import tools.vitruv.framework.views.changederivation.DefaultStateBasedChangeResolutionStrategy;
-import tools.vitruv.framework.views.changederivation.StateBasedChangeResolutionStrategy;
 import tools.vitruv.framework.vsum.VirtualModelBuilder;
 import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
 
@@ -86,13 +84,6 @@ public class VsumFacadeImpl implements VsumFacade {
         vsum = vsumBuilder.buildAndInitialize();
         getView(vsum);
     }
-    
-    protected StateBasedChangeResolutionStrategy getStateBasedChangeResolutionStrategy(boolean useCustom) {
-        if (useCustom) {
-            return new CustomStateBasedChangeResolutionStrategy();
-        }
-        return new DefaultStateBasedChangeResolutionStrategy();
-    }
 
     private CommittableView getView(InternalVirtualModel theVsum) {
         var viewType = ViewTypeFactory.createIdentityMappingViewType("myView");
@@ -102,7 +93,8 @@ public class VsumFacadeImpl implements VsumFacade {
         viewSelector.getSelectableElements()
             .forEach(ele -> viewSelector.setSelected(ele, true));
 
-        var resolutionStrategy = getStateBasedChangeResolutionStrategy(true);
+        var resolutionStrategy = new HierarchicalStateBasedChangeResolutionStrategy();
+//        var resolutionStrategy = new DefaultStateBasedChangeResolutionStrategy(UseIdentifiers.WHEN_AVAILABLE);
         var view = viewSelector.createView()
             .withChangeDerivingTrait(resolutionStrategy);
 
@@ -139,7 +131,6 @@ public class VsumFacadeImpl implements VsumFacade {
     private void checkResourceForProxies(Resource res) {
         // try to resolve all proxies before checking for unresolved ones
         EcoreUtil.resolveAll(res);
-        
 
         var rootEObject = res.getContents()
             .get(0);

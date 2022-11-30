@@ -25,12 +25,13 @@ import static extension edu.kit.ipd.sdq.commons.util.org.eclipse.emf.ecore.resou
  * diff to a sequence of individual changes.
  * @author Timur Saglam
  */
-class CustomStateBasedChangeResolutionStrategy implements StateBasedChangeResolutionStrategy {
+class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChangeResolutionStrategy {
 	/** The identifier matching behavior used by this strategy */
 	public val UseIdentifiers useIdentifiers
+	
+	private LuaHierarchicalMatchEngineFactory luaHierarchicalMatchEngineFactory;
 
 	var EMFCompare.Builder emfCompareBuilder
-//	var LuaDiffer differ
 
 	/**
 	 * Creates a new instance with the default identifier matching behavior 
@@ -46,20 +47,19 @@ class CustomStateBasedChangeResolutionStrategy implements StateBasedChangeResolu
 	 */
 	new(UseIdentifiers useIdentifiers) {
 		this.useIdentifiers = useIdentifiers
-		// we don't use the differ directly, but just use it to initialize the factory
-//		differ = new LuaDiffer()
-		// ignore no packages
-//		val packageIgnoreChecker = new PackageIgnoreChecker(List.of())
-		// get the factory from the differ
-//		val hierarchicalMatchEngineFactory = differ.getMatchEngineFactory(packageIgnoreChecker, Map.of());
 
-		val hierarchicalMatchEngineFactory = new LuaHierarchicalMatchEngineFactory();
-		hierarchicalMatchEngineFactory.ranking = 20
-		
+		// Match engine factory for PCM / IMM
+		val defaultMatchEngineFactory = new MatchEngineFactoryImpl(useIdentifiers)
+		defaultMatchEngineFactory.ranking = 10
+
+		// For Lua
+		luaHierarchicalMatchEngineFactory = new LuaHierarchicalMatchEngineFactory();
+		luaHierarchicalMatchEngineFactory.ranking = 20
+
 		emfCompareBuilder = (EMFCompare.builder => [
 			matchEngineFactoryRegistry = new MatchEngineFactoryRegistryImpl => [
-				add(new MatchEngineFactoryImpl(useIdentifiers))
-				add(hierarchicalMatchEngineFactory)
+				add(defaultMatchEngineFactory)
+				add(luaHierarchicalMatchEngineFactory)
 			]
 		])
 	}
@@ -116,7 +116,7 @@ class CustomStateBasedChangeResolutionStrategy implements StateBasedChangeResolu
 			return changeRecorder.endRecording
 		}
 	}
-	
+
 	private def EMFCompare getEmfCompare() {
 		emfCompareBuilder.build();
 	}
@@ -126,14 +126,22 @@ class CustomStateBasedChangeResolutionStrategy implements StateBasedChangeResolu
 	 */
 	private def compareStatesAndReplayChanges(Notifier newState, Notifier currentState) {
 		val scope = new DefaultComparisonScope(newState, currentState, null)
+		val compare = getEmfCompare()
 		
-		// I tried using the differ directly but it did not work
-//		val comparision = differ.doDiff(scope);
-//		val differences = comparision.differences;
-		val differences = getEmfCompare().compare(scope).differences
+		if (luaHierarchicalMatchEngineFactory.isMatchEngineFactoryFor(scope)) {
+			// TODO this condition is only needed because eclipse breakpoints don't allow me to
+			// add a condition like it :/
+			var foo = 1
+		}
+
+		val comparision = compare.compare(scope)
+		val differences = comparision.differences
+
 		// Replay the EMF compare differences
 		val mergerRegistry = IMerger.RegistryImpl.createStandaloneInstance()
 		val merger = new BatchMerger(mergerRegistry)
+		
+		// TODO is this merge direction correct?
 		merger.copyAllLeftToRight(differences, new BasicMonitor)
 	}
 }

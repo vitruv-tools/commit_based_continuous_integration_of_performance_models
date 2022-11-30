@@ -12,7 +12,7 @@ import commonSignature
 reaction AddedDeclaration {
 	after element lua::Statement_Global_Function_Declaration inserted in lua::Block[statements]
 	call {
-		createOrFindPCMSignature(newValue)
+		createOrFindPcmSignature(newValue)
 		assertSeffForFunction(newValue)
 //		createSeffFromImplementingInterfaces(newValue, affectedEObject)
 //		createSeffFromClassInterface(newValue, affectedEObject)
