@@ -19,7 +19,12 @@ import org.junit.jupiter.api.Test;
 public class MinimalCaseStudyTest extends AppSpaceCITest {
     private static final String COMMIT_1 = "842ec92f3406da965a5f9e7f468eb80eeb287b04";
     private static final String COMMIT_2 = "f63d05a18a5dd36f29e7312d797f2806d935e3a3";
+    
+    // this commit was a copied code snipped from case study 1, that did cause a problem over there
     private static final String COMMIT_PROBLEM = "4cbb4e16fb348920fbf28ca192e78ec5ce5f07eb";
+    private static final String COMMIT_4 = "ed82c041912168e9deeea36076184806daaa312e";
+    
+    
 
     @BeforeEach
     public void initialize() throws InvalidRemoteException, TransportException, IOException, GitAPIException {
@@ -44,40 +49,28 @@ public class MinimalCaseStudyTest extends AppSpaceCITest {
     }
 
     @Test
-    public void test_minimal_2() throws Exception {
-        var propagatedChanges = assertSuccessfulPropagation(null, COMMIT_2);
-        Assert.assertTrue("One change exists", propagatedChanges.size() == 1);
+    public void test_complete_history() throws Exception {
+        state.setTag("complete_history");
+        // propagating the same version twice
+        var propagatedChanges = assertSuccessfulPropagation(null, COMMIT_1, COMMIT_2, COMMIT_PROBLEM, COMMIT_4);
+        Assert.assertTrue("Four sets of changes must exist", propagatedChanges.size() == 4);
+    }
+
+    @Test
+    public void test_skip_intermediate() throws Exception {
+        state.setTag("skip_intermediate");
+        var propagatedChanges = assertSuccessfulPropagation(null, COMMIT_4);
+        Assert.assertTrue("One change must exists", propagatedChanges.size() == 1);
 //        var result = executePropagationAndEvaluation(null, getLatestCommitId(), 0);
 //        Assert.assertTrue(result);
     }
 
     @Test
-    public void test_minimal_1_2() throws Exception {
-        // two subsequent propagations
-        var propagatedChanges = assertSuccessfulPropagation(null, COMMIT_1, COMMIT_2);
-        Assert.assertTrue("Two changes exist", propagatedChanges.size() == 2);
-    }
-
-    @Test
-    public void test_minimal_2_2() throws Exception {
-        state.setTag("minimal_2_2");
+    public void test_same_commit_twice() throws Exception {
+        state.setTag("same_commit_twice");
         // propagating the same version twice
         var propagatedChanges = assertSuccessfulPropagation(null, COMMIT_2, COMMIT_2);
         var lastPropagationResult = propagatedChanges.get(propagatedChanges.size() - 1);
-        Assert.assertTrue("No changes when propagating previously propagated commit", lastPropagationResult.isEmpty());
-    }
-
-    @Test
-    public void test_minimal_caseStudy1_matching() throws Exception {
-        // propagating the same version twice
-        var propagatedChanges = assertSuccessfulPropagation(null, COMMIT_2, COMMIT_PROBLEM);
-        Assert.assertTrue("Two changes exist", propagatedChanges.size() == 2);
-    }
-
-    @Test
-    public void test_minimal_1_2_3() throws Exception {
-        // propagating the same version twice
-        var propagatedChanges = assertSuccessfulPropagation(null, COMMIT_1, COMMIT_2, COMMIT_PROBLEM);
-        Assert.assertTrue("Three changes exist", propagatedChanges.size() == 3);
+        Assert.assertTrue("No changes must be generated when propagating a previously propagated commit", lastPropagationResult.isEmpty());
     }
 }

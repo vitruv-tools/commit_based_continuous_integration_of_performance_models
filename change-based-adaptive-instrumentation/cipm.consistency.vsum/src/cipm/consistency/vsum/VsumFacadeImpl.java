@@ -1,7 +1,6 @@
 package cipm.consistency.vsum;
 
 import cipm.consistency.models.ModelFacade;
-import cipm.consistency.vsum.changederivation.HierarchicalStateBasedChangeResolutionStrategy;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +15,7 @@ import tools.vitruv.change.interaction.UserInteractionFactory;
 import tools.vitruv.change.propagation.ChangePropagationSpecification;
 import tools.vitruv.framework.views.CommittableView;
 import tools.vitruv.framework.views.ViewTypeFactory;
+import tools.vitruv.framework.views.changederivation.StateBasedChangeResolutionStrategy;
 import tools.vitruv.framework.vsum.VirtualModelBuilder;
 import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
 
@@ -32,6 +32,7 @@ public class VsumFacadeImpl implements VsumFacade {
     private VsumDirLayout dirLayout;
     private List<ChangePropagationSpecification> changeSpecs;
     private InternalVirtualModel vsum;
+    private StateBasedChangeResolutionStrategy stateBasedChangeResolutionStrategy;
 
     // initialized is used as a breakpoint conditional
     @SuppressWarnings("unused")
@@ -41,9 +42,10 @@ public class VsumFacadeImpl implements VsumFacade {
         dirLayout = new VsumDirLayout();
     }
 
-    public void initialize(Path rootPath, List<ModelFacade> models, List<ChangePropagationSpecification> changeSpecs) {
+    public void initialize(Path rootPath, List<ModelFacade> models, List<ChangePropagationSpecification> changeSpecs, StateBasedChangeResolutionStrategy stateBasedChangeResolutionStrategy) {
         dirLayout.initialize(rootPath);
         this.changeSpecs = changeSpecs;
+        this.stateBasedChangeResolutionStrategy = stateBasedChangeResolutionStrategy;
         loadOrCreateVsum();
         loadModels(models);
 
@@ -93,10 +95,8 @@ public class VsumFacadeImpl implements VsumFacade {
         viewSelector.getSelectableElements()
             .forEach(ele -> viewSelector.setSelected(ele, true));
 
-        var resolutionStrategy = new HierarchicalStateBasedChangeResolutionStrategy();
-//        var resolutionStrategy = new DefaultStateBasedChangeResolutionStrategy(UseIdentifiers.WHEN_AVAILABLE);
         var view = viewSelector.createView()
-            .withChangeDerivingTrait(resolutionStrategy);
+            .withChangeDerivingTrait(stateBasedChangeResolutionStrategy);
 
         return view;
     }

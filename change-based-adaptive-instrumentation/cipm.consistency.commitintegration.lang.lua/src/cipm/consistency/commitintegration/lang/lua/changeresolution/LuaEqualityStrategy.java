@@ -1,4 +1,4 @@
-package cipm.consistency.vsum.changederivation;
+package cipm.consistency.commitintegration.lang.lua.changeresolution;
 
 import org.eclipse.emf.ecore.EObject;
 import org.splevo.diffing.match.HierarchicalMatchEngine.EqualityStrategy;

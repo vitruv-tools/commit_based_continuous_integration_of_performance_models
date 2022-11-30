@@ -7,6 +7,7 @@ import cipm.consistency.commitintegration.lang.detection.strategy.ComponentDetec
 import cipm.consistency.commitintegration.lang.lua.LuaModelFacade;
 import cipm.consistency.commitintegration.lang.lua.appspace.AppSpaceComponentDetectionStrategy;
 import cipm.consistency.commitintegration.lang.lua.appspace.StdLibCrownComponentDetectionStrategy;
+import cipm.consistency.commitintegration.lang.lua.changeresolution.HierarchicalStateBasedChangeResolutionStrategy;
 import com.google.common.base.Supplier;
 import java.io.IOException;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.eclipse.emf.cdo.common.util.TransportException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import tools.vitruv.change.propagation.ChangePropagationSpecification;
+import tools.vitruv.framework.views.changederivation.StateBasedChangeResolutionStrategy;
 
 public abstract class AppSpaceCommitIntegrationController extends CommitIntegrationController<LuaModelFacade>
         implements CommitIntegration<LuaModelFacade> {
@@ -45,5 +47,10 @@ public abstract class AppSpaceCommitIntegrationController extends CommitIntegrat
     public GitRepositoryWrapper getGitRepositoryWrapper()
             throws InvalidRemoteException, TransportException, GitAPIException, IOException {
         return new GitRepositoryWrapper("lua", true);
+    }
+
+    @Override
+    public StateBasedChangeResolutionStrategy getStateBasedChangeResolutionStrategy() {
+        return new HierarchicalStateBasedChangeResolutionStrategy();
     }
 }

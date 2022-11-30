@@ -10,6 +10,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
 import tools.vitruv.change.propagation.ChangePropagationSpecification;
+import tools.vitruv.framework.views.changederivation.StateBasedChangeResolutionStrategy;
 
 /**
  * Instances of this interface are used to initialize a {@link CommitIntegrationState}.
@@ -28,6 +29,8 @@ public interface CommitIntegration <CM extends CodeModelFacade> {
      * @return All the change propagation specs that are used by this commit integration
      */
     public List<ChangePropagationSpecification> getChangeSpecs();
+    
+    public StateBasedChangeResolutionStrategy getStateBasedChangeResolutionStrategy();
 
     /**
      * 

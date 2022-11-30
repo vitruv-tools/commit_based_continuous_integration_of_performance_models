@@ -1,4 +1,4 @@
-package cipm.consistency.vsum.changederivation;
+package cipm.consistency.commitintegration.lang.lua.changeresolution;
 
 import java.util.ArrayList;
 import java.util.List;

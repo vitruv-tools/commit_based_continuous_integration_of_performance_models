@@ -1,4 +1,4 @@
-package cipm.consistency.vsum.changederivation
+package cipm.consistency.commitintegration.lang.lua.changeresolution
 
 import org.eclipse.emf.common.notify.Notifier
 import org.eclipse.emf.common.util.BasicMonitor
@@ -29,7 +29,7 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 	/** The identifier matching behavior used by this strategy */
 	public val UseIdentifiers useIdentifiers
 	
-	private LuaHierarchicalMatchEngineFactory luaHierarchicalMatchEngineFactory;
+	MatchEngineFactoryImpl hierarchicalMatchEngineFactory;
 
 	var EMFCompare.Builder emfCompareBuilder
 
@@ -53,13 +53,13 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 		defaultMatchEngineFactory.ranking = 10
 
 		// For Lua
-		luaHierarchicalMatchEngineFactory = new LuaHierarchicalMatchEngineFactory();
-		luaHierarchicalMatchEngineFactory.ranking = 20
+		hierarchicalMatchEngineFactory = new LuaHierarchicalMatchEngineFactory();
+		hierarchicalMatchEngineFactory.ranking = 20
 
 		emfCompareBuilder = (EMFCompare.builder => [
 			matchEngineFactoryRegistry = new MatchEngineFactoryRegistryImpl => [
 				add(defaultMatchEngineFactory)
-				add(luaHierarchicalMatchEngineFactory)
+				add(hierarchicalMatchEngineFactory)
 			]
 		])
 	}
@@ -128,10 +128,10 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 		val scope = new DefaultComparisonScope(newState, currentState, null)
 		val compare = getEmfCompare()
 		
-		if (luaHierarchicalMatchEngineFactory.isMatchEngineFactoryFor(scope)) {
+		if (hierarchicalMatchEngineFactory.isMatchEngineFactoryFor(scope)) {
 			// TODO this condition is only needed because eclipse breakpoints don't allow me to
 			// add a condition like it :/
-			var foo = 1
+//			var foo = 1
 		}
 
 		val comparision = compare.compare(scope)

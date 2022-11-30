@@ -10,13 +10,14 @@ import tools.vitruv.change.composite.description.PropagatedChange;
 import tools.vitruv.change.correspondence.Correspondence;
 import tools.vitruv.change.correspondence.view.EditableCorrespondenceModelView;
 import tools.vitruv.change.propagation.ChangePropagationSpecification;
+import tools.vitruv.framework.views.changederivation.StateBasedChangeResolutionStrategy;
 import tools.vitruv.framework.vsum.internal.InternalVirtualModel;
 
 @SuppressWarnings("restriction")
 public interface VsumFacade {
 
-    void initialize(Path rootPath, List<ModelFacade> models, List<ChangePropagationSpecification> changeSpecs)
-            throws IOException;
+    void initialize(Path rootPath, List<ModelFacade> models, List<ChangePropagationSpecification> changeSpecs,
+            StateBasedChangeResolutionStrategy stateBasedChangeResolutionStrategy) throws IOException;
 
     List<PropagatedChange> loadModels(List<ModelFacade> model);
 

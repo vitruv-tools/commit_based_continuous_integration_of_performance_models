@@ -82,7 +82,7 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
 
         // initialize the vsum
         vsumFacade.initialize(dirLayout.getVsumDirPath(), List.of(pcmFacade, imFacade),
-                commitIntegration.getChangeSpecs());
+                commitIntegration.getChangeSpecs(), commitIntegration.getStateBasedChangeResolutionStrategy());
     }
 
     @SuppressWarnings("restriction")
