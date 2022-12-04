@@ -195,7 +195,8 @@ public class PCMRepositorySimilarityChecker extends SimilarityChecker {
 
 			@Override
 			public Boolean caseResourceDemandingBehaviour(ResourceDemandingBehaviour behav1) {
-				return Boolean.TRUE;
+				ResourceDemandingBehaviour behav2 = (ResourceDemandingBehaviour) compareElement;
+				return PCMRepositorySimilarityChecker.this.areSimilar(behav1.getSteps_Behaviour(), behav2.getSteps_Behaviour());
 			}
 
 			@Override
