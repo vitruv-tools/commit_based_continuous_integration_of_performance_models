@@ -1,6 +1,7 @@
 package cipm.consistency.designtime.instrumentation2;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,7 +36,11 @@ public final class ModelSaverInRepositoryCopy {
 			MinimalMonitoringEnvironmentModelGenerator monitoringEnv) {
 		try {
 			// Copy the repository.
-			FileUtils.copyDirectory(source.toFile(), target.toFile());
+			FileUtils.copyDirectory(source.toFile(), target.toFile(), new FileFilter() {
+				@Override
+				public boolean accept(File pathname) {
+					return !pathname.getName().equals(".git");
+				}});
 			var origJavaFiles = Files.walk(target).filter(Files::isRegularFile)
 					.map(Path::toAbsolutePath).filter(p -> {
 				String abs = p.toString();
