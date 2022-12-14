@@ -1,19 +1,17 @@
-[submodule "cipm.consistency.base.vitruv.vsum.test/TeaStore"]
-	path = change-based-adaptive-instrumentation/cipm.consistency.vsum.test/TeaStore
-	url = https://github.com/DescartesResearch/TeaStore
-[submodule "CIPM-Pipeline"]
-	path = CIPM-Pipeline
-	url = https://github.com/HansMartinA/CIPM-Pipeline
-	branch = eclipse-bridge
-[submodule "Vitruv-Domains-ComponentBasedSystems"]
-	path = Vitruv-Domains-ComponentBasedSystems
-	url = https://github.com/HansMartinA/Vitruv-Domains-ComponentBasedSystems
-[submodule "Vitruv-Applications-ComponentBasedSystems"]
-	path = Vitruv-Applications-ComponentBasedSystems
-	url = https://github.com/HansMartinA/Vitruv-Applications-ComponentBasedSystems
-[submodule "Vitruv"]
-	path = Vitruv
-	url = https://github.com/HansMartinA/Vitruv
 [submodule "Palladio-Build-CodingConventions"]
 	path = Palladio-Build-CodingConventions
 	url = https://github.com/PalladioSimulator/Palladio-Build-CodingConventions
+[submodule "CIPM-CIPM"]
+	path = CIPM-Pipeline
+	url = https://github.com/CIPM-tools/CIPM-Pipeline
+	branch = eclipse-bridge
+[submodule "Palladio-Supporting-EclipseJavaDevelopmentTools"]
+	path = Palladio-Supporting-EclipseJavaDevelopmentTools
+	url = https://github.com/PalladioSimulator/Palladio-Supporting-EclipseJavaDevelopmentTools
+[submodule "commit-based-cipm/bundles/Vitruv"]
+	path = commit-based-cipm/bundles/Vitruv
+	url = https://github.com/CIPM-tools/Vitruv-Domains-ComponentBasedSystems
+	branch = integrated_vitruv
+[submodule "Palladio-ReverseEngineering-SoMoX-JaMoPP"]
+	path = Palladio-ReverseEngineering-SoMoX-JaMoPP
+	url = https://github.com/PalladioSimulator/Palladio-ReverseEngineering-SoMoX-JaMoPP
