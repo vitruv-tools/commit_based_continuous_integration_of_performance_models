@@ -7,6 +7,7 @@ import cipm.consistency.designtime.instrumentation.transformation.impl.Applicati
 import cipm.consistency.designtime.instrumentation2.ActionStatementMapping;
 import java.util.EnumMap;
 import org.apache.log4j.Logger;
+import org.eclipse.emf.ecore.EObject;
 import org.emftext.language.java.members.Method;
 import org.emftext.language.java.references.IdentifierReference;
 import org.emftext.language.java.references.MethodCall;

@@ -12,18 +12,26 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
 import org.xtext.lua.LuaStandaloneSetup;
 import org.xtext.lua.lua.Chunk;
 import org.xtext.lua.lua.ComponentSet;
+import org.xtext.lua.lua.Expression_Functioncall_Direct;
+import org.xtext.lua.lua.Expression_String;
+import org.xtext.lua.lua.Expression_VariableName;
 import org.xtext.lua.lua.LuaFactory;
+import org.xtext.lua.lua.Statement_Function_Declaration;
+import org.xtext.lua.scoping.LuaLinkingService;
 
 public class LuaModelFacade implements CodeModelFacade {
     private static final Logger LOGGER = Logger.getLogger(LuaModelFacade.class.getName());
@@ -105,6 +113,112 @@ public class LuaModelFacade implements CodeModelFacade {
         return res;
     }
 
+    /*
+     * Get all functions that were mocked during the linking of the code model
+     */
+    private Map<String, Statement_Function_Declaration> getMockedFunctions(ComponentSet set) {
+        for (var component : set.getComponents()) {
+            if (component.getName()
+                .equals(LuaLinkingService.MOCK_URI.path())) {
+                Map<String, Statement_Function_Declaration> mapping = new HashMap<>();
+                var mockedFuncs = EcoreUtil2.getAllContentsOfType(component, Statement_Function_Declaration.class);
+                for (var mockedFunc : mockedFuncs) {
+                    mapping.put(mockedFunc.getName(), mockedFunc);
+                }
+                return mapping;
+            }
+        }
+        return null;
+    }
+
+    /*
+     * Get all functions that are served in the application
+     */
+    private Map<String, Statement_Function_Declaration> getServedFunctionsOfComponentSet(ComponentSet set) {
+        Map<String, Statement_Function_Declaration> servedFuncs = new HashMap<>();
+
+        final String serveFunctionName = "Script.serveFunction";
+
+        var directCalls = EcoreUtil2.getAllContentsOfType(set, Expression_Functioncall_Direct.class);
+        for (var directCall : directCalls) {
+            if (directCall.getCalledFunction()
+                .getName()
+                .equals(serveFunctionName)
+                    && directCall.getCalledFunctionArgs()
+                        .getArguments()
+                        .size() == 2) {
+                // the name under which the function is served to other apps
+                var servedNameExpression = directCall.getCalledFunctionArgs()
+                    .getArguments()
+                    .get(0);
+
+                // the refble of the served function
+                var servedFuncExpression = directCall.getCalledFunctionArgs()
+                    .getArguments()
+                    .get(1);
+
+                if (servedNameExpression instanceof Expression_String
+                        && servedFuncExpression instanceof Expression_VariableName) {
+                    var servedName = ((Expression_String) servedNameExpression).getValue();
+
+                    if (servedName.length() > 2) {
+                        // Expression_String still contains the quotes
+                        // TODO this could be implemented differently in the grammar, so we don't
+                        // need to strip here
+                        servedName = servedName.substring(1, servedName.length() - 1);
+                    }
+
+                    var servedFuncRef = ((Expression_VariableName) servedFuncExpression).getRef();
+
+                    if (servedFuncRef instanceof Statement_Function_Declaration) {
+                        servedFuncs.put(servedName, (Statement_Function_Declaration) servedFuncRef);
+                    } else {
+                        throw new IllegalStateException("Reference is no function declaration");
+                    }
+                } else {
+                    throw new IllegalStateException("Name is no string");
+                }
+            }
+        }
+        return servedFuncs;
+    }
+
+    /*
+     * Resolve crown calls which are actually calls to "serves" of another app
+     */
+    private void postProcessComponentSet(ComponentSet set) {
+        // find functions that were mocked during the linking process, because the were not in scope
+        var mockedFuncs = getMockedFunctions(set);
+
+        // find functions that are served by apps to other apps
+        var servedFuncs = getServedFunctionsOfComponentSet(set);
+
+        // function calls which were mocked, but are served by another component must be resolved
+        // to the actually served function
+
+        if (mockedFuncs != null) {
+            for (var served : servedFuncs.entrySet()) {
+                var mockedFunc = mockedFuncs.get(served.getKey());
+                if (mockedFunc != null) {
+                    LOGGER.trace(String.format("MOCKED but SERVED function: %s", served.getKey()));
+                    var servedFunc = served.getValue();
+
+                    // TODO Replace references to mockFunc with references to servedFunc
+
+                    var refs = EcoreUtil2.getAllContentsOfType(set, Expression_Functioncall_Direct.class);
+                    for (var ref : refs) {
+                        if (ref.getCalledFunction()
+                            .equals(mockedFunc)) {
+                            LOGGER.debug(
+                                    String.format("Replacing ref to mock with served function: %s", served.getKey()));
+                            ref.setCalledFunction(servedFunc);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Merges all chunks of the resource set into one SuperChunk and puts it in a separate resource
      * for propagation
@@ -118,11 +232,12 @@ public class LuaModelFacade implements CodeModelFacade {
         LOGGER.debug("Resolving ResourceSet into a ComponentSet");
         var merge = getCleanResource(targetUri);
 
-        // we use this custom class as a container for all the components
+        // we use this synthetic model class as a container for all the components
         ComponentSet componentSet = LuaFactory.eINSTANCE.createComponentSet();
         merge.getContents()
             .add(componentSet);
 
+        // merge warnings and errors into the new resource
         rs.getResources()
             .forEach(resource -> {
                 // also merge errors and warnings into the new resource
@@ -145,53 +260,50 @@ public class LuaModelFacade implements CodeModelFacade {
             });
 
         // detect components in the resources
-        var modulesCandidates = componentDetector.detectModules(rs, workTree, dirLayout.getModuleConfigurationPath());
-        if (modulesCandidates != null) {
-            var actualModules = modulesCandidates.getModulesInState(ComponentState.REGULAR_COMPONENT);
-            LOGGER.debug(String.format("Detected %d components", actualModules.size()));
-
-            actualModules.forEach((componentName, resources) -> {
-
-                // Create a component and add in to the component set
-                var component = LuaFactory.eINSTANCE.createComponent();
-                component.setName(componentName);
-
-//                var chunksOfThisComponent = resources.stream()
-//                    .map(r -> r.getContents())
-//                    .filter(cl -> cl.size() > 0)
-//                    .map(cl -> cl.get(0))
-//                    .filter(eo -> (eo instanceof Chunk))
-//                    .map(eo -> (Chunk) eo)
-//                    .collect(Collectors.toList());
-
-                for (var resource : resources) {
-                    if (resource.getContents()
-                        .size() > 0) {
-                        var eObj = resource.getContents()
-                            .get(0);
-                        if (eObj instanceof Chunk) {
-                            var namedChunk = LuaFactory.eINSTANCE.createNamedChunk();
-                            namedChunk.setChunk((Chunk) eObj);
-                            var chunkName = resource.getURI()
-                                .lastSegment();
-                            namedChunk.setName(chunkName);
-                            component.getChunks()
-                                .add(namedChunk);
-                        }
-                    }
-
-                }
-                componentSet.getComponents()
-                    .add(component);
-            });
-
+        var componentCandidates = componentDetector.detectModules(rs, workTree, dirLayout.getModuleConfigurationPath());
+        if (componentCandidates == null) {
+            LOGGER.info("No detected components!");
+            return componentSet;
         }
+        var actualComponents = componentCandidates.getModulesInState(ComponentState.REGULAR_COMPONENT);
+        LOGGER.debug(String.format("Detected %d components", actualComponents.size()));
 
+        // Create the detected components and add them to the component set
+        actualComponents.forEach((componentName, resources) -> {
+            var component = LuaFactory.eINSTANCE.createComponent();
+            component.setName(componentName);
+
+            for (var resource : resources) {
+                if (resource.getContents()
+                    .size() > 0) {
+                    var eObj = resource.getContents()
+                        .get(0);
+                    if (eObj instanceof Chunk) {
+                        var namedChunk = LuaFactory.eINSTANCE.createNamedChunk();
+                        namedChunk.setChunk((Chunk) eObj);
+                        var chunkName = resource.getURI()
+                            .lastSegment();
+                        namedChunk.setName(chunkName);
+                        component.getChunks()
+                            .add(namedChunk);
+                    }
+                }
+
+            }
+            componentSet.getComponents()
+                .add(component);
+        });
+
+        // call possible post process on the component set
+        postProcessComponentSet(componentSet);
+
+        // save the component set to the merged resource
         try {
             merge.save(null);
         } catch (IOException e) {
             LOGGER.error(String.format("Cannot write new resource: %s", targetUri));
         }
+
         return componentSet;
     }
 

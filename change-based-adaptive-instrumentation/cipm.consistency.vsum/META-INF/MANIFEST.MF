@@ -22,4 +22,3 @@ Require-Bundle:
  org.splevo.commons;bundle-version="1.0.0",
  org.xtext.lua;bundle-version="1.0.0"
 Export-Package: cipm.consistency.vsum
-Import-Package: org.eclipse.xtext

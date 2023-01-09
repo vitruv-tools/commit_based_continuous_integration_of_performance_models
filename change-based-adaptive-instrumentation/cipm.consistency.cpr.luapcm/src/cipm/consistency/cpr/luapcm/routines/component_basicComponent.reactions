@@ -4,23 +4,23 @@ import org.palladiosimulator.pcm.repository.RepositoryPackage
 import "http://www.xtext.org/lua/Lua" as lua
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
 
-reactions: component
+reactions: component_basicComponent
 in reaction to changes in lua
 execute actions in pcm
 
-routine assertComponentExistenceForChunk(lua::Chunk chunk) {
+routine assertBasicComponentExistenceForChunk(lua::Chunk chunk) {
 	match {
-		require absence of pcm::RepositoryComponent corresponding to chunk
+		require absence of pcm::BasicComponent corresponding to chunk
 	}
 	update {
 		val luaComponent = InternalUtils.getComponentOfChunk(chunk)
-		assertComponentExistenceForLuaComponent(luaComponent)
+		assertBasicComponentExistenceForLuaComponent(luaComponent)
 	}
 }
 
-routine assertComponentExistenceForLuaComponent(lua::Component component) {
+routine assertBasicComponentExistenceForLuaComponent(lua::Component component) {
 	match {
-		require absence of pcm::RepositoryComponent corresponding to component
+		require absence of pcm::BasicComponent corresponding to component
 	}
 	update {
 		createBasicComponent(component)
@@ -36,23 +36,18 @@ routine createBasicComponent(lua::Component component) {
 	}
 	update {
 		pcmBasicComponent.entityName = component.name
+//		pcmBasicComponent.providedRoles_InterfaceProvidingEntity += null
+		
 		pcmRepository.components__Repository += pcmBasicComponent
+
 		addCorrespondenceBetween(pcmBasicComponent, component)
 	}
 }
 
-//routine addCorrespondenceBetweenPcmComponentAndChunk(lua::Chunk chunk, lua::Component component) {
-//	match {
-//		val pcmComponent = retrieve pcm::RepositoryComponent corresponding to component
-//	}
-//	update {
-//		addCorrespondenceBetween(pcmComponent, chunk)
-//	}
-//}
 
 routine checkBasicComponentRemoval(lua::Chunk chunk) {
 	match {
-		val pcmComponent = retrieve pcm::RepositoryComponent corresponding to chunk
+		val pcmComponent = retrieve pcm::BasicComponent corresponding to chunk
 		val otherChunks = retrieve many lua::Chunk corresponding to pcmComponent
 	}
 	update {
@@ -63,16 +58,7 @@ routine checkBasicComponentRemoval(lua::Chunk chunk) {
 	}
 }
 
-//routine checkBasicComponentRemovalForModule(lua::Component component) {
-//	match {
-//		val pcmComponent = retrieve pcm::RepositoryComponent corresponding to component
-//	}
-//	update {
-//		removeComponent(pcmComponent)
-//	}
-//}
-
-routine removeComponent(pcm::RepositoryComponent component) {
+routine removeComponent(pcm::BasicComponent component) {
 	update {
 		component.removeObject
 	}

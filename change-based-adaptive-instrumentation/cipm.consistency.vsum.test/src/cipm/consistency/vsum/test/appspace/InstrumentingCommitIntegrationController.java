@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.resource.Resource;
 import tools.vitruv.change.composite.description.PropagatedChange;
@@ -28,47 +27,51 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
         extends CommitIntegrationController<CM> {
     private static final Logger LOGGER = Logger.getLogger(InstrumentingCommitIntegrationController.class.getName());
     Resource instrumentedModel;
-    
+
     private boolean storeInstrumentedModel = false;
 
-    /**
-     * Propagates changes between two commits to the VSUM.
-     * 
-     * @param start
-     *            the first commit.
-     * @param end
-     *            the second commit.
-     * @return A list of propagated changes (which may be empty) or {null}.
-     * @throws IncorrectObjectTypeException
-     * @throws IOException
-     *             if something from the repositories cannot be read.
-     */
-//    protected List<PropagatedChange> propagateChanges(String start, String end)
-//            throws IncorrectObjectTypeException, IOException {
-//        String commitId = end.getId()
-//            .getName();
-//        LOGGER.debug("Obtaining all differences.");
-//        List<DiffEntry> diffs = state.getGitRepositoryWrapper()
-//            .computeDiffsBetweenTwoCommits(start, end);
-//        if (diffs.size() == 0) {
-//            LOGGER.info("No source files changed for " + commitId + ": No propagation is performed.");
-//            return List.of();
-//        }
-//        var cs = EvaluationDataContainer.getGlobalContainer()
-//            .getChangeStatistic();
-//        String oldId = start != null ? start.getId()
-//            .getName() : null;
-//        cs.setOldCommit(oldId != null ? oldId : "");
-//        cs.setNewCommit(commitId);
-//        cs.setNumberCommits(state.getGitRepositoryWrapper()
-//            .getAllCommitsBetweenTwoCommits(oldId, commitId)
-//            .size() + 1);
-//
-//        if (checkout(commitId)) {
-//            return propagateCurrentCheckout();
-//        }
-//        return null;
-//    }
+    private void addCommitToCommitsFile(String oldCommit, String newCommit) throws IOException {
+        // make sure there the parent dir exists
+        {
+            var parent = state.getDirLayout()
+                .getCommitsFilePath()
+                .toAbsolutePath()
+                .getParent();
+            if (Files.notExists(parent)) {
+                Files.createDirectories(parent);
+            }
+        }
+        BufferedWriter writer = Files.newBufferedWriter(state.getDirLayout()
+            .getCommitsFilePath());
+        if (oldCommit != null) {
+            writer.write(oldCommit + "\n");
+        }
+        writer.write(newCommit + "\n");
+    }
+
+    private void deactivateAllActionIPs() {
+        state.getImFacade()
+            .getModel()
+            .getPoints()
+            .forEach(sip -> sip.getActionInstrumentationPoints()
+                .forEach(aip -> aip.setActive(false)));
+        state.getImFacade()
+            .saveToDisk();
+    }
+
+    private boolean haveActionIPsChangedSinceDeactivation() {
+        for (var sip : state.getImFacade()
+            .getModel()
+            .getPoints()) {
+            for (var aip : sip.getActionInstrumentationPoints()) {
+                if (aip.isActive()) {
+                    return true;
+                }
+                ;
+            }
+        }
+        return false;
+    }
 
     /**
      * Propagates the changes between two commits.
@@ -84,45 +87,17 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
      *             if an IO operation fails.
      */
     @Override
-    protected List<PropagatedChange> propagateChanges(String oldCommit, String newCommit)
-            throws IOException {
-        {
-            var parent = state.getDirLayout()
-                .getCommitsFilePath()
-                .toAbsolutePath()
-                .getParent();
-            if (Files.notExists(parent)) {
-                Files.createDirectories(parent);
-            }
-        }
-        try (BufferedWriter writer = Files.newBufferedWriter(state.getDirLayout()
-            .getCommitsFilePath())) {
-            if (oldCommit != null) {
-                writer.write(oldCommit + "\n");
-            }
-            writer.write(newCommit + "\n");
-        }
+    protected List<PropagatedChange> propagateChanges(String oldCommit, String newCommit) throws IOException {
+        // track the commit ids in a file
+        addCommitToCommitsFile(oldCommit, newCommit);
 
         long overallTimer = System.currentTimeMillis();
-        state.getImFacade()
-            .getDirLayout()
-            .clean();
-        var insDir = state.getImFacade()
-            .getDirLayout()
-            .getRootDirPath();
 
         // Deactivate all action instrumentation points.
-        state.getImFacade()
-            .getModel()
-            .getPoints()
-            .forEach(sip -> sip.getActionInstrumentationPoints()
-                .forEach(aip -> aip.setActive(false)));
-        state.getImFacade()
-            .saveToDisk();
+        deactivateAllActionIPs();
 
         long fineTimer = System.currentTimeMillis();
 
-        // Propagate the changes.
         var propagatedChanges = super.propagateChanges(oldCommit, newCommit);
 
         fineTimer = System.currentTimeMillis() - fineTimer;
@@ -131,41 +106,23 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
             .setChangePropagationTime(fineTimer);
 
         if (propagatedChanges != null) {
-            // TODO out commented this
-//         @SuppressWarnings("restriction")
-//         ExternalCallEmptyTargetFiller filler = new ExternalCallEmptyTargetFiller(facade.getVSUM()
-//             .getCorrespondenceModel(),
-//                 facade.getPCMWrapper()
-//                     .getRepository(),
-//                 propagator.getJavaFileLayout()
-//                     .getExternalCallTargetPairsFile());
-//         filler.fillExternalCalls();
-
-            boolean hasChangedIM = false;
-            for (var sip : state.getImFacade()
-                .getModel()
-                .getPoints()) {
-                for (var aip : sip.getActionInstrumentationPoints()) {
-                    hasChangedIM |= aip.isActive();
-                }
-            }
-            if (!hasChangedIM) {
-                LOGGER.debug("No instrumentation points changed.");
-            }
             boolean fullInstrumentation = CommitIntegrationSettingsContainer.getSettingsContainer()
                 .getPropertyAsBoolean(SettingKeys.PERFORM_FULL_INSTRUMENTATION);
 
             // Instrument the code only if there is a new action instrumentation point or if a
-            // full
-            // instrumentation
-            // shall be performed.
-            if (hasChangedIM || fullInstrumentation) {
+            // full instrumentation shall be performed.
+            if (fullInstrumentation || haveActionIPsChangedSinceDeactivation()) {
                 fineTimer = System.currentTimeMillis();
-                Resource insModel = performInstrumentation(insDir, fullInstrumentation);
+
+                // perform the intrumentation
+                Resource insModel = instrumentCode(fullInstrumentation);
+
                 fineTimer = System.currentTimeMillis() - fineTimer;
                 EvaluationDataContainer.getGlobalContainer()
                     .getExecutionTimes()
                     .setInstrumentationTime(fineTimer);
+
+                // TODO I don't think this is working:
                 if (storeInstrumentedModel) {
                     this.instrumentedModel = insModel;
                 }
@@ -187,37 +144,11 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
      * @return the instrumented code model as a copy of the code model in the V-SUM.
      */
     public Resource instrumentCode(boolean performFullInstrumentation) {
-        Path insDir = state.getImFacade()
+        // drop old instrumentation dir
+        state.getImFacade()
             .getDirLayout()
-            .getRootDirPath();
-        removeInstrumentationDirectory(insDir);
-        return performInstrumentation(insDir, performFullInstrumentation);
-    }
-
-    private void removeInstrumentationDirectory(Path instrumentationDirectory) {
-        if (Files.exists(instrumentationDirectory)) {
-            LOGGER.debug("Deleting the instrumentation directory.");
-            try {
-                FileUtils.deleteDirectory(instrumentationDirectory.toFile());
-            } catch (IOException e) {
-                LOGGER.error(e);
-            }
-        }
-    }
-
-    @SuppressWarnings("restriction")
-    private Resource performInstrumentation(Path instrumentationDirectory, boolean performFullInstrumentation) {
-        return CodeInstrumenter.instrument(state.getImFacade()
-            .getModel(),
-                state.getVsumFacade()
-                    .getVsum()
-                    .getCorrespondenceModel(),
-                state.getCodeModelFacade()
-                    .getResource(),
-                instrumentationDirectory, state.getGitRepositoryWrapper()
-                    .getWorkTree()
-                    .toPath(),
-                !performFullInstrumentation);
+            .clean();
+        return CodeInstrumenter.instrument(state, !performFullInstrumentation);
     }
 
     /**
@@ -259,9 +190,9 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
         return ExternalCommandExecutionUtils.runScript(insCode.toFile(), compileScript);
     }
 
-    private List<Path> copyArtifacts(Path insCode, Path deployPath) throws IOException {
+    private List<Path> copyArtifacts(Path instrumentedCode, Path deployPath) throws IOException {
         LOGGER.debug("Copying the artifacts to " + deployPath);
-        var warFiles = Files.walk(insCode)
+        var warFiles = Files.walk(instrumentedCode)
             .filter(Files::isRegularFile)
             .filter(p -> p.getFileName()
                 .toString()
@@ -345,7 +276,7 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
 // public Resource getLastInstrumentedModelResource() {
 //     return instrumentedModel;
 // }
-    
+
     public void setStoreInstrumentedModel(boolean store) {
         storeInstrumentedModel = store;
     }

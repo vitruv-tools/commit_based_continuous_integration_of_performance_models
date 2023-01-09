@@ -1,12 +1,12 @@
 package cipm.consistency.designtime.instrumentation2;
 
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationType;
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint;
+import cipm.consistency.commitintegration.CommitIntegrationState;
 import cipm.consistency.designtime.instrumentation2.instrumenter.MinimalMonitoringEnvironmentModelGenerator;
 import cipm.consistency.designtime.instrumentation2.instrumenter.ServiceInstrumentationPointInstrumenter;
-import java.nio.file.Path;
+import cipm.consistency.models.CodeModelFacade;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -22,109 +22,144 @@ import org.emftext.language.java.statements.Statement;
 import org.emftext.language.java.statements.StatementListContainer;
 import tools.vitruv.change.correspondence.Correspondence;
 import tools.vitruv.change.correspondence.view.CorrespondenceModelView;
-import tools.vitruv.change.correspondence.view.EditableCorrespondenceModelView;
 
 /**
- * An instrumenter for the source code based on the instrumentation points in
- * the instrumentation model.
+ * An instrumenter for the source code based on the instrumentation points in the instrumentation
+ * model.
  * 
  * @author Martin Armbruster
  */
 public final class CodeInstrumenter {
-	private static final Logger LOGGER = Logger.getLogger("cipm." + CodeInstrumenter.class.getSimpleName());
+    private static final Logger LOGGER = Logger.getLogger("cipm." + CodeInstrumenter.class.getSimpleName());
 
-	private CodeInstrumenter() {
-	}
+    private CodeInstrumenter() {
+    }
 
-	public static <C extends Correspondence> Resource instrument(InstrumentationModel im,
-			EditableCorrespondenceModelView<C> cmv, Resource javaModel, Path output, Path input, boolean adaptive) {
-		LOGGER.debug("Executing the " + (adaptive ? "adaptive" : "full") + " instrumentation.");
-		LOGGER.debug("Copying the Java model.");
-		ResourceSet targetSet = new ResourceSetImpl();
-		Resource copy = targetSet.createResource(javaModel.getURI());
-		copy.getContents().addAll(EcoreUtil.copyAll(javaModel.getContents()));
+    public static <CM extends CodeModelFacade> Resource instrument(CommitIntegrationState<CM> state, boolean adaptive) {
+        LOGGER.debug("Executing the " + (adaptive ? "adaptive" : "full") + " instrumentation.");
+        LOGGER.trace("Copying the code model.");
 
-		LOGGER.debug("Generating the minimal monitoring environment.");
-		MinimalMonitoringEnvironmentModelGenerator gen = new MinimalMonitoringEnvironmentModelGenerator(copy);
-		ServiceInstrumentationPointInstrumenter sipIns = new ServiceInstrumentationPointInstrumenter(gen);
+        var im = state.getImFacade()
+            .getModel();
+        Resource codeModel = state.getCodeModelFacade()
+            .getResource();
 
-		for (ServiceInstrumentationPoint sip : im.getPoints()) {
-			LOGGER.debug("Instrumenting the service " + sip.getService().getDescribedService__SEFF().getEntityName());
-//			Method service = CorrespondenceModelUtil.getCorrespondingEObjects(cm, sip.getService(), Method.class)
-//					.iterator().next();
-			Method service = (Method) cmv.getCorrespondingEObjects(sip.getService(), null).iterator().next();
+        ResourceSet targetSet = new ResourceSetImpl();
+        Resource copy = targetSet.createResource(codeModel.getURI());
+        copy.getContents()
+            .addAll(EcoreUtil.copyAll(codeModel.getContents()));
 
-			Method copiedService = findCopiedEObject(targetSet, service);
-			ActionStatementMapping statementMap = createActionStatementMapping(targetSet, sip, cmv);
-			sipIns.instrument(copiedService, sip, statementMap, adaptive);
-		}
+        LOGGER.trace("Generating the minimal monitoring environment.");
+        MinimalMonitoringEnvironmentModelGenerator gen = new MinimalMonitoringEnvironmentModelGenerator(copy);
+        ServiceInstrumentationPointInstrumenter sipIns = new ServiceInstrumentationPointInstrumenter(gen);
 
-		LOGGER.debug("Saving the instrumented code.");
-		ModelSaverInRepositoryCopy.saveModels(targetSet, copy, output, input, gen);
-		LOGGER.debug("Finished the instrumentation.");
+        for (ServiceInstrumentationPoint sip : im.getPoints()) {
+            LOGGER.trace("Instrumenting the service " + sip.getService()
+                .getDescribedService__SEFF()
+                .getEntityName());
 
-		return copy;
-	}
+//            Method service = (Method) cmv.getCorrespondingEObjects(sip.getService(), null)
+//                .iterator()
+//                .next();
 
-	private static <C extends Correspondence> ActionStatementMapping createActionStatementMapping(
-			ResourceSet copyContainer, ServiceInstrumentationPoint sip, CorrespondenceModelView<C> cmv) {
-		ActionStatementMapping statementMap = new ActionStatementMapping();
-		for (ActionInstrumentationPoint aip : sip.getActionInstrumentationPoints()) {
+            // get the code model element that corresponds to the SIP
+
+            var corrSet = state.getVsumFacade()
+                .getCorrespondenceView()
+                .getCorrespondingEObjects(sip);
+            if (corrSet.size() != 1) {
+                throw new IllegalStateException("Multiple code model elements correspond to a SIP");
+            }
+
+            EObject codeModelServiceElement = corrSet.iterator()
+                .next();
+            EObject copiedService = findCopiedEObject(targetSet, codeModelServiceElement);
+
+            ActionStatementMapping statementMap = createActionStatementMapping(targetSet, sip, state.getVsumFacade()
+                .getCorrespondenceView());
+
+            // TODO we need to dispatch to the language specific instrumenter
+            sipIns.instrument((Method) copiedService, sip, statementMap, adaptive);
+        }
+
+        LOGGER.trace("Saving the instrumented code.");
+        ModelSaverInRepositoryCopy.saveModels(targetSet, copy, state.getImFacade()
+            .getDirLayout()
+            .getInstrumentationDirPath(),
+                state.getGitRepositoryWrapper()
+                    .getWorkTree()
+                    .toPath(),
+                gen);
+
+        LOGGER.trace("Finished the instrumentation.");
+        return copy;
+    }
+
+    private static <C extends Correspondence> ActionStatementMapping createActionStatementMapping(
+            ResourceSet copyContainer, ServiceInstrumentationPoint sip, CorrespondenceModelView<C> cmv) {
+        ActionStatementMapping statementMap = new ActionStatementMapping();
+        for (ActionInstrumentationPoint aip : sip.getActionInstrumentationPoints()) {
 //			Set<Statement> correspondingStatements = CorrespondenceModelUtil.getCorrespondingEObjects(cm,
 //					aip.getAction(), Statement.class);
-			
-			// TODO I cannot cast Set<EObject> to Set<Statement> here?!
-			Set<EObject> correspondingStatements = cmv.getCorrespondingEObjects(aip.getAction(), null);
-			Statement firstStatement;
-			if (aip.getType() == InstrumentationType.INTERNAL || aip.getType() == InstrumentationType.INTERNAL_CALL) {
-				Statement lastStatement = findFirstOrLastStatement(correspondingStatements, false);
-				statementMap.getAbstractActionToLastStatementMapping().put(aip.getAction(),
-						findCopiedEObject(copyContainer, lastStatement));
-				firstStatement = findFirstOrLastStatement(correspondingStatements, true);
-			} else {
-				try {
-					firstStatement = (Statement) correspondingStatements.iterator().next();
-				} catch (NoSuchElementException e) {
-					continue;
-				}
-			}
-			Statement copiedFirstStatement = findCopiedEObject(copyContainer, firstStatement);
-			statementMap.put(aip.getAction(), copiedFirstStatement);
-		}
-		return statementMap;
-	}
 
-	@SuppressWarnings("unchecked")
-	private static <T extends EObject> T findCopiedEObject(ResourceSet copyContainer, T original) {
-		EObject potResult = copyContainer.getEObject(EcoreUtil.getURI(original), false);
-		if (potResult != null && original.eClass().isInstance(potResult)) {
-			return (T) potResult;
-		}
-		return null;
-	}
+            // TODO I cannot cast Set<EObject> to Set<Statement> here?!
+            Set<EObject> correspondingStatements = cmv.getCorrespondingEObjects(aip.getAction(), null);
+            Statement firstStatement;
+            if (aip.getType() == InstrumentationType.INTERNAL || aip.getType() == InstrumentationType.INTERNAL_CALL) {
+                Statement lastStatement = findFirstOrLastStatement(correspondingStatements, false);
+                statementMap.getAbstractActionToLastStatementMapping()
+                    .put(aip.getAction(), findCopiedEObject(copyContainer, lastStatement));
+                firstStatement = findFirstOrLastStatement(correspondingStatements, true);
+            } else {
+                try {
+                    firstStatement = (Statement) correspondingStatements.iterator()
+                        .next();
+                } catch (NoSuchElementException e) {
+                    continue;
+                }
+            }
+            Statement copiedFirstStatement = findCopiedEObject(copyContainer, firstStatement);
+            statementMap.put(aip.getAction(), copiedFirstStatement);
+        }
+        return statementMap;
+    }
 
-	private static Statement findFirstOrLastStatement(Set<EObject> statements, boolean findFirst) {
-		if (statements.size() == 1) {
-			return (Statement) statements.iterator().next();
-		}
-		EObject container = statements.iterator().next().eContainer();
-		if (container instanceof StatementListContainer) {
-			EList<Statement> stats = ((StatementListContainer) container).getStatements();
-			if (findFirst) {
-				for (Statement next : stats) {
-					if (statements.contains(next)) {
-						return next;
-					}
-				}
-			}
-			Set<EObject> copiedStatements = new HashSet<>(statements);
-			for (Statement next : stats) {
-				copiedStatements.remove(next);
-				if (copiedStatements.size() == 1) {
-					return (Statement) copiedStatements.iterator().next();
-				}
-			}
-		}
-		return null;
-	}
+    @SuppressWarnings("unchecked")
+    private static <T extends EObject> T findCopiedEObject(ResourceSet copyContainer, T original) {
+        EObject potResult = copyContainer.getEObject(EcoreUtil.getURI(original), false);
+        if (potResult != null && original.eClass()
+            .isInstance(potResult)) {
+            return (T) potResult;
+        }
+        return null;
+    }
+
+    private static Statement findFirstOrLastStatement(Set<EObject> statements, boolean findFirst) {
+        if (statements.size() == 1) {
+            return (Statement) statements.iterator()
+                .next();
+        }
+        EObject container = statements.iterator()
+            .next()
+            .eContainer();
+        if (container instanceof StatementListContainer) {
+            EList<Statement> stats = ((StatementListContainer) container).getStatements();
+            if (findFirst) {
+                for (Statement next : stats) {
+                    if (statements.contains(next)) {
+                        return next;
+                    }
+                }
+            }
+            Set<EObject> copiedStatements = new HashSet<>(statements);
+            for (Statement next : stats) {
+                copiedStatements.remove(next);
+                if (copiedStatements.size() == 1) {
+                    return (Statement) copiedStatements.iterator()
+                        .next();
+                }
+            }
+        }
+        return null;
+    }
 }

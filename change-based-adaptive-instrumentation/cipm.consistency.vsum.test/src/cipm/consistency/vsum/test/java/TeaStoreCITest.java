@@ -20,6 +20,8 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+// TODO all of this must be reworked to use the updated API
+
 /**
  * A test class for the TeaStore.
  * 

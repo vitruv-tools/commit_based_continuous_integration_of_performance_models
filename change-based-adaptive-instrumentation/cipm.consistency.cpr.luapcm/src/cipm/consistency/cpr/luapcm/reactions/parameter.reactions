@@ -1,0 +1,27 @@
+import org.xtext.lua.lua.Statement_Function_Declaration
+
+import "http://www.xtext.org/lua/Lua" as lua
+import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
+
+reactions: parameter
+in reaction to changes in lua
+execute actions in pcm
+
+import referenceble_parameter
+
+reaction AddedParameter {
+	after element lua::Referenceable inserted in lua::Function[arguments]
+	call {
+		// TODO shouldn't this be a "create or find"?
+		if (affectedEObject.eContainer instanceof Statement_Function_Declaration) {
+			createParameter(newValue, affectedEObject.eContainer as Statement_Function_Declaration)
+		}
+	}
+}
+
+reaction RemovedParameter {
+	after element lua::Referenceable removed from lua::Function[arguments]
+	call {
+		deleteParameter(oldValue)
+	}
+}

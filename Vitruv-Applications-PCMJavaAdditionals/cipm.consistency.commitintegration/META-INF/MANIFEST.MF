@@ -22,7 +22,6 @@ Require-Bundle: org.apache.log4j,
  cipm.consistency.base.shared,
  cipm.consistency.vsum,
  cipm.consistency.models.instrumentation,
- cipm.consistency.designtime.instrumentation2,
  tools.vitruv.framework.vsum;bundle-version="3.0.0",
  cipm.consistency.models
 Automatic-Module-Name: cipm.consistency.commitintegration

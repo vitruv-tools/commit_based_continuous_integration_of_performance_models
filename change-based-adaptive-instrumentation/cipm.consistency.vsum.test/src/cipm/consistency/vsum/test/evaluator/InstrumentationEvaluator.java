@@ -40,6 +40,8 @@ public class InstrumentationEvaluator <CM extends CodeModelFacade> extends Commi
     private final int numberLoopStatements = 3;
     private final int numberInternalActionStatements = 2;
     private final int numberInternalActionStatementsPerReturnStatement = 2;
+    
+    private CM instrumentedModel;
 
     /**
      * Evaluates the instrumented model. It is assumed to be executed directly after the
@@ -55,7 +57,7 @@ public class InstrumentationEvaluator <CM extends CodeModelFacade> extends Commi
      *            the correspondence model.
      */
     public void evaluateInstrumentationDependently(CommitIntegrationState<CM> state) {
-        if (instrumentedModel == null || instrumentedModel.getContents()
+        if (instrumentedModel == null || instrumentedModel.getResource().getContents()
             .isEmpty()) {
             return;
         }
@@ -201,8 +203,8 @@ public class InstrumentationEvaluator <CM extends CodeModelFacade> extends Commi
         return statements;
     }
 
-    private String convertToString(Method method) {
-        StringBuilder builder = new StringBuilder();
+//    private String convertToString(Method method) {
+//        StringBuilder builder = new StringBuilder();
 //		builder.append(method.getContainingConcreteClassifier().getQualifiedName());
 //		builder.append("::");
 //		builder.append(method.getName());
@@ -214,6 +216,6 @@ public class InstrumentationEvaluator <CM extends CodeModelFacade> extends Commi
 //		builder.append(")");
 //		builder.append(JamoppStringOperations.getStringRepresentation(method.getTypeReference().getTarget(),
 //				method.getTypeReference().getArrayDimension()));
-        return builder.toString();
-    }
+//        return builder.toString();
+//    }
 }
