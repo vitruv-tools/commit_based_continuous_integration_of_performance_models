@@ -1,5 +1,0 @@
-PRAGMA foreign_keys = ON;
-create table if not exists Codes(Id int primary key not null
-                                 ,Content text
-                                 ,Type text
-                                 );
