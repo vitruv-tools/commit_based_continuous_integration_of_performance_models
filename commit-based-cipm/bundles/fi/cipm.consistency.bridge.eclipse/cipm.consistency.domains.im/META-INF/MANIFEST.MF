@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Vitruv Domain for the extended Instrumentation Meta-Model
+Bundle-SymbolicName: cipm.consistency.domains.im;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: 
+ cipm.consistency.models.instrumentation,
+ tools.vitruv.framework.domains,
+ org.eclipse.emf.ecore,
+ org.eclipse.emf.ecore.xmi
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Automatic-Module-Name: cipm.consistency.domains.im
+Import-Package: com.google.common.collect
+Export-Package: cipm.consistency.domains.im

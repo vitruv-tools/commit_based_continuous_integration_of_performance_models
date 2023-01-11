@@ -11,6 +11,11 @@
 # Specific
 # ----
 *.html
+/commit-based-cipm/bundles/fi/cipm.consistency.base.shared
+/commit-based-cipm/bundles/fi/cipm.consistency.domains.im
+/commit-based-cipm/bundles/fi/cipm.consistency.domains.pcm
+/commit-based-cipm/bundles/fi/cipm.consistency.models.instrumentation
+EvaluationData
 
 # IDEA
 # ----
@@ -47,6 +52,13 @@ atlassian-ide-plugin.xml
 src-gen/
 xtend-gen/
 target/
+*._trace
+*.xtendbin
+tmp/
+*.tmp
+*.bak
+*.swp
+*.class
 
 # NetBeans
 # --------

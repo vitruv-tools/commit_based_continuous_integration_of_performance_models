@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<manifest>
+    <application name="HTTPServer">
+        <crown name="HTTPServer">
+            <desc>user script</desc>
+            <serves>
+                <function name="submitBarcode">
+                    <desc></desc>
+                    <param name="content" type="string" desc="The submitted code"/>
+                    <param name="type" type="string" desc="The type of the code code (e.g. EAN)"/>
+                </function>
+            </serves>
+        </crown>
+        <meta key="author">Author</meta>
+        <meta key="version">1</meta>
+        <meta key="priority">medium</meta>
+        <meta key="copy-protected">false</meta>
+        <meta key="read-protected">false</meta>
+        <entry default="main.lua" path="scripts"/>
+    </application>
+</manifest>

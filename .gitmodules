@@ -1,28 +1,21 @@
 [submodule "CIPM-Pipeline"]
 	path = CIPM-Pipeline
-	url = https://github.com/HansMartinA/CIPM-Pipeline
-	branch = vitruv3
-[submodule "Vitruv-Domains-ComponentBasedSystems"]
-	path = Vitruv-Domains-ComponentBasedSystems
-	url = https://github.com/HansMartinA/Vitruv-Domains-ComponentBasedSystems
-	branch = master
-[submodule "Vitruv-Applications-ComponentBasedSystems"]
-	path = Vitruv-Applications-ComponentBasedSystems
-	url = https://github.com/HansMartinA/Vitruv-Applications-ComponentBasedSystems
-	branch = vitruv3
+	url = https://github.com/CIPM-tools/CIPM-Pipeline
 [submodule "Vitruv"]
 	path = Vitruv
 	url = https://github.com/vitruv-tools/Vitruv
-	branch = vitruv3
+[submodule "commit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/caseStudy1"]
+	path = commit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/caseStudy1
+	url = ssh://git.scc.kit.edu/luaCIPM/caseStudy1
+[submodule "commit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/minimalCaseStudy"]
+	path = commit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/minimalCaseStudy
+	url = ssh://git.scc.kit.edu/luaCIPM/MinimalCaseStudy
 [submodule "Palladio-Build-CodingConventions"]
 	path = Palladio-Build-CodingConventions
 	url = https://github.com/PalladioSimulator/Palladio-Build-CodingConventions
-[submodule "change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/caseStudy1"]
-	path = change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/caseStudy1
-	url = ssh://git.scc.kit.edu/luaCIPM/caseStudy1
-[submodule "change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/minimalCaseStudy"]
-	path = change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/minimalCaseStudy
-	url = ssh://git.scc.kit.edu/luaCIPM/MinikmalCaseStudy
-[submodule "cipm.consistency.base.vitruv.vsum.test/TeaStore"]
-    path = change-based-adaptive-instrumentation/cipm.consistency.vsum.test/TeaStore
-    url = https://github.com/DescartesResearch/TeaStore
+[submodule "Palladio-Supporting-EclipseJavaDevelopmentTools"]
+	path = Palladio-Supporting-EclipseJavaDevelopmentTools
+	url = https://github.com/PalladioSimulator/Palladio-Supporting-EclipseJavaDevelopmentTools
+[submodule "Palladio-ReverseEngineering-SoMoX-JaMoPP"]
+	path = Palladio-ReverseEngineering-SoMoX-JaMoPP
+	url = https://github.com/PalladioSimulator/Palladio-ReverseEngineering-SoMoX-JaMoPP

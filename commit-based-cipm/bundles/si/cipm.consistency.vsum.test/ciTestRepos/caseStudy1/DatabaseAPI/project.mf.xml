@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<manifest>
+    <application name="DatabaseAPI">
+        <crown name="DatabaseAPI">
+            <desc>user script</desc>
+            <serves>
+                <event name="OnResult">
+                    <desc>No description yet...</desc>
+                    <param desc="No description yet..." name="result" type="string"/>
+                </event>
+                <event name="OnSqlQueryChange">
+                    <desc>No description yet...</desc>
+                    <param desc="No description yet..." name="sql" type="string"/>
+                </event>
+                <function name="insert">
+                    <desc>No description yet...</desc>
+                </function>
+                <function name="exec">
+                    <desc>No description yet...</desc>
+                </function>
+                <function name="setCodeContent">
+                    <desc>No description yet...</desc>
+                    <param desc="No description yet..." name="content" type="string"/>
+                </function>
+                <function name="setSqlQuery">
+                    <desc>No description yet...</desc>
+                    <param desc="No description yet..." name="sql" type="string"/>
+                </function>
+                <function name="setCodeType">
+                    <desc>No description yet...</desc>
+                    <param desc="No description yet..." name="cType" type="string"/>
+                </function>
+                <function name="execAllCodes">
+                    <desc>No description yet...</desc>
+                </function>
+                <function name="execClearTableCodes">
+                    <desc>No description yet...</desc>
+                </function>
+                <function name="execCountCodeTypes">
+                    <desc>No description yet...</desc>
+                </function>
+                <function name="doInsert">
+                    <desc>No description yet...</desc>
+                    <param name="content" type="string" desc="" />
+                    <param name="type" type="string" desc="" />
+                </function>
+            </serves>
+        </crown>
+        <meta key="author">AppSpace Sample</meta>
+        <meta key="version">2.5.0</meta>
+        <meta key="priority">low</meta>
+        <meta key="read-protected">false</meta>
+        <meta key="copy-protected">false</meta>
+        <entry default="database.lua" path="scripts"/>
+    </application>
+</manifest>

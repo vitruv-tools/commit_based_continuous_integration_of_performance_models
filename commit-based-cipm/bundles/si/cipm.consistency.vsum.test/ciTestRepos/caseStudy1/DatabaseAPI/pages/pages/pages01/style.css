@@ -1,0 +1,21 @@
+.h2, h2 {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.h4, h4 {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.layout-column, layout-column {
+  align-items: stretch;
+}
+
+layout-row>davinci-text-field {
+  flex-grow:1;
+}
+
+.davinci-button, davinci-button {
+  width: fit-content;
+}

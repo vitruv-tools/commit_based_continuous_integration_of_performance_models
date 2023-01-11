@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<plugin>
+   <extension point="org.eclipse.emf.ecore.generated_package">
+      <package
+            uri="http://www.dmodel.com/InstrumentationMetamodel"
+            class="cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage"
+            genModel="model/InstrumentationModel.genmodel"/>
+   </extension>
+</plugin>
