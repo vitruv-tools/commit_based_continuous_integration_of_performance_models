@@ -1,6 +1,6 @@
 [submodule "CIPM-Pipeline"]
 	path = CIPM-Pipeline
-	url = https://github.com/CIPM-tools/CIPM-Pipeline
+	url = https://git.scc.kit.edu/luaCIPM/CIPM-Pipeline
 	branch = eclipse-bridge
 [submodule "Vitruv"]
 	path = Vitruv
@@ -20,3 +20,9 @@
 [submodule "commit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/minimalCaseStudy"]
 	path = commit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/minimalCaseStudy
 	url = https://git.scc.kit.edu/luaCIPM/MinimalCaseStudy
+[submodule "Vitruv-DSLs"]
+	path = Vitruv-DSLs
+	url = https://github.com/vitruv-tools/Vitruv-DSLs
+[submodule "Vitruv-Change"]
+	path = Vitruv-Change
+	url = https://github.com/vitruv-tools/Vitruv-Change
