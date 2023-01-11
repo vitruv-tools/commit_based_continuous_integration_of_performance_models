@@ -17,6 +17,6 @@
 [submodule "commit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/caseStudy1"]
 	path = commit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/caseStudy1
 	url = https://git.scc.kit.edu/luaCIPM/caseStudy1
-[submodule "ommit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/minimalCaseStudy"]
-	path = ommit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/minimalCaseStudy
+[submodule "commit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/minimalCaseStudy"]
+	path = commit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/minimalCaseStudy
 	url = https://git.scc.kit.edu/luaCIPM/MinimalCaseStudy

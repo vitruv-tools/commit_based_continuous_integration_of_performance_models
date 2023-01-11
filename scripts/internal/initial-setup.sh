@@ -11,7 +11,7 @@ git submodule update --init
 pushd CIPM-Pipeline/cipm.consistency.bridge.eclipse/cipm.consistency.base.shared/dep-generator
 sh ./gradlew bundle copyBundles
 popd
-cp -r CIPM-Pipeline/cipm.consistency.bridge.eclipse commit-based-cipm/bundles/fi
+cp -r CIPM-Pipeline/cipm.consistency.bridge.eclipse/* commit-based-cipm/bundles/fi
 
 # # Start server for the update sites of JaMoPP and SoMoX
 # pushd scripts/update-site-server
