@@ -9,6 +9,8 @@ Require-Bundle: org.emftext.language.java,
  jamopp.resource,
  org.apache.log4j,
  org.apache.commons.io,
- com.google.guava
+ com.google.guava,
+ org.eclipse.emf.common;bundle-version="2.26.0",
+ org.eclipse.emf.ecore;bundle-version="2.28.0"
 Export-Package: org.splevo.jamopp.util
 Automatic-Module-Name: org.splevo.jamopp.util
