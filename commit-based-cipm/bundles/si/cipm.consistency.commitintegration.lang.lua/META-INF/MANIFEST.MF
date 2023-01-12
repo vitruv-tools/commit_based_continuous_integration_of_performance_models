@@ -24,4 +24,5 @@ Require-Bundle: cipm.consistency.commitintegration,
  org.eclipse.emf.compare;bundle-version="3.5.3",
  edu.kit.ipd.sdq.commons.util.emf;bundle-version="2.0.0",
  org.splevo.jamopp.diffing;bundle-version="1.0.0",
- org.splevo.diffing;bundle-version="1.0.0"
+ org.splevo.diffing;bundle-version="1.0.0",
+ edu.kit.ipd.sdq.activextendannotations

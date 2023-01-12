@@ -21,7 +21,8 @@ Require-Bundle: javax.inject,
  org.eclipse.text,
  cipm.consistency.models.instrumentation,
  cipm.consistency.commitintegration,
- cipm.consistency.models
+ cipm.consistency.models,
+ cipm.consistency.vsum
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: cipm.consistency.designtime.instrumentation2
 Export-Package: cipm.consistency.designtime.instrumentation2

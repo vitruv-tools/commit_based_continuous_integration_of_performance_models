@@ -7,6 +7,7 @@ import cipm.consistency.commitintegration.CommitIntegrationState;
 import cipm.consistency.designtime.instrumentation2.instrumenter.MinimalMonitoringEnvironmentModelGenerator;
 import cipm.consistency.designtime.instrumentation2.instrumenter.ServiceInstrumentationPointInstrumenter;
 import cipm.consistency.models.CodeModelFacade;
+import cipm.consistency.vsum.VsumFacade;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
