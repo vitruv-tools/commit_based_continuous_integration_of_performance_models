@@ -20,15 +20,30 @@ Please add the following update sites and install the according components:
  - PCM 5.0 (from [update site](https://updatesite.palladio-simulator.com/palladio-build-updatesite/releases/5.0.0))
    - TODO
  - Lombok (from [update site](https://projectlombok.org/p2))
-   - TODO
  - SDQ Commons 2.0 (from [update site](http://kit-sdq.github.io/updatesite/release/commons/2.0.0/))
    - TODO
+ - Vitruv 3.0 (from [update site](https://vitruv-tools.github.io/updatesite/))
+   - TODO 
  - Checkstyle (optional, from [update site](https://checkstyle.org/eclipse-cs-update-site))
    - TODO
 
 
+Make sure than the Setting Preferences > Xtend > Compiler > General > Source Compatibility level ..  is also set to Java 11.
+
 Proceed to import the following projects into the first instance:
- - All projects located in the `commit-based-cipm/bundles/fi` folder
+ - `commit-based-cipm/bundles/fi/*`
+ <!--
+ - `Vitruv/bundles/tools.vitruv.framework.*`
+ - `Vitruv-DSLs/bundles/tools.vitruv.dsls.reactions.*`
+ - `Vitruv-DSLs/bundles/tools.vitruv.dsls.common.*`
+ - `Vitruv-Change/bundles/tools.vitruv.change.*`
+ -->
+ - `luaXtext/org.xtext.lua.*`
+
+You may need to trigger gen model generation manually for the following genmodels (to do this open the file and use Generator > Generate Model Code):
+- `tools.vitruv.change.atomic/metamodel/*.genmodel`
+- `tools.vitruv.change.correspondence/metamodel/*.genmodel`
+- `tools.vitruv.change.correspondence/metamodel/*.genmodel`
 
 If all projects show no errors now, proceed with creating a run configuration for the second instance.
 Set a new empty workspace folder and make sure to enable all plugins (under "> Plugins").

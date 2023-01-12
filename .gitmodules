@@ -26,3 +26,6 @@
 [submodule "Vitruv-Change"]
 	path = Vitruv-Change
 	url = https://github.com/vitruv-tools/Vitruv-Change
+[submodule "luaXtext"]
+	path = luaXtext
+	url = https://git.scc.kit.edu/luaCIPM/luaXtext
