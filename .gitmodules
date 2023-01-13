@@ -2,9 +2,6 @@
 	path = CIPM-Pipeline
 	url = https://git.scc.kit.edu/luaCIPM/CIPM-Pipeline
 	branch = vitruv3
-[submodule "Vitruv"]
-	path = Vitruv
-	url = https://github.com/vitruv-tools/Vitruv
 [submodule "Palladio-Build-CodingConventions"]
 	path = Palladio-Build-CodingConventions
 	url = https://github.com/PalladioSimulator/Palladio-Build-CodingConventions
@@ -20,12 +17,6 @@
 [submodule "commit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/minimalCaseStudy"]
 	path = commit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/minimalCaseStudy
 	url = https://git.scc.kit.edu/luaCIPM/MinimalCaseStudy
-[submodule "Vitruv-DSLs"]
-	path = Vitruv-DSLs
-	url = https://github.com/vitruv-tools/Vitruv-DSLs
-[submodule "Vitruv-Change"]
-	path = Vitruv-Change
-	url = https://github.com/vitruv-tools/Vitruv-Change
 [submodule "luaXtext"]
 	path = luaXtext
 	url = https://git.scc.kit.edu/luaCIPM/luaXtext
