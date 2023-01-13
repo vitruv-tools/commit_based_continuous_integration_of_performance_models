@@ -2,7 +2,7 @@
 # enable jobcontrol
 set -m
 # exit on error
-#set -e
+set -e
 
 # Initialize submodules
 git submodule update --init
@@ -15,13 +15,13 @@ cp -rf CIPM-Pipeline/cipm.consistency.bridge.eclipse/* commit-based-cipm/bundles
 
 # Start server for the update sites of JaMoPP and SoMoX
 pushd scripts/update-site-server
-#fuser -k 8081/tcp
-sh ../../mvnw spring-boot:run &
+fuser -k 8081/tcp || echo No previous server started
+mvn spring-boot:run &
 popd
 
 # Build JaMoPP
 pushd Palladio-Supporting-EclipseJavaDevelopmentTools
-sh mvnw clean verify -Dmaven.test.skip=true
+mvn clean verify -Dmaven.test.skip=true
 popd
 
 # Check that the server for the update site runs
