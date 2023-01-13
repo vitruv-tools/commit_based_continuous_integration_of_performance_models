@@ -14,9 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
 /**
- * A test class for the TeaStore.
+ * A test class for the AppSpace Case Study 1
  * 
  * @author Martin Armbruster
+ * @author Lukas Burgey
  */
 public class CaseStudy1Test extends AppSpaceCITest {
     private static final String COMMIT_TAG_0_1_0 = "fce1b9f12c0719451141078cdc7785e866fdb12f";
@@ -38,8 +39,8 @@ public class CaseStudy1Test extends AppSpaceCITest {
 
     public GitRepositoryWrapper getGitRepositoryWrapper()
             throws InvalidRemoteException, TransportException, GitAPIException, IOException {
-        var parentGitDir = Paths.get("../../.git");
-        var submoduleName = "change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/caseStudy1";
+        var parentGitDir = Paths.get("../../../../.git");
+        var submoduleName = "commit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/caseStudy1";
         return super.getGitRepositoryWrapper()
             .withLocalSubmodule(parentGitDir, submoduleName)
             .initialize();
