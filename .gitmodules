@@ -9,7 +9,7 @@
 	path = Palladio-Supporting-EclipseJavaDevelopmentTools
 	url = https://github.com/PalladioSimulator/Palladio-Supporting-EclipseJavaDevelopmentTools
 [submodule "commit-based-cipm/bundles/Vitruv"]
-	path = commit-based-cipm/bundles/Vitruv
+	path = Vitruv
 	url = https://github.com/CIPM-tools/Vitruv-Domains-ComponentBasedSystems
 	branch = integrated_vitruv
 [submodule "Palladio-ReverseEngineering-SoMoX-JaMoPP"]
