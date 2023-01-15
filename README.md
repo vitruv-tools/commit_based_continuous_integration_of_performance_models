@@ -1,6 +1,6 @@
 # Commit-Based Continuous Integration of Performance Models
 
-** The code review summary of this project can be found [here](./CODE_REVIEW.md) **
+**The code review summary of this project can be found [here](./CODE_REVIEW.md)**
 
 This repository provides the prototypical implementation for the change extraction, change propagation, incremental model update, and adaptive instrumentation of the CIPM approach.
 
