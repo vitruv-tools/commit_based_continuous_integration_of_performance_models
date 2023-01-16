@@ -25,16 +25,16 @@ The first instance contains plugins and dependencies which need to be loaded in 
 
 1. Please add the following update site and install the according components:
     - Lombok (from its [update site](https://projectlombok.org/p2))
-    - CheckStyle (from its [update site](https://checkstyle.org/eclipse-cs-update-site))
+    - CheckStyle (optional, from its [update site](https://checkstyle.org/eclipse-cs-update-site))
+	    - If checkstyle is used: Import the following projects and enable the containing checkstyle rulesets
+			- `CodingConventions/*`
 
 1. Import the following projects:
     - `commit-based-cipm/releng-dev/cipm.consistency.targetplatform`
     - `commit-based-cipm/fi/*` except the domain projects
     - `luaXtext/org.xtext.lua.*`
 
-1. Open the target platform, activate it and then reload it.
-
-1. Make sure that the Setting ` Preferences > Xtend > Compiler > General > Source Compatibility level ..`  is set to Java 11.
+1. Open the target platform from `commit-based-cipm/releng-dev/cipm.consistency.targetplatform`, activate and then reload it.
 
 1. Trigger modelcode generation for the genmodels (Open the genmodel file and click `Generator > Generate Model Code`):
     - org.splevo.diffing/model/splevodiff.genmodel
@@ -42,7 +42,7 @@ The first instance contains plugins and dependencies which need to be loaded in 
 
 1. Generate the Lua xtext code by running `org.xtext.lua/src/org.xtext.lua/GenerateLua.mwe2`
 
-1. If some projects show errors run `Project > Clean > Clean all projects`
+1. If some projects show errors reload the target platform and  run `Project > Clean > Clean all projects`
 
 1. Start the `SecondInstance` launch configuration and proceed to the next section
 
@@ -50,5 +50,7 @@ The first instance contains plugins and dependencies which need to be loaded in 
 
 1. Import all the following projects into the first instance:
    - All projects located in the `commit-based-cipm/bundles/si` folder
+
+1. Make sure that the Setting ` Preferences > Xtend > Compiler > General > Source Compatibility level ..`  is set to Java 11.
 
 1. Run the `CodeReviewEntryPoint` launch configuration. The configuration executes a unit test that executes an integration.
