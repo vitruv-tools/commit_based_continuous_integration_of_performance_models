@@ -701,6 +701,7 @@
         <setEntry value="org.xtext.lua.ide@default:default"/>
         <setEntry value="org.xtext.lua.lib@default:default"/>
         <setEntry value="org.xtext.lua.tests@default:default"/>
+        <setEntry value="org.xtext.lua.ui.tests@default:default"/>
         <setEntry value="org.xtext.lua.ui@default:default"/>
         <setEntry value="org.xtext.lua@default:default"/>
     </setAttribute>
