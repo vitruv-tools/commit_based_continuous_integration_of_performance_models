@@ -3,7 +3,7 @@
 	url = https://git.scc.kit.edu/luaCIPM/CIPM-Pipeline
 	branch = vitruv3
 [submodule "Palladio-Build-CodingConventions"]
-	path = Palladio-Build-CodingConventions
+	path = CodingConventions/Palladio-Build-CodingConventions
 	url = https://github.com/PalladioSimulator/Palladio-Build-CodingConventions
 [submodule "Palladio-Supporting-EclipseJavaDevelopmentTools"]
 	path = Palladio-Supporting-EclipseJavaDevelopmentTools
