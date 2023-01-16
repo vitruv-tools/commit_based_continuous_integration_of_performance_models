@@ -24,7 +24,8 @@ Further the project needs two instances of the Eclipse Modeling Tools 2022-09 se
 The first instance contains plugins and dependencies which need to be loaded in the second instance later on.
 
 1. Please add the following update site and install the according components:
-    - Lombok (from the [update site](https://projectlombok.org/p2))
+    - Lombok (from its [update site](https://projectlombok.org/p2))
+    - CheckStyle (from its [update site](https://checkstyle.org/eclipse-cs-update-site))
 
 1. Import the following projects:
     - `commit-based-cipm/releng-dev/cipm.consistency.targetplatform`
