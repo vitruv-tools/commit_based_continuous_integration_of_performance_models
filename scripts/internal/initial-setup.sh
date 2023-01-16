@@ -31,4 +31,5 @@ git restore .
 git apply --ignore-whitespace ../scripts/internal/SoMoX-Local-Update-Site.patch
 # cp -r ../.mvn/wrapper .mvn/
 mvn clean verify -Dmaven.test.skip=true
+git restore .
 popd
