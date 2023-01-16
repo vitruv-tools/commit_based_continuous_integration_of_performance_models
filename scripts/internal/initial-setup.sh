@@ -8,10 +8,7 @@ set -e
 git submodule update --init
 
 # Prepare bundles from the CIPM-Pipeline
-pushd CIPM-Pipeline/cipm.consistency.bridge.eclipse/cipm.consistency.base.shared/dep-generator
-sh ./gradlew bundle copyBundles
-popd
-cp -rf CIPM-Pipeline/cipm.consistency.bridge.eclipse/* commit-based-cipm/bundles/fi
+sh ./scripts/internal/build-cipm-pipeline.sh
 
 # Start server for the update sites of JaMoPP and SoMoX
 pushd scripts/update-site-server
