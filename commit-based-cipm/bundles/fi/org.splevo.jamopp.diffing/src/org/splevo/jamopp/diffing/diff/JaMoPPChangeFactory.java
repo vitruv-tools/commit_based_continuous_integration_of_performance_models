@@ -77,7 +77,8 @@ public class JaMoPPChangeFactory extends ComposedSwitch<Diff> {
         }
 
         private Diff handleDifferenceInInterface(TypeReference object, Interface interf) {
-            if (interf.getExtends().contains(object)) {
+            if (interf.getExtends()
+                .contains(object)) {
                 ExtendsChange change = JaMoPPDiffFactory.eINSTANCE.createExtendsChange();
                 change.setChangedReference(object);
                 return change;
@@ -90,7 +91,8 @@ public class JaMoPPChangeFactory extends ComposedSwitch<Diff> {
                 ExtendsChange change = JaMoPPDiffFactory.eINSTANCE.createExtendsChange();
                 change.setChangedReference(object);
                 return change;
-            } else if (clazz.getImplements() != null && clazz.getImplements().contains(object)) {
+            } else if (clazz.getImplements() != null && clazz.getImplements()
+                .contains(object)) {
                 ImplementsChange change = JaMoPPDiffFactory.eINSTANCE.createImplementsChange();
                 change.setChangedReference(object);
                 return change;

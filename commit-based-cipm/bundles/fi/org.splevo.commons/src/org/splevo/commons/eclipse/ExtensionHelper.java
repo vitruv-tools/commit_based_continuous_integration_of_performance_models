@@ -63,8 +63,8 @@ public class ExtensionHelper {
             IConfigurationElement[] configurations = extension.getConfigurationElements();
             for (IConfigurationElement element : configurations) {
                 try {
-                    Object o = element.createExecutableExtension(extensionClazz.getSimpleName().toLowerCase()
-                            + ".class");
+                    Object o = element
+                            .createExecutableExtension(extensionClazz.getSimpleName().toLowerCase() + ".class");
                     if ((o != null) && extensionClazz.isAssignableFrom(o.getClass())) {
                         extensionObjects.add((T) o);
                     }

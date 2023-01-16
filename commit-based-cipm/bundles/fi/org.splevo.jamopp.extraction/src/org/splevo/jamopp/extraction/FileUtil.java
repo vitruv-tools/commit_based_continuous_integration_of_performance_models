@@ -33,7 +33,10 @@ public final class FileUtil {
         if (path == null || path.isEmpty()) {
             return null;
         }
-        Iterable<String> split = Splitter.on(File.separator).trimResults().omitEmptyStrings().split(path);
+        Iterable<String> split = Splitter.on(File.separator)
+            .trimResults()
+            .omitEmptyStrings()
+            .split(path);
         ArrayList<String> segments = Lists.newArrayList(split);
         String lastSegment = segments.get(segments.size() - 1);
         return lastSegment;

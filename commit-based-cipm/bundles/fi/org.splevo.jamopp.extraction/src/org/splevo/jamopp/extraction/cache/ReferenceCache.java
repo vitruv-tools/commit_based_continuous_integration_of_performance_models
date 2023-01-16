@@ -69,8 +69,8 @@ public class ReferenceCache {
      */
     private int notResolvedFromCacheCounterReference = 0;
 
-    private final Set<URI> blacklistedResourceURIs = Sets.newHashSet(); 
-    
+    private final Set<URI> blacklistedResourceURIs = Sets.newHashSet();
+
     /**
      * The file the cache will be serialized into.
      */
@@ -259,8 +259,10 @@ public class ReferenceCache {
      */
     public EObject getEObject(Resource resource, String id) {
 
-        String resourceUri = resource.getURI().toString();
-        LinkedHashMap<String, String> targetUriMap = cacheData.getResourceToTargetURIListMap().get(resourceUri);
+        String resourceUri = resource.getURI()
+            .toString();
+        LinkedHashMap<String, String> targetUriMap = cacheData.getResourceToTargetURIListMap()
+            .get(resourceUri);
         if (targetUriMap == null) {
             return null;
         }
@@ -280,7 +282,9 @@ public class ReferenceCache {
      * @return True/ False if it is cached or not.
      */
     public boolean isCached(Resource resource) {
-        return cacheData.getResourceToTargetURIListMap().containsKey(resource.getURI().toString());
+        return cacheData.getResourceToTargetURIListMap()
+            .containsKey(resource.getURI()
+                .toString());
     }
 
     /**
@@ -296,13 +300,14 @@ public class ReferenceCache {
      */
     public void registerEObject(Resource resource, String fragmentURI, EObject resolvedElement) {
 
-        if (resolvedElement != null && resolvedElement.eResource() != null
-                && resolvedElement.eResource().getURI() != null
-                && blacklistedResourceURIs.contains(resolvedElement.eResource().getURI())) {
+        if (resolvedElement != null && resolvedElement.eResource() != null && resolvedElement.eResource()
+            .getURI() != null && blacklistedResourceURIs.contains(resolvedElement.eResource()
+                .getURI())) {
             return;
         }
-        
-        String resourceUri = resource.getURI().toString();
+
+        String resourceUri = resource.getURI()
+            .toString();
 
         if (resolvedElement == null) {
             logger.warn(String.format("Tried to register a null element in the cache %s#%s", resourceUri, fragmentURI));
@@ -320,18 +325,22 @@ public class ReferenceCache {
         String targetURI;
         Resource targetResource = resolvedElement.eResource();
         if (targetResource != null) {
-            targetURI = targetResource.getURI().toString() + "#" + targetResource.getURIFragment(resolvedElement);
+            targetURI = targetResource.getURI()
+                .toString() + "#" + targetResource.getURIFragment(resolvedElement);
         } else if (resolvedElement.eIsProxy()) {
-            targetURI = ((InternalEObject) resolvedElement).eProxyURI().toString();
+            targetURI = ((InternalEObject) resolvedElement).eProxyURI()
+                .toString();
         } else {
             logger.error("Unable to identify target URI of resolved element: " + resolvedElement);
             return;
         }
 
-        LinkedHashMap<String, String> targetURIMap = cacheData.getResourceToTargetURIListMap().get(resourceUri);
+        LinkedHashMap<String, String> targetURIMap = cacheData.getResourceToTargetURIListMap()
+            .get(resourceUri);
         if (targetURIMap == null) {
             targetURIMap = Maps.newLinkedHashMap();
-            cacheData.getResourceToTargetURIListMap().put(resourceUri, targetURIMap);
+            cacheData.getResourceToTargetURIListMap()
+                .put(resourceUri, targetURIMap);
         }
 
         targetURIMap.put(fragmentURI, targetURI);
@@ -339,7 +348,8 @@ public class ReferenceCache {
     }
 
     private boolean isNotLibraryProxy(EObject resolvedElement) {
-        return !("pathmap".equals(((InternalEObject) resolvedElement).eProxyURI().scheme()));
+        return !("pathmap".equals(((InternalEObject) resolvedElement).eProxyURI()
+            .scheme()));
     }
 
     /**
@@ -353,16 +363,22 @@ public class ReferenceCache {
         if (!isCached(resource)) {
             return;
         }
-        final String uriToRemovePrefix = resource.getURI().toString() + "#";
-        cacheData.getResourceToTargetURIListMap().remove(resource.getURI().toString());
-        for (LinkedHashMap<String, String> map : cacheData.getResourceToTargetURIListMap().values()) {
+        final String uriToRemovePrefix = resource.getURI()
+            .toString() + "#";
+        cacheData.getResourceToTargetURIListMap()
+            .remove(resource.getURI()
+                .toString());
+        for (LinkedHashMap<String, String> map : cacheData.getResourceToTargetURIListMap()
+            .values()) {
             List<String> toRemove = Lists.newArrayList();
             for (Entry<String, String> entry : map.entrySet()) {
-                if (entry.getValue().startsWith(uriToRemovePrefix)) {
+                if (entry.getValue()
+                    .startsWith(uriToRemovePrefix)) {
                     toRemove.add(entry.getKey());
                 }
             }
-            map.keySet().removeAll(toRemove);
+            map.keySet()
+                .removeAll(toRemove);
         }
         save();
     }

@@ -130,7 +130,8 @@ public class HierarchicalMatchEngine implements IMatchEngine {
      * query the comparison scope for these resource sets children, then delegate to an
      * {@link IResourceMatcher} to determine the resource mappings.
      *
-     * The content of the matched resources is then pushed into the resource specific match method.<br>
+     * The content of the matched resources is then pushed into the resource specific match
+     * method.<br>
      *
      * <b>Note:</b><br>
      * In contrast to the DefaultMatchEngine, the match for eObjects recursively iterates through
@@ -159,7 +160,8 @@ public class HierarchicalMatchEngine implements IMatchEngine {
         final Iterable<MatchResource> mappings = matcher.createMappings(leftChildren, rightChildren, originChildren);
 
         for (MatchResource mapping : mappings) {
-            comparison.getMatchedResources().add(mapping);
+            comparison.getMatchedResources()
+                .add(mapping);
 
             final Resource leftRes = mapping.getLeft();
             final Resource rightRes = mapping.getRight();
@@ -184,11 +186,17 @@ public class HierarchicalMatchEngine implements IMatchEngine {
      */
     protected void match(Comparison comparison, final Resource leftRes, final Resource rightRes, Monitor monitor) {
 
-    	if (comparison.getMatchedResources().size() == 0) {
-    		resourceMatcher.createMappings(List.of(leftRes).iterator(), List.of(rightRes).iterator(), null)
-    			.forEach(match -> comparison.getMatchedResources().add(match));
-    	}
-    	
+        if (comparison.getMatchedResources()
+            .size() == 0) {
+            resourceMatcher.createMappings(List.of(leftRes)
+                .iterator(),
+                    List.of(rightRes)
+                        .iterator(),
+                    null)
+                .forEach(match -> comparison.getMatchedResources()
+                    .add(match));
+        }
+
         List<EObject> leftElements = new ArrayList<EObject>();
         List<EObject> rightElements = new ArrayList<EObject>();
 
@@ -200,7 +208,8 @@ public class HierarchicalMatchEngine implements IMatchEngine {
         }
 
         List<Match> matches = match(comparison, leftElements, rightElements, monitor);
-        comparison.getMatches().addAll(matches);
+        comparison.getMatches()
+            .addAll(matches);
     }
 
     /**
@@ -222,7 +231,8 @@ public class HierarchicalMatchEngine implements IMatchEngine {
         List<EObject> rightElements = Lists.newArrayList(right);
 
         List<Match> matches = match(comparison, leftElements, rightElements, monitor);
-        comparison.getMatches().addAll(matches);
+        comparison.getMatches()
+            .addAll(matches);
     }
 
     /**
@@ -257,13 +267,15 @@ public class HierarchicalMatchEngine implements IMatchEngine {
                     match.setRight(rightElement);
                     List<Match> subMatches = match(comparison, leftElement.eContents(), rightElement.eContents(),
                             monitor);
-                    match.getSubmatches().addAll(subMatches);
+                    match.getSubmatches()
+                        .addAll(subMatches);
                     break;
                 }
             }
-            
+
             if (match.getRight() == null) {
-            	match.getSubmatches().addAll(match(comparison, leftElement.eContents(), new BasicEList<>(), monitor));
+                match.getSubmatches()
+                    .addAll(match(comparison, leftElement.eContents(), new BasicEList<>(), monitor));
             }
 
             matches.add(match);
@@ -287,7 +299,8 @@ public class HierarchicalMatchEngine implements IMatchEngine {
         for (EObject element : elements) {
             Match match = CompareFactory.eINSTANCE.createMatch();
             match.setRight(element);
-            match.getSubmatches().addAll(createMatchesForRightElements(element.eContents()));
+            match.getSubmatches()
+                .addAll(createMatchesForRightElements(element.eContents()));
             rightMatches.add(match);
         }
         return rightMatches;
@@ -349,7 +362,8 @@ public class HierarchicalMatchEngine implements IMatchEngine {
     private Comparison createComparison() {
         Comparison comparison = CompareFactory.eINSTANCE.createComparison();
 
-        comparison.eAdapters().add(equalityHelper);
+        comparison.eAdapters()
+            .add(equalityHelper);
         equalityHelper.setTarget(comparison);
 
         return comparison;

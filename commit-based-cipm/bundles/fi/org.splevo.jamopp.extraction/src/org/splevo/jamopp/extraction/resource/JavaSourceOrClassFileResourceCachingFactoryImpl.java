@@ -23,7 +23,7 @@ import org.splevo.jamopp.extraction.cache.ReferenceCache;
 public class JavaSourceOrClassFileResourceCachingFactoryImpl implements Resource.Factory {
 
     private final Resource.Factory factory;
-    
+
     /** The reference cache to use. */
     private ReferenceCache referenceCache = null;
 

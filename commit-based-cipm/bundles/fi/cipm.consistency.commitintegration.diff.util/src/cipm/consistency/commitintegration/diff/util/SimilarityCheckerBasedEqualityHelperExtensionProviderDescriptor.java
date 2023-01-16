@@ -8,37 +8,37 @@ import org.eclipse.emf.ecore.EObject;
 import org.splevo.jamopp.diffing.similarity.SimilarityChecker;
 
 /**
- * A descriptor for the provider of a EqualityHelperExtension which is based on the SimilarityChecker.
+ * A descriptor for the provider of a EqualityHelperExtension which is based on the
+ * SimilarityChecker.
  * 
  * @author Martin Armbruster
  */
 public class SimilarityCheckerBasedEqualityHelperExtensionProviderDescriptor
-		implements EqualityHelperExtensionProvider.Descriptor {
-	private SimilarityChecker checker;
+        implements EqualityHelperExtensionProvider.Descriptor {
+    private SimilarityChecker checker;
 
-	public SimilarityCheckerBasedEqualityHelperExtensionProviderDescriptor(SimilarityChecker check) {
-		checker = check;
-	}
+    public SimilarityCheckerBasedEqualityHelperExtensionProviderDescriptor(SimilarityChecker check) {
+        checker = check;
+    }
 
-	@Override
-	public EqualityHelperExtensionProvider getEqualityHelperExtensionProvider() {
-		return new EqualityHelperExtensionProvider() {
-			@Override
-			public SpecificMatch matchingEObjects(EObject object1, EObject object2, IEqualityHelper equalityHelper) {
-				Boolean r = checker.isSimilar(object1, object2);
-				return r == null ? SpecificMatch.UNKNOWN
-					: (r ? SpecificMatch.MATCH : SpecificMatch.UNMATCH);
-			}
-		};
-	}
+    @Override
+    public EqualityHelperExtensionProvider getEqualityHelperExtensionProvider() {
+        return new EqualityHelperExtensionProvider() {
+            @Override
+            public SpecificMatch matchingEObjects(EObject object1, EObject object2, IEqualityHelper equalityHelper) {
+                Boolean r = checker.isSimilar(object1, object2);
+                return r == null ? SpecificMatch.UNKNOWN : (r ? SpecificMatch.MATCH : SpecificMatch.UNMATCH);
+            }
+        };
+    }
 
-	@Override
-	public int getRanking() {
-		return 20;
-	}
+    @Override
+    public int getRanking() {
+        return 20;
+    }
 
-	@Override
-	public Pattern getNsURI() {
-		return Pattern.compile(".*");
-	}
+    @Override
+    public Pattern getNsURI() {
+        return Pattern.compile(".*");
+    }
 }

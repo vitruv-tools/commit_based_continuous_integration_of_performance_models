@@ -159,7 +159,8 @@ public class JaMoPPDiffBuilder extends DiffBuilder {
                 || value instanceof AdditionalLocalVariable || value instanceof ClassifierReference
                 || value instanceof Final || value instanceof CatchBlock
                 || value instanceof NamespaceClassifierReference || value instanceof PackageReference
-                || value instanceof IdentifierReference || value instanceof PrimitiveType || value instanceof NormalSwitchCase) {
+                || value instanceof IdentifierReference || value instanceof PrimitiveType
+                || value instanceof NormalSwitchCase) {
             Match nextParent = nextResonableMatch(match);
             if (nextParent != null) {
                 EObject parentObject = null;

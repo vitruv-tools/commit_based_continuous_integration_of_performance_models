@@ -40,7 +40,8 @@ public class ConstructorExtension {
      * <ol>
      * <li><code>other</code> is perfect match: <code>co</code> can not be better</li>
      * <li><code>other</code> is weak match: true only if <code>co</code> is perfect match</li>
-     * <li><code>other</code> does not match: True only if <code>co</code> is at least weak match</li>
+     * <li><code>other</code> does not match: True only if <code>co</code> is at least weak
+     * match</li>
      * </ol>
      *
      * @param co
@@ -52,8 +53,7 @@ public class ConstructorExtension {
      * @return True only if the new {@link Constructor} <code>co</code> is better than the other
      *         one.
      */
-    public static boolean isBetterConstructorForCall(Constructor co, Constructor other,
-            NewConstructorCall call) {
+    public static boolean isBetterConstructorForCall(Constructor co, Constructor other, NewConstructorCall call) {
 
         if (isConstructorForCall(other, call, true)) {
             return false;
@@ -81,7 +81,8 @@ public class ConstructorExtension {
 
         Type callType = call.getReferencedType();
         if (callType instanceof ConcreteClassifier) {
-            if (!((ConcreteClassifier) callType).getMembers().contains(co)) {
+            if (!((ConcreteClassifier) callType).getMembers()
+                .contains(co)) {
                 return false;
             }
         } else {
@@ -127,7 +128,8 @@ public class ConstructorExtension {
             boolean parametersMatch = true;
             for (int i = 0; i < argumentTypeList.size(); i++) {
                 Parameter parameter = parameterList.get(i);
-                Expression argument = call.getArguments().get(i);
+                Expression argument = call.getArguments()
+                    .get(i);
 
                 Type parameterType = parameterTypeList.get(i);
                 Type argumentType = argumentTypeList.get(i);
@@ -139,13 +141,13 @@ public class ConstructorExtension {
                 if (!parameterType.eIsProxy() || !argumentType.eIsProxy()) {
                     long argumentArrayDimension = argument.getArrayDimension();
                     if (needsPerfectMatch) {
-                        long parameterArrayDimension = parameter.getTypeReference().getArrayDimension();
-                        parametersMatch = parametersMatch
-                                && argumentType.equalsType(argumentArrayDimension, parameterType,
-                                        parameterArrayDimension);
+                        long parameterArrayDimension = parameter.getTypeReference()
+                            .getArrayDimension();
+                        parametersMatch = parametersMatch && argumentType.equalsType(argumentArrayDimension,
+                                parameterType, parameterArrayDimension);
                     } else {
-                        parametersMatch = parametersMatch
-                                && argumentType.isSuperType(argumentArrayDimension, parameterType, parameter.getTypeReference());
+                        parametersMatch = parametersMatch && argumentType.isSuperType(argumentArrayDimension,
+                                parameterType, parameter.getTypeReference());
                     }
                 } else {
                     return false;

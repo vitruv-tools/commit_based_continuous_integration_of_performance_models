@@ -19,28 +19,26 @@ import org.splevo.commons.registry.IdBasedRegistryBase;
  */
 public enum DifferRegistry {
     INSTANCE;
-    
+
     private final InnerDifferRegistry innerRegistry = new InnerDifferRegistry();
-    
+
     /**
      * @return The singleton instance.
      */
     public static InnerDifferRegistry getInstance() {
         return INSTANCE.innerRegistry;
     }
-    
+
     /**
      * Implementation class for the differencing engines registry.
      */
     public class InnerDifferRegistry extends IdBasedRegistryBase<Differ, String> {
-        
+
         @Override
         protected int compareElements(Differ element1, Differ element2) {
             return element1.getOrderId() - element2.getOrderId();
         }
 
     }
-    
+
 }
-
-

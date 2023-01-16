@@ -165,7 +165,7 @@ public class JaMoPPDiffer implements Differ {
     public JaMoPPDiffer(JaMoPPSoftwareModelExtractor extractor) {
         this.extractor = extractor;
     }
-    
+
     /**
      * Load the source models from the according directories and perform the difference analysis of
      * the loaded {@link ResourceSet}s. <br>
@@ -312,8 +312,8 @@ public class JaMoPPDiffer implements Differ {
      * @return The ready to use cache.
      */
     private LoadingCache<EObject, URI> initEqualityCache() {
-        CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder().maximumSize(
-                DefaultMatchEngine.DEFAULT_EOBJECT_URI_CACHE_MAX_SIZE);
+        CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder()
+            .maximumSize(DefaultMatchEngine.DEFAULT_EOBJECT_URI_CACHE_MAX_SIZE);
         final LoadingCache<EObject, URI> cache = EqualityHelper.createDefaultCache(cacheBuilder);
         return cache;
     }
@@ -385,8 +385,8 @@ public class JaMoPPDiffer implements Differ {
             }
 
             private boolean isSingleSideRootMatch(Match rootMatch) {
-                return rootMatch.getSubmatches().size() == 0
-                        && (rootMatch.getLeft() == null || rootMatch.getRight() == null);
+                return rootMatch.getSubmatches()
+                    .size() == 0 && (rootMatch.getLeft() == null || rootMatch.getRight() == null);
             }
         };
         return diffEngine;
@@ -431,8 +431,8 @@ public class JaMoPPDiffer implements Differ {
     private SimilarityChecker initSimilarityChecker(Map<String, String> diffingOptions) {
         String configString = diffingOptions.get(OPTION_JAVA_CLASSIFIER_NORMALIZATION);
         LinkedHashMap<Pattern, String> classifierNorms = NormalizationUtil.loadRemoveNormalizations(configString, null);
-        LinkedHashMap<Pattern, String> compUnitNorms = NormalizationUtil
-                .loadRemoveNormalizations(configString, ".java");
+        LinkedHashMap<Pattern, String> compUnitNorms = NormalizationUtil.loadRemoveNormalizations(configString,
+                ".java");
 
         String configStringPackage = diffingOptions.get(OPTION_JAVA_PACKAGE_NORMALIZATION);
         LinkedHashMap<Pattern, String> packageNorms = NormalizationUtil.loadReplaceNormalizations(configStringPackage);
@@ -464,14 +464,14 @@ public class JaMoPPDiffer implements Differ {
 
         String packageNormConfig = diffingOptions.get(OPTION_JAVA_PACKAGE_NORMALIZATION);
         LinkedHashMap<Pattern, String> uriNormalizations = NormalizationUtil
-                .loadReplaceNormalizations(packageNormConfig);
+            .loadReplaceNormalizations(packageNormConfig);
 
         String classNormConfig = diffingOptions.get(OPTION_JAVA_CLASSIFIER_NORMALIZATION);
         LinkedHashMap<Pattern, String> fileNormalizations = NormalizationUtil.loadRemoveNormalizations(classNormConfig,
                 ".java");
 
-        HierarchicalStrategyResourceMatcher resourceMatcher = new HierarchicalStrategyResourceMatcher(
-                uriNormalizations, fileNormalizations);
+        HierarchicalStrategyResourceMatcher resourceMatcher = new HierarchicalStrategyResourceMatcher(uriNormalizations,
+                fileNormalizations);
 
         return resourceMatcher;
     }

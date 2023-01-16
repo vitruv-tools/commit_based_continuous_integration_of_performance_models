@@ -30,8 +30,8 @@ public class DefaultDiffingService implements DiffingService {
     private static final String MSG_DIFFER_NOT_SELECTED = "No differ selected.";
 
     @Override
-    public Comparison diffSoftwareModels(List<String> differIds, ResourceSet leadingModel,
-            ResourceSet integrationModel, Map<String, String> diffingOptions) throws DiffingException {
+    public Comparison diffSoftwareModels(List<String> differIds, ResourceSet leadingModel, ResourceSet integrationModel,
+            Map<String, String> diffingOptions) throws DiffingException {
 
         if (differIds.size() == 0) {
             throw new DiffingException(String.format(MSG_DIFFER_NOT_SELECTED));
@@ -41,7 +41,8 @@ public class DefaultDiffingService implements DiffingService {
         diffModel.setThreeWay(false);
 
         for (String differId : differIds) {
-            Differ differ = DifferRegistry.getInstance().getElementById(differId);
+            Differ differ = DifferRegistry.getInstance()
+                .getElementById(differId);
             if (differ == null) {
                 logger.warn("Selected Differ not registered: " + differId);
                 continue;
@@ -50,8 +51,10 @@ public class DefaultDiffingService implements DiffingService {
             Comparison partComparisonModel;
             try {
                 partComparisonModel = differ.doDiff(leadingModel, integrationModel, diffingOptions);
-                diffModel.getMatches().addAll(partComparisonModel.getMatches());
-                diffModel.getMatchedResources().addAll(partComparisonModel.getMatchedResources());
+                diffModel.getMatches()
+                    .addAll(partComparisonModel.getMatches());
+                diffModel.getMatchedResources()
+                    .addAll(partComparisonModel.getMatchedResources());
             } catch (DiffingNotSupportedException e) {
                 logger.info("The differ does not support the provided input");
             }

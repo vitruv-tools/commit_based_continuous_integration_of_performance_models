@@ -15,55 +15,59 @@ import org.emftext.language.java.members.Method;
  * @author Martin Armbruster
  */
 public class JavaChangedMethodDetectorDiffPostProcessor implements IPostProcessor {
-	private Set<Method> changedMethods = new HashSet<>();
-	
-	/**
-	 * Returns a set with all changed methods.
-	 * 
-	 * @return the set of changed methods.
-	 */
-	public Set<Method> getChangedMethods() {
-		return changedMethods;
-	}
-	
-	@Override
-	public void postMatch(Comparison comparison, Monitor monitor) {
-	}
+    private Set<Method> changedMethods = new HashSet<>();
 
-	@Override
-	public void postDiff(Comparison comparison, Monitor monitor) {
-		comparison.getMatches().forEach(this::checkForMethods);
-	}
-	
-	private void checkForMethods(Match m) {
-		if (m.getLeft() instanceof Method && m.getRight() instanceof Method) {
-			if (hasDifferences(m)) {
-				changedMethods.add((Method) m.getRight());
-			}
-		} else {
-			m.getSubmatches().forEach(this::checkForMethods);
-		}
-	}
-	
-	private boolean hasDifferences(Match m) {
-		return m.getDifferences().size() > 0
-				|| m.getSubmatches().stream().map(this::hasDifferences)
-				.reduce(false, (a, b) -> a || b);
-	}
+    /**
+     * Returns a set with all changed methods.
+     * 
+     * @return the set of changed methods.
+     */
+    public Set<Method> getChangedMethods() {
+        return changedMethods;
+    }
 
-	@Override
-	public void postRequirements(Comparison comparison, Monitor monitor) {
-	}
+    @Override
+    public void postMatch(Comparison comparison, Monitor monitor) {
+    }
 
-	@Override
-	public void postEquivalences(Comparison comparison, Monitor monitor) {
-	}
+    @Override
+    public void postDiff(Comparison comparison, Monitor monitor) {
+        comparison.getMatches()
+            .forEach(this::checkForMethods);
+    }
 
-	@Override
-	public void postConflicts(Comparison comparison, Monitor monitor) {
-	}
+    private void checkForMethods(Match m) {
+        if (m.getLeft() instanceof Method && m.getRight() instanceof Method) {
+            if (hasDifferences(m)) {
+                changedMethods.add((Method) m.getRight());
+            }
+        } else {
+            m.getSubmatches()
+                .forEach(this::checkForMethods);
+        }
+    }
 
-	@Override
-	public void postComparison(Comparison comparison, Monitor monitor) {
-	}
+    private boolean hasDifferences(Match m) {
+        return m.getDifferences()
+            .size() > 0 || m.getSubmatches()
+                .stream()
+                .map(this::hasDifferences)
+                .reduce(false, (a, b) -> a || b);
+    }
+
+    @Override
+    public void postRequirements(Comparison comparison, Monitor monitor) {
+    }
+
+    @Override
+    public void postEquivalences(Comparison comparison, Monitor monitor) {
+    }
+
+    @Override
+    public void postConflicts(Comparison comparison, Monitor monitor) {
+    }
+
+    @Override
+    public void postComparison(Comparison comparison, Monitor monitor) {
+    }
 }

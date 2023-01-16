@@ -53,7 +53,8 @@ public class SimilarityChecker {
      *            The normalizations to replace expressions.
      */
     public SimilarityChecker(LinkedHashMap<Pattern, String> classifierNormalizations,
-            LinkedHashMap<Pattern, String> compilationUnitNormalizations, LinkedHashMap<Pattern, String> packageNormalizations) {
+            LinkedHashMap<Pattern, String> compilationUnitNormalizations,
+            LinkedHashMap<Pattern, String> packageNormalizations) {
         this.classifierNormalizations = classifierNormalizations;
         this.compilationUnitNormalizations = compilationUnitNormalizations;
         this.packageNormalizations = packageNormalizations;
@@ -67,23 +68,25 @@ public class SimilarityChecker {
         this.compilationUnitNormalizations = Maps.newLinkedHashMap();
         this.packageNormalizations = Maps.newLinkedHashMap();
     }
-    
+
     /**
-     * Indicates if the SimilarityChecker instance checks the position of statements in its default behavior.
+     * Indicates if the SimilarityChecker instance checks the position of statements in its default
+     * behavior.
      * 
      * @return true if the statement positions are checked. false otherwise.
      */
     public boolean checksStatementPositionOnDefault() {
-    	return this.defaultCheckStatementPositionFlag;
+        return this.defaultCheckStatementPositionFlag;
     }
-    
+
     /**
      * Controls if the SimilarityChecker checks the position of statements in the default behavior.
      * 
-     * @param check true if the statement positions are checked. false otherwise.
+     * @param check
+     *            true if the statement positions are checked. false otherwise.
      */
     public void setCheckStatementPositionOnDefault(boolean check) {
-    	this.defaultCheckStatementPositionFlag = check;
+        this.defaultCheckStatementPositionFlag = check;
     }
 
     /**
@@ -97,7 +100,8 @@ public class SimilarityChecker {
      *            The first list of elements to check.
      * @param elements2
      *            The second list of elements to check.
-     * @return TRUE, if they are all similar; FALSE if a different number of elements is submitted or at least one pair of elements is not similar to each other.
+     * @return TRUE, if they are all similar; FALSE if a different number of elements is submitted
+     *         or at least one pair of elements is not similar to each other.
      */
     public Boolean areSimilar(final List<? extends EObject> elements1, final List<? extends EObject> elements2) {
         if (elements1.size() != elements2.size()) {
@@ -160,27 +164,32 @@ public class SimilarityChecker {
         }
 
         // check the elements to be of the same type
-        if (!element1.getClass().equals(element2.getClass())) {
+        if (!element1.getClass()
+            .equals(element2.getClass())) {
             return Boolean.FALSE;
         }
 
         // check type specific similarity
         return this.checkSimilarityForResolvedAndSameType(element1, element2, checkStatementPosition);
     }
-    
+
     /**
-     * Checks the similarity of two EObjects where both EObjects are resolved and have the same type.
+     * Checks the similarity of two EObjects where both EObjects are resolved and have the same
+     * type.
      * 
-     * @param element1 the first EObject.
-     * @param element2 the second EObject.
-     * @param checkStatementPosition true if the position of statements should be checked. false otherwise.
-     *                               If no statements are involved, the flag can be ignored.
+     * @param element1
+     *            the first EObject.
+     * @param element2
+     *            the second EObject.
+     * @param checkStatementPosition
+     *            true if the position of statements should be checked. false otherwise. If no
+     *            statements are involved, the flag can be ignored.
      * @return true if the EObjects are similar. null if they cannot be compared. false otherwise.
      */
     protected Boolean checkSimilarityForResolvedAndSameType(EObject element1, EObject element2,
-    		boolean checkStatementPosition) {
-    	return new SimilaritySwitch(element2, checkStatementPosition, classifierNormalizations,
-    			compilationUnitNormalizations, packageNormalizations).doSwitch(element1);
+            boolean checkStatementPosition) {
+        return new SimilaritySwitch(element2, checkStatementPosition, classifierNormalizations,
+                compilationUnitNormalizations, packageNormalizations).doSwitch(element1);
     }
 
     /**

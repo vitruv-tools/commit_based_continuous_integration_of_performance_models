@@ -51,5 +51,6 @@ public interface ExtractionService {
      * @param loadLayoutInformation
      *            Flag to activate loading of layout information.
      */
-    public void prepareResourceSet(ResourceSet resourceSet, List<String> sourceModelPaths, boolean loadLayoutInformation);
+    public void prepareResourceSet(ResourceSet resourceSet, List<String> sourceModelPaths,
+            boolean loadLayoutInformation);
 }

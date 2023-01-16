@@ -62,7 +62,9 @@ public class JavaModelMatchScope extends DefaultComparisonScope {
         public boolean apply(Resource input) {
 
             // filter path map elements
-            if (input.getURI().toString().startsWith("pathmap:/javaclass/")) {
+            if (input.getURI()
+                .toString()
+                .startsWith("pathmap:/javaclass/")) {
                 return false;
             }
 

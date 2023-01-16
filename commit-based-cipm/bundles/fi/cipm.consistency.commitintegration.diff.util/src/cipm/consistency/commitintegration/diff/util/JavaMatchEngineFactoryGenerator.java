@@ -9,15 +9,15 @@ import org.splevo.jamopp.diffing.similarity.SimilarityChecker;
  * @author Martin Armbruster
  */
 public final class JavaMatchEngineFactoryGenerator {
-	private JavaMatchEngineFactoryGenerator() {
-	}
+    private JavaMatchEngineFactoryGenerator() {
+    }
 
-	/**
-	 * Generates the HierarchicalMatchEngineFactory.
-	 * 
-	 * @return the generated factory.
-	 */
-	public static HierarchicalMatchEngineFactory generateMatchEngineFactory() {
-		return HierarchicalMatchEngineFactoryGenerator.generateMatchEngineFactory(new SimilarityChecker(), "javaxmi");
-	}
+    /**
+     * Generates the HierarchicalMatchEngineFactory.
+     * 
+     * @return the generated factory.
+     */
+    public static HierarchicalMatchEngineFactory generateMatchEngineFactory() {
+        return HierarchicalMatchEngineFactoryGenerator.generateMatchEngineFactory(new SimilarityChecker(), "javaxmi");
+    }
 }

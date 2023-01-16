@@ -31,8 +31,6 @@ import com.google.common.base.Strings;
  */
 public class SPLevoResourceSet extends ResourceSetImpl {
 
-    
-    
     @Override
     public EObject getEObject(URI uri, boolean loadOnDemand) {
         return super.getEObject(convertURI(uri), loadOnDemand);
@@ -74,7 +72,7 @@ public class SPLevoResourceSet extends ResourceSetImpl {
         }
 
     }
-        
+
     private static URI createURI(URI uri, String fragment) {
         if (Strings.isNullOrEmpty(fragment)) {
             return uri;

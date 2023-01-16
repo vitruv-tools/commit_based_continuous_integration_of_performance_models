@@ -133,11 +133,9 @@ public class JaMoPPPostProcessor implements IPostProcessor {
     /**
      * Clean up the resulting diff model.
      * <ol>
-     * <li>
-     * Scan the differences and build refined Diff elements for to detailed ones. (e.g. Expressions
-     * etc.)</li>
-     * <li>
-     * Remove nested diffs for statement changes. E.g. if an if statement has been changed, no
+     * <li>Scan the differences and build refined Diff elements for to detailed ones. (e.g.
+     * Expressions etc.)</li>
+     * <li>Remove nested diffs for statement changes. E.g. if an if statement has been changed, no
      * additional (nested) diffs must be specified inside this.<br>
      * If a more fine-grained level than statements is intended this needs to be adapted.</li>
      * </ol>
@@ -167,7 +165,8 @@ public class JaMoPPPostProcessor implements IPostProcessor {
             Diff refinedDiff = refineToDetailedDiff(diff);
             if (refinedDiff != null) {
                 Match match = diff.getMatch();
-                match.getDifferences().remove(diff);
+                match.getDifferences()
+                    .remove(diff);
                 logger.info("PostDiff: Refined to detailed Diff: " + diff);
             }
         }
@@ -187,8 +186,9 @@ public class JaMoPPPostProcessor implements IPostProcessor {
             Match parentMatch = getParentMatch(diff.getMatch());
             while (parentMatch != null) {
 
-                if (parentMatch.getDifferences().size() > 0 && atLeastOneDiffIsStatement(parentMatch)
-                        && oneIsParent(parentMatch, diff) && noClassElement(parentMatch)) {
+                if (parentMatch.getDifferences()
+                    .size() > 0 && atLeastOneDiffIsStatement(parentMatch) && oneIsParent(parentMatch, diff)
+                        && noClassElement(parentMatch)) {
                     diffsToRemove.add(diff);
                     break;
                 }
@@ -198,7 +198,9 @@ public class JaMoPPPostProcessor implements IPostProcessor {
         }
 
         for (Diff diff : diffsToRemove) {
-            diff.getMatch().getDifferences().remove(diff);
+            diff.getMatch()
+                .getDifferences()
+                .remove(diff);
         }
     }
 
@@ -303,7 +305,8 @@ public class JaMoPPPostProcessor implements IPostProcessor {
 
                 if (refinedDiffCache.containsKey(parentElement)) {
                     refinedDiff = refinedDiffCache.get(parentElement);
-                    refinedDiff.getRefinedBy().add(referenceChange);
+                    refinedDiff.getRefinedBy()
+                        .add(referenceChange);
                     return refinedDiff;
                 }
 
@@ -312,8 +315,10 @@ public class JaMoPPPostProcessor implements IPostProcessor {
                     Match nextParentMatch = getParentMatch(parentMatch);
                     refinedDiff.setKind(DifferenceKind.CHANGE);
                     refinedDiff.setMatch(nextParentMatch);
-                    refinedDiff.getRefinedBy().add(referenceChange);
-                    nextParentMatch.getDifferences().add(refinedDiff);
+                    refinedDiff.getRefinedBy()
+                        .add(referenceChange);
+                    nextParentMatch.getDifferences()
+                        .add(refinedDiff);
                     refinedDiffCache.put(parentElement, refinedDiff);
                     return refinedDiff;
                 }
@@ -366,7 +371,8 @@ public class JaMoPPPostProcessor implements IPostProcessor {
         Object logDir = options.get(OPTION_DIFF_STATISTICS_LOG_DIR);
         if (logDir != null && logDir instanceof String) {
             String logDirPath = (String) logDir;
-            if (!logDirPath.trim().isEmpty()) {
+            if (!logDirPath.trim()
+                .isEmpty()) {
                 DifferenceStatisticLogger.log(comparison, (String) logDir + File.separator + "postcomparison");
             }
         }
@@ -382,9 +388,10 @@ public class JaMoPPPostProcessor implements IPostProcessor {
 
             if (logDir != null && logDir instanceof String) {
                 String logDirPath = (String) logDir;
-                if (!logDirPath.trim().isEmpty()) {
-                    DifferenceStatisticLogger
-                            .log(comparison, ((String) logDir) + File.separator + "after-derived-copy");
+                if (!logDirPath.trim()
+                    .isEmpty()) {
+                    DifferenceStatisticLogger.log(comparison,
+                            ((String) logDir) + File.separator + "after-derived-copy");
                 }
             }
 
@@ -414,7 +421,8 @@ public class JaMoPPPostProcessor implements IPostProcessor {
         Object cleanUpDerivedCopies = options.get(optionKey);
         if (cleanUpDerivedCopies != null && cleanUpDerivedCopies instanceof String) {
             String cleanUpDerivedCopiesString = (String) cleanUpDerivedCopies;
-            if (!cleanUpDerivedCopiesString.trim().isEmpty()) {
+            if (!cleanUpDerivedCopiesString.trim()
+                .isEmpty()) {
                 cleanUpDerivedImportsActive = true;
             }
         }

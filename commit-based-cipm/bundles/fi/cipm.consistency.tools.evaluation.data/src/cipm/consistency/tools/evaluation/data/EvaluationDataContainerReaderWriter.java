@@ -14,34 +14,37 @@ import com.google.gson.Gson;
  * @author Martin Armbruster
  */
 public final class EvaluationDataContainerReaderWriter {
-	private EvaluationDataContainerReaderWriter() {
-	}
+    private EvaluationDataContainerReaderWriter() {
+    }
 
-	/**
-	 * Reads evaluation data from a file.
-	 * 
-	 * @param file the file from which the data is read.
-	 * @return the read data.
-	 */
-	public static EvaluationDataContainer read(Path file) {
-		try (BufferedReader reader = Files.newBufferedReader(file)) {
-			return new Gson().fromJson(reader, EvaluationDataContainer.class);
-		} catch (IOException e) {
-			return null;
-		}
-	}
+    /**
+     * Reads evaluation data from a file.
+     * 
+     * @param file
+     *            the file from which the data is read.
+     * @return the read data.
+     */
+    public static EvaluationDataContainer read(Path file) {
+        try (BufferedReader reader = Files.newBufferedReader(file)) {
+            return new Gson().fromJson(reader, EvaluationDataContainer.class);
+        } catch (IOException e) {
+            return null;
+        }
+    }
 
-	/**
-	 * Writes the evaluation data to a file.
-	 * 
-	 * @param result the data to write.
-	 * @param file   the file in which the data is written.
-	 */
-	public static void write(EvaluationDataContainer result, Path file) {
-		Gson gson = new Gson();
-		try (BufferedWriter writer = Files.newBufferedWriter(file)) {
-			gson.toJson(result, EvaluationDataContainer.class, gson.newJsonWriter(writer));
-		} catch (IOException e) {
-		}
-	}
+    /**
+     * Writes the evaluation data to a file.
+     * 
+     * @param result
+     *            the data to write.
+     * @param file
+     *            the file in which the data is written.
+     */
+    public static void write(EvaluationDataContainer result, Path file) {
+        Gson gson = new Gson();
+        try (BufferedWriter writer = Files.newBufferedWriter(file)) {
+            gson.toJson(result, EvaluationDataContainer.class, gson.newJsonWriter(writer));
+        } catch (IOException e) {
+        }
+    }
 }

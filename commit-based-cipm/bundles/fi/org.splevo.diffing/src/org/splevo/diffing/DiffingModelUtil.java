@@ -50,7 +50,8 @@ public class DiffingModelUtil {
 
         // register the factory to be able to read xmi files
         String fileExtension = getFileExtension(filePath);
-        Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put(fileExtension, new XMIResourceFactoryImpl());
+        Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap()
+            .put(fileExtension, new XMIResourceFactoryImpl());
 
         // load the resource and resolve the proxies
         URI uri = null;
@@ -62,9 +63,11 @@ public class DiffingModelUtil {
         Resource r = rs.createResource(uri);
         r.load(null);
 
-        EObject model = r.getContents().get(0);
+        EObject model = r.getContents()
+            .get(0);
         if (!(model instanceof Comparison)) {
-            throw new IOException("Model is not a valid SPLevoProject: " + model.getClass().getName());
+            throw new IOException("Model is not a valid SPLevoProject: " + model.getClass()
+                .getName());
         }
         Comparison comparisionModel = (Comparison) model;
 
@@ -90,8 +93,8 @@ public class DiffingModelUtil {
     /**
      * Save a project model to a specified file.
      *
-     * If the file path is absolute, it will be used as it is.
-     * If not, a PlatformResourceURI is build (i.e. with the scheme platform:/resource/
+     * If the file path is absolute, it will be used as it is. If not, a PlatformResourceURI is
+     * build (i.e. with the scheme platform:/resource/
      *
      * @param comparisonModel
      *            The model to save.
@@ -106,7 +109,8 @@ public class DiffingModelUtil {
 
         // try to write to the project file
         ResourceSet resSet = new SPLevoResourceSet();
-        Map<String, Object> m = resSet.getResourceFactoryRegistry().getExtensionToFactoryMap();
+        Map<String, Object> m = resSet.getResourceFactoryRegistry()
+            .getExtensionToFactoryMap();
         m.put(fileExtension, new XMIResourceFactoryImpl());
 
         URI uri = null;
@@ -116,7 +120,8 @@ public class DiffingModelUtil {
             uri = URI.createPlatformResourceURI(filePath.getPath(), false);
         }
         final Resource resource = resSet.createResource(uri);
-        resource.getContents().add(comparisonModel);
+        resource.getContents()
+            .add(comparisonModel);
 
         resource.save(Collections.EMPTY_MAP);
     }

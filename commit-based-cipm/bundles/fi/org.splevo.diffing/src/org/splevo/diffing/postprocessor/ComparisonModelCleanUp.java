@@ -37,7 +37,10 @@ public class ComparisonModelCleanUp {
         ArrayList<Match> toRemove = Lists.newArrayList();
         for (Match match : matches) {
             cleanMatches(match.getSubmatches());
-            if (match.getSubmatches().size() == 0 && match.getDifferences().size() == 0) {
+            if (match.getSubmatches()
+                .size() == 0
+                    && match.getDifferences()
+                        .size() == 0) {
                 toRemove.add(match);
             }
         }

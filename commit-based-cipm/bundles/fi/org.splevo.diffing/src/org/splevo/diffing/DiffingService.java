@@ -38,7 +38,7 @@ public interface DiffingService {
      * @throws DiffingException
      *             An error during the differencing process.
      */
-    public Comparison diffSoftwareModels(List<String> differIds, ResourceSet leadingModel,
-            ResourceSet integrationModel, Map<String, String> diffingOptions) throws DiffingException;
+    public Comparison diffSoftwareModels(List<String> differIds, ResourceSet leadingModel, ResourceSet integrationModel,
+            Map<String, String> diffingOptions) throws DiffingException;
 
 }

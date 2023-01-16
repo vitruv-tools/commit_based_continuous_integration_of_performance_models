@@ -48,7 +48,6 @@ public class JavaSourceOrClassFileCachingResource extends JavaResource2 implemen
         this.referenceCache = referenceCache;
     }
 
-
     @Override
     public EObject getEObject(String id) {
 
@@ -72,14 +71,12 @@ public class JavaSourceOrClassFileCachingResource extends JavaResource2 implemen
         return resolvedEObject;
     }
 
-
     @Override
     public void disableCaching() {
         if (referenceCache != null) {
             referenceCache.blacklist(this);
-            referenceCache = null;            
+            referenceCache = null;
         }
     }
 
-    
 }

@@ -305,16 +305,17 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
 
             return (name1.equals(name2));
         }
-        
+
         /**
          * Anonymous classes are considered to be similar.
          * 
-         * @param anon the anonymous class to compare with the compare element.
+         * @param anon
+         *            the anonymous class to compare with the compare element.
          * @return true.
          */
         @Override
         public Boolean caseAnonymousClass(AnonymousClass anon) {
-        	return Boolean.TRUE;
+            return Boolean.TRUE;
         }
 
     }
@@ -341,7 +342,8 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
                 return (element2.getName() == null);
             }
 
-            return (element1.getName().equals(element2.getName()));
+            return (element1.getName()
+                .equals(element2.getName()));
         }
     }
 
@@ -429,7 +431,7 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
 
             return Boolean.TRUE;
         }
-        
+
         /**
          * Check module similarity.<br>
          * Similarity is checked by
@@ -437,17 +439,18 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
          * <li>module names</li>
          * </ul>
          * 
-         * @param module1 The module to compare with the compare element.
+         * @param module1
+         *            The module to compare with the compare element.
          * @return True/False if the modules are similar or not.
          */
         @Override
         public Boolean caseModule(org.emftext.language.java.containers.Module module1) {
-        	org.emftext.language.java.containers.Module module2 =
-        			(org.emftext.language.java.containers.Module) compareElement;
-        	if (!module1.getName().equals(module2.getName())) {
-        		return Boolean.FALSE;
-        	}
-        	return Boolean.TRUE;
+            org.emftext.language.java.containers.Module module2 = (org.emftext.language.java.containers.Module) compareElement;
+            if (!module1.getName()
+                .equals(module2.getName())) {
+                return Boolean.FALSE;
+            }
+            return Boolean.TRUE;
         }
     }
 
@@ -571,18 +574,19 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             UnaryExpressionChild child2 = exp2.getChild();
             return similarityChecker.isSimilar(child1, child2);
         }
-        
+
         @Override
         public Boolean caseAdditiveExpression(AdditiveExpression exp1) {
-        	
-        	AdditiveExpression exp2 = (AdditiveExpression) compareElement;
-        	
-        	Boolean opSimilarity = similarityChecker.areSimilar(exp1.getAdditiveOperators(), exp2.getAdditiveOperators());
-        	if (opSimilarity == Boolean.FALSE) {
-        		return Boolean.FALSE;
-        	}
-        	
-        	return similarityChecker.areSimilar(exp1.getChildren(), exp2.getChildren());
+
+            AdditiveExpression exp2 = (AdditiveExpression) compareElement;
+
+            Boolean opSimilarity = similarityChecker.areSimilar(exp1.getAdditiveOperators(),
+                    exp2.getAdditiveOperators());
+            if (opSimilarity == Boolean.FALSE) {
+                return Boolean.FALSE;
+            }
+
+            return similarityChecker.areSimilar(exp1.getChildren(), exp2.getChildren());
         }
 
         @Override
@@ -647,38 +651,39 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
      * Similarity decisions for the generic elements.
      */
     private class GenericsSimilaritySwitch extends GenericsSwitch<Boolean> {
-    	@Override
-    	public Boolean caseQualifiedTypeArgument(QualifiedTypeArgument qta1) {
-    		QualifiedTypeArgument qta2 = (QualifiedTypeArgument) compareElement;
-    		return similarityChecker.isSimilar(qta1.getTypeReference(), qta2.getTypeReference());
-    	}
-    	
-    	@Override
-    	public Boolean caseSuperTypeArgument(SuperTypeArgument sta1) {
-    		SuperTypeArgument sta2 = (SuperTypeArgument) compareElement;
-    		return similarityChecker.isSimilar(sta1.getSuperType(), sta2.getSuperType());
-    	}
-    	
-    	@Override
-    	public Boolean caseExtendsTypeArgument(ExtendsTypeArgument eta1) {
-    		ExtendsTypeArgument eta2 = (ExtendsTypeArgument) compareElement;
-    		return similarityChecker.isSimilar(eta1.getExtendType(), eta2.getExtendType());
-    	}
-    	
-    	@Override
-    	public Boolean caseUnknownTypeArgument(UnknownTypeArgument arg) {
-    		return Boolean.TRUE;
-    	}
-    	
+        @Override
+        public Boolean caseQualifiedTypeArgument(QualifiedTypeArgument qta1) {
+            QualifiedTypeArgument qta2 = (QualifiedTypeArgument) compareElement;
+            return similarityChecker.isSimilar(qta1.getTypeReference(), qta2.getTypeReference());
+        }
+
+        @Override
+        public Boolean caseSuperTypeArgument(SuperTypeArgument sta1) {
+            SuperTypeArgument sta2 = (SuperTypeArgument) compareElement;
+            return similarityChecker.isSimilar(sta1.getSuperType(), sta2.getSuperType());
+        }
+
+        @Override
+        public Boolean caseExtendsTypeArgument(ExtendsTypeArgument eta1) {
+            ExtendsTypeArgument eta2 = (ExtendsTypeArgument) compareElement;
+            return similarityChecker.isSimilar(eta1.getExtendType(), eta2.getExtendType());
+        }
+
+        @Override
+        public Boolean caseUnknownTypeArgument(UnknownTypeArgument arg) {
+            return Boolean.TRUE;
+        }
+
         @Override
         public Boolean caseTypeParameter(TypeParameter param1) {
-        	TypeParameter param2 = (TypeParameter) compareElement;
-        	
-        	if (!param1.getName().equals(param2.getName())) {
-        		return Boolean.FALSE;
-        	}
-        	
-        	return similarityChecker.areSimilar(param1.getExtendTypes(), param2.getExtendTypes());
+            TypeParameter param2 = (TypeParameter) compareElement;
+
+            if (!param1.getName()
+                .equals(param2.getName())) {
+                return Boolean.FALSE;
+            }
+
+            return similarityChecker.areSimilar(param1.getExtendTypes(), param2.getExtendTypes());
         }
     }
 
@@ -707,12 +712,17 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
 
             StaticMemberImport import2 = (StaticMemberImport) compareElement;
 
-            if (import1.getStaticMembers().size() != import2.getStaticMembers().size()) {
+            if (import1.getStaticMembers()
+                .size() != import2.getStaticMembers()
+                    .size()) {
                 return Boolean.FALSE;
             }
-            for (int i = 0; i < import1.getStaticMembers().size(); i++) {
-                ReferenceableElement member1 = import1.getStaticMembers().get(i);
-                ReferenceableElement member2 = import2.getStaticMembers().get(i);
+            for (int i = 0; i < import1.getStaticMembers()
+                .size(); i++) {
+                ReferenceableElement member1 = import1.getStaticMembers()
+                    .get(i);
+                ReferenceableElement member2 = import2.getStaticMembers()
+                    .get(i);
                 Boolean similarity = similarityChecker.isSimilar(member1, member2);
                 if (similarity == Boolean.FALSE) {
                     return Boolean.FALSE;
@@ -776,8 +786,10 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
         public Boolean caseNewConstructorCall(NewConstructorCall call1) {
             NewConstructorCall call2 = (NewConstructorCall) compareElement;
 
-            Type type1 = call1.getTypeReference().getTarget();
-            Type type2 = call2.getTypeReference().getTarget();
+            Type type1 = call1.getTypeReference()
+                .getTarget();
+            Type type2 = call2.getTypeReference()
+                .getTarget();
             Boolean typeSimilarity = similarityChecker.isSimilar(type1, type2);
             if (typeSimilarity == Boolean.FALSE) {
                 return Boolean.FALSE;
@@ -820,7 +832,8 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
         @Override
         public Boolean caseCharacterLiteral(CharacterLiteral char1) {
             CharacterLiteral char2 = (CharacterLiteral) compareElement;
-            return char1.getValue().equals(char2.getValue());
+            return char1.getValue()
+                .equals(char2.getValue());
         }
 
         @Override
@@ -846,57 +859,65 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             HexDoubleLiteral double2 = (HexDoubleLiteral) compareElement;
             return compareDouble(double1.getHexValue(), double2.getHexValue());
         }
-        
+
         private boolean compareDouble(double d1, double d2) {
-        	return d1 == d2 || Double.isNaN(d1) && Double.isNaN(d2);
+            return d1 == d2 || Double.isNaN(d1) && Double.isNaN(d2);
         }
 
         @Override
         public Boolean caseDecimalIntegerLiteral(DecimalIntegerLiteral int1) {
             DecimalIntegerLiteral int2 = (DecimalIntegerLiteral) compareElement;
-            return (int1.getDecimalValue().equals(int2.getDecimalValue()));
+            return (int1.getDecimalValue()
+                .equals(int2.getDecimalValue()));
         }
 
         @Override
         public Boolean caseHexIntegerLiteral(HexIntegerLiteral int1) {
             HexIntegerLiteral int2 = (HexIntegerLiteral) compareElement;
-            return (int1.getHexValue().equals(int2.getHexValue()));
+            return (int1.getHexValue()
+                .equals(int2.getHexValue()));
         }
 
         @Override
         public Boolean caseOctalIntegerLiteral(OctalIntegerLiteral int1) {
             OctalIntegerLiteral int2 = (OctalIntegerLiteral) compareElement;
-            return (int1.getOctalValue().equals(int2.getOctalValue()));
+            return (int1.getOctalValue()
+                .equals(int2.getOctalValue()));
         }
 
         @Override
         public Boolean caseDecimalLongLiteral(DecimalLongLiteral long1) {
             DecimalLongLiteral long2 = (DecimalLongLiteral) compareElement;
-            return (long1.getDecimalValue().equals(long2.getDecimalValue()));
+            return (long1.getDecimalValue()
+                .equals(long2.getDecimalValue()));
         }
 
         @Override
         public Boolean caseHexLongLiteral(HexLongLiteral long1) {
             HexLongLiteral long2 = (HexLongLiteral) compareElement;
-            return (long1.getHexValue().equals(long2.getHexValue()));
+            return (long1.getHexValue()
+                .equals(long2.getHexValue()));
         }
 
         @Override
         public Boolean caseOctalLongLiteral(OctalLongLiteral long1) {
             OctalLongLiteral long2 = (OctalLongLiteral) compareElement;
-            return (long1.getOctalValue().equals(long2.getOctalValue()));
+            return (long1.getOctalValue()
+                .equals(long2.getOctalValue()));
         }
-        
+
         @Override
         public Boolean caseBinaryLongLiteral(BinaryLongLiteral long1) {
-        	BinaryLongLiteral long2 = (BinaryLongLiteral) compareElement;
-        	return long1.getBinaryValue().equals(long2.getBinaryValue());
+            BinaryLongLiteral long2 = (BinaryLongLiteral) compareElement;
+            return long1.getBinaryValue()
+                .equals(long2.getBinaryValue());
         }
-        
+
         @Override
         public Boolean caseBinaryIntegerLiteral(BinaryIntegerLiteral int1) {
-        	BinaryIntegerLiteral int2 = (BinaryIntegerLiteral) compareElement;
-        	return int1.getBinaryValue().equals(int2.getBinaryValue());
+            BinaryIntegerLiteral int2 = (BinaryIntegerLiteral) compareElement;
+            return int1.getBinaryValue()
+                .equals(int2.getBinaryValue());
         }
 
         /**
@@ -948,30 +969,40 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             Method method2 = (Method) compareElement;
 
             // if methods have different names they are not similar.
-            if (!method1.getName().equals(method2.getName())) {
+            if (!method1.getName()
+                .equals(method2.getName())) {
                 return Boolean.FALSE;
             }
 
-            if (method1.getParameters().size() != method2.getParameters().size()) {
+            if (method1.getParameters()
+                .size() != method2.getParameters()
+                    .size()) {
                 return Boolean.FALSE;
             }
 
-            for (int i = 0; i < method1.getParameters().size(); i++) {
-                Parameter param1 = method1.getParameters().get(i);
-                Parameter param2 = method2.getParameters().get(i);
-                Type type1 = param1.getTypeReference().getTarget();
-                Type type2 = param2.getTypeReference().getTarget();
+            for (int i = 0; i < method1.getParameters()
+                .size(); i++) {
+                Parameter param1 = method1.getParameters()
+                    .get(i);
+                Parameter param2 = method2.getParameters()
+                    .get(i);
+                Type type1 = param1.getTypeReference()
+                    .getTarget();
+                Type type2 = param2.getTypeReference()
+                    .getTarget();
                 Boolean typeSimilarity = similarityChecker.isSimilar(type1, type2);
                 if (typeSimilarity == Boolean.FALSE) {
                     return Boolean.FALSE;
                 }
-                if (param1.getTypeReference().getArrayDimension() != param2.getTypeReference().getArrayDimension()) {
-                	return Boolean.FALSE;
+                if (param1.getTypeReference()
+                    .getArrayDimension() != param2.getTypeReference()
+                        .getArrayDimension()) {
+                    return Boolean.FALSE;
                 }
             }
 
-            /* **************************************
-             * methods as members of regular classes
+            /*
+             * ************************************** methods as members of regular classes
              */
             if (method1.getContainingConcreteClassifier() != null) {
                 ConcreteClassifier type1 = method1.getContainingConcreteClassifier();
@@ -979,8 +1010,8 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
                 return similarityChecker.isSimilar(type1, type2);
             }
 
-            /* **************************************
-             * methods as members of anonymous classes
+            /*
+             * ************************************** methods as members of anonymous classes
              */
             if (method1.getContainingAnonymousClass() != null) {
                 AnonymousClass type1 = method1.getContainingAnonymousClass();
@@ -991,8 +1022,7 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
                 }
             }
 
-            logger.warn("MethodDeclaration in unknown container: " + method1.getName() + " : "
-                    + method1.eContainer());
+            logger.warn("MethodDeclaration in unknown container: " + method1.getName() + " : " + method1.eContainer());
             return super.caseMethod(method1);
         }
 
@@ -1025,7 +1055,8 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             Constructor constructor2 = (Constructor) compareElement;
 
             // if methods have different names they are not similar.
-            if (!constructor1.getName().equals(constructor2.getName())) {
+            if (!constructor1.getName()
+                .equals(constructor2.getName())) {
                 return Boolean.FALSE;
             }
 
@@ -1036,8 +1067,8 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
                 return Boolean.FALSE;
             }
 
-            /* **************************************
-             * methods as members of regular classes
+            /*
+             * ************************************** methods as members of regular classes
              */
             if (constructor1.getContainingConcreteClassifier() != null) {
                 ConcreteClassifier type1 = constructor1.getContainingConcreteClassifier();
@@ -1045,8 +1076,8 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
                 return similarityChecker.isSimilar(type1, type2);
             }
 
-            /* **************************************
-             * methods as members of anonymous classes
+            /*
+             * ************************************** methods as members of anonymous classes
              */
             if (constructor1.getContainingAnonymousClass() != null) {
                 AnonymousClass type1 = constructor1.getContainingAnonymousClass();
@@ -1058,7 +1089,9 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             }
 
             logger.warn("ConstructorDeclaration in unknown container: " + constructor1.getName() + " : "
-                    + constructor1.eContainer().getClass().getSimpleName());
+                    + constructor1.eContainer()
+                        .getClass()
+                        .getSimpleName());
             return super.caseConstructor(constructor1);
         }
 
@@ -1139,7 +1172,8 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
                 return (ref2.getValue() == null);
             }
 
-            return (ref1.getValue().equals(ref2.getValue()));
+            return (ref1.getValue()
+                .equals(ref2.getValue()));
         }
 
         @Override
@@ -1168,8 +1202,8 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
                         ArraySelector.class);
                 EObject target1Container = target1.eContainer();
                 EObject target2Container = target2.eContainer();
-                if (target1Container != ref1Container && target2Container != ref2Container
-                		&& target1Container != ref1 && target2Container != ref2) {
+                if (target1Container != ref1Container && target2Container != ref2Container && target1Container != ref1
+                        && target2Container != ref2) {
                     Boolean containerSimilarity = similarityChecker.isSimilar(target1Container, target2Container);
                     if (containerSimilarity == Boolean.FALSE) {
                         return Boolean.FALSE;
@@ -1177,12 +1211,17 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
                 }
             }
 
-            if (ref1.getArraySelectors().size() != ref2.getArraySelectors().size()) {
+            if (ref1.getArraySelectors()
+                .size() != ref2.getArraySelectors()
+                    .size()) {
                 return Boolean.FALSE;
             }
-            for (int i = 0; i < ref1.getArraySelectors().size(); i++) {
-                ArraySelector selector1 = ref1.getArraySelectors().get(i);
-                ArraySelector selector2 = ref2.getArraySelectors().get(i);
+            for (int i = 0; i < ref1.getArraySelectors()
+                .size(); i++) {
+                ArraySelector selector1 = ref1.getArraySelectors()
+                    .get(i);
+                ArraySelector selector2 = ref2.getArraySelectors()
+                    .get(i);
                 Boolean positionSimilarity = similarityChecker.isSimilar(selector1.getPosition(),
                         selector2.getPosition());
                 if (positionSimilarity == Boolean.FALSE) {
@@ -1240,13 +1279,18 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
                 return Boolean.FALSE;
             }
 
-            if (call1.getArguments().size() != call2.getArguments().size()) {
+            if (call1.getArguments()
+                .size() != call2.getArguments()
+                    .size()) {
                 return Boolean.FALSE;
             }
 
-            for (int i = 0; i < call1.getArguments().size(); i++) {
-                Expression exp1 = call1.getArguments().get(i);
-                Expression exp2 = call2.getArguments().get(i);
+            for (int i = 0; i < call1.getArguments()
+                .size(); i++) {
+                Expression exp1 = call1.getArguments()
+                    .get(i);
+                Expression exp2 = call2.getArguments()
+                    .get(i);
                 Boolean argSimilarity = similarityChecker.isSimilar(exp1, exp2);
                 if (argSimilarity == Boolean.FALSE) {
                     return Boolean.FALSE;
@@ -1342,15 +1386,15 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             if (varSimilarity == Boolean.FALSE) {
                 return Boolean.FALSE;
             }
-            
+
             if (checkStatementPosition) {
-            	varSimilarity = similarityChecker.isSimilar(varStmt1.eContainer(), varStmt2.eContainer(), false);
-            	if (!varSimilarity) {
-            		return Boolean.FALSE;
-            	}
-            	if (differentPredecessor(varStmt1, varStmt2) && differentSuccessor(varStmt1, varStmt2)) {
-            		return Boolean.FALSE;
-            	}
+                varSimilarity = similarityChecker.isSimilar(varStmt1.eContainer(), varStmt2.eContainer(), false);
+                if (!varSimilarity) {
+                    return Boolean.FALSE;
+                }
+                if (differentPredecessor(varStmt1, varStmt2) && differentSuccessor(varStmt1, varStmt2)) {
+                    return Boolean.FALSE;
+                }
             }
 
             return Boolean.TRUE;
@@ -1494,12 +1538,12 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
 
             return (name1.equals(name2));
         }
-        
+
         @Override
         public Boolean caseSwitch(Switch switch1) {
-        	Switch switch2 = (Switch) compareElement;
-        	
-        	return similarityChecker.isSimilar(switch1.getVariable(), switch2.getVariable());
+            Switch switch2 = (Switch) compareElement;
+
+            return similarityChecker.isSimilar(switch1.getVariable(), switch2.getVariable());
         }
 
         @Override
@@ -1540,7 +1584,8 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
         }
 
         /**
-         * Get the predecessor statement of a statement within the parents container statement list.<br>
+         * Get the predecessor statement of a statement within the parents container statement
+         * list.<br>
          * If a statement is the first, the only one, or the container is not a
          * {@link StatementListContainer}, or no predecessor exists, null will be returned.
          * 
@@ -1553,14 +1598,16 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             int pos = JaMoPPElementUtil.getPositionInContainer(statement);
             if (pos > 0) {
                 StatementListContainer container = (StatementListContainer) statement.eContainer();
-                return container.getStatements().get(pos - 1);
+                return container.getStatements()
+                    .get(pos - 1);
             }
 
             return null;
         }
 
         /**
-         * Get the successor statement of a statement within the parents container statement list.<br>
+         * Get the successor statement of a statement within the parents container statement
+         * list.<br>
          * If a statement is the last, the only one, or the container is not a
          * {@link StatementListContainer}, no successor exists, null will be returned.
          * 
@@ -1573,8 +1620,10 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             int pos = JaMoPPElementUtil.getPositionInContainer(statement);
             if (pos != -1) {
                 StatementListContainer container = (StatementListContainer) statement.eContainer();
-                if (container.getStatements().size() > pos + 1) {
-                    return container.getStatements().get(pos + 1);
+                if (container.getStatements()
+                    .size() > pos + 1) {
+                    return container.getStatements()
+                        .get(pos + 1);
                 }
             }
 
@@ -1654,16 +1703,17 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
         public Boolean casePrimitiveType(PrimitiveType type) {
             return Boolean.TRUE;
         }
-        
+
         /**
          * Inferable types are considered to be similar.
          * 
-         * @param type The element to compare with the compare element.
+         * @param type
+         *            The element to compare with the compare element.
          * @return true.
          */
         @Override
         public Boolean caseInferableType(InferableType type) {
-        	return Boolean.TRUE;
+            return Boolean.TRUE;
         }
 
         /**
@@ -1700,7 +1750,8 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             Variable var2 = (Variable) compareElement;
 
             // check the variables name equality
-            if (!var1.getName().equals(var2.getName())) {
+            if (!var1.getName()
+                .equals(var2.getName())) {
                 return Boolean.FALSE;
             }
 
@@ -1732,115 +1783,129 @@ public class SimilaritySwitch extends ComposedSwitch<Boolean> {
             return Boolean.TRUE;
         }
     }
-    
+
     /**
      * Similarity Decisions for module elements.
      */
     private class ModulesSimilaritySwitch extends ModulesSwitch<Boolean> {
-    	/**
+        /**
          * Check ModuleReference similarity.<br>
          * Similarity is checked by
          * <ul>
          * <li>module names</li>
          * </ul>
          * 
-         * @param modRef1 The module reference to compare with the compare element.
+         * @param modRef1
+         *            The module reference to compare with the compare element.
          * @return True/False if the module references are similar or not.
          */
-    	@Override
-    	public Boolean caseModuleReference(ModuleReference modRef1) {
-    		ModuleReference modRef2 = (ModuleReference) compareElement;
-    		if (compareNamespacesByPart(modRef1, modRef2)) {
-    			return Boolean.TRUE;
-    		}
-    		return Boolean.FALSE;
-    	}
-    	
-    	/**
+        @Override
+        public Boolean caseModuleReference(ModuleReference modRef1) {
+            ModuleReference modRef2 = (ModuleReference) compareElement;
+            if (compareNamespacesByPart(modRef1, modRef2)) {
+                return Boolean.TRUE;
+            }
+            return Boolean.FALSE;
+        }
+
+        /**
          * Check similarity for access providing module directives.<br>
          * Similarity is checked by
          * <ul>
          * <li>the provided package</li>
          * </ul>
          * 
-         * @param dir1 The access providing module directive to compare with the compare element.
+         * @param dir1
+         *            The access providing module directive to compare with the compare element.
          * @return True/False if the module directives are similar or not.
          */
-    	@Override
-    	public Boolean caseAccessProvidingModuleDirective(AccessProvidingModuleDirective dir1) {
-    		AccessProvidingModuleDirective dir2 = (AccessProvidingModuleDirective) compareElement;
-    		if (!compareNamespacesByPart(dir1, dir2)) {
-    			return Boolean.FALSE;
-    		}
-    		return Boolean.TRUE;
-    	}
-    	
-    	/**
+        @Override
+        public Boolean caseAccessProvidingModuleDirective(AccessProvidingModuleDirective dir1) {
+            AccessProvidingModuleDirective dir2 = (AccessProvidingModuleDirective) compareElement;
+            if (!compareNamespacesByPart(dir1, dir2)) {
+                return Boolean.FALSE;
+            }
+            return Boolean.TRUE;
+        }
+
+        /**
          * Check similarity for require module directives.<br>
          * Similarity is checked by
          * <ul>
          * <li>required modules</li>
          * </ul>
          * 
-         * @param dir1 The require module directive to compare with the compare element.
+         * @param dir1
+         *            The require module directive to compare with the compare element.
          * @return True/False if the module directives are similar or not.
          */
-    	@Override
-    	public Boolean caseRequiresModuleDirective(RequiresModuleDirective dir1) {
-    		RequiresModuleDirective dir2 = (RequiresModuleDirective) compareElement;
-    		return similarityChecker.isSimilar(dir1.getRequiredModule(), dir2.getRequiredModule());
-    	}
-    	
-    	/**
+        @Override
+        public Boolean caseRequiresModuleDirective(RequiresModuleDirective dir1) {
+            RequiresModuleDirective dir2 = (RequiresModuleDirective) compareElement;
+            return similarityChecker.isSimilar(dir1.getRequiredModule(), dir2.getRequiredModule());
+        }
+
+        /**
          * Check similarity for provide module directives.<br>
          * Similarity is checked by
          * <ul>
          * <li>provided types</li>
          * </ul>
          * 
-         * @param dir1 The provide module directive to compare with the compare element.
+         * @param dir1
+         *            The provide module directive to compare with the compare element.
          * @return True/False if the module directives are similar or not.
          */
-    	@Override
-    	public Boolean caseProvidesModuleDirective(ProvidesModuleDirective dir1) {
-    		ProvidesModuleDirective dir2 = (ProvidesModuleDirective) compareElement;
-    		return similarityChecker.isSimilar(dir1.getTypeReference(), dir2.getTypeReference());
-    	}
-    	
-    	/**
+        @Override
+        public Boolean caseProvidesModuleDirective(ProvidesModuleDirective dir1) {
+            ProvidesModuleDirective dir2 = (ProvidesModuleDirective) compareElement;
+            return similarityChecker.isSimilar(dir1.getTypeReference(), dir2.getTypeReference());
+        }
+
+        /**
          * Check similarity for use module directives.<br>
          * Similarity is checked by
          * <ul>
          * <li>used types</li>
          * </ul>
          * 
-         * @param dir1 The use module directive to compare with the compare element.
+         * @param dir1
+         *            The use module directive to compare with the compare element.
          * @return True/False if the module directives are similar or not.
          */
-    	@Override
-    	public Boolean caseUsesModuleDirective(UsesModuleDirective dir1) {
-    		UsesModuleDirective dir2 = (UsesModuleDirective) compareElement;
-    		return similarityChecker.isSimilar(dir1.getTypeReference(), dir2.getTypeReference());
-    	}
+        @Override
+        public Boolean caseUsesModuleDirective(UsesModuleDirective dir1) {
+            UsesModuleDirective dir2 = (UsesModuleDirective) compareElement;
+            return similarityChecker.isSimilar(dir1.getTypeReference(), dir2.getTypeReference());
+        }
     }
-    
+
     /**
      * Compares the namespaces of two elements by comparing each part of the namespaces.
      * 
-     * @param ele1 the first element.
-     * @param ele2 the second element to compare to the first element.
-     * @return true if the number of parts of the namespaces and each part in both namespaces are equal. false otherwise.
+     * @param ele1
+     *            the first element.
+     * @param ele2
+     *            the second element to compare to the first element.
+     * @return true if the number of parts of the namespaces and each part in both namespaces are
+     *         equal. false otherwise.
      */
     private boolean compareNamespacesByPart(NamespaceAwareElement ele1, NamespaceAwareElement ele2) {
-    	if (ele1.getNamespaces().size() != ele2.getNamespaces().size()) {
-    		return false;
-    	}
-    	for (int idx = 0; idx < ele1.getNamespaces().size(); idx++) {
-    		if (!ele1.getNamespaces().get(idx).equals(ele2.getNamespaces().get(idx))) {
-    			return false;
-    		}
-    	}
-    	return true;
+        if (ele1.getNamespaces()
+            .size() != ele2.getNamespaces()
+                .size()) {
+            return false;
+        }
+        for (int idx = 0; idx < ele1.getNamespaces()
+            .size(); idx++) {
+            if (!ele1.getNamespaces()
+                .get(idx)
+                .equals(ele2.getNamespaces()
+                    .get(idx))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

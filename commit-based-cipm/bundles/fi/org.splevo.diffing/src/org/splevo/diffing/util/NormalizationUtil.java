@@ -50,7 +50,8 @@ public final class NormalizationUtil {
         String renamed = Strings.nullToEmpty(original);
         for (Pattern pattern : normalizations.keySet()) {
             String replaceString = normalizations.get(pattern);
-            renamed = pattern.matcher(renamed).replaceAll(replaceString);
+            renamed = pattern.matcher(renamed)
+                .replaceAll(replaceString);
         }
         return renamed;
     }
@@ -69,7 +70,8 @@ public final class NormalizationUtil {
 
         for (Pattern pattern : normalizations.keySet()) {
             String replacement = normalizations.get(pattern);
-            namespace = pattern.matcher(namespace).replaceAll(replacement);
+            namespace = pattern.matcher(namespace)
+                .replaceAll(replacement);
         }
         return namespace;
     }
@@ -89,7 +91,10 @@ public final class NormalizationUtil {
         configString = Strings.nullToEmpty(configString);
 
         LinkedHashMap<Pattern, String> normalizations = Maps.newLinkedHashMap();
-        Iterable<String> entries = Splitter.on(LINE_SEPARATOR).omitEmptyStrings().trimResults().split(configString);
+        Iterable<String> entries = Splitter.on(LINE_SEPARATOR)
+            .omitEmptyStrings()
+            .trimResults()
+            .split(configString);
         for (String entry : entries) {
             if (entry.startsWith("*")) {
                 String patternString = "(.*)" + entry.substring(1) + suffix;
@@ -116,10 +121,15 @@ public final class NormalizationUtil {
      */
     public static LinkedHashMap<Pattern, String> loadReplaceNormalizations(String configString) {
         String normalizations = Strings.nullToEmpty(configString);
-        Iterable<String> entries = Splitter.on(LINE_SEPARATOR).omitEmptyStrings().trimResults().split(normalizations);
+        Iterable<String> entries = Splitter.on(LINE_SEPARATOR)
+            .omitEmptyStrings()
+            .trimResults()
+            .split(normalizations);
         LinkedHashMap<Pattern, String> uriNormalizationPatterns = Maps.newLinkedHashMap();
         for (String entry : entries) {
-            List<String> pair = Lists.newArrayList(Splitter.on("|").trimResults().split(entry));
+            List<String> pair = Lists.newArrayList(Splitter.on("|")
+                .trimResults()
+                .split(entry));
             if (pair.size() != 2) {
                 logger.warn("Invalid package normalization config: " + entry);
                 continue;

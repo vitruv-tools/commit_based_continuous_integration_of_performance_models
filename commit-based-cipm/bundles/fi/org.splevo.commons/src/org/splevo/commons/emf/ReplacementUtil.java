@@ -42,11 +42,14 @@ public class ReplacementUtil {
 
         private final EObject original;
         private final EObject replacement;
-        
+
         /**
          * Constructs the replacer for a pair of EObjects.
-         * @param original The original EObject to be replaced.
-         * @param replacement The replacement to be used.
+         * 
+         * @param original
+         *            The original EObject to be replaced.
+         * @param replacement
+         *            The replacement to be used.
          */
         public CrossReferenceReplacer(EObject original, EObject replacement) {
             this.original = original;
@@ -97,9 +100,9 @@ public class ReplacementUtil {
             }
             return null;
         }
-        
+
     }
-    
+
     /**
      * Replaces all cross references in the given resource sets.
      * 
@@ -115,15 +118,15 @@ public class ReplacementUtil {
         addResourceSetIfNotNull(processor.getOriginal(), resourceSets);
         addResourceSetIfNotNull(processor.getReplacement(), resourceSets);
         resourceSets.addAll(Lists.newArrayList(additionalResourceSets));
-        for (ResourceSet rs : resourceSets) {  
+        for (ResourceSet rs : resourceSets) {
             crossReferences.addAll(EcoreUtil.UsageCrossReferencer.find(processor.getOriginal(), rs));
         }
-        
+
         for (Setting crossReference : crossReferences) {
             processor.apply(crossReference);
         }
     }
-    
+
     /**
      * Replaces all cross references to the given EObject from the same resource set with references
      * to the given replacement. This method does not consider containment references.
@@ -145,5 +148,5 @@ public class ReplacementUtil {
             rs.add(obj.eResource().getResourceSet());
         }
     }
-    
+
 }

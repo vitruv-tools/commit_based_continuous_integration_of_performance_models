@@ -56,8 +56,8 @@ public class FileResourceHandling {
      * @return True if platform resources shall be used.
      */
     public static boolean usePlatformResource(ResourceSet rs) {
-        return (Boolean) (rs.getLoadOptions().containsKey(ResourceHandlingOptions.USE_PLATFORM_RESOURCE) ? rs
-                .getLoadOptions().get(ResourceHandlingOptions.USE_PLATFORM_RESOURCE)
+        return (Boolean) (rs.getLoadOptions().containsKey(ResourceHandlingOptions.USE_PLATFORM_RESOURCE)
+                ? rs.getLoadOptions().get(ResourceHandlingOptions.USE_PLATFORM_RESOURCE)
                 : ResourceHandlingOptions.USE_PLATFORM_RESOURCE.getDefault());
     }
 

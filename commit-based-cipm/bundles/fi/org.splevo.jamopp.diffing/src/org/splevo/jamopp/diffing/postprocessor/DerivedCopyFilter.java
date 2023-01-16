@@ -120,7 +120,8 @@ public class DerivedCopyFilter {
             if (derivedCopyClassMatch != null) {
                 falsePositivesToRemove.add(diff);
 
-                Class originClass = (Class) diff.getMatch().getRight();
+                Class originClass = (Class) diff.getMatch()
+                    .getRight();
                 if (alreadyProcessedOrigin.contains(originClass)) {
                     continue;
                 }
@@ -158,25 +159,31 @@ public class DerivedCopyFilter {
                 counterTotalMethods));
 
         for (Diff diff : falsePositivesToRemove) {
-            diff.getMatch().getDifferences().remove(diff);
+            diff.getMatch()
+                .getDifferences()
+                .remove(diff);
         }
     }
 
     private int countTotalMethods(Class originalClass) {
-        int methodCount = originalClass.getMethods().size();
-        int constructorCount = originalClass.getConstructors().size();
+        int methodCount = originalClass.getMethods()
+            .size();
+        int constructorCount = originalClass.getConstructors()
+            .size();
         return methodCount + constructorCount;
     }
 
     private int countTotalFields(Class originalClass) {
-        return originalClass.getFields().size();
+        return originalClass.getFields()
+            .size();
     }
 
     private int countTotalImports(Diff change) {
         Match cuMatch = findCompilationUnitParentMatch(change);
         if (cuMatch.getRight() != null) {
             CompilationUnit cu = (CompilationUnit) cuMatch.getRight();
-            return cu.getImports().size();
+            return cu.getImports()
+                .size();
         } else {
             return 0;
         }
@@ -246,13 +253,18 @@ public class DerivedCopyFilter {
 
                 if (copiedTypeRef.getPureClassifierReference() != null
                         && origTypeRef.getPureClassifierReference() != null) {
-                    Classifier copiedType = copiedTypeRef.getPureClassifierReference().getTarget();
-                    Classifier origType = origTypeRef.getPureClassifierReference().getTarget();
-                    if (!copiedType.getName().equals(origType.getName())) {
+                    Classifier copiedType = copiedTypeRef.getPureClassifierReference()
+                        .getTarget();
+                    Classifier origType = origTypeRef.getPureClassifierReference()
+                        .getTarget();
+                    if (!copiedType.getName()
+                        .equals(origType.getName())) {
                         continue;
                     }
                 } else {
-                    if (origTypeRef.getTarget().eClass() != copiedTypeRef.getTarget().eClass()) {
+                    if (origTypeRef.getTarget()
+                        .eClass() != copiedTypeRef.getTarget()
+                            .eClass()) {
                         continue;
                     }
                 }
@@ -360,7 +372,8 @@ public class DerivedCopyFilter {
         // as we no longer use duplicate matches for derived copies
         // we might be able to use the cuMatch directly
         CompilationUnit originalCU = (CompilationUnit) cuMatch.getRight();
-        Match primaryMatch = cuMatch.getComparison().getMatch(originalCU);
+        Match primaryMatch = cuMatch.getComparison()
+            .getMatch(originalCU);
 
         List<ImportChange> ignoreImports = Lists.newArrayList();
 
@@ -414,11 +427,13 @@ public class DerivedCopyFilter {
      */
     private boolean checkDerivedCopyPattern(Comparison comparison, ClassChange change) {
 
-        if (!(change.getMatch().getRight() instanceof Class)) {
+        if (!(change.getMatch()
+            .getRight() instanceof Class)) {
             return false;
         }
 
-        Class originalClass = (Class) change.getMatch().getRight();
+        Class originalClass = (Class) change.getMatch()
+            .getRight();
         Class changedClass = change.getChangedClass();
         TypeReference classExtends = changedClass.getExtends();
 
@@ -429,8 +444,10 @@ public class DerivedCopyFilter {
         // The extended class and the original class must be manually matched,
         // as they represent the same class in case of a derived copy, but result
         // from different source models. So their instances are not the same any
-        Class superClass = (Class) classExtends.getPureClassifierReference().getTarget();
-        if (!superClass.getQualifiedName().equals(originalClass.getQualifiedName())) {
+        Class superClass = (Class) classExtends.getPureClassifierReference()
+            .getTarget();
+        if (!superClass.getQualifiedName()
+            .equals(originalClass.getQualifiedName())) {
             return false;
         }
 
@@ -456,11 +473,13 @@ public class DerivedCopyFilter {
      */
     private boolean checkDerivedCopyPattern(Comparison comparison, ExtendsChange change) {
 
-        if (!(change.getMatch().getRight() instanceof Class)) {
+        if (!(change.getMatch()
+            .getRight() instanceof Class)) {
             return false;
         }
 
-        Class originalClass = (Class) change.getMatch().getRight();
+        Class originalClass = (Class) change.getMatch()
+            .getRight();
         TypeReference classExtends = change.getChangedReference();
 
         if (classExtends == null) {
@@ -470,8 +489,10 @@ public class DerivedCopyFilter {
         // The extended class and the original class must be manually matched,
         // as they represent the same class in case of a derived copy, but result
         // from different source models. So their instances are not the same any
-        Class superClass = (Class) classExtends.getPureClassifierReference().getTarget();
-        if (!superClass.getQualifiedName().equals(originalClass.getQualifiedName())) {
+        Class superClass = (Class) classExtends.getPureClassifierReference()
+            .getTarget();
+        if (!superClass.getQualifiedName()
+            .equals(originalClass.getQualifiedName())) {
             return false;
         }
 

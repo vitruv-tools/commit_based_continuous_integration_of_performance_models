@@ -17,7 +17,9 @@ public class SoftwareModelExtractionException extends Exception {
 
     /**
      * {inheritDoc}.
-     * @param message The informative message about the exception.
+     * 
+     * @param message
+     *            The informative message about the exception.
      */
     public SoftwareModelExtractionException(String message) {
         super(message);
@@ -25,7 +27,9 @@ public class SoftwareModelExtractionException extends Exception {
 
     /**
      * {inheritDoc}.
-     * @param throwable A detailed exception to wrap.
+     * 
+     * @param throwable
+     *            A detailed exception to wrap.
      */
     public SoftwareModelExtractionException(Throwable throwable) {
         super(throwable);
@@ -33,8 +37,11 @@ public class SoftwareModelExtractionException extends Exception {
 
     /**
      * {inheritDoc}.
-     * @param message The informative message about the exception.
-     * @param throwable A detailed exception to wrap.
+     * 
+     * @param message
+     *            The informative message about the exception.
+     * @param throwable
+     *            A detailed exception to wrap.
      */
     public SoftwareModelExtractionException(String message, Throwable throwable) {
         super(message, throwable);

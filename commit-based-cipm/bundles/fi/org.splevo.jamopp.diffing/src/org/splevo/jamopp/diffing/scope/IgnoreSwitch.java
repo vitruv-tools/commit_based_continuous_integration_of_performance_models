@@ -111,7 +111,7 @@ public class IgnoreSwitch extends ComposedSwitch<Boolean> {
                 return composedDoSwitch(object.eContainer());
 
             } else if (object instanceof Field && "length".equals(((Field) object).getName())) {
-                    return Boolean.TRUE;
+                return Boolean.TRUE;
 
             } else {
                 logger.warn("An unexpected member element without a container: " + object);

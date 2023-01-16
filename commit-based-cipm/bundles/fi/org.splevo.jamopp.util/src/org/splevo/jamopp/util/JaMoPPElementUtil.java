@@ -70,8 +70,11 @@ public final class JaMoPPElementUtil {
 
     /**
      * Get the first container that is not of any given type.
-     * @param element The element to get an appropriate container for.
-     * @param ignoredContainerTypes A set of types that should be skipped.
+     * 
+     * @param element
+     *            The element to get an appropriate container for.
+     * @param ignoredContainerTypes
+     *            A set of types that should be skipped.
      * @return The first matching container, which can be null as well.
      */
     public static EObject getFirstContainerNotOfGivenType(final Commentable element,
@@ -170,7 +173,8 @@ public final class JaMoPPElementUtil {
             CompilationUnit cu = (CompilationUnit) element;
             String name = cu.getName();
             if (name != null) {
-                return name.substring(cu.getNamespacesAsString().length());
+                return name.substring(cu.getNamespacesAsString()
+                    .length());
             } else {
                 return "CompilationUnit (no name)";
             }
@@ -192,7 +196,10 @@ public final class JaMoPPElementUtil {
             ExpressionStatement statement = (ExpressionStatement) element;
             Expression expression = statement.getExpression();
             if (expression.getType() != null) {
-                String expressionType = statement.getExpression().getType().getClass().getSimpleName();
+                String expressionType = statement.getExpression()
+                    .getType()
+                    .getClass()
+                    .getSimpleName();
                 if (expressionType.endsWith("Impl")) {
                     expressionType = expressionType.substring(0, (expressionType.length() - 4));
                 }
@@ -206,14 +213,16 @@ public final class JaMoPPElementUtil {
 
         } else if (element instanceof ClassifierImport) {
             ClassifierImport importDecl = (ClassifierImport) element;
-            return "Import: " + importDecl.getClassifier().getName();
+            return "Import: " + importDecl.getClassifier()
+                .getName();
 
         } else if (element instanceof Import) {
             return "Import";
 
         } else if (element instanceof MethodCall) {
             MethodCall invocation = (MethodCall) element;
-            return "Method Invocation: " + invocation.getTarget().getName() + "()";
+            return "Method Invocation: " + invocation.getTarget()
+                .getName() + "()";
 
         } else if (element instanceof Method) {
             Method method = (Method) element;
@@ -240,7 +249,8 @@ public final class JaMoPPElementUtil {
             return ((NamedElement) element).getName();
         }
 
-        return "JaMoPP Element " + element.getClass().getSimpleName();
+        return "JaMoPP Element " + element.getClass()
+            .getSimpleName();
     }
 
     /**
@@ -256,19 +266,19 @@ public final class JaMoPPElementUtil {
         String result = new QualifiedNameSwitch().doSwitch(commentable);
         return result;
     }
-    
+
     /**
      * Determines the qualified name of a given EObject. If the object is no Commentable, null will
      * be returned.
      */
     private static class QualifiedNameSwitch extends ComposedSwitch<String> {
-        
+
         public QualifiedNameSwitch() {
             addSwitch(new MembersQualifiedNameSwitch());
             addSwitch(new ClassifiersQualifiedNameSwitch());
             addSwitch(new ContainersQualifiedNameSwitch());
         }
-        
+
         @Override
         public String doSwitch(EObject eObject) {
             Optional<NamedElement> containerOptional = findRelevantContainer(eObject);
@@ -277,19 +287,20 @@ public final class JaMoPPElementUtil {
             }
 
             String containerName = doSuperSwitch(containerOptional.get());
-            
+
             NamedElement container = containerOptional.get();
             if (container != eObject) {
-                String elementName = eObject.getClass().getSimpleName();
+                String elementName = eObject.getClass()
+                    .getSimpleName();
                 if (eObject instanceof NamedElement) {
                     elementName = ((NamedElement) eObject).getName();
                 }
                 return String.format("%s -> %s", containerName, elementName);
             }
-            
+
             return containerName;
         }
-        
+
         @Override
         protected String doSwitch(EClass theEClass, EObject theEObject) {
             List<EClass> typesToCheck = Lists.newLinkedList(theEClass.getEAllSuperTypes());
@@ -321,7 +332,7 @@ public final class JaMoPPElementUtil {
             }
             return Optional.absent();
         }
-        
+
         @SuppressWarnings("unchecked")
         private static boolean isRelevantContainerObject(final EObject obj) {
             return Iterables.any(
@@ -342,15 +353,16 @@ public final class JaMoPPElementUtil {
             @Override
             public String caseJavaRoot(JavaRoot object) {
                 String namespaces = object.getNamespacesAsString();
-                Matcher m = Pattern.compile(Pattern.quote(namespaces) + "(.*?)(\\.java)?").matcher(object.getName());
+                Matcher m = Pattern.compile(Pattern.quote(namespaces) + "(.*?)(\\.java)?")
+                    .matcher(object.getName());
                 if (m.matches()) {
                     return m.group(1);
                 }
                 return object.getName();
             }
-            
+
         }
-        
+
         /**
          * Determines the qualified name for a classifier element.
          */
@@ -360,7 +372,7 @@ public final class JaMoPPElementUtil {
             public String caseClassifier(Classifier object) {
                 return String.format("%s::%s", doSuperSwitch(object.getContainingCompilationUnit()), object.getName());
             }
-            
+
         }
 
         /**
@@ -370,19 +382,22 @@ public final class JaMoPPElementUtil {
 
             @Override
             public String caseField(Field object) {
-                return String.format("%s::%s::%s",  doSuperSwitch(object.getContainingCompilationUnit()), object
-                        .getContainingConcreteClassifier().getName(), object.getName());
+                return String.format("%s::%s::%s", doSuperSwitch(object.getContainingCompilationUnit()),
+                        object.getContainingConcreteClassifier()
+                            .getName(),
+                        object.getName());
             }
 
             @Override
             public String caseMethod(Method object) {
-                return String.format("%s::%s::%s()",  doSuperSwitch(object.getContainingCompilationUnit()), object
-                        .getContainingConcreteClassifier().getName(), object.getName());
+                return String.format("%s::%s::%s()", doSuperSwitch(object.getContainingCompilationUnit()),
+                        object.getContainingConcreteClassifier()
+                            .getName(),
+                        object.getName());
             }
 
         }
 
-        
     }
 
     private static Method getContainingMethod(Commentable element) {
@@ -409,7 +424,8 @@ public final class JaMoPPElementUtil {
 
         if (statement.eContainer() instanceof StatementListContainer) {
             StatementListContainer container = (StatementListContainer) statement.eContainer();
-            return container.getStatements().indexOf(statement);
+            return container.getStatements()
+                .indexOf(statement);
         }
 
         return -1;
@@ -428,7 +444,8 @@ public final class JaMoPPElementUtil {
         CompilationUnit cu = referenceElement.getContainingCompilationUnit();
         EList<ClassifierImport> imports = cu.getChildrenByType(ClassifierImport.class);
         for (ClassifierImport importDecl : imports) {
-            if (importDecl.getClassifier().equals(type)) {
+            if (importDecl.getClassifier()
+                .equals(type)) {
                 return importDecl;
             }
         }
@@ -465,7 +482,8 @@ public final class JaMoPPElementUtil {
 
         } else {
             int implLength = 4;
-            String className = element.getClass().getSimpleName();
+            String className = element.getClass()
+                .getSimpleName();
             return className.substring(0, className.length() - implLength);
         }
     }

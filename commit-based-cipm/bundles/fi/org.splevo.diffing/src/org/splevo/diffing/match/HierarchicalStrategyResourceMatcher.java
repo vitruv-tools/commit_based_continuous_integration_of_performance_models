@@ -248,19 +248,23 @@ public class HierarchicalStrategyResourceMatcher extends StrategyResourceMatcher
         for (MatchResource match : matches) {
             Resource right = match.getRight();
             if (right != null) {
-                rightMatchedIndex.get((Resource) right).add(match);
+                rightMatchedIndex.get((Resource) right)
+                    .add(match);
             }
         }
 
         // For duplicate matches keep only those with the same name
         for (Resource right : rightMatchedIndex.keySet()) {
-            if (rightMatchedIndex.get(right).size() > 1) {
-                String rightName = right.getURI().lastSegment();
+            if (rightMatchedIndex.get(right)
+                .size() > 1) {
+                String rightName = right.getURI()
+                    .lastSegment();
 
                 for (MatchResource match : rightMatchedIndex.get(right)) {
                     Resource left = (Resource) match.getLeft();
 
-                    String leftName = Strings.nullToEmpty(left.getURI().lastSegment());
+                    String leftName = Strings.nullToEmpty(left.getURI()
+                        .lastSegment());
                     if (leftName.equals(rightName)) {
                         filteredMatches.remove(match);
                     }
@@ -388,7 +392,8 @@ public class HierarchicalStrategyResourceMatcher extends StrategyResourceMatcher
             sb.append(segmentsLeft[i]);
         }
         String leftSegmentsAsString = NormalizationUtil.normalizeNamespace(sb.toString(), uriNormalizationPatterns);
-        List<String> split = Lists.newArrayList(Splitter.on('.').split(leftSegmentsAsString));
+        List<String> split = Lists.newArrayList(Splitter.on('.')
+            .split(leftSegmentsAsString));
         split.add(leftFilename);
         segmentsLeft = Iterables.toArray(split, String.class);
         return segmentsLeft;
@@ -410,7 +415,8 @@ public class HierarchicalStrategyResourceMatcher extends StrategyResourceMatcher
 
         while (resources.hasNext()) {
             Resource res = resources.next();
-            String filename = res.getURI().lastSegment();
+            String filename = res.getURI()
+                .lastSegment();
             index.put(filename, res);
 
             // handle renaming
@@ -419,7 +425,8 @@ public class HierarchicalStrategyResourceMatcher extends StrategyResourceMatcher
             }
             for (Pattern pattern : fileNameNormalizationPatterns.keySet()) {
                 String replace = fileNameNormalizationPatterns.get(pattern);
-                String newFilename = pattern.matcher(filename).replaceAll(replace);
+                String newFilename = pattern.matcher(filename)
+                    .replaceAll(replace);
                 if (!filename.equals(newFilename)) {
                     index.put(newFilename, res);
                 }

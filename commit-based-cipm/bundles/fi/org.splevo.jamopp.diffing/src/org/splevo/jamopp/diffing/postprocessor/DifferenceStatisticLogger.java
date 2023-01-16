@@ -65,9 +65,11 @@ public class DifferenceStatisticLogger {
             logDir = logDir + File.separator;
         }
         String runLogDir = logDir + dateFormat.format(new Date());
-        DifferenceStatisticLogger.logDiffingStatistics(comparison, runLogDir + File.separator + "log-diffings-statistics.csv");
+        DifferenceStatisticLogger.logDiffingStatistics(comparison,
+                runLogDir + File.separator + "log-diffings-statistics.csv");
         DifferenceStatisticLogger.logDiffings(comparison, runLogDir + File.separator + "log-diffings.csv");
-        DifferenceStatisticLogger.logResourceMatchings(comparison, runLogDir + File.separator + "log-resource-matches.csv");
+        DifferenceStatisticLogger.logResourceMatchings(comparison,
+                runLogDir + File.separator + "log-resource-matches.csv");
     }
 
     /**
@@ -88,12 +90,15 @@ public class DifferenceStatisticLogger {
             writer.write("ChangeKind , ChangeType , Containing Resource, Changed Element, Container Element \n");
             for (Diff diff : comparison.getDifferences()) {
                 String containingResource = getContainingResource(diff);
-                String changeKind = diff.getKind().getLiteral();
+                String changeKind = diff.getKind()
+                    .getLiteral();
 
                 if (diff instanceof CompilationUnitChange) {
                     CompilationUnitChange change = (CompilationUnitChange) diff;
                     writer.write(changeKind + ",CompilationUnitChange," + containingResource + ","
-                            + change.getChangedCompilationUnit().getName() + ",\n");
+                            + change.getChangedCompilationUnit()
+                                .getName()
+                            + ",\n");
                 } else if (diff instanceof StatementChange) {
                     StatementChange change = (StatementChange) diff;
 
@@ -111,7 +116,8 @@ public class DifferenceStatisticLogger {
                     writer.write(changeKind + ",StatementChange," + containingResource + "," + statement + ","
                             + containingElement + "\n");
                 } else {
-                    writer.write(changeKind + "," + diff.getClass().getSimpleName() + "," + containingResource + "\n");
+                    writer.write(changeKind + "," + diff.getClass()
+                        .getSimpleName() + "," + containingResource + "\n");
                 }
             }
         } catch (IOException e) {
@@ -136,10 +142,13 @@ public class DifferenceStatisticLogger {
      */
     private static String getContainingResource(Diff diff) {
         EObject orig = null;
-        if (diff.getMatch().getRight() != null) {
-            orig = diff.getMatch().getRight();
+        if (diff.getMatch()
+            .getRight() != null) {
+            orig = diff.getMatch()
+                .getRight();
         } else {
-            orig = diff.getMatch().getLeft();
+            orig = diff.getMatch()
+                .getLeft();
         }
         String containingResource = null;
         if (orig != null) {
@@ -285,7 +294,8 @@ public class DifferenceStatisticLogger {
             return "";
         }
 
-        String absolutePath = resource.getURI().toString();
+        String absolutePath = resource.getURI()
+            .toString();
 
         if (absolutePath.indexOf("src") > -1) {
             absolutePath = absolutePath.substring(absolutePath.indexOf("src"));

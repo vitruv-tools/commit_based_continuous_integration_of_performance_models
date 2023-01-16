@@ -52,7 +52,8 @@ public class Activator implements BundleActivator {
         Activator.context = bundleContext;
         List<Differ> differs = loadDiffers();
         for (Differ differ : differs) {
-            DifferRegistry.getInstance().registerElement(differ);
+            DifferRegistry.getInstance()
+                .registerElement(differ);
         }
 
     }
