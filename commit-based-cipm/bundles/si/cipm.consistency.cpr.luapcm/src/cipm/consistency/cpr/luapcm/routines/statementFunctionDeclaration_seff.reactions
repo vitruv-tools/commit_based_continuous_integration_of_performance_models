@@ -67,7 +67,9 @@ routine removeCorrespondingSeff(lua::Statement_Function_Declaration functionDecl
 //	}
 //}
 //
-//routine createSeffFromImplementingInterface(lua::Referenceable classMethod, java::Class javaClass, java::Interface javaInterface) {
+//routine createSeffFromImplementingInterface(
+//	lua::Referenceable classMethod, java::Class javaClass, java::Interface javaInterface
+//) {
 //	match {
 //		val operationInterface = retrieve pcm::OperationInterface corresponding to javaInterface
 //	}

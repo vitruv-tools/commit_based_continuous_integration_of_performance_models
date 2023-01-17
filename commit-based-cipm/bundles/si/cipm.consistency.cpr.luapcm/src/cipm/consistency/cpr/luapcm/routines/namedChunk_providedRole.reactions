@@ -19,7 +19,9 @@ routine assertOperationProvidedRoleExistenceForNamedChunk(lua::NamedChunk namedC
 	}
 }
 
-routine createOperationProvidedRole(pcm::OperationInterface opInterface, pcm::BasicComponent basicComponent, lua::NamedChunk namedChunk) {
+routine createOperationProvidedRole(
+	pcm::OperationInterface opInterface, pcm::BasicComponent basicComponent, lua::NamedChunk namedChunk
+) {
 	create {
 		val operationProvidedRole = new pcm::OperationProvidedRole
 	}

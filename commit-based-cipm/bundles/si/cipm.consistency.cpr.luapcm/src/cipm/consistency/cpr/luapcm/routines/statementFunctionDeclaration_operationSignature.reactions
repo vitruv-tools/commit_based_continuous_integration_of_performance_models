@@ -8,7 +8,9 @@ reactions: statementFunctionDeclaration_operationSignature
 in reaction to changes in lua
 execute actions in pcm
 
-routine assertOperationSignatureExistenceForStatementFunctionDeclaration(lua::Statement_Function_Declaration functionDeclaration) {
+routine assertOperationSignatureExistenceForStatementFunctionDeclaration(
+	lua::Statement_Function_Declaration functionDeclaration
+) {
 	match {
 		val pcmInterface = retrieve pcm::OperationInterface corresponding to EcoreUtil2.getContainerOfType(
 			functionDeclaration, NamedChunk)
@@ -40,7 +42,8 @@ routine removeCorrespondingOperationSignature(lua::Statement_Function_Declaratio
 			}
 			// TODO
 			// Should the corresponding SEFFs still exist?
-			// Should the references to the removed OperationSignature in all rdseff.describedService__SEFF also be removed?
+			// Should the references to the removed OperationSignature in all
+			// rdseff.describedService__SEFF also be removed?
 			removeObject(operationSignature.get)
 		}
 	}
