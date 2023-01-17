@@ -12,8 +12,8 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
 public class ImFacade implements ModelFacade {
 
-    InstrumentationModel im;
-    ImDirLayout dirLayout;
+    private InstrumentationModel im;
+    private ImDirLayout dirLayout;
 
     public ImFacade() {
         dirLayout = new ImDirLayout();

@@ -18,6 +18,8 @@ import tools.vitruv.change.composite.description.PropagatedChange;
  * This class is responsible for controlling the complete change propagation and adaptive
  * instrumentation.
  * 
+ * @param <CM> The code model class that is used for the integration
+ * 
  * @author Martin Armbruster
  * @author Lukas Burgey
  */

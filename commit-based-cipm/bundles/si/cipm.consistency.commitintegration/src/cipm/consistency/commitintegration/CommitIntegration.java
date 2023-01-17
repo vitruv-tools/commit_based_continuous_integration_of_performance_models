@@ -15,6 +15,8 @@ import tools.vitruv.framework.views.changederivation.StateBasedChangeResolutionS
 /**
  * Instances of this interface are used to initialize a {@link CommitIntegrationState}.
  * 
+ * @param <CM> The code model class that is used for the integration
+ * 
  * @author Lukas Burgey
  */
 public interface CommitIntegration<CM extends CodeModelFacade> {

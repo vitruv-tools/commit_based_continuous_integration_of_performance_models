@@ -43,7 +43,7 @@ public class LuaModelFacade implements CodeModelFacade {
     private Resource currentResource;
 
     @Inject
-    Provider<XtextResourceSet> resourceSetProvider;
+    private Provider<XtextResourceSet> resourceSetProvider;
 
     public LuaModelFacade() {
         Injector injector = new LuaStandaloneSetup().createInjectorAndDoEMFRegistration();
@@ -78,8 +78,9 @@ public class LuaModelFacade implements CodeModelFacade {
             var path = file.toPath();
 
             if (!path.toString()
-                .endsWith(".lua"))
+                .endsWith(".lua")) {
                 continue;
+            }
 
             var uri = URI.createFileURI(path.toAbsolutePath()
                 .toString());

@@ -219,7 +219,7 @@ public class SeffReconstruction {
             // create the loop behaviour
             var bodyBehaviour = getBehaviourForActionList(childActions);
             loopAction.setBodyBehaviour_Loop(bodyBehaviour);
-        } else if (controlFlowStatement instanceof BranchAction) {
+//        } else if (controlFlowStatement instanceof BranchAction) {
             // TODO reconstruct the branches of the branch action
             // the current data in the maps is not sufficient i think
         }

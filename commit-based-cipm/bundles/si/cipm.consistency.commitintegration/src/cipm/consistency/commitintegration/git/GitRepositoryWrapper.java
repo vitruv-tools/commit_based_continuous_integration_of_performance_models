@@ -122,8 +122,9 @@ public class GitRepositoryWrapper {
      * @return The path where this repository is checked out
      */
     public File getWorkTree() {
-        if (repository != null)
+        if (repository != null) {
             return repository.getWorkTree();
+        }
         return null;
     }
 
@@ -512,8 +513,9 @@ public class GitRepositoryWrapper {
             .setMode(ResetType.HARD)
             .call();
 
-        if (repoDir == null)
+        if (repoDir == null) {
             return;
+        }
 
         var files = this.repoDir.listFiles();
         if (files != null) {

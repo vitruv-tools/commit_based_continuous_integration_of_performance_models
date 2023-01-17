@@ -20,6 +20,8 @@ import org.eclipse.jgit.api.errors.TransportException;
 /**
  * Encapsulates all state of an ongoing integration
  * 
+ * @param <CM> The code model class that is used for the integration
+ * 
  * @author Lukas Burgey
  *
  */
