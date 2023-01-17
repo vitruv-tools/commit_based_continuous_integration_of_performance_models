@@ -11,10 +11,10 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
 public class ImFacade implements ModelFacade {
-    
+
     InstrumentationModel im;
     ImDirLayout dirLayout;
-    
+
     public ImFacade() {
         dirLayout = new ImDirLayout();
     }
@@ -29,7 +29,9 @@ public class ImFacade implements ModelFacade {
         FileBackedModelUtil.synchronize(im, dirLayout.getImFilePath()
             .toFile(), InstrumentationModel.class);
         try {
-            this.getModel().eResource().save(null);
+            this.getModel()
+                .eResource()
+                .save(null);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -41,11 +43,14 @@ public class ImFacade implements ModelFacade {
         im = InstrumentationModelFactory.eINSTANCE.createInstrumentationModel();
         saveToDisk();
     }
+
     private void loadModel() {
         var rs = (new ResourceSetImpl());
         var res = rs.getResource(dirLayout.getImFileUri(), true);
-        if (res.getContents().size() > 0) {
-            var eobj = res.getContents().get(0);
+        if (res.getContents()
+            .size() > 0) {
+            var eobj = res.getContents()
+                .get(0);
             if (eobj instanceof InstrumentationModel) {
                 im = (InstrumentationModel) eobj;
             }
@@ -59,10 +64,11 @@ public class ImFacade implements ModelFacade {
             loadModel();
         }
     }
-    
-    
+
     private boolean fileExists() {
-        return dirLayout.getImFilePath().toFile().exists();
+        return dirLayout.getImFilePath()
+            .toFile()
+            .exists();
     }
 
     @Override

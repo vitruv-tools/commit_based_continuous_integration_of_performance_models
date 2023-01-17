@@ -15,7 +15,7 @@ public class ModelLoadingTest extends AppSpaceCITest {
         // create state overwriting a possibly existing state
         state.initialize(this, true);
         state.dispose();
-        
+
         // load the created state without overwriting
         state.initialize(this, false);
         state.dispose();

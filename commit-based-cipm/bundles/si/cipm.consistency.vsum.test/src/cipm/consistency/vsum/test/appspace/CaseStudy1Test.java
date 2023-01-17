@@ -22,9 +22,10 @@ import org.junit.jupiter.api.TestInfo;
 public class CaseStudy1Test extends AppSpaceCITest {
     private static final String COMMIT_TAG_0_1_0 = "fce1b9f12c0719451141078cdc7785e866fdb12f";
     private static final String COMMIT_TAG_1_0_0 = "c771106f9e81ec996c982afb8689c43240471fc4";
-    
+
     @BeforeEach
-    public void initialize(TestInfo testInfo) throws InvalidRemoteException, TransportException, IOException, GitAPIException {
+    public void initialize(TestInfo testInfo)
+            throws InvalidRemoteException, TransportException, IOException, GitAPIException {
         this.state = new CommitIntegrationState<>();
         var overwrite = true;
         state.initialize(this, overwrite);
@@ -35,14 +36,12 @@ public class CaseStudy1Test extends AppSpaceCITest {
 //        state.createCopyWithTimeStamp("after_testrun");
         state.dispose();
     }
-    
 
     public GitRepositoryWrapper getGitRepositoryWrapper()
             throws InvalidRemoteException, TransportException, GitAPIException, IOException {
         var parentGitDir = Paths.get("../../../../.git");
         var submoduleName = "commit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/caseStudy1";
-        return super.getGitRepositoryWrapper()
-            .withLocalSubmodule(parentGitDir, submoduleName)
+        return super.getGitRepositoryWrapper().withLocalSubmodule(parentGitDir, submoduleName)
             .initialize();
     }
 

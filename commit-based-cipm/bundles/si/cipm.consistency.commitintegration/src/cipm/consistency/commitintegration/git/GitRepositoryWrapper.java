@@ -263,7 +263,8 @@ public class GitRepositoryWrapper {
      * @throws IncorrectObjectTypeException
      *             if one of the given commits is invalid.
      */
-    public List<DiffEntry> computeDiffsBetweenTwoCommits(String firstCommitId, String secondCommitId) throws RevisionSyntaxException, IOException, IncorrectObjectTypeException {
+    public List<DiffEntry> computeDiffsBetweenTwoCommits(String firstCommitId, String secondCommitId)
+            throws RevisionSyntaxException, IOException, IncorrectObjectTypeException {
         var firstCommit = this.getCommitForId(firstCommitId);
         var secondCommit = this.getCommitForId(secondCommitId);
         return computeDiffsBetweenTwoCommits(firstCommit, secondCommit);

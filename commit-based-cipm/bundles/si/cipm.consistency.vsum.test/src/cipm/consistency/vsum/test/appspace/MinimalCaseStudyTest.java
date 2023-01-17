@@ -19,12 +19,10 @@ import org.junit.jupiter.api.Test;
 public class MinimalCaseStudyTest extends AppSpaceCITest {
     private static final String COMMIT_1 = "842ec92f3406da965a5f9e7f468eb80eeb287b04";
     private static final String COMMIT_2 = "f63d05a18a5dd36f29e7312d797f2806d935e3a3";
-    
+
     // this commit was a copied code snipped from case study 1, that did cause a problem over there
     private static final String COMMIT_PROBLEM = "4cbb4e16fb348920fbf28ca192e78ec5ce5f07eb";
     private static final String COMMIT_4 = "ed82c041912168e9deeea36076184806daaa312e";
-    
-    
 
     @BeforeEach
     public void initialize() throws InvalidRemoteException, TransportException, IOException, GitAPIException {
@@ -34,7 +32,8 @@ public class MinimalCaseStudyTest extends AppSpaceCITest {
     @AfterEach
     public void dispose() {
 //        state.createCopyWithTimeStamp("after_testrun");
-        state.getDirLayout().delete();
+        state.getDirLayout()
+            .delete();
         state.dispose();
     }
 
@@ -43,8 +42,7 @@ public class MinimalCaseStudyTest extends AppSpaceCITest {
             throws InvalidRemoteException, TransportException, GitAPIException, IOException {
         var parentGitDir = Paths.get("../../.git");
         var submoduleName = "change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/minimalCaseStudy";
-        return super.getGitRepositoryWrapper()
-            .withLocalSubmodule(parentGitDir, submoduleName)
+        return super.getGitRepositoryWrapper().withLocalSubmodule(parentGitDir, submoduleName)
             .initialize();
     }
 
@@ -71,6 +69,7 @@ public class MinimalCaseStudyTest extends AppSpaceCITest {
         // propagating the same version twice
         var propagatedChanges = assertSuccessfulPropagation(null, COMMIT_2, COMMIT_2);
         var lastPropagationResult = propagatedChanges.get(propagatedChanges.size() - 1);
-        Assert.assertTrue("No changes must be generated when propagating a previously propagated commit", lastPropagationResult.isEmpty());
+        Assert.assertTrue("No changes must be generated when propagating a previously propagated commit",
+                lastPropagationResult.isEmpty());
     }
 }

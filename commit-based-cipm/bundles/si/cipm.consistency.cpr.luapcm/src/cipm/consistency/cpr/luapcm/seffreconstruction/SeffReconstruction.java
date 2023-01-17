@@ -229,10 +229,9 @@ public class SeffReconstruction {
     public static List<AbstractAction> doActionReconstructionBackwards(Statement_Function_Declaration decl,
             Block block) {
         List<Expression_Functioncall_Direct> functionCalls = getFunctionCallsInBlock(block);
-        if (functionCalls.size() == 0 ) {
+        if (functionCalls.size() == 0) {
             return null;
         }
-        
 
         // Maps control flow statements to the architecturaly relevent calls (like external calls)
         // which are their direct children direct
@@ -278,14 +277,14 @@ public class SeffReconstruction {
                 topLevelActions.add(classifiedCall);
             }
         }
-        
+
         // model the control flow actions that contain calls directly
 
         // Link the architecturally relevant function calls to their control flow statements
 //        for (var cfAction : controlFlowStatementsToFunctioncalls.keySet()) {
 //            linkControlFlowStatementAndChilds(cfAction, controlFlowStatementsToFunctioncalls.get(cfAction));
 //        }
-        
+
         // TODO convert the eObject control flow graph to abstract actions
 
         // Link the control flow statements

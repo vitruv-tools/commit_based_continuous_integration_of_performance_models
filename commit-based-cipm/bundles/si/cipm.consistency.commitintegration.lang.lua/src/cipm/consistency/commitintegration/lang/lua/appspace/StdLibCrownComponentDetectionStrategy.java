@@ -11,7 +11,8 @@ public class StdLibCrownComponentDetectionStrategy implements ComponentDetection
 
     @Override
     public void detectComponent(Resource res, Path projectRoot, ComponentCandidates candidates) {
-        if (res.getURI().equals(LuaLinkingService.MOCK_URI)) {
+        if (res.getURI()
+            .equals(LuaLinkingService.MOCK_URI)) {
             candidates.addModuleClassifier(ComponentState.REGULAR_COMPONENT, LuaLinkingService.MOCK_URI.path(), res);
         }
     }

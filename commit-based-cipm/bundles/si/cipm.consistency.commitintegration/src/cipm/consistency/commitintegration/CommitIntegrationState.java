@@ -25,7 +25,7 @@ import org.eclipse.jgit.api.errors.TransportException;
  */
 public class CommitIntegrationState<CM extends CodeModelFacade> {
     private final Logger LOGGER = Logger.getLogger(CommitIntegrationState.class.getName());
-    
+
     private String tag = "";
 
     private CommitIntegration<CM> commitIntegration;
@@ -36,7 +36,7 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
     private PcmFacade pcmFacade;
     private ImFacade imFacade;
     private CM codeModelFacade;
-    
+
     // if this state was previously used to propagate something
     private boolean _isFresh = false;
 
@@ -101,7 +101,7 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         var fileName = commitIntegration.getRootPath()
             .getFileName()
             .toString();
-        
+
         if (tag != "") {
             fileName += "_" + tag;
         }
@@ -162,15 +162,15 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
     public CommitIntegrationDirLayout getDirLayout() {
         return dirLayout;
     }
-    
+
     public CommitIntegration<CM> getCommitIntegration() {
         return commitIntegration;
     }
-    
+
     public boolean isFresh() {
         return _isFresh;
     }
-    
+
     public void setNotFresh() {
         _isFresh = false;
     }

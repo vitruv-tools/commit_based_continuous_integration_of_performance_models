@@ -12,11 +12,14 @@ public abstract class BuildFileBasedComponentDetectionStrategy implements Compon
 
     @Override
     public void detectComponent(Resource res, Path container, ComponentCandidates candidate) {
-        if (!res.getURI().isFile()) {
+        if (!res.getURI()
+            .isFile()) {
             return;
         }
-        var sourceFile = res.getURI().toFileString();
-        Path sourceFilePath = Path.of(sourceFile).toAbsolutePath();
+        var sourceFile = res.getURI()
+            .toFileString();
+        Path sourceFilePath = Path.of(sourceFile)
+            .toAbsolutePath();
         Path parent = sourceFilePath.getParent();
         // Beginning with the source file, the file system hierarchy is searched upwards
         // until the container directory is reached.

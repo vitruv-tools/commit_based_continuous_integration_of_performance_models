@@ -5,7 +5,7 @@ import cipm.consistency.commitintegration.lang.detection.strategy.BuildFileBased
 import java.nio.file.Path;
 
 public class AppSpaceComponentDetectionStrategy extends BuildFileBasedComponentDetectionStrategy {
-	private static final String APP_MANIFEST_FILE_NAME = "project.mf.xml";
+    private static final String APP_MANIFEST_FILE_NAME = "project.mf.xml";
 
     @Override
     protected ComponentState checkDirectoryForComponent(Path parent) {

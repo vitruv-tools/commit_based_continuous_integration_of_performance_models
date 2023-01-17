@@ -52,7 +52,8 @@ public class SeffReconstructionForward {
     // TODO this is terribly inefficient
     private static List<String> getServedFunctionNames(EObject root) {
         LOGGER.trace("getServedFunctionNames was called for " + root.toString());
-        // TODO we can assume that functions that end with '.register' and have 2 / 3 arguments are registerring a function
+        // TODO we can assume that functions that end with '.register' and have 2 / 3 arguments are
+        // registerring a function
         // so we don't have to hardcode so much
         var servedNames = new ArrayList<String>();
         var servingFunctions = List.of("Script.serveFunction", "Script.register", "Image.Provider.Directory.register");

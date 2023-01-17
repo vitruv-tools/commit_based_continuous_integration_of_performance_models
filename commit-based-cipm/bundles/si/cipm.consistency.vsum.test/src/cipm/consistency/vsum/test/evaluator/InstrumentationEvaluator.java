@@ -31,7 +31,7 @@ import tools.vitruv.change.correspondence.view.CorrespondenceModelView;
  * 
  * @author Martin Armbruster
  */
-public class InstrumentationEvaluator <CM extends CodeModelFacade> extends CommitIntegrationController<CM> {
+public class InstrumentationEvaluator<CM extends CodeModelFacade> extends CommitIntegrationController<CM> {
     private final int numberAdditionalStatements = 10;
     private final int numberServiceStatements = 7;
     private final int numberStatementsPerParameter = 1;
@@ -40,7 +40,7 @@ public class InstrumentationEvaluator <CM extends CodeModelFacade> extends Commi
     private final int numberLoopStatements = 3;
     private final int numberInternalActionStatements = 2;
     private final int numberInternalActionStatementsPerReturnStatement = 2;
-    
+
     private CM instrumentedModel;
 
     /**
@@ -57,7 +57,8 @@ public class InstrumentationEvaluator <CM extends CodeModelFacade> extends Commi
      *            the correspondence model.
      */
     public void evaluateInstrumentationDependently(CommitIntegrationState<CM> state) {
-        if (instrumentedModel == null || instrumentedModel.getResource().getContents()
+        if (instrumentedModel == null || instrumentedModel.getResource()
+            .getContents()
             .isEmpty()) {
             return;
         }
@@ -83,15 +84,17 @@ public class InstrumentationEvaluator <CM extends CodeModelFacade> extends Commi
      *            the correspondence model.
      */
     public void evaluateInstrumentationIndependently(CommitIntegrationState<CM> state) {
-        
+
 //    public void evaluateInstrumentationIndependently(InstrumentationModel im, Resource javaModel,
 //            CommitIntegrationState<LuaModel> state, CorrespondenceModelView<Correspondence> cmv) {
-        
-        var im = state.getImFacade().getModel();
-        var cmv = state.getVsumFacade().getCorrespondenceView();
-        var codeModel = state.getCodeModelFacade().getResource();
-        
-        
+
+        var im = state.getImFacade()
+            .getModel();
+        var cmv = state.getVsumFacade()
+            .getCorrespondenceView();
+        var codeModel = state.getCodeModelFacade()
+            .getResource();
+
         InstrumentationEvaluationData insEvalData = EvaluationDataContainer.getGlobalContainer()
             .getInstrumentationData();
         insEvalData.setExpectedLowerStatementDifferenceCount(countExpectedStatements(im, cmv, true));
@@ -135,7 +138,7 @@ public class InstrumentationEvaluator <CM extends CodeModelFacade> extends Commi
                 .add(convertToString(m));
         }
     }
-    
+
     private void compareModels(Resource reloadedModel, Resource codeModel) {
         // TODO lua case
         if (reloadedModel instanceof Notifier) {
@@ -145,7 +148,7 @@ public class InstrumentationEvaluator <CM extends CodeModelFacade> extends Commi
             var postProcessor = new JavaChangedMethodDetectorDiffPostProcessor();
             JavaModelComparator.compareJavaModels(javaReloadedModel, javaCodeModel, null, null, postProcessor);
         }
-        
+
     }
 
     private int countStatements(Resource model) {

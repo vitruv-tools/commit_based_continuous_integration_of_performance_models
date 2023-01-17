@@ -43,7 +43,8 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
         if (!state.isFresh()) {
             LOGGER.info("Reinitializing commitintegration");
             var ci = state.getCommitIntegration();
-            state.getDirLayout().delete();
+            state.getDirLayout()
+                .delete();
             state.dispose();
             state.initialize(ci, true);
         }
@@ -62,7 +63,7 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
 
         var propagatedChanges = state.getVsumFacade()
             .propagateResource(resource);
-        
+
         state.createCopyWithTimeStamp(String.format("after_propagation_of_%d_changes", propagatedChanges.size()));
 
         return propagatedChanges;

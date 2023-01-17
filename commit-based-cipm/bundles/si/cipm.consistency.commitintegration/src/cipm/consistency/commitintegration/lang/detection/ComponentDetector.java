@@ -11,16 +11,18 @@ public interface ComponentDetector {
     /**
      * Detects the components of a resourceset based on the detection strategies
      * 
-     * @param resourceSet The resource set which is searched for components
-     * @param projectRoot The root path of the project containing the resources
+     * @param resourceSet
+     *            The resource set which is searched for components
+     * @param projectRoot
+     *            The root path of the project containing the resources
      * 
      * @return Candidates for modules
      */
     ComponentCandidates detectModuleCandidates(ResourceSet resourceSet, Path projectRoot);
-    
 
     /**
-     * Like detectModuleCandidates but also resolves candidates to modules by using a configuration and user interaction 
+     * Like detectModuleCandidates but also resolves candidates to modules by using a configuration
+     * and user interaction
      */
     public ComponentCandidates detectModules(ResourceSet resourceSet, Path projectRoot, Path configPath);
 }

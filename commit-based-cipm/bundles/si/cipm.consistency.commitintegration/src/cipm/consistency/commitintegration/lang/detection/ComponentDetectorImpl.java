@@ -44,8 +44,7 @@ public class ComponentDetectorImpl implements ComponentDetector {
     }
 
     protected List<ComponentState> getEnabledModuleStates() {
-        return List.of(ComponentState.REGULAR_COMPONENT,
-                ComponentState.PART_OF_COMPONENT, ComponentState.NO_COMPONENT);
+        return List.of(ComponentState.REGULAR_COMPONENT, ComponentState.PART_OF_COMPONENT, ComponentState.NO_COMPONENT);
     }
 
     protected void resolveModuleCandidates(ComponentCandidates candidates, Path configPath) {
@@ -82,9 +81,11 @@ public class ComponentDetectorImpl implements ComponentDetector {
         updateConfig(config, candidates, ComponentState.REGULAR_COMPONENT);
         updateConfig(config, candidates, ComponentState.NO_COMPONENT);
         // Ask the developer to decide the type of the remaining component candidates.
-        
+
         var stateList = getEnabledModuleStates();
-        var stateNames = stateList.stream().map(s -> s.toString()).collect(Collectors.toList());
+        var stateNames = stateList.stream()
+            .map(s -> s.toString())
+            .collect(Collectors.toList());
         modCandidates = new HashMap<>(candidates.getModulesInState(ComponentState.COMPONENT_CANDIDATE));
         modCandidates.forEach((k, v) -> {
             int r = userInteractor.getSingleSelectionDialogBuilder()

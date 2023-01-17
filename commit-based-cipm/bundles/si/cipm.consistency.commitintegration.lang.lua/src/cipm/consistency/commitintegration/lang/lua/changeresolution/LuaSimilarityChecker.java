@@ -31,7 +31,8 @@ public class LuaSimilarityChecker extends SimilarityChecker {
 
     @Override
     public Boolean isSimilar(EObject element1, EObject element2, boolean checkStatementPosition) {
-        if (!element1.eClass().equals(element2.eClass())) {
+        if (!element1.eClass()
+            .equals(element2.eClass())) {
             return Boolean.FALSE;
         }
 
@@ -45,12 +46,11 @@ public class LuaSimilarityChecker extends SimilarityChecker {
             .iterator(),
                 List.of(element2)
                     .iterator(),
-                new ArrayList<EObject>()
-                    .iterator(),
-                monitor);
+                new ArrayList<EObject>().iterator(), monitor);
 
         // check the comparison if there were unresolveable differences
-        if (comparison.getDifferences().size() == 0) {
+        if (comparison.getDifferences()
+            .size() == 0) {
             return Boolean.TRUE;
         }
 

@@ -62,8 +62,7 @@ public class PcmFacade implements ModelFacade {
         // This needs to occur after pcm.saveToFile
         allocationModel.setSystem_Allocation(systemModel);
         allocationModel.setTargetResourceEnvironment_Allocation(resourceEnvModel);
-        
-        
+
         // save again for the allocation model
         saveToDisk();
 //        try {

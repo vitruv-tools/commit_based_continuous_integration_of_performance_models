@@ -15,24 +15,25 @@ import org.emftext.language.java.statements.StatementsFactory;
  * @author Martin Armbruster
  */
 public class ExternalCallActionInstrumenter extends AbstractInstrumenter {
-	protected ExternalCallActionInstrumenter(MinimalMonitoringEnvironmentModelGenerator gen) {
-		super(gen);
-	}
+    protected ExternalCallActionInstrumenter(MinimalMonitoringEnvironmentModelGenerator gen) {
+        super(gen);
+    }
 
-	@Override
-	protected void instrument(ActionInstrumentationPoint aip, ActionStatementMapping statementMap) {
-		// Statement for setting the external call id.
-		Statement callStatement = statementMap.get(aip.getAction());
-		String externalCallId = aip.getAction().getId();
-		ExpressionStatement enterSt = StatementsFactory.eINSTANCE.createExpressionStatement();
-		IdentifierReference objRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
-		objRef.setTarget(this.threadMonitoringVariable);
-		MethodCall enterCall = ReferencesFactory.eINSTANCE.createMethodCall();
-		enterCall.setTarget(environmentGen.setExternalCallIdMethod);
-		createAndAddStringArgument(enterCall, externalCallId);
-		
-		objRef.setNext(enterCall);
-		enterSt.setExpression(objRef);
-		callStatement.addBeforeContainingStatement(enterSt);
-	}
+    @Override
+    protected void instrument(ActionInstrumentationPoint aip, ActionStatementMapping statementMap) {
+        // Statement for setting the external call id.
+        Statement callStatement = statementMap.get(aip.getAction());
+        String externalCallId = aip.getAction()
+            .getId();
+        ExpressionStatement enterSt = StatementsFactory.eINSTANCE.createExpressionStatement();
+        IdentifierReference objRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
+        objRef.setTarget(this.threadMonitoringVariable);
+        MethodCall enterCall = ReferencesFactory.eINSTANCE.createMethodCall();
+        enterCall.setTarget(environmentGen.setExternalCallIdMethod);
+        createAndAddStringArgument(enterCall, externalCallId);
+
+        objRef.setNext(enterCall);
+        enterSt.setExpression(objRef);
+        callStatement.addBeforeContainingStatement(enterSt);
+    }
 }

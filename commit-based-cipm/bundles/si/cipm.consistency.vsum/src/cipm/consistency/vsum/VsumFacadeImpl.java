@@ -42,7 +42,8 @@ public class VsumFacadeImpl implements VsumFacade {
         dirLayout = new VsumDirLayout();
     }
 
-    public void initialize(Path rootPath, List<ModelFacade> models, List<ChangePropagationSpecification> changeSpecs, StateBasedChangeResolutionStrategy stateBasedChangeResolutionStrategy) {
+    public void initialize(Path rootPath, List<ModelFacade> models, List<ChangePropagationSpecification> changeSpecs,
+            StateBasedChangeResolutionStrategy stateBasedChangeResolutionStrategy) {
         dirLayout.initialize(rootPath);
         this.changeSpecs = changeSpecs;
         this.stateBasedChangeResolutionStrategy = stateBasedChangeResolutionStrategy;

@@ -17,27 +17,28 @@ import org.emftext.language.java.statements.StatementsFactory;
  * @author Martin Armbruster
  */
 public class BranchActionInstrumenter extends AbstractInstrumenter {
-	protected BranchActionInstrumenter(MinimalMonitoringEnvironmentModelGenerator gen) {
-		super(gen);
-	}
-	
-	@Override
-	protected void instrument(ActionInstrumentationPoint aip, ActionStatementMapping statementMapping) {
-		Statement branchSt = statementMapping.get(aip.getAction());
-		String transitionId = aip.getAction().getId();
-		if (branchSt instanceof StatementContainer
-				&& ((StatementContainer) branchSt).getStatement() instanceof Block) {
-			// Enter statement at the beginning of the inner statements.
-			ExpressionStatement enterSt = StatementsFactory.eINSTANCE.createExpressionStatement();
-			IdentifierReference idRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
-			idRef.setTarget(this.threadMonitoringVariable);
-			MethodCall enterCall = ReferencesFactory.eINSTANCE.createMethodCall();
-			enterCall.setTarget(environmentGen.enterBranchMethod);
-			this.createAndAddStringArgument(enterCall, transitionId);
-			
-			idRef.setNext(enterCall);
-			enterSt.setExpression(idRef);
-			((Block) ((StatementContainer) branchSt).getStatement()).getStatements().add(0, enterSt);
-		}
-	}
+    protected BranchActionInstrumenter(MinimalMonitoringEnvironmentModelGenerator gen) {
+        super(gen);
+    }
+
+    @Override
+    protected void instrument(ActionInstrumentationPoint aip, ActionStatementMapping statementMapping) {
+        Statement branchSt = statementMapping.get(aip.getAction());
+        String transitionId = aip.getAction()
+            .getId();
+        if (branchSt instanceof StatementContainer && ((StatementContainer) branchSt).getStatement() instanceof Block) {
+            // Enter statement at the beginning of the inner statements.
+            ExpressionStatement enterSt = StatementsFactory.eINSTANCE.createExpressionStatement();
+            IdentifierReference idRef = ReferencesFactory.eINSTANCE.createIdentifierReference();
+            idRef.setTarget(this.threadMonitoringVariable);
+            MethodCall enterCall = ReferencesFactory.eINSTANCE.createMethodCall();
+            enterCall.setTarget(environmentGen.enterBranchMethod);
+            this.createAndAddStringArgument(enterCall, transitionId);
+
+            idRef.setNext(enterCall);
+            enterSt.setExpression(idRef);
+            ((Block) ((StatementContainer) branchSt).getStatement()).getStatements()
+                .add(0, enterSt);
+        }
+    }
 }
