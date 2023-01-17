@@ -16,6 +16,7 @@ This repository provides the prototypical implementation for the change extracti
 
 1. For the initial setup after cloning the repository, setup scripts for Linux and Windows are provided.
     - Execute `./scripts/setup.sh` (Linux) or `.\scripts\setup.bat` (Windows) from the top-level of this repository.
+	    - If you encounter an error like `Internal error: java.lang.IllegalArgumentException: bundleLocation not found: [home]/.m2/[..]` it can help to delete the file `[home]/.m2/repository/.meta/p2-artifacts.properties` and restart the script.
 
 Further the project needs two instances of the Eclipse Modeling Tools 2022-09 setup as follows:
 
