@@ -32,3 +32,8 @@ git apply --ignore-whitespace ..\scripts\internal\SoMoX-Local-Update-Site.patch
 robocopy ..\.mvn .mvn /E
 call ..\mvnw.cmd clean verify -Dmaven.test.skip=true
 cd ..
+
+cd Vitruv
+robocopy ..\.mvn .mvn /E
+call ..\mvnw.cmd clean verify
+cd ..

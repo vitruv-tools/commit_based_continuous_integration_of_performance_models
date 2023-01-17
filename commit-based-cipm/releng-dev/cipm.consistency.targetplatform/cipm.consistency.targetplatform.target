@@ -57,5 +57,6 @@
         </location>
 		<location path="${workspace_loc:/cipm.consistency.targetplatform}/../../../Palladio-ReverseEngineering-SoMoX-JaMoPP/releng/org.somox.updatesite/target/repository" type="Directory"/>
 		<location path="${workspace_loc:/cipm.consistency.targetplatform}/../../../Palladio-Supporting-EclipseJavaDevelopmentTools/releng/org.palladiosimulator.jdt.updatesite/target/repository" type="Directory"/>
+		<location path="${workspace_loc:/cipm.consistency.targetplatform}/../../../Vitruv/releng/cipm.consistency.vitruv.updatesite/target/repository" type="Directory"/>
 	</locations>
 </target>

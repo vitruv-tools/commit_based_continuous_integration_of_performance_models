@@ -669,6 +669,27 @@
         <setEntry value="org.w3c.dom.events@default:default"/>
         <setEntry value="org.w3c.dom.smil@default:default"/>
         <setEntry value="org.w3c.dom.svg@default:default"/>
+        <setEntry value="tools.vitruv.applications.pcmjava.util"/>
+        <setEntry value="tools.vitruv.applications.util.temporary"/>
+        <setEntry value="tools.vitruv.domains.java"/>
+        <setEntry value="tools.vitruv.domains.pcm"/>
+        <setEntry value="tools.vitruv.domains.uml"/>
+        <setEntry value="tools.vitruv.dsls.common"/>
+        <setEntry value="tools.vitruv.dsls.common.ui"/>
+        <setEntry value="tools.vitruv.dsls.reactions"/>
+        <setEntry value="tools.vitruv.dsls.reactions.ide"/>
+        <setEntry value="tools.vitruv.dsls.reactions.ui"/>
+        <setEntry value="tools.vitruv.extensions.dslsruntime.reactions"/>
+        <setEntry value="tools.vitruv.framework.applications"/>
+        <setEntry value="tools.vitruv.framework.change"/>
+        <setEntry value="tools.vitruv.framework.change.echange"/>
+        <setEntry value="tools.vitruv.framework.change.interaction"/>
+        <setEntry value="tools.vitruv.framework.correspondence"/>
+        <setEntry value="tools.vitruv.framework.domains"/>
+        <setEntry value="tools.vitruv.framework.propagation"/>
+        <setEntry value="tools.vitruv.framework.userinteraction"/>
+        <setEntry value="tools.vitruv.framework.util"/>
+        <setEntry value="tools.vitruv.framework.vsum"/>
     </setAttribute>
     <setAttribute key="selected_workspace_bundles">
         <setEntry value="cipm.consistency.base.shared@default:default"/>
@@ -685,27 +706,6 @@
         <setEntry value="org.splevo.jamopp.diffing@default:default"/>
         <setEntry value="org.splevo.jamopp.extraction@default:default"/>
         <setEntry value="org.splevo.jamopp.util@default:default"/>
-        <setEntry value="tools.vitruv.applications.pcmjava.util@default:default"/>
-        <setEntry value="tools.vitruv.applications.util.temporary@default:default"/>
-        <setEntry value="tools.vitruv.domains.java@default:default"/>
-        <setEntry value="tools.vitruv.domains.pcm@default:default"/>
-        <setEntry value="tools.vitruv.domains.uml@default:default"/>
-        <setEntry value="tools.vitruv.dsls.common.ui@default:default"/>
-        <setEntry value="tools.vitruv.dsls.common@default:default"/>
-        <setEntry value="tools.vitruv.dsls.reactions.ide@default:default"/>
-        <setEntry value="tools.vitruv.dsls.reactions.ui@default:default"/>
-        <setEntry value="tools.vitruv.dsls.reactions@default:default"/>
-        <setEntry value="tools.vitruv.extensions.dslsruntime.reactions@default:default"/>
-        <setEntry value="tools.vitruv.framework.applications@default:default"/>
-        <setEntry value="tools.vitruv.framework.change.echange@default:default"/>
-        <setEntry value="tools.vitruv.framework.change.interaction@default:default"/>
-        <setEntry value="tools.vitruv.framework.change@default:default"/>
-        <setEntry value="tools.vitruv.framework.correspondence@default:default"/>
-        <setEntry value="tools.vitruv.framework.domains@default:default"/>
-        <setEntry value="tools.vitruv.framework.propagation@default:default"/>
-        <setEntry value="tools.vitruv.framework.userinteraction@default:default"/>
-        <setEntry value="tools.vitruv.framework.util@default:default"/>
-        <setEntry value="tools.vitruv.framework.vsum@default:default"/>
     </setAttribute>
     <booleanAttribute key="show_selected_only" value="false"/>
     <stringAttribute key="templateConfig" value="${target_home}\configuration\config.ini"/>

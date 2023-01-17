@@ -11,6 +11,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class UpdateSiteServerAppplication implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        String vitruvUpdateSite = Paths.get("..", "..", "Vitruv", "releng",
+            "cipm.consistency.vitruv.updatesite", "target", "repository").toAbsolutePath().toUri().toString();
+        registry.addResourceHandler("/vitruv/**").addResourceLocations(vitruvUpdateSite);
         String jamoppUpdateSite = Paths.get("..", "..", "Palladio-Supporting-EclipseJavaDevelopmentTools", "releng",
             "org.palladiosimulator.jdt.updatesite", "target", "repository").toAbsolutePath().toUri().toString();
         registry.addResourceHandler("/jamopp/**").addResourceLocations(jamoppUpdateSite);
