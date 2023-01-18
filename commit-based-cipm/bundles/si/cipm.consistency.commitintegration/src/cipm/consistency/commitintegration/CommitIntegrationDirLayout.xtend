@@ -11,6 +11,7 @@ class CommitIntegrationDirLayout extends ModelDirLayoutImpl {
 	static String imDirName = "im"
 	static String pcmDirName = "pcm"
 	static String codeDirName = "code"
+	static String instrumentedCodeDirName = "instrumented-code"
 	
 	static String commitsFileName = "commits"
 	static String settingsFileName = "settings.settings"
@@ -19,6 +20,7 @@ class CommitIntegrationDirLayout extends ModelDirLayoutImpl {
 	Path pcmDirPath
 	Path imDirPath
 	Path codeDirPath
+	Path instrumentedCodeDirPath
 	
 	Path commitsFilePath
 	Path settingsFilePath
@@ -30,6 +32,7 @@ class CommitIntegrationDirLayout extends ModelDirLayoutImpl {
 		pcmDirPath = rootDirPath.resolve(pcmDirName)
 		imDirPath = rootDirPath.resolve(imDirName)
 		codeDirPath = rootDirPath.resolve(codeDirName)
+		instrumentedCodeDirPath = rootDirPath.resolve(instrumentedCodeDirName)
 		
 		commitsFilePath = rootDirPath.resolve(commitsFileName)
 		settingsFilePath = rootDirPath.resolve(settingsFileName)

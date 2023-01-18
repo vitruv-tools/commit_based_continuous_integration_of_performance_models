@@ -1,25 +1,23 @@
 package cipm.consistency.vsum.test.evaluator;
 
+import java.util.Set;
+
+import org.eclipse.emf.common.notify.Notifier;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.emftext.language.java.statements.Return;
+import org.emftext.language.java.statements.Statement;
+import org.palladiosimulator.pcm.repository.OperationSignature;
+
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.commitintegration.CommitIntegrationController;
 import cipm.consistency.commitintegration.CommitIntegrationState;
 import cipm.consistency.commitintegration.diff.util.JavaChangedMethodDetectorDiffPostProcessor;
 import cipm.consistency.commitintegration.diff.util.JavaModelComparator;
-import cipm.consistency.commitintegration.lang.java.JavaParserAndPropagatorUtils;
-import cipm.consistency.commitintegration.lang.lua.LuaModelFacade;
+//import cipm.consistency.commitintegration.lang.java.JavaParserAndPropagatorUtils;
 import cipm.consistency.models.CodeModelFacade;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.InstrumentationEvaluationData;
-import java.util.HashSet;
-import java.util.Set;
-import org.eclipse.emf.common.notify.Notifier;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.emftext.language.java.members.Method;
-import org.emftext.language.java.statements.Return;
-import org.emftext.language.java.statements.Statement;
-import org.palladiosimulator.pcm.repository.OperationSignature;
 import tools.vitruv.change.correspondence.Correspondence;
 //import tools.vitruv.domains.java.tuid.JamoppStringOperations;
 //import tools.vitruv.changes.correspondence.model.CorrespondenceModel;
@@ -29,7 +27,11 @@ import tools.vitruv.change.correspondence.view.CorrespondenceModelView;
 /**
  * Evaluates the instrumentation.
  * 
+ * @param <CM>
+ *            The code model which is instrumented
+ * 
  * @author Martin Armbruster
+ * @author Lukas Burgey
  */
 public class InstrumentationEvaluator<CM extends CodeModelFacade> extends CommitIntegrationController<CM> {
     private final int numberAdditionalStatements = 10;
@@ -41,34 +43,48 @@ public class InstrumentationEvaluator<CM extends CodeModelFacade> extends Commit
     private final int numberInternalActionStatements = 2;
     private final int numberInternalActionStatementsPerReturnStatement = 2;
 
-    private CM instrumentedModel;
+//    private CM codeModel;
+//    private CM instrumentedModel;
 
     /**
-     * Evaluates the instrumented model. It is assumed to be executed directly after the
+     * Evaluates the instrumented code model. It is assumed to be executed directly after the
      * instrumentation.
      * 
-     * @param im
-     *            the extended IM.
-     * @param javaModel
-     *            the original Java model.
-     * @param instrumentedModel
-     *            the instrumented Java model.
-     * @param cm
-     *            the correspondence model.
+     * @param state
+     *            The commit integration state.
+     * @param instrumentedCodeModel
+     *            The instrumented code model. The actual code model is still contained in the
+     *            state.
      */
-    public void evaluateInstrumentationDependently(CommitIntegrationState<CM> state) {
-        if (instrumentedModel == null || instrumentedModel.getResource()
+    // TODO what does evaluating "dependently" mean?
+    public void evaluateInstrumentationDependently(CommitIntegrationState<CM> state,
+            CodeModelFacade instrumentedCodeModel) {
+        if (instrumentedCodeModel == null || instrumentedCodeModel.getResource()
             .getContents()
             .isEmpty()) {
             return;
         }
+        // count statements in the
         InstrumentationEvaluationData insEvalData = EvaluationDataContainer.getGlobalContainer()
             .getInstrumentationData();
-        int javaStatements = countStatements(codeModel);
-        int instrumStatements = countStatements(instrumentedModel);
-        insEvalData.setExpectedLowerStatementDifferenceCount(countExpectedStatements(im, cmv, true));
-        insEvalData.setExpectedUpperStatementDifferenceCount(countExpectedStatements(im, cmv, false));
-        insEvalData.setStatementDifferenceCount(instrumStatements - javaStatements);
+        int codeModelStatements = countStatements(state.getCodeModelFacade()
+            .getResource());
+        int instrumStatements = countStatements(instrumentedCodeModel.getResource());
+        insEvalData.setStatementDifferenceCount(instrumStatements - codeModelStatements);
+
+        var lowerDifferenceCount = countExpectedStatements(state.getImFacade()
+            .getModel(),
+                state.getVsumFacade()
+                    .getCorrespondenceView(),
+                true);
+        insEvalData.setExpectedLowerStatementDifferenceCount(lowerDifferenceCount);
+
+        var upperDifferenceCount = countExpectedStatements(state.getImFacade()
+            .getModel(),
+                state.getVsumFacade()
+                    .getCorrespondenceView(),
+                false);
+        insEvalData.setExpectedUpperStatementDifferenceCount(upperDifferenceCount);
     }
 
     /**
@@ -83,63 +99,64 @@ public class InstrumentationEvaluator<CM extends CodeModelFacade> extends Commit
      * @param cm
      *            the correspondence model.
      */
-    public void evaluateInstrumentationIndependently(CommitIntegrationState<CM> state) {
+    // TODO this method duplicates some code from the previous method. We could add a parameter "dependent" and merge them into one
+//    public void evaluateInstrumentationIndependently(CommitIntegrationState<CM> state) {
+//
+////    public void evaluateInstrumentationIndependently(InstrumentationModel im, Resource javaModel,
+////            CommitIntegrationState<LuaModel> state, CorrespondenceModelView<Correspondence> cmv) {
+//
+//        var im = state.getImFacade()
+//            .getModel();
+//        var cmv = state.getVsumFacade()
+//            .getCorrespondenceView();
+//        var codeModel = state.getCodeModelFacade()
+//            .getResource();
+//
+//        InstrumentationEvaluationData insEvalData = EvaluationDataContainer.getGlobalContainer()
+//            .getInstrumentationData();
+//        insEvalData.setExpectedLowerStatementDifferenceCount(countExpectedStatements(im, cmv, true));
+//        insEvalData.setExpectedUpperStatementDifferenceCount(countExpectedStatements(im, cmv, false));
+//        Resource reloadedModel = JavaParserAndPropagatorUtils.parseJavaCodeIntoOneModel(state.getImFacade()
+//            .getDirLayout()
+//            .getInstrumentationDirPath(),
+//                state.getCodeModelFacade()
+//                    .getDirLayout()
+//                    .getRootDirPath()
+//                    .resolve("ins.javaxmi"),
+//                state.getCodeModelFacade()
+//                    .getDirLayout()
+//                    .getModuleConfigurationPath());
+//
+//        var potentialProxies = EcoreUtil.ProxyCrossReferencer.find(reloadedModel);
+//
+//        int javaStatements = countStatements(codeModel);
+//        int instrumStatements = countStatements(reloadedModel);
+//        insEvalData.setReloadedStatementDifferenceCount(instrumStatements - javaStatements);
+//        if (!potentialProxies.isEmpty()) {
+//            insEvalData.getUnmatchedChangedMethods()
+//                .add("Reloaded model contains proxy objects.");
+//            return;
+//        }
+//        compareModels(reloadedModel, codeModel);
+//        Set<Method> changed = new HashSet<>(postProcessor.getChangedMethods());
+//        insEvalData.setNumberChangedMethods(changed.size());
+//        for (var sip : instrumentedModel.getPoints()) {
+//            var corMeth = cmv.getCorrespondingEObjects(sip.getService(), null);
+//            boolean success = changed.remove(corMeth.stream()
+//                .findFirst()
+//                .get());
+//            if (!success) {
+//                insEvalData.getUnmatchedIPs()
+//                    .add(sip.getId());
+//            }
+//        }
+//        for (Method m : changed) {
+//            insEvalData.getUnmatchedChangedMethods()
+//                .add(convertToString(m));
+//        }
+//    }
 
-//    public void evaluateInstrumentationIndependently(InstrumentationModel im, Resource javaModel,
-//            CommitIntegrationState<LuaModel> state, CorrespondenceModelView<Correspondence> cmv) {
-
-        var im = state.getImFacade()
-            .getModel();
-        var cmv = state.getVsumFacade()
-            .getCorrespondenceView();
-        var codeModel = state.getCodeModelFacade()
-            .getResource();
-
-        InstrumentationEvaluationData insEvalData = EvaluationDataContainer.getGlobalContainer()
-            .getInstrumentationData();
-        insEvalData.setExpectedLowerStatementDifferenceCount(countExpectedStatements(im, cmv, true));
-        insEvalData.setExpectedUpperStatementDifferenceCount(countExpectedStatements(im, cmv, false));
-        Resource reloadedModel = JavaParserAndPropagatorUtils.parseJavaCodeIntoOneModel(state.getImFacade()
-            .getDirLayout()
-            .getInstrumentationDirPath(),
-                state.getCodeModelFacade()
-                    .getDirLayout()
-                    .getRootDirPath()
-                    .resolve("ins.javaxmi"),
-                state.getCodeModelFacade()
-                    .getDirLayout()
-                    .getModuleConfigurationPath());
-
-        var potentialProxies = EcoreUtil.ProxyCrossReferencer.find(reloadedModel);
-
-        int javaStatements = countStatements(codeModel);
-        int instrumStatements = countStatements(reloadedModel);
-        insEvalData.setReloadedStatementDifferenceCount(instrumStatements - javaStatements);
-        if (!potentialProxies.isEmpty()) {
-            insEvalData.getUnmatchedChangedMethods()
-                .add("Reloaded model contains proxy objects.");
-            return;
-        }
-        compareModels(reloadedModel, codeModel);
-        Set<Method> changed = new HashSet<>(postProcessor.getChangedMethods());
-        insEvalData.setNumberChangedMethods(changed.size());
-        for (var sip : im.getPoints()) {
-            var corMeth = cmv.getCorrespondingEObjects(sip.getService(), null);
-            boolean success = changed.remove(corMeth.stream()
-                .findFirst()
-                .get());
-            if (!success) {
-                insEvalData.getUnmatchedIPs()
-                    .add(sip.getId());
-            }
-        }
-        for (Method m : changed) {
-            insEvalData.getUnmatchedChangedMethods()
-                .add(convertToString(m));
-        }
-    }
-
-    private void compareModels(Resource reloadedModel, Resource codeModel) {
+    private static void compareModels(Resource reloadedModel, Resource codeModel) {
         // TODO lua case
         if (reloadedModel instanceof Notifier) {
             var javaReloadedModel = (Notifier) reloadedModel;
@@ -151,7 +168,7 @@ public class InstrumentationEvaluator<CM extends CodeModelFacade> extends Commit
 
     }
 
-    private int countStatements(Resource model) {
+    private static int countStatements(Resource model) {
         int statements = 0;
         for (var iter = model.getAllContents(); iter.hasNext();) {
             EObject obj = iter.next();

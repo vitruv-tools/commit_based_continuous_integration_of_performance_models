@@ -49,15 +49,6 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
         writer.write(newCommit + "\n");
     }
 
-    private void deactivateAllActionIPs() {
-        state.getImFacade()
-            .getModel()
-            .getPoints()
-            .forEach(sip -> sip.getActionInstrumentationPoints()
-                .forEach(aip -> aip.setActive(false)));
-        state.getImFacade()
-            .saveToDisk();
-    }
 
     private boolean haveActionIPsChangedSinceDeactivation() {
         for (var sip : state.getImFacade()
@@ -93,8 +84,7 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
 
         long overallTimer = System.currentTimeMillis();
 
-        // Deactivate all action instrumentation points.
-        deactivateAllActionIPs();
+        state.getImFacade().deactivateAllActionIPs();
 
         long fineTimer = System.currentTimeMillis();
 

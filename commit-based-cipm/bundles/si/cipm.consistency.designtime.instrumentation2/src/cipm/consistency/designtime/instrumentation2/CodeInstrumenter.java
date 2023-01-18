@@ -1,16 +1,9 @@
 package cipm.consistency.designtime.instrumentation2;
 
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationType;
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint;
-import cipm.consistency.commitintegration.CommitIntegrationState;
-import cipm.consistency.designtime.instrumentation2.instrumenter.MinimalMonitoringEnvironmentModelGenerator;
-import cipm.consistency.designtime.instrumentation2.instrumenter.ServiceInstrumentationPointInstrumenter;
-import cipm.consistency.models.CodeModelFacade;
-import cipm.consistency.vsum.VsumFacade;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
@@ -21,6 +14,14 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.emftext.language.java.members.Method;
 import org.emftext.language.java.statements.Statement;
 import org.emftext.language.java.statements.StatementListContainer;
+
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationType;
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint;
+import cipm.consistency.commitintegration.CommitIntegrationState;
+import cipm.consistency.designtime.instrumentation2.instrumenter.MinimalMonitoringEnvironmentModelGenerator;
+import cipm.consistency.designtime.instrumentation2.instrumenter.ServiceInstrumentationPointInstrumenter;
+import cipm.consistency.models.CodeModelFacade;
 import tools.vitruv.change.correspondence.Correspondence;
 import tools.vitruv.change.correspondence.view.CorrespondenceModelView;
 

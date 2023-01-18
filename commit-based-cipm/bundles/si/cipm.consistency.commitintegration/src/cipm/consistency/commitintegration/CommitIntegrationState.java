@@ -38,6 +38,7 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
     private PcmFacade pcmFacade;
     private ImFacade imFacade;
     private CM codeModelFacade;
+    private CM instrumentedCodeModelFacade;
 
     // if this state was previously used to propagate something
     private boolean _isFresh = false;
@@ -78,9 +79,15 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         pcmFacade.initialize(dirLayout.getPcmDirPath());
         imFacade.initialize(dirLayout.getImDirPath());
 
+        // initialize the code model
         codeModelFacade = commitIntegration.getCodeModelFacadeSupplier()
             .get();
         codeModelFacade.initialize(dirLayout.getCodeDirPath());
+
+        // initialize the code model
+        instrumentedCodeModelFacade = commitIntegration.getCodeModelFacadeSupplier()
+            .get();
+        instrumentedCodeModelFacade.initialize(dirLayout.getInstrumentedCodeDirPath());
 
         // initialize the vsum
         vsumFacade.initialize(dirLayout.getVsumDirPath(), List.of(pcmFacade, imFacade),
@@ -159,6 +166,10 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
 
     public CM getCodeModelFacade() {
         return codeModelFacade;
+    }
+
+    public CM getInstrumentedCodeModelFacade() {
+        return instrumentedCodeModelFacade;
     }
 
     public CommitIntegrationDirLayout getDirLayout() {

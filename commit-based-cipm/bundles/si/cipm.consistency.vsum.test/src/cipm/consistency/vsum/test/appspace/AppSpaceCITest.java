@@ -1,15 +1,11 @@
 package cipm.consistency.vsum.test.appspace;
 
-import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
-import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
-import cipm.consistency.vsum.test.evaluator.IMUpdateEvaluator;
-import cipm.consistency.vsum.test.evaluator.InstrumentationEvaluator;
 //import cipm.consistency.vsum.test.evaluator.JavaModelEvaluator;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
+
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -19,6 +15,11 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
+
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
+import cipm.consistency.vsum.test.evaluator.IMUpdateEvaluator;
+import cipm.consistency.vsum.test.evaluator.InstrumentationEvaluator;
 import tools.vitruv.change.composite.description.PropagatedChange;
 
 public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController {
@@ -159,46 +160,46 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
      *             if an IO operation cannot be performed.
      */
     @SuppressWarnings("restriction")
-//    protected void performIndependentEvaluation() throws IOException {
-//        String[] commits = loadCommits();
-//        String oldCommit = commits[0];
-//        String newCommit = commits[1];
-//        LOGGER.debug("Evaluating the propagation " + oldCommit + "->" + newCommit);
-//        EvaluationDataContainer evalResult = EvaluationDataContainer.getGlobalContainer();
-//        evalResult.getChangeStatistic()
-//            .setOldCommit(oldCommit);
-//        evalResult.getChangeStatistic()
-//            .setNewCommit(newCommit);
-//        Resource javaModel = state.getCodeModelFacade()
-//            .getResource();
-//        LOGGER.debug("Evaluating the Java model.");
-//        new JavaModelEvaluator().evaluateJavaModels(javaModel, state.getDirLayout()
-//            .getSettingsFilePath(),
-//                state.getCodeModelFacade()
-//                    .getDirLayout()
-//                    .getLocalRepoDir(),
-//                evalResult.getJavaComparisonResult(), state.getCodeModelFacade()
-//                    .getDirLayout()
-//                    .getModuleConfigurationPath());
-//
-//        LOGGER.debug("Evaluating the instrumentation model.");
-//        new IMUpdateEvaluator().evaluateIMUpdate(state.getPcmFacade()
-//            .getInMemoryPCM()
-//            .getRepository(),
-//                state.getImFacade()
-//                    .getModel(),
-//                evalResult.getImEvalResult(), getRootPath().toString());
-//        LOGGER.debug("Evaluating the instrumentation.");
-////        new InstrumentationEvaluator().evaluateInstrumentationIndependently(state.getIm()
-////            .getModel(), javaModel, getCommitChangePropagator().getFileSystemLayout(),
-////                state.getVsum()
-////                    .getVsum()
-////                    .getCorrespondenceModel());
-//        new InstrumentationEvaluator().evaluateInstrumentationIndependently(state);
-//        EvaluationDataContainerReaderWriter.write(evalResult, getRootPath()
-//            .resolveSibling("EvaluationResult-" + newCommit + "-" + evalResult.getEvaluationTime() + ".json"));
-//        LOGGER.debug("Finished the evaluation.");
-//    }
+    protected void performIndependentEvaluation() throws IOException {
+        String[] commits = loadCommits();
+        String oldCommit = commits[0];
+        String newCommit = commits[1];
+        LOGGER.debug("Evaluating the propagation " + oldCommit + "->" + newCommit);
+        EvaluationDataContainer evalResult = EvaluationDataContainer.getGlobalContainer();
+        evalResult.getChangeStatistic()
+            .setOldCommit(oldCommit);
+        evalResult.getChangeStatistic()
+            .setNewCommit(newCommit);
+        Resource javaModel = state.getCodeModelFacade()
+            .getResource();
+        LOGGER.debug("Evaluating the Java model.");
+        new JavaModelEvaluator().evaluateJavaModels(javaModel, state.getDirLayout()
+            .getSettingsFilePath(),
+                state.getCodeModelFacade()
+                    .getDirLayout()
+                    .getLocalRepoDir(),
+                evalResult.getJavaComparisonResult(), state.getCodeModelFacade()
+                    .getDirLayout()
+                    .getModuleConfigurationPath());
+
+        LOGGER.debug("Evaluating the instrumentation model.");
+        new IMUpdateEvaluator().evaluateIMUpdate(state.getPcmFacade()
+            .getInMemoryPCM()
+            .getRepository(),
+                state.getImFacade()
+                    .getModel(),
+                evalResult.getImEvalResult(), getRootPath().toString());
+        LOGGER.debug("Evaluating the instrumentation.");
+//        new InstrumentationEvaluator().evaluateInstrumentationIndependently(state.getIm()
+//            .getModel(), javaModel, getCommitChangePropagator().getFileSystemLayout(),
+//                state.getVsum()
+//                    .getVsum()
+//                    .getCorrespondenceModel());
+        new InstrumentationEvaluator().evaluateInstrumentationIndependently(state);
+        EvaluationDataContainerReaderWriter.write(evalResult, getRootPath()
+            .resolveSibling("EvaluationResult-" + newCommit + "-" + evalResult.getEvaluationTime() + ".json"));
+        LOGGER.debug("Finished the evaluation.");
+    }
 
     /**
      * Returns the path to the local directory in which the data is stored.

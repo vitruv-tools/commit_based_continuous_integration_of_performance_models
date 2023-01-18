@@ -38,6 +38,16 @@ public class ImFacade implements ModelFacade {
         }
     }
 
+    /**
+     * Persistently deactivates all instrumentation points in the underlying model.
+     */
+    public void deactivateAllActionIPs() {
+        im.getPoints()
+            .forEach(sip -> sip.getActionInstrumentationPoints()
+                .forEach(aip -> aip.setActive(false)));
+        this.saveToDisk();
+    }
+
     private void createModel() {
         // build IMM
         im = InstrumentationModelFactory.eINSTANCE.createInstrumentationModel();
