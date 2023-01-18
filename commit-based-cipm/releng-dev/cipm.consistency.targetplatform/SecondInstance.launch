@@ -661,6 +661,7 @@
         <setEntry value="org.sat4j.core@default:default"/>
         <setEntry value="org.sat4j.pb@default:default"/>
         <setEntry value="org.slf4j.api@default:default"/>
+        <setEntry value="org.slf4j.binding.nop@default:default"/>
         <setEntry value="org.somox.core@default:default"/>
         <setEntry value="org.somox.filter@default:default"/>
         <setEntry value="org.somox.gast2seff@default:default"/>
