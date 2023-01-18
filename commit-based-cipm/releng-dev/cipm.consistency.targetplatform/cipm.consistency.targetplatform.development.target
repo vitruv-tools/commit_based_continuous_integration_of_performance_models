@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?pde version="3.8"?>
+<target name="CIPM Development" sequenceNumber="1">
+	<locations>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+			<repository location="https://download.eclipse.org/releases/2022-09/"/>
+			<unit id="org.eclipse.jdt.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.emf.sdk.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.emf.mwe2.language.sdk.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.emf.mwe2.runtime.sdk.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.emf.mwe.sdk.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.emf.compare.ide.ui.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.jgit.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.uml2.sdk.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.pde.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.m2m.qvt.oml.sdk.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.xtext.sdk.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.egit.feature.group" version="0.0.0"/>
+		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+			<repository location="https://download.eclipse.org/eclipse/updates/4.25"/>
+			<unit id="org.eclipse.platform.ide" version="0.0.0"/>
+		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+			<repository location="https://download.eclipse.org/tools/orbit/downloads/2022-09/"/>
+			<unit id="com.google.gson" version="2.9.0.v20220704-0629"/>
+			<unit id="org.apache.commons.compress" version="1.21.0.v20211103-2100"/>
+			<unit id="org.apache.commons.io" version="2.8.0.v20210415-0900"/>
+			<unit id="org.apache.log4j" version="1.2.19.v20220208-1728"/>
+			<unit id="org.junit.jupiter.api" version="5.8.2.v20220624-2009"/>
+			<unit id="org.junit.jupiter.params" version="5.8.2.v20220624-2009"/>
+			<unit id="org.junit.platform.commons" version="1.8.2.v20220624-2009"/>
+			<unit id="org.slf4j.binding.nop" version="1.7.30.v20200204-2150"/>
+		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" refresh="true" type="InstallableUnit">
+            <unit id="de.uka.ipd.sdq.identifier.feature.feature.group" version="0.0.0"/>
+            <repository location="https://updatesite.palladio-simulator.com/palladio-core-commons/releases/5.0.0/"/>
+        </location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+            <unit id="org.palladiosimulator.pcm.feature.feature.group" version="0.0.0"/>
+            <repository location="https://updatesite.palladio-simulator.com/palladio-core-pcm/releases/5.0.0/"/>
+        </location>
+        <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+            <repository location="https://updatesite.palladio-simulator.com/palladio-supporting-workflowengine/releases/5.0.0/"/>
+	        <unit id="de.uka.ipd.sdq.workflow.feature.core.feature.group" version="5.0.0.202102051701"/>
+	        <unit id="de.uka.ipd.sdq.workflow.feature.mdsd.feature.group" version="5.0.0.202102051701"/>
+        </location>
+        <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+            <repository location="http://kit-sdq.github.io/updatesite/release/commons/2.0.0/"/>
+	        <unit id="edu.kit.ipd.sdq.commons.util.eclipse.feature.feature.group" version="2.0.0"/>
+	        <unit id="edu.kit.ipd.sdq.commons.util.eclipse.feature.source.feature.group" version="2.0.0"/>
+	        <unit id="edu.kit.ipd.sdq.commons.util.emf.feature.feature.group" version="2.0.0"/>
+	        <unit id="edu.kit.ipd.sdq.commons.util.emf.feature.source.feature.group" version="2.0.0"/>
+	        <unit id="edu.kit.ipd.sdq.commons.util.java.feature.feature.group" version="2.0.0"/>
+	        <unit id="edu.kit.ipd.sdq.commons.util.java.feature.source.feature.group" version="2.0.0"/>
+	        <unit id="edu.kit.ipd.sdq.commons.util.mdsdprofiles.feature.feature.group" version="2.0.0"/>
+	        <unit id="edu.kit.ipd.sdq.commons.util.mdsdprofiles.feature.source.feature.group" version="2.0.0"/>
+	        <unit id="edu.kit.ipd.sdq.commons.util.pcm.feature.feature.group" version="2.0.0"/>
+	        <unit id="edu.kit.ipd.sdq.commons.util.pcm.feature.source.feature.group" version="2.0.0"/>
+        </location>
+		<location path="${workspace_loc:/cipm.consistency.targetplatform}/../../../Palladio-ReverseEngineering-SoMoX-JaMoPP/releng/org.somox.updatesite/target/repository" type="Directory"/>
+		<location path="${workspace_loc:/cipm.consistency.targetplatform}/../../../Palladio-Supporting-EclipseJavaDevelopmentTools/releng/org.palladiosimulator.jdt.updatesite/target/repository" type="Directory"/>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+			<repository location="https://vitruv-tools.github.io/updatesite/release"/>
+			<unit id="tools.vitruv.change.feature.feature.group" version="3.0.0"/>
+			<unit id="tools.vitruv.change.feature.source.feature.group" version="3.0.0"/>
+			<unit id="tools.vitruv.dsls.reactions.feature.feature.group" version="3.0.0"/>
+			<unit id="tools.vitruv.dsls.reactions.feature.source.feature.group" version="3.0.0"/>
+			<unit id="tools.vitruv.dsls.reactions.runtime.feature.feature.group" version="3.0.0"/>
+			<unit id="tools.vitruv.dsls.reactions.runtime.feature.source.feature.group" version="3.0.0"/>
+			<unit id="tools.vitruv.framework.vsum.feature.feature.group" version="3.0.0"/>
+			<unit id="tools.vitruv.framework.vsum.feature.source.feature.group" version="3.0.0"/>
+		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+			<repository location="https://checkstyle.org/eclipse-cs-update-site"/>
+			<unit id="net.sf.eclipsecs.feature.group" version="10.4.0.202211151918"/>
+			<unit id="net.sf.eclipsecs.source.feature.group" version="10.4.0.202211151918"/>
+		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+			<repository location="https://vrapper.sourceforge.net/update-site/stable/"/>
+			<unit id="net.sourceforge.vrapper.feature.group" version="0.74.0"/>
+			<unit id="net.sourceforge.vrapper.plugin.argtextobj.feature.group" version="0.74.0"/>
+			<unit id="net.sourceforge.vrapper.plugin.clangformat.feature.group" version="0.74.0"/>
+			<unit id="net.sourceforge.vrapper.plugin.cycle.feature.group" version="0.74.0"/>
+			<unit id="net.sourceforge.vrapper.plugin.exchange.feature.group" version="0.74.0"/>
+			<unit id="net.sourceforge.vrapper.plugin.indenttextobj.feature.group" version="0.74.0"/>
+			<unit id="net.sourceforge.vrapper.plugin.ipmotion.feature.group" version="0.74.0"/>
+			<unit id="net.sourceforge.vrapper.plugin.linetextobj.feature.group" version="0.74.0"/>
+			<unit id="net.sourceforge.vrapper.plugin.methodtextobj.feature.group" version="0.74.0"/>
+			<unit id="net.sourceforge.vrapper.plugin.sneak.feature.group" version="0.74.0"/>
+			<unit id="net.sourceforge.vrapper.plugin.splitEditor.feature.group" version="0.74.0"/>
+			<unit id="net.sourceforge.vrapper.plugin.subwordtextobj.feature.group" version="0.74.0"/>
+			<unit id="net.sourceforge.vrapper.plugin.surround.feature.group" version="0.74.0"/>
+		</location>
+	</locations>
+</target>
