@@ -1,7 +1,10 @@
 package cipm.consistency.cpr.luapcm.seffreconstruction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.EcoreUtil2;
@@ -35,11 +38,27 @@ import org.xtext.lua.scoping.LuaLinkingService;
  * @author Lukas Burgey
  *
  */
-public class SeffReconstructionForward {
+public final class SeffReconstructionForward {
+    private static SeffReconstructionForward instance;
+    private Map<EObject, List<String>> componentSetToServedFunctionNames;
+
     private static final Logger LOGGER = Logger.getLogger(SeffReconstructionForward.class.getName());
 
     // TODO find a better default for this stochastic expression
     private static final String LOOP_COUNT_SPECIFICATION = "10";
+
+    
+    private SeffReconstructionForward() {
+        componentSetToServedFunctionNames = new HashMap<>();
+    }
+    
+    public static SeffReconstructionForward getInstance() {
+        if (instance != null) {
+            return instance;
+        }
+        instance = new SeffReconstructionForward();
+        return instance;
+    }
 
     // used when we find no block to reconstruct
     private static List<AbstractAction> emptyStepBehaviour() {
@@ -49,8 +68,9 @@ public class SeffReconstructionForward {
         return actions;
     }
 
+
     // TODO this is terribly inefficient
-    private static List<String> getServedFunctionNames(EObject root) {
+    private static List<String> generateServedFunctionNames(EObject root) {
         LOGGER.trace("getServedFunctionNames was called for " + root.toString());
         // TODO we can assume that functions that end with '.register' and have 2 / 3 arguments are
         // registerring a function
@@ -79,13 +99,20 @@ public class SeffReconstructionForward {
         }
         return servedNames;
     }
+    
+    
+    private List<String> getServedFunctionNames(EObject componentSetRoot) {
+        if (!componentSetToServedFunctionNames.containsKey(componentSetRoot)) {
+            componentSetToServedFunctionNames.put(componentSetRoot, generateServedFunctionNames(componentSetRoot));
+        }
+        return componentSetToServedFunctionNames.get(componentSetRoot);
+    }
 
-    public static boolean needsSeffReconstruction(Statement_Function_Declaration declaration) {
-        // TODO implement a usable policy to determine if the declaration needs a seff
-        var root = EcoreUtil2.getContainerOfType(declaration, ComponentSet.class);
-        var servedFuncNames = getServedFunctionNames(root);
-
-        return servedFuncNames.contains(declaration.getName());
+    public boolean needsSeffReconstruction(Statement_Function_Declaration declaration) {
+        // TODO Is being served sufficient to determine if a seff reconstruction is needed?
+        var componentSetRoot = EcoreUtil2.getContainerOfType(declaration, ComponentSet.class);
+        var servedFunctionNames = getServedFunctionNames(componentSetRoot);
+        return servedFunctionNames.contains(declaration.getName());
     }
 
     public static void doReconstruction(Statement_Function_Declaration declaration, ResourceDemandingSEFF seff) {

@@ -14,7 +14,7 @@ routine assertSeffForFunction(lua::Statement_Function_Declaration functionDeclar
 		require absence of pcm::ResourceDemandingSEFF corresponding to functionDeclaration
 	}
 	update {
-		if (SeffReconstructionForward.needsSeffReconstruction(functionDeclaration)) {
+		if (SeffReconstructionForward.getInstance().needsSeffReconstruction(functionDeclaration)) {
 			createSEFF(functionDeclaration)
 		}
 	}
