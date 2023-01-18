@@ -12,9 +12,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * A test class for the TeaStore.
+ * Testclass for a minimal case study to test the functionality of the approach
  * 
- * @author Martin Armbruster
+ * @author Lukas Burgey
  */
 public class MinimalCaseStudyTest extends AppSpaceCITest {
     private static final String COMMIT_1 = "842ec92f3406da965a5f9e7f468eb80eeb287b04";
@@ -40,8 +40,8 @@ public class MinimalCaseStudyTest extends AppSpaceCITest {
     @Override
     public GitRepositoryWrapper getGitRepositoryWrapper()
             throws InvalidRemoteException, TransportException, GitAPIException, IOException {
-        var parentGitDir = Paths.get("../../.git");
-        var submoduleName = "change-based-adaptive-instrumentation/cipm.consistency.vsum.test/ciTestRepos/minimalCaseStudy";
+        var parentGitDir = Paths.get("../../../../.git");
+        var submoduleName = "commit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/minimalCaseStudy";
         return super.getGitRepositoryWrapper().withLocalSubmodule(parentGitDir, submoduleName)
             .initialize();
     }
