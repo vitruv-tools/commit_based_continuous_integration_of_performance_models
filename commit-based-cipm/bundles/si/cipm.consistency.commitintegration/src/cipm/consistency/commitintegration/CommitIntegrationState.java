@@ -26,7 +26,7 @@ import org.eclipse.jgit.api.errors.TransportException;
  *
  */
 public class CommitIntegrationState<CM extends CodeModelFacade> {
-    private final Logger LOGGER = Logger.getLogger(CommitIntegrationState.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(CommitIntegrationState.class.getName());
 
     private String tag = "";
 
@@ -41,7 +41,7 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
     private CM instrumentedCodeModelFacade;
 
     // if this state was previously used to propagate something
-    private boolean _isFresh = false;
+    private boolean isFresh = false;
 
     public CommitIntegrationState() {
         dirLayout = new CommitIntegrationDirLayout();
@@ -68,7 +68,7 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
             LOGGER.info(String.format("Deleting CommitIntegrationState at %s", commitIntegration.getRootPath()));
             dirLayout.delete();
             dirLayout.initialize(commitIntegration.getRootPath());
-            _isFresh = true;
+            isFresh = true;
         }
 
         // the settings container needs to be initialized before everything else
@@ -181,11 +181,11 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
     }
 
     public boolean isFresh() {
-        return _isFresh;
+        return isFresh;
     }
 
     public void setNotFresh() {
-        _isFresh = false;
+        isFresh = false;
     }
 
     public void setTag(String tag) {

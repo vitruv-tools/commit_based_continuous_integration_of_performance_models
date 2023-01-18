@@ -213,18 +213,20 @@ public class VsumFacadeImpl implements VsumFacade {
      * 
      * @param resource
      *            The propagated resource
+     * @param targetUri
+     *            The uri where vitruv persists the propagated resource
      * @param vsum
      *            Optional, may be used to override the vsum to which the change is propagated
      * @return The propagated changes
      */
-    private List<PropagatedChange> propagateResource(Resource resource, URI _targetUri, InternalVirtualModel vsum) {
+    private List<PropagatedChange> propagateResource(Resource resource, URI targetUri, InternalVirtualModel vsum) {
         if (vsum == null) {
             vsum = this.vsum;
         }
-        if (_targetUri == null) {
-            _targetUri = resource.getURI();
+        if (targetUri == null) {
+            targetUri = resource.getURI();
         }
-        final URI targetUri = _targetUri;
+        final URI actualtargetUri = targetUri;
 
         // try to resolve all proxies in the resource
         EcoreUtil.resolveAll(resource);
@@ -251,7 +253,7 @@ public class VsumFacadeImpl implements VsumFacade {
         var roots = view.getRootObjects();
         var possiblyExistingRoot = roots.stream()
             .filter(root -> root.eResource()
-                .getURI() == targetUri)
+                .getURI() == actualtargetUri)
             .findAny();
         if (possiblyExistingRoot.isPresent()) {
             LOGGER.trace(String.format("Replacing old root object (%s) at %s", newRootEobject.getClass(), targetUri));

@@ -26,21 +26,20 @@ import tools.vitruv.change.composite.description.PropagatedChange;
 public abstract class InstrumentingCommitIntegrationController<CM extends CodeModelFacade>
         extends CommitIntegrationController<CM> {
     private static final Logger LOGGER = Logger.getLogger(InstrumentingCommitIntegrationController.class.getName());
-    Resource instrumentedModel;
+    public Resource instrumentedModel;
 
     private boolean storeInstrumentedModel = false;
 
     private void addCommitToCommitsFile(String oldCommit, String newCommit) throws IOException {
         // make sure there the parent dir exists
-        {
-            var parent = state.getDirLayout()
-                .getCommitsFilePath()
-                .toAbsolutePath()
-                .getParent();
-            if (Files.notExists(parent)) {
-                Files.createDirectories(parent);
-            }
+        var parent = state.getDirLayout()
+            .getCommitsFilePath()
+            .toAbsolutePath()
+            .getParent();
+        if (Files.notExists(parent)) {
+            Files.createDirectories(parent);
         }
+
         BufferedWriter writer = Files.newBufferedWriter(state.getDirLayout()
             .getCommitsFilePath());
         if (oldCommit != null) {
@@ -58,7 +57,6 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
                 if (aip.isActive()) {
                     return true;
                 }
-                ;
             }
         }
         return false;
