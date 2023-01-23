@@ -253,7 +253,7 @@ public class CommitIntegrationController {
 	private void removeMonitoringClasses(Path file) throws IOException {
 		Map<String, String> options = new HashMap<>();
 		options.put("create", "false");
-		try (FileSystem fileSys = FileSystems.newFileSystem(file, options)) {
+		try (FileSystem fileSys = FileSystems.newFileSystem(file.toUri(), options)) {
 			String tmcEndPath = "cipm/consistency/bridge/monitoring/controller/ThreadMonitoringController.class";
 			String spEndPath = "cipm/consistency/bridge/monitoring/controller/ServiceParameters.class";
 			fileSys.getRootDirectories().forEach(root -> {
