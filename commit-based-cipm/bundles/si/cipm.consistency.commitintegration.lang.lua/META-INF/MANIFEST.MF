@@ -4,7 +4,7 @@ Bundle-Name: Commit Integration of Lua Code
 Bundle-SymbolicName: cipm.consistency.commitintegration.lang.lua
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: LuaCommitIntegration
-Bundle-RequiredExecutionEnvironment: JavaSE-13
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: cipm.consistency.commitintegration.lang.lua,
  cipm.consistency.commitintegration.lang.lua.appspace,
  cipm.consistency.commitintegration.lang.lua.changeresolution
