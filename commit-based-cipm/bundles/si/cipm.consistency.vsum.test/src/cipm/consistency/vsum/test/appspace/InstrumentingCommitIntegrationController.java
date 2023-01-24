@@ -1,12 +1,5 @@
 package cipm.consistency.vsum.test.appspace;
 
-import cipm.consistency.commitintegration.CommitIntegrationController;
-import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
-import cipm.consistency.commitintegration.settings.SettingKeys;
-import cipm.consistency.commitintegration.util.ExternalCommandExecutionUtils;
-import cipm.consistency.designtime.instrumentation2.CodeInstrumenter;
-import cipm.consistency.models.CodeModelFacade;
-import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -19,16 +12,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.resource.Resource;
+
+import cipm.consistency.commitintegration.CommitIntegrationController;
+import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
+import cipm.consistency.commitintegration.settings.SettingKeys;
+import cipm.consistency.commitintegration.util.ExternalCommandExecutionUtils;
+import cipm.consistency.designtime.instrumentation2.CodeInstrumenter;
+import cipm.consistency.models.CodeModelFacade;
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import tools.vitruv.change.composite.description.PropagatedChange;
 
 public abstract class InstrumentingCommitIntegrationController<CM extends CodeModelFacade>
         extends CommitIntegrationController<CM> {
     private static final Logger LOGGER = Logger.getLogger(InstrumentingCommitIntegrationController.class.getName());
-    public Resource instrumentedModel;
-
-    private boolean storeInstrumentedModel = false;
+   
+    // TODO these are probably no longer needed:
+//    private Resource instrumentedModel;
+//    private boolean storeInstrumentedModel = false;
 
     private void addCommitToCommitsFile(String oldCommit, String newCommit) throws IOException {
         // make sure there the parent dir exists
@@ -111,9 +114,9 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
                     .setInstrumentationTime(fineTimer);
 
                 // TODO I don't think this is working:
-                if (storeInstrumentedModel) {
-                    this.instrumentedModel = insModel;
-                }
+//                if (storeInstrumentedModel) {
+//                    this.instrumentedModel = insModel;
+//                }
             }
         }
         overallTimer = System.currentTimeMillis() - overallTimer;
@@ -265,7 +268,7 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
 //     return instrumentedModel;
 // }
 
-    public void setStoreInstrumentedModel(boolean store) {
-        storeInstrumentedModel = store;
-    }
+//    public void setStoreInstrumentedModel(boolean store) {
+//        storeInstrumentedModel = store;
+//    }
 }

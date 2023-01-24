@@ -21,6 +21,9 @@ import tools.vitruv.framework.views.changederivation.StateBasedChangeResolutionS
 
 public abstract class AppSpaceCommitIntegrationController extends CommitIntegrationController<LuaModelFacade>
         implements CommitIntegration<LuaModelFacade> {
+    
+    private static final String LUA_FILE_EXTENSION = "lua";
+    private static final boolean GIT_DETECT_RENAMES = true;
 
     @Override
     public Supplier<LuaModelFacade> getCodeModelFacadeSupplier() {
@@ -46,7 +49,7 @@ public abstract class AppSpaceCommitIntegrationController extends CommitIntegrat
     @Override
     public GitRepositoryWrapper getGitRepositoryWrapper()
             throws InvalidRemoteException, TransportException, GitAPIException, IOException {
-        return new GitRepositoryWrapper("lua", true);
+        return new GitRepositoryWrapper(LUA_FILE_EXTENSION, GIT_DETECT_RENAMES);
     }
 
     @Override

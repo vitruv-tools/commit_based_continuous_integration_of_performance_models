@@ -4,6 +4,7 @@ package cipm.consistency.vsum.test.appspace;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import org.apache.log4j.ConsoleAppender;
@@ -11,11 +12,16 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.LoggingEvent;
+import org.eclipse.emf.cdo.common.util.TransportException;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.junit.Assert;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 
+import cipm.consistency.commitintegration.CommitIntegrationState;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
 import cipm.consistency.vsum.test.evaluator.IMUpdateEvaluator;
@@ -25,7 +31,65 @@ import tools.vitruv.change.composite.description.PropagatedChange;
 public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController {
     private static final Logger LOGGER = Logger.getLogger(AppSpaceCommitIntegrationController.class.getName());
 
+    /**
+     * The path to the git directory of the whole cipm repository. This path is relative to the
+     * current project.
+     */
+    protected static final Path CIPM_GIT_DIR = Paths.get("../../../../.git");
+
+    /**
+     * The path to the directory where all test data is put. Examples are dumps the models during
+     * different stages of the propagation
+     */
+    protected static final Path TESTDATA_PATH = Path.of("testData", "tests");
+
     protected boolean forceEmptyPropagation = true;
+
+    private Path rootPath;
+
+    /**
+     * Returns the path to the local directory in which the test data is stored.
+     * This directory is created if it does not exist
+     * 
+     * The directory is <test data root>/<class name>/<method name> so it can be easily located
+     * 
+     * @return the path.
+     */
+    public Path getRootPath() {
+        return this.rootPath;
+    };
+
+    private void setRootPath(TestInfo testInfo) {
+        var className = this.getClass()
+            .getSimpleName();
+        var methodName = testInfo.getDisplayName()
+            .replace("()", "");
+
+        this.rootPath =  TESTDATA_PATH.resolve(className)
+            .resolve(methodName);
+    }
+
+    @BeforeEach
+    public void initialize(TestInfo testInfo)
+            throws InvalidRemoteException, TransportException, IOException, GitAPIException {
+
+        // the root path of the integration data contains the current class and method name
+        // hence it is dynamically set using the test info
+        setRootPath(testInfo);
+
+        // Create new empty state
+        this.state = new CommitIntegrationState<>();
+
+        // overwrite existing files?
+        var overwrite = true;
+        state.initialize(this, overwrite);
+    }
+
+    @AfterEach
+    public void dispose() {
+//        state.createCopyWithTimeStamp("after_testrun");
+        state.dispose();
+    }
 
     @Override
     protected boolean prePropagationChecks(String firstCommitId, String secondCommitId) {
@@ -200,18 +264,6 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
             .resolveSibling("EvaluationResult-" + newCommit + "-" + evalResult.getEvaluationTime() + ".json"));
         LOGGER.debug("Finished the evaluation.");
     }
-
-    /**
-     * Returns the path to the local directory in which the data is stored.
-     * 
-     * @return the path.
-     */
-    public Path getRootPath() {
-        var parent = Path.of("testData", "tests");
-        var rootPath = parent.resolve(this.getClass()
-            .getSimpleName());
-        return rootPath;
-    };
 
     /**
      * Returns the path to the settings file.
