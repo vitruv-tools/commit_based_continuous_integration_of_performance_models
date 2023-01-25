@@ -70,10 +70,5 @@
 			<unit id="tools.vitruv.framework.vsum.feature.feature.group" version="3.0.0"/>
 			<unit id="tools.vitruv.framework.vsum.feature.source.feature.group" version="3.0.0"/>
 		</location>
-		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
-			<repository location="https://checkstyle.org/eclipse-cs-update-site"/>
-			<unit id="net.sf.eclipsecs.feature.group" version="10.4.0.202211151918"/>
-			<unit id="net.sf.eclipsecs.source.feature.group" version="10.4.0.202211151918"/>
-		</location>
 	</locations>
 </target>

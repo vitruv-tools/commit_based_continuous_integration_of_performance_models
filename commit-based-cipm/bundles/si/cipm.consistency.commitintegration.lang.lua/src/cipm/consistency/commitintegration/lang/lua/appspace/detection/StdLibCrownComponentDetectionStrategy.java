@@ -1,4 +1,4 @@
-package cipm.consistency.commitintegration.lang.lua.appspace;
+package cipm.consistency.commitintegration.lang.lua.appspace.detection;
 
 import cipm.consistency.commitintegration.lang.detection.ComponentCandidates;
 import cipm.consistency.commitintegration.lang.detection.ComponentState;

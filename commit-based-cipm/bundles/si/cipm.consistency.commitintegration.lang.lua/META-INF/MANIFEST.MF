@@ -7,6 +7,7 @@ Automatic-Module-Name: LuaCommitIntegration
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: cipm.consistency.commitintegration.lang.lua,
  cipm.consistency.commitintegration.lang.lua.appspace,
+ cipm.consistency.commitintegration.lang.lua.appspace.detection,
  cipm.consistency.commitintegration.lang.lua.changeresolution
 Import-Package: org.junit.jupiter.api.extension
 Require-Bundle: cipm.consistency.commitintegration,

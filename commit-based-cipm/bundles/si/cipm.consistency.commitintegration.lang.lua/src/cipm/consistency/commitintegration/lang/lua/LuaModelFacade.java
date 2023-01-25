@@ -4,31 +4,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.xtext.EcoreUtil2;
-import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
 import org.xtext.lua.LuaStandaloneSetup;
 import org.xtext.lua.lua.Chunk;
 import org.xtext.lua.lua.ComponentSet;
-import org.xtext.lua.lua.Expression_Functioncall_Direct;
-import org.xtext.lua.lua.Expression_String;
-import org.xtext.lua.lua.Expression_VariableName;
 import org.xtext.lua.lua.LuaFactory;
-import org.xtext.lua.lua.Statement_Function_Declaration;
-import org.xtext.lua.scoping.LuaLinkingService;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -62,8 +50,6 @@ public class LuaModelFacade implements CodeModelFacade {
 
     @Override
     public void initialize(Path dirPath) {
-        // todo find a way to initialize the work tree
-        // this.workTree = workTree;
         this.dirLayout.initialize(dirPath);
     }
 
@@ -121,161 +107,9 @@ public class LuaModelFacade implements CodeModelFacade {
         return res;
     }
 
-    /*
-     * Get all functions that were mocked during the linking of the code model
-     */
-    private Map<String, Statement_Function_Declaration> getMockedFunctions(ComponentSet set) {
-        for (var component : set.getComponents()) {
-            if (component.getName()
-                .equals(LuaLinkingService.MOCK_URI.path())) {
-                Map<String, Statement_Function_Declaration> mapping = new HashMap<>();
-                var mockedFuncs = EcoreUtil2.getAllContentsOfType(component, Statement_Function_Declaration.class);
-                for (var mockedFunc : mockedFuncs) {
-                    mapping.put(mockedFunc.getName(), mockedFunc);
-                }
-                return mapping;
-            }
-        }
-        return null;
-    }
 
-    private String eObjectToTokenText(EObject eObj) {
-        var node = NodeModelUtils.getNode(eObj);
-        if (node != null) {
-            return NodeModelUtils.getTokenText(node);
-        }
-        return "";
-    }
 
-    /**
-     * Extract the string from a string expression as parsed by the grammar
-     * 
-     * @param expString
-     * @return The extraced String
-     */
-    // TODO this should be put into a utility class
-    // TODO this could be implemented differently in the grammar, so we don't
-    // need to strip here
-    private String expressionStringToString(Expression_String expString) {
-        // this string still contains quotes
-        var rawString = expString.getValue();
-        if (rawString.length() > 2) {
-            return rawString.substring(1, rawString.length() - 1);
-        }
-        return "";
-    }
 
-    /**
-     * Find a function declaration by name in a chunk
-     * 
-     * @param declarationName
-     * @param chunk
-     * @return
-     */
-    private Optional<Statement_Function_Declaration> getDeclarationByName(String declarationName, Chunk chunk) {
-        var declarations = EcoreUtil2.getAllContentsOfType(chunk, Statement_Function_Declaration.class);
-        return declarations.stream()
-            .filter((decl) -> decl.getName()
-                .equals(declarationName))
-            .findFirst();
-    }
-
-    /*
-     * Get all functions that are served in the application
-     */
-    private Map<String, Statement_Function_Declaration> getServedFunctionsOfComponentSet(ComponentSet set) {
-        Map<String, Statement_Function_Declaration> servedFuncs = new HashMap<>();
-
-        final String serveFunctionName = "Script.serveFunction";
-
-        var directCalls = EcoreUtil2.getAllContentsOfType(set, Expression_Functioncall_Direct.class);
-
-        // iterate over all function calls which may be calls to "Script.serveFunction"
-        for (var directCall : directCalls) {
-            Consumer<String> logErrorWithCall = (errorMessage) -> {
-                LOGGER.error(String.format("Code contains invalid serve call - %s:\n\t%s",
-                        "TODO implement resolving function name to declaration", eObjectToTokenText(directCall)));
-            };
-
-            // is this a not a call to Script.serveFunction? Then continue with the next
-            if (!(directCall.getCalledFunction()
-                .getName()
-                .equals(serveFunctionName)
-                    && directCall.getCalledFunctionArgs()
-                        .getArguments()
-                        .size() == 2)) {
-                continue;
-            }
-
-            var serveArgs = directCall.getCalledFunctionArgs()
-                .getArguments();
-            var serveNameArg = serveArgs.get(0);
-            var serveFuncArg = serveArgs.get(1);
-
-            // the name under which the function is served to other apps
-            if (serveNameArg instanceof Expression_String servedNameExpression) {
-                var servedName = expressionStringToString(servedNameExpression);
-
-                if (serveFuncArg instanceof Expression_VariableName serveFuncVar
-                        && serveFuncVar.getRef() instanceof Statement_Function_Declaration servedFunctionDeclaration) {
-                    servedFuncs.put(servedName, servedFunctionDeclaration);
-                } else if (serveFuncArg instanceof Expression_String serveFuncNameExp) {
-                    var servedFuncName = expressionStringToString(serveFuncNameExp);
-
-                    var servedFunctionDeclaration = getDeclarationByName(servedFuncName,
-                            EcoreUtil2.getContainerOfType(directCall, Chunk.class));
-                    if (servedFunctionDeclaration.isPresent()) {
-                        servedFuncs.put(servedName, servedFunctionDeclaration.get());
-                    } else {
-                        logErrorWithCall.accept("Cannot resolve function name to declaration");
-                    }
-                } else {
-                    logErrorWithCall.accept(
-                            "Cannot deduce function declaration from second argument of call to Script.serveFunction");
-                }
-            } else {
-                logErrorWithCall.accept("First argument of call to Script.serveFunction is no Expression_String");
-            }
-        }
-
-        return servedFuncs;
-    }
-
-    /*
-     * Resolve crown calls which are actually calls to "serves" of another app
-     */
-    private void postProcessComponentSet(ComponentSet set) {
-        // find functions that were mocked during the linking process, because the were not in scope
-        var mockedFuncs = getMockedFunctions(set);
-
-        // find functions that are served by apps to other apps
-        var servedFuncs = getServedFunctionsOfComponentSet(set);
-
-        // function calls which were mocked, but are served by another component must be resolved
-        // to the actually served function
-
-        if (mockedFuncs != null) {
-            for (var served : servedFuncs.entrySet()) {
-                var mockedFunc = mockedFuncs.get(served.getKey());
-                if (mockedFunc != null) {
-                    LOGGER.trace(String.format("MOCKED but SERVED function: %s", served.getKey()));
-                    var servedFunc = served.getValue();
-
-                    // TODO Replace references to mockFunc with references to servedFunc
-
-                    var refs = EcoreUtil2.getAllContentsOfType(set, Expression_Functioncall_Direct.class);
-                    for (var ref : refs) {
-                        if (ref.getCalledFunction()
-                            .equals(mockedFunc)) {
-                            LOGGER.debug(
-                                    String.format("Replacing ref to mock with served function: %s", served.getKey()));
-                            ref.setCalledFunction(servedFunc);
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     /**
      * Merges all chunks of the resource set into one SuperChunk and puts it in a separate resource
@@ -353,7 +187,7 @@ public class LuaModelFacade implements CodeModelFacade {
         });
 
         // call possible post process on the component set
-        postProcessComponentSet(componentSet);
+        LuaPostProcessor.postProcessComponentSet(componentSet);
 
         // save the component set to the merged resource
         try {

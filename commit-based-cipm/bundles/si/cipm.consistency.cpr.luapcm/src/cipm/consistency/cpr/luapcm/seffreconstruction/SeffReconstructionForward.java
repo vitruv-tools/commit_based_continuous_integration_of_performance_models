@@ -1,9 +1,7 @@
 package cipm.consistency.cpr.luapcm.seffreconstruction;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EObject;
@@ -16,21 +14,18 @@ import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import org.palladiosimulator.pcm.seff.SeffFactory;
 import org.xtext.lua.lua.Block;
 import org.xtext.lua.lua.BlockWrapper;
-import org.xtext.lua.lua.Component;
-import org.xtext.lua.lua.ComponentSet;
 import org.xtext.lua.lua.Expression_Functioncall_Direct;
-import org.xtext.lua.lua.Expression_String;
-import org.xtext.lua.lua.Expression_VariableName;
 import org.xtext.lua.lua.Statement;
 import org.xtext.lua.lua.Statement_For;
 import org.xtext.lua.lua.Statement_Function_Declaration;
 import org.xtext.lua.lua.Statement_If_Then_Else;
 import org.xtext.lua.lua.Statement_Repeat;
 import org.xtext.lua.lua.Statement_While;
-import org.xtext.lua.scoping.LuaLinkingService;
 
 /**
- * This class the SEFF reconstruction for Lua AppSpace apps.
+ * This class contains the SEFF reconstruction for Lua AppSpace apps.
+ * 
+ * The class is called forward because the reconstruction works in a "forward" manner
  * 
  * We can not use tools.vitruv.applications.pcmjava.seffstatements.Code2SeffFactory as it is
  * specific to the JaMoPP meta-model.
@@ -40,19 +35,20 @@ import org.xtext.lua.scoping.LuaLinkingService;
  */
 public final class SeffReconstructionForward {
     private static SeffReconstructionForward instance;
-    private Map<EObject, List<String>> componentSetToServedFunctionNames;
 
     private static final Logger LOGGER = Logger.getLogger(SeffReconstructionForward.class.getName());
 
     // TODO find a better default for this stochastic expression
     private static final String LOOP_COUNT_SPECIFICATION = "10";
 
+    private ComponentSetInfoRegistry componentSetInfoRegistry;
+
     
     private SeffReconstructionForward() {
-        componentSetToServedFunctionNames = new HashMap<>();
+        componentSetInfoRegistry = new ComponentSetInfoRegistry();
     }
     
-    public static SeffReconstructionForward getInstance() {
+    private static SeffReconstructionForward getInstance() {
         if (instance != null) {
             return instance;
         }
@@ -69,50 +65,9 @@ public final class SeffReconstructionForward {
     }
 
 
-    // TODO this is terribly inefficient
-    private static List<String> generateServedFunctionNames(EObject root) {
-        LOGGER.trace("getServedFunctionNames was called for " + root.toString());
-        // TODO we can assume that functions that end with '.register' and have 2 / 3 arguments are
-        // registerring a function
-        // so we don't have to hardcode so much
-        var servedNames = new ArrayList<String>();
-        var servingFunctions = List.of("Script.serveFunction", "Script.register", "Image.Provider.Directory.register");
-        var functionCalls = EcoreUtil2.getAllContentsOfType(root, Expression_Functioncall_Direct.class);
-        for (var functionCall : functionCalls) {
-            if (servingFunctions.contains(functionCall.getCalledFunction()
-                .getName())) {
-                var args = functionCall.getCalledFunctionArgs()
-                    .getArguments();
-                if (args.size() == 2 || args.size() == 3) {
-                    var nameIndex = args.size() - 1;
-                    var funcName = args.get(nameIndex);
-                    if (funcName instanceof Expression_String) {
-                        servedNames.add(((Expression_String) funcName).getValue());
-                    } else if (funcName instanceof Expression_VariableName) {
-                        servedNames.add(((Expression_VariableName) funcName).getRef()
-                            .getName());
-                    }
-                } else {
-                    throw new IllegalStateException("Invalid Script.serveFunction call");
-                }
-            }
-        }
-        return servedNames;
-    }
-    
-    
-    private List<String> getServedFunctionNames(EObject componentSetRoot) {
-        if (!componentSetToServedFunctionNames.containsKey(componentSetRoot)) {
-            componentSetToServedFunctionNames.put(componentSetRoot, generateServedFunctionNames(componentSetRoot));
-        }
-        return componentSetToServedFunctionNames.get(componentSetRoot);
-    }
-
-    public boolean needsSeffReconstruction(Statement_Function_Declaration declaration) {
-        // TODO Is being served sufficient to determine if a seff reconstruction is needed?
-        var componentSetRoot = EcoreUtil2.getContainerOfType(declaration, ComponentSet.class);
-        var servedFunctionNames = getServedFunctionNames(componentSetRoot);
-        return servedFunctionNames.contains(declaration.getName());
+    public static boolean needsSeffReconstruction(Statement_Function_Declaration declaration) {
+        var infos = getInstance().componentSetInfoRegistry.getInfosForComponentSet(declaration);
+        return infos.needsSeffReconstruction(declaration);
     }
 
     public static void doReconstruction(Statement_Function_Declaration declaration, ResourceDemandingSEFF seff) {
@@ -128,11 +83,8 @@ public final class SeffReconstructionForward {
 
     private static List<AbstractAction> getStepBehaviour(Statement_Function_Declaration declaration) {
         var function = declaration.getFunction();
-        if (function == null) {
-            return null;
-        }
         var declarationBlock = function.getBlock();
-        if (declarationBlock == null) {
+        if (function == null || declarationBlock == null) {
             return null;
         }
 
@@ -185,44 +137,6 @@ public final class SeffReconstructionForward {
                 || eObj instanceof Statement_While || eObj instanceof Statement_Repeat);
     }
 
-    /**
-     * Classifies the function call
-     * 
-     * Possible classifications are: - ExternalCallAction for calls to another component -
-     * InternalCall
-     * 
-     * @param decl
-     */
-    // TODO this is currently only implemented for direct functioncalls
-    public static AbstractAction classifyFunctionCall(Expression_Functioncall_Direct call) {
-        var calledFunction = call.getCalledFunction();
-        if (calledFunction == null) {
-            return null;
-        }
-
-        var callingComponent = EcoreUtil2.getContainerOfType(call, Component.class);
-        var functionComponent = EcoreUtil2.getContainerOfType(call.getCalledFunction(), Component.class);
-
-        if (callingComponent.equals(functionComponent)) {
-            // internal call
-            LOGGER.trace(String.format("Function classification: INTERNAL %s ", calledFunction.getName()));
-            var action = SeffFactory.eINSTANCE.createInternalCallAction();
-            action.setEntityName(calledFunction.getName());
-            return action;
-        }
-
-        // external or library call
-        if (functionComponent.getName()
-            .equals(LuaLinkingService.MOCK_URI.path())) {
-            // library call
-            LOGGER.trace(String.format("Function classification: LIBRARY %s ", calledFunction.getName()));
-            return SeffFactory.eINSTANCE.createInternalAction();
-        } else {
-            // external call
-            LOGGER.trace(String.format("Function classification: EXTERNAL %s ", calledFunction.getName()));
-            return SeffFactory.eINSTANCE.createExternalCallAction();
-        }
-    }
 
     private static BranchAction convertIfStatementToAction(Statement_If_Then_Else ifStatement) {
         // put all block into a list and add them ase branches to the branch action
@@ -312,6 +226,9 @@ public final class SeffReconstructionForward {
     }
 
     private static List<AbstractAction> convertStatementToActions(Statement statement) {
+        // infos about component set
+        var infos = getInstance().componentSetInfoRegistry.getInfosForComponentSet(statement);
+
         List<AbstractAction> actions = new ArrayList<>();
 
         // all function calls in this statement (or the statement may be a call itself)
@@ -322,7 +239,7 @@ public final class SeffReconstructionForward {
         AbstractAction predecessor = null;
         AbstractAction action = null;
         for (var functionCall : functionCalls) {
-            action = classifyFunctionCall(functionCall);
+            action = infos.getFunctionCallClassification(functionCall);
             if (action != null) {
                 if (!isArchitecturallyRelevant(action)) {
                     continue;
