@@ -25,13 +25,11 @@ import cipm.consistency.commitintegration.lang.lua.changeresolution.temp.Resourc
  * diff to a sequence of individual changes.
  * @author Timur Saglam
  */
-class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChangeResolutionStrategy {
-	/** The identifier matching behavior used by this strategy */
-	public val UseIdentifiers useIdentifiers
-	
-	MatchEngineFactoryImpl hierarchicalMatchEngineFactory;
+class LuaHierarchicalStateBasedChangeResolutionStrategy implements StateBasedChangeResolutionStrategy {
 
-	var EMFCompare.Builder emfCompareBuilder
+	val MatchEngineFactoryImpl hierarchicalMatchEngineFactory;
+
+	val EMFCompare.Builder emfCompareBuilder
 
 	/**
 	 * Creates a new instance with the default identifier matching behavior 
@@ -46,7 +44,6 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 	 * @param useIdentifiers The identifier matching behavior to use.
 	 */
 	new(UseIdentifiers useIdentifiers) {
-		this.useIdentifiers = useIdentifiers
 
 		// Match engine factory for PCM / IMM
 		val defaultMatchEngineFactory = new MatchEngineFactoryImpl(useIdentifiers)
@@ -127,12 +124,6 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 	private def compareStatesAndReplayChanges(Notifier newState, Notifier currentState) {
 		val scope = new DefaultComparisonScope(newState, currentState, null)
 		val compare = getEmfCompare()
-		
-		if (hierarchicalMatchEngineFactory.isMatchEngineFactoryFor(scope)) {
-			// TODO this condition is only needed because eclipse breakpoints don't allow me to
-			// add a condition like it :/
-//			var foo = 1
-		}
 
 		val comparision = compare.compare(scope)
 		val differences = comparision.differences
@@ -141,7 +132,6 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 		val mergerRegistry = IMerger.RegistryImpl.createStandaloneInstance()
 		val merger = new BatchMerger(mergerRegistry)
 		
-		// TODO is this merge direction correct?
 		merger.copyAllLeftToRight(differences, new BasicMonitor)
 	}
 }
