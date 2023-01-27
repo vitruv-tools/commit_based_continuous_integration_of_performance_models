@@ -28,7 +28,7 @@ if %ERRORLEVEL% NEQ 0 (exit 1)
 
 :: Build SoMoX
 cd Palladio-ReverseEngineering-SoMoX-JaMoPP
-git apply --ignore-whitespace ..\scripts\internal\SoMoX-Local-Update-Site.patch
+git apply --ignore-whitespace ..\scripts\internal\SoMoX-Local-Update-Site-And-Fix.patch
 robocopy ..\.mvn .mvn /E
 call ..\mvnw.cmd clean verify -Dmaven.test.skip=true
 cd ..
