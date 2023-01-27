@@ -1,23 +1,21 @@
 package cipm.consistency.cpr.luapcm.seffreconstruction;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.EcoreUtil2;
-import org.palladiosimulator.pcm.seff.AbstractAction;
-import org.palladiosimulator.pcm.seff.SeffFactory;
+import org.palladiosimulator.pcm.seff.ExternalCallAction;
 import org.xtext.lua.lua.Component;
 import org.xtext.lua.lua.ComponentSet;
-import org.xtext.lua.lua.Expression_Functioncall;
 import org.xtext.lua.lua.Expression_Functioncall_Direct;
 import org.xtext.lua.lua.Expression_String;
 import org.xtext.lua.lua.Expression_VariableName;
 import org.xtext.lua.lua.Statement_Function_Declaration;
-import org.xtext.lua.scoping.LuaLinkingService;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 
 import cipm.consistency.commitintegration.lang.lua.appspace.AppSpaceSemantics;
 
@@ -31,11 +29,13 @@ public class ComponentSetInfo {
 
     private static final Logger LOGGER = Logger.getLogger(ComponentSetInfo.class.getName());
 
-    private ComponentSet componentSet;
-
     private List<String> servedFunctionNames;
 
-    private Map<Expression_Functioncall, AbstractAction> functionCallToAction;
+    // we track which Statement_Function_Declaration are called in an external call action
+    private ListMultimap<Statement_Function_Declaration, ExternalCallAction> declarationToCallingActions;
+
+    // map a component to component it depends upon (because it has external calls to it)
+    private ListMultimap<Component, Component> componentToRequiredComponents;
 
     /**
      * Initialize the component set info.
@@ -47,9 +47,10 @@ public class ComponentSetInfo {
      */
     public ComponentSetInfo(ComponentSet componentSet) {
         LOGGER.debug("Initializing ComponentSetInfo for " + componentSet.toString());
-        this.componentSet = componentSet;
         servedFunctionNames = generateServedFunctionNames(componentSet);
-        functionCallToAction = new HashMap<>();
+
+        declarationToCallingActions = ArrayListMultimap.create();
+        componentToRequiredComponents = ArrayListMultimap.create();
     }
 
     /**
@@ -102,60 +103,33 @@ public class ComponentSetInfo {
         return servedFunctionNames.contains(declaration.getName());
     }
 
-    // TODO this is currently only implemented for direct functioncalls
-    private AbstractAction classifyFunctionCall(Expression_Functioncall call) {
-        if (call instanceof Expression_Functioncall_Direct directCall) {
-            var calledFunction = directCall.getCalledFunction();
-            if (calledFunction == null) {
-                return null;
-            }
-
-            var callingComponent = EcoreUtil2.getContainerOfType(directCall, Component.class);
-            var functionComponent = EcoreUtil2.getContainerOfType(calledFunction, Component.class);
-
-            if (callingComponent.equals(functionComponent)) {
-                // internal call
-                LOGGER.trace(String.format("Function classification: INTERNAL %s ", calledFunction.getName()));
-                var action = SeffFactory.eINSTANCE.createInternalCallAction();
-                action.setEntityName(calledFunction.getName());
-                return action;
-            }
-
-            // external or library call
-            if (functionComponent.getName()
-                .equals(LuaLinkingService.MOCK_URI.path())) {
-                // library call
-                LOGGER.trace(String.format("Function classification: LIBRARY %s ", calledFunction.getName()));
-                return SeffFactory.eINSTANCE.createInternalAction();
-            } else {
-                // external call
-                LOGGER.trace(String.format("Function classification: EXTERNAL %s ", calledFunction.getName()));
-                return SeffFactory.eINSTANCE.createExternalCallAction();
-            }
-        } else {
-            LOGGER.error("Function classification for non-direct function calls is not yet implemented");
-        }
-        return null;
+    public ListMultimap<Statement_Function_Declaration, ExternalCallAction> getDeclarationToCallingActions() {
+        return declarationToCallingActions;
     }
 
-    /**
-     * Returns the classification of a function call
-     * 
-     * 
-     * @param call
-     *            The function call that is classified
-     * @return The class of action into which the call was classified. Possible classifications are:
-     *         - ExternalCallAction for calls to another component - InternalCall
-     */
-    public AbstractAction getFunctionCallClassification(Expression_Functioncall call) {
-        // we cache results
-        if (functionCallToAction.containsKey(call)) {
-            return functionCallToAction.get(call);
-        }
-
-        // classify the function
-        var action = classifyFunctionCall(call);
-        functionCallToAction.put(call, action);
-        return action;
+    public ListMultimap<Component, Component> getComponentToRequiredComponents() {
+        return componentToRequiredComponents;
     }
+
+//    // TODO document
+//    public void externalCallActionCallsDeclaration(ExternalCallAction callAction,
+//            Statement_Function_Declaration calledDeclaration) {
+//        declarationToCallingActions.put(calledDeclaration, callAction);
+//    }
+//
+//    // TODO document
+//    public List<ExternalCallAction> getCallingActions(Statement_Function_Declaration declaration) {
+//        return declarationToCallingActions.get(declaration);
+//    }
+//
+//    // TODO document
+//    public void addComponentDependency(Component requiringComponent, Component providingComponent) {
+//        componentToRequiredComponents.put(requiringComponent, providingComponent);
+//    }
+//    
+//
+//    // TODO document
+//    public List<Component> getCallingActions(Component requiringComponent) {
+//        return componentToRequiredComponents.get(requiringComponent);
+//    }
 }

@@ -5,6 +5,7 @@ reactions: luaPcm
 in reaction to changes in lua
 execute actions in pcm
 
-import namedChunk
+import luaComponent
+//import namedChunk
 import parameter
 import statementFunctionDeclaration

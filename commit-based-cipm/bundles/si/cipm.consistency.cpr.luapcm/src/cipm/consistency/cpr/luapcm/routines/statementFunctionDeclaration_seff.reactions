@@ -1,6 +1,5 @@
 import cipm.consistency.cpr.luapcm.seffreconstruction.SeffReconstructionForward
-import org.eclipse.xtext.EcoreUtil2
-import org.xtext.lua.lua.Component
+import org.xtext.lua.LuaUtil
 
 import "http://www.xtext.org/lua/Lua" as lua
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
@@ -9,46 +8,42 @@ reactions: statementFunctionDeclaration_seff
 in reaction to changes in lua
 execute actions in pcm
 
-routine assertSeffForFunction(lua::Statement_Function_Declaration functionDeclaration) {
+routine createSeffForStatementFunctionDeclaration(lua::Statement_Function_Declaration functionDeclaration) {
 	match {
 		require absence of pcm::ResourceDemandingSEFF corresponding to functionDeclaration
-	}
-	update {
-		if (SeffReconstructionForward.needsSeffReconstruction(functionDeclaration)) {
-			createSEFF(functionDeclaration)
-		}
-	}
-}
-
-routine createSEFF(lua::Statement_Function_Declaration functionDeclaration) {
-	match {
 		val operationSignature = retrieve pcm::OperationSignature corresponding to functionDeclaration
-		val basicComponent = retrieve pcm::BasicComponent corresponding to EcoreUtil2.getContainerOfType(
-			functionDeclaration, Component)
+		val basicComponent = retrieve pcm::BasicComponent corresponding to LuaUtil.getComponent(functionDeclaration)
 	}
 	create {
 		val rdseff = new pcm::ResourceDemandingSEFF
 	}
 	update {
+		// this signature must belong to the interface that is referenced by our provided role
 		rdseff.describedService__SEFF = operationSignature
 		rdseff.basicComponent_ServiceEffectSpecification = basicComponent
 
-		// seff reconstruction
-		SeffReconstructionForward.doReconstruction(functionDeclaration, rdseff)
+		// Reconstruct the step behaviour of the rdseff
+		SeffReconstructionForward.doReconstruction(correspondenceModel, functionDeclaration, rdseff)
 
 		addCorrespondenceBetween(functionDeclaration, rdseff)
 		basicComponent.serviceEffectSpecifications__BasicComponent += rdseff
 	}
 }
 
-routine removeCorrespondingSeff(lua::Statement_Function_Declaration functionDeclaration) {
+routine fillExternalCallActionFeatures(pcm::ExternalCallAction externalCallAction, pcm::BasicComponent callingComponent) {
+	update {
+	}
+}
+
+routine removeSeffForStatementFunctionDeclaration(lua::Statement_Function_Declaration functionDeclaration) {
 	match {
-		val seff = retrieve optional pcm::ResourceDemandingSEFF corresponding to functionDeclaration
+		val rdseff = retrieve pcm::ResourceDemandingSEFF corresponding to functionDeclaration
+		val basicComponent = retrieve pcm::BasicComponent corresponding to LuaUtil.getComponent(functionDeclaration)
 	}
 	update {
-		if (!seff.empty) {
-			removeObject(seff.get)
-		}
+		basicComponent.serviceEffectSpecifications__BasicComponent -= rdseff
+		removeCorrespondenceBetween(functionDeclaration, rdseff)
+		rdseff.removeObject
 	}
 }
 

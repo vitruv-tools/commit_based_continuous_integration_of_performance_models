@@ -1,5 +1,5 @@
-import org.eclipse.xtext.EcoreUtil2
-import org.xtext.lua.lua.NamedChunk
+import org.xtext.lua.LuaUtil
+import cipm.consistency.cpr.luapcm.seffreconstruction.ComponentSetInfoRegistry
 
 import "http://www.xtext.org/lua/Lua" as lua
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
@@ -8,27 +8,32 @@ reactions: statementFunctionDeclaration_operationSignature
 in reaction to changes in lua
 execute actions in pcm
 
-routine assertOperationSignatureExistenceForStatementFunctionDeclaration(
-	lua::Statement_Function_Declaration functionDeclaration
-) {
+routine createOperationSignatureForStatementFunctionDeclaration(lua::Statement_Function_Declaration functionDeclaration) {
 	match {
-		val pcmInterface = retrieve pcm::OperationInterface corresponding to EcoreUtil2.getContainerOfType(
-			functionDeclaration, NamedChunk)
+		val operationInterface = retrieve pcm::OperationInterface corresponding to LuaUtil.getComponent(
+			functionDeclaration)
 		require absence of pcm::OperationSignature corresponding to functionDeclaration
 	}
 	create {
 		val operationSignature = new pcm::OperationSignature
 	}
 	update {
-		operationSignature.entityName = functionDeclaration.name
-		operationSignature.interface__OperationSignature = pcmInterface
-		pcmInterface.signatures__OperationInterface += operationSignature
+		operationSignature.entityName = functionDeclaration.name + "_signature"
+		operationSignature.interface__OperationSignature = operationInterface
+		operationInterface.signatures__OperationInterface += operationSignature
+
+		// TODO remove 
+//		println("adding signature " + operationSignature.entityName)
+		// some external call actions may be created before this signature is created, so we fix the ExternalCallAction
+		// set signature in external call actions which are calling this declaration
+		ComponentSetInfoRegistry.getInfosForComponentSet(functionDeclaration).declarationToCallingActions.get(
+			functionDeclaration).forEach[it.calledService_ExternalService = operationSignature]
 
 		addCorrespondenceBetween(functionDeclaration, operationSignature)
 	}
 }
 
-routine removeCorrespondingOperationSignature(lua::Statement_Function_Declaration functionDeclaration) {
+routine removeOperationSignatureForStatementFunctionDeclaration(lua::Statement_Function_Declaration functionDeclaration) {
 	match {
 		val operationSignature = retrieve optional pcm::OperationSignature corresponding to functionDeclaration
 	}

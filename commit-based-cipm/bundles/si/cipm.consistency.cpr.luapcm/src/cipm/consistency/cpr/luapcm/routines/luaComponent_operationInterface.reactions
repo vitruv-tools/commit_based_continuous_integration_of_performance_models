@@ -1,0 +1,35 @@
+import org.palladiosimulator.pcm.repository.RepositoryPackage
+
+import "http://www.xtext.org/lua/Lua" as lua
+import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
+
+reactions: luaComponent_operationInterface
+in reaction to changes in lua
+execute actions in pcm
+
+routine createOperationInterfaceForLuaComponent(lua::Component luaComponent) {
+	match {
+		require absence of pcm::OperationInterface corresponding to luaComponent
+		val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
+	}
+	create {
+		val operationInterface = new pcm::OperationInterface
+	}
+	update {
+		operationInterface.entityName = luaComponent.name + "_interface"
+		pcmRepository.interfaces__Repository += operationInterface
+		addCorrespondenceBetween(luaComponent, operationInterface)
+	}
+}
+
+routine removeOperationInterfaceForLuaComponent(lua::Component luaComponent) {
+	match {
+		val operationInterface = retrieve pcm::OperationInterface corresponding to luaComponent
+		val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
+	}
+	update {
+		pcmRepository.interfaces__Repository -= operationInterface
+		removeCorrespondenceBetween(luaComponent, operationInterface)
+		operationInterface.removeObject
+	}
+}

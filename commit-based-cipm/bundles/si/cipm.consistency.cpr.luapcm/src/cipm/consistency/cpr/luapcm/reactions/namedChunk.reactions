@@ -5,28 +5,28 @@ reactions: namedChunk
 in reaction to changes in lua
 execute actions in pcm
 
-import namedChunk_operationInterface
-import namedChunk_providedRole
-import component_basicComponent
+// TODO  what reactions are needed on the chunk level?
 
-reaction AddedNamedChunk {
-	after element lua::NamedChunk inserted in lua::Component[chunks]
-	call {
-		assertBasicComponentExistenceForChunk(newValue.chunk)
-		assertInterfaceExiststenceForNamedChunk(newValue)
-		assertOperationProvidedRoleExistenceForNamedChunk(newValue, newValue.chunk)
-
-		// TODO we need some thing like this:
-//		checkClassifierForImportedRequiredRoles(newValue)
-	}
-}
-
-reaction RemovedNamedChunk {
-	after element lua::NamedChunk removed from lua::Component[chunks]
-	call {
-		checkBasicComponentRemoval(oldValue.chunk)
-		
-		removeInterface(oldValue)
-		checkRemovalOfOperationProvidedRole(oldValue)
-	}
-}
+//import namedChunk_operationInterface
+//import namedChunk_operationProvidedRole
+//
+//reaction AddedNamedChunk {
+//	after element lua::NamedChunk inserted in lua::Component[chunks]
+//	call {
+//		assertInterfaceExistenceForNamedChunk(newValue)
+//		assertOperationProvidedRoleExistenceForNamedChunk(newValue, newValue.chunk)
+//
+//		// TODO we need some thing like this:
+////		checkClassifierForImportedRequiredRoles(newValue)
+//	}
+//}
+//
+//reaction RemovedNamedChunk {
+//	after element lua::NamedChunk removed from lua::Component[chunks]
+//	call {
+//		checkBasicComponentRemoval(oldValue.chunk)
+//		
+//		removeInterface(oldValue)
+//		checkRemovalOfOperationProvidedRole(oldValue)
+//	}
+//}

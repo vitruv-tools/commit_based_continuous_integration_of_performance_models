@@ -8,29 +8,33 @@ import org.eclipse.xtext.EcoreUtil2;
 import org.xtext.lua.lua.ComponentSet;
 
 /**
- * This class is used to store and retrieve infos about component sets.
+ * This singleton class is used to store and retrieve infos about component sets.
  * 
  * @author Lukas Burgey
  *
  */
-public class ComponentSetInfoRegistry {
+public final class ComponentSetInfoRegistry {
+
+    // singleton info map
+    private static Map<ComponentSet, ComponentSetInfo> setToInfos;
     
-    private Map<ComponentSet, ComponentSetInfo> setToInfos;
-    
-    public ComponentSetInfoRegistry() {
-        setToInfos = new HashMap<>();
+    private static Map<ComponentSet, ComponentSetInfo> getInfos() {
+       if (setToInfos == null) {
+           setToInfos = new HashMap<>();
+       }
+       return setToInfos;
     }
     
-    public ComponentSetInfo getInfosForComponentSet(ComponentSet componentSet) {
-        if (setToInfos.containsKey(componentSet)) {
-            return setToInfos.get(componentSet);
+    public static ComponentSetInfo getInfosForComponentSet(ComponentSet componentSet) {
+        if (getInfos().containsKey(componentSet)) {
+            return getInfos().get(componentSet);
         }
         var newInfos = new ComponentSetInfo(componentSet);
-        setToInfos.put(componentSet, newInfos);
+        getInfos().put(componentSet, newInfos);
         return newInfos;
     }
 
-    public ComponentSetInfo getInfosForComponentSet(EObject eObj) {
+    public static ComponentSetInfo getInfosForComponentSet(EObject eObj) {
         var componentSet = EcoreUtil2.getContainerOfType(eObj, ComponentSet.class);
         return getInfosForComponentSet(componentSet);
     }
