@@ -124,7 +124,7 @@ public class LuaPostProcessor {
                     for (var ref : refs) {
                         if (ref.getCalledFunction()
                             .equals(mockedFunc)) {
-                            LOGGER.debug(
+                            LOGGER.trace(
                                     String.format("Replacing ref to mock with served function: %s", served.getKey()));
                             ref.setCalledFunction(servedFunc);
                         }

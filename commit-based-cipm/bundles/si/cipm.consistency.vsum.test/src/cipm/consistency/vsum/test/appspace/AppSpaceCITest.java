@@ -7,11 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.spi.LoggingEvent;
 import org.eclipse.emf.cdo.common.util.TransportException;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -99,6 +96,12 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
         return super.prePropagationChecks(firstCommitId, secondCommitId);
     }
 
+    /**
+     * Propagates the given commits and checks that every commit resulted in non-null propagated changes.
+     * 
+     * @param commitIds The commits to be propagated
+     * @return The list of all the propagated changes, ordered by commit.
+     */
     protected List<List<PropagatedChange>> assertSuccessfulPropagation(String... commitIds) {
         List<List<PropagatedChange>> allChanges;
         try {
@@ -274,45 +277,9 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
         return getRootPath().resolve("settings.settings");
     };
 
-    private class TrimmingLogFormat extends PatternLayout {
-        private List<String> trim;
-
-        public TrimmingLogFormat(String format, List<String> trim) {
-            super(format);
-            this.trim = trim;
-        }
-
-        @Override
-        public String format(LoggingEvent event) {
-            String msg = super.format(event);
-            for (var t : trim) {
-                msg = msg.replace(t, "[..]");
-            }
-            return msg;
-        }
-    }
-
     @BeforeEach
     public void setUpLogging() {
-        // set log levels of the framework
-        Logger.getLogger("cipm")
-            .setLevel(Level.ALL);
-        Logger.getLogger("jamopp")
-            .setLevel(Level.ALL);
-        Logger.getLogger("tools.vitruv")
-            .setLevel(Level.WARN);
-        Logger.getLogger("mir")
-            .setLevel(Level.INFO); // mir belongs to vitruv
-        Logger.getLogger("org.xtext.lua")
-            .setLevel(Level.INFO);
-
-        var rootLogger = Logger.getRootLogger();
-        rootLogger.setLevel(Level.ALL);
-        rootLogger.removeAllAppenders();
-        var toTrim = List.of(System.getProperty("user.dir"), "cipm.consistency");
-        var logFormat = new TrimmingLogFormat("%-5p: %c  %m%n", toTrim);
-        ConsoleAppender ap = new ConsoleAppender(logFormat, ConsoleAppender.SYSTEM_OUT);
-        rootLogger.addAppender(ap);
+        LoggingSetup.setupLogging(Level.WARN);
     }
 
     protected String getLatestCommitId() {

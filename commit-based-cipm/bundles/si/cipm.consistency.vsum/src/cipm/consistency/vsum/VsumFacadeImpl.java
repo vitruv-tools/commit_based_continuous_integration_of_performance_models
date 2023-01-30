@@ -270,11 +270,9 @@ public class VsumFacadeImpl implements VsumFacade {
         }
 
         var propagatedChanges = view.commitChangesAndUpdate();
-        if (propagatedChanges.size() == 0) {
-            LOGGER.info("-> No Propagated changes");
-        } else {
-            LOGGER.info(String.format("-> %d change(s)", propagatedChanges.size()));
-        }
+        LOGGER.info(String.format("%d change(s) in resource: %s", propagatedChanges.size(), resource.getURI()
+            .lastSegment()));
+
         return propagatedChanges;
     }
 

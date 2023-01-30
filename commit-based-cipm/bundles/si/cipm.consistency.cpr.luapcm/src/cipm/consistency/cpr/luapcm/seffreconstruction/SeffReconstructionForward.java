@@ -323,9 +323,9 @@ public final class SeffReconstructionForward {
             return null;
         }
 
-        LOGGER.debug(String.format("Reconstructing Seff for %s", declaration.getName()));
+        LOGGER.trace(String.format("Reconstructing Seff for %s", declaration.getName()));
         var stepBehaviour = convertBlockToActions(declarationBlock);
-        LOGGER.debug(String.format("Finished reconstructing Seff for %s", declaration.getName()));
+        LOGGER.trace(String.format("Finished reconstructing Seff for %s", declaration.getName()));
         return stepBehaviour;
     }
 
