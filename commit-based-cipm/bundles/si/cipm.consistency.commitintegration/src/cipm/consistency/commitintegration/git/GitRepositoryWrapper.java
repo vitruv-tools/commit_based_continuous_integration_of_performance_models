@@ -50,6 +50,7 @@ import org.eclipse.jgit.util.io.NullOutputStream;
  * @author Ilia Chupakhin
  * @author Manar Mazkatli (advisor)
  * @author Martin Armbruster
+ * @author Lukas Burgey
  */
 public class GitRepositoryWrapper {
     private Git git;
