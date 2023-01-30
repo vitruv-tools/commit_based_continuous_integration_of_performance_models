@@ -112,10 +112,12 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
                 }
             }
             return allChanges;
-        } catch (Exception e) {
+//        } catch (Exception e) {
+        } catch (IOException | GitAPIException e) {
             e.printStackTrace();
             Assert.fail(e.getMessage());
         }
+
         return null;
     }
 
