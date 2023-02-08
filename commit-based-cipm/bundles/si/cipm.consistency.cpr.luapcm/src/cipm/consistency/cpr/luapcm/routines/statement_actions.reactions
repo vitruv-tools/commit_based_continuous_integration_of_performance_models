@@ -1,8 +1,11 @@
 import cipm.consistency.cpr.luapcm.seffreconstruction.ActionUtil
+import cipm.consistency.cpr.luapcm.seffreconstruction.CorrespondenceUtil
 import cipm.consistency.cpr.luapcm.seffreconstruction.SeffReconstruction
 import org.palladiosimulator.pcm.repository.OperationRequiredRole
 import org.palladiosimulator.pcm.seff.ExternalCallAction
+import org.palladiosimulator.pcm.seff.InternalAction
 import org.xtext.lua.LuaUtil
+import org.xtext.lua.lua.Statement
 
 import "http://www.xtext.org/lua/Lua" as lua
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
@@ -14,7 +17,6 @@ execute actions in pcm
 routine createActionsForStatement(lua::Statement statement, lua::Block block) {
 	match {
 		require absence of pcm::AbstractAction corresponding to statement
-//		val blockActions = retrieve many pcm::AbstractAction corresponding to block
 		val rdBehaviour = retrieve pcm::ResourceDemandingBehaviour corresponding to block
 	}
 	update {
@@ -22,43 +24,99 @@ routine createActionsForStatement(lua::Statement statement, lua::Block block) {
 		if (statementActions.size < 1) {
 			return
 		}
-
 		logger.info(String.format("%s: %d action(s) reconstructed", statement, statementActions.size()))
 
-		val componentOfStatement = LuaUtil.getComponent(statement)
-		statementActions.forEach [
-			addCorrespondenceBetween(it, statement)
+		var previousAction = ActionUtil.getPreviousActionOfStatement(statement, block, rdBehaviour,
+			correspondenceModel);
+		var subsequentAction = ActionUtil.getSubsequentActionOfStatement(statement, block, rdBehaviour,
+			correspondenceModel);
 
-			if (it instanceof ExternalCallAction) {
-				logger.info("External call was found")
-				registerExternalCallAction(it, rdBehaviour, componentOfStatement)
+		// every new action is possibly fused with this action
+		var actionToCheckForFusing = previousAction;
+
+		// insert the actions of the statement into the step behaviour
+		// TODO do internal action merging here
+		var insertionIndex = rdBehaviour.steps_Behaviour.indexOf(previousAction) + 1
+
+		for (action : statementActions) {
+			addCorrespondenceBetween(action, statement)
+			if (actionToCheckForFusing instanceof InternalAction && action instanceof InternalAction) {
+				// TODO do action fusing if the previous action is also an internalAction
+				// we fuse with the previous internal action and don't need a separate internal action here
+				fuseTwoInternalActions(actionToCheckForFusing as InternalAction, action as InternalAction)
+			} else {
+				if (action instanceof ExternalCallAction) {
+					logger.info("External call was found")
+					val componentOfStatement = LuaUtil.getComponent(statement)
+					registerExternalCallAction(action, rdBehaviour, componentOfStatement)
+				}
+
+				logger.info("Action is added to step behaviour")
+
+				// insert the action into the step behaviour
+				ActionUtil.chainActions(previousAction, action)
+				rdBehaviour.steps_Behaviour.add(insertionIndex, action)
+				insertionIndex += 1
+				actionToCheckForFusing = action
 			}
+		}
+
+		// possibly fuse the last action with the subsequent action
+		// we don't fuse the previousAction and the subsequentAction
+		// (because that would imply the are both InternalActions which should not happen)
+		if (actionToCheckForFusing !== previousAction && actionToCheckForFusing instanceof InternalAction &&
+			subsequentAction instanceof InternalAction) {
+			logger.warn("Fusing last statement action with subsequent action")
+			fuseTwoInternalActions(actionToCheckForFusing as InternalAction, subsequentAction as InternalAction)
+		} else {
+			ActionUtil.chainActions(actionToCheckForFusing, subsequentAction)
+		}
+	}
+}
+
+routine fuseTwoInternalActions(pcm::InternalAction a, pcm::InternalAction b) {
+	match {
+		val statementsCorrespondingToB = retrieve many lua::Statement corresponding to b
+	}
+	update {
+		logger.info("Fusing two internal actions")
+		// transfer the correspondences from b to a and delete b
+		statementsCorrespondingToB.forEach [
+			addCorrespondenceBetween(a, it)
+			b.removeCorrespondenceBetween(it)
 		]
+		b.removeObject
 
-		// chain the new actions into the step behaviour
-		val firstNewAction = statementActions.get(0)
-		val previousAction = ActionUtil.getPreviousActionOfStatement(statement, block, rdBehaviour, correspondenceModel);
-		ActionUtil.chainActions(previousAction, firstNewAction)
-
-		val lastNewAction = statementActions.get(statementActions.size() - 1)
-		val subsequentAction = ActionUtil.getSubsequentActionOfStatement(statement, block, rdBehaviour, correspondenceModel);
-		ActionUtil.chainActions(lastNewAction, subsequentAction)
-
-		val insertionIndex = rdBehaviour.steps_Behaviour.indexOf(previousAction) + 1
-		rdBehaviour.steps_Behaviour.addAll(insertionIndex, statementActions)
+		//
+		var newStatementCount = CorrespondenceUtil.getCorrespondingEObjectsByType(correspondenceModel, a, Statement).
+			size()
+		a.entityName = String.format("Internal: %d statements", newStatementCount)
 	}
 }
 
 routine removeActionsForStatement(lua::Statement statement, lua::Block block) {
 	match {
 		val statementActions = retrieve many pcm::AbstractAction corresponding to statement
+		val rdBehaviour = retrieve pcm::ResourceDemandingBehaviour corresponding to block
 	}
 	update {
-		if (statementActions.size > 0) {
-			logger.info(String.format("Statement with actions removed: %s", statement))
-			statementActions.forEach [
-				removeActionFromStepBehaviourOfBlock(it, block)
-			]
+		logger.info(String.format("Statement with actions removed: %s", statement))
+		for (action : statementActions) {
+			action.removeCorrespondenceBetween(statement)
+			// delete if the action has no other corresponding statements
+			tryDeleteAction(action, rdBehaviour)
+		}
+	}
+}
+
+routine tryDeleteAction(pcm::AbstractAction action, pcm::ResourceDemandingBehaviour rdBehaviour) {
+	match {
+		val correspondingStatementsOfAction = retrieve many lua::Statement corresponding to action
+	}
+	update {
+		if (correspondingStatementsOfAction.size == 0) {
+			rdBehaviour.steps_Behaviour -= action
+			action.removeObject
 		}
 	}
 }

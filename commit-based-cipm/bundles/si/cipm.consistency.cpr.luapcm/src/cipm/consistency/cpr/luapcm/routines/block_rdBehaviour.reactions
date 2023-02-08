@@ -30,7 +30,6 @@ routine addedSeffBlock(lua::Block block) {
 			// create the RDBehaviour for the block
 			createRDBehaviour(block)
 		}
-
 	}
 }
 
