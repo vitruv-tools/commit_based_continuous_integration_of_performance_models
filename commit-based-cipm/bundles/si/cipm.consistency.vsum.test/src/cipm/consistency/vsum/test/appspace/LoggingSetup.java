@@ -33,7 +33,7 @@ public class LoggingSetup {
     public static void setupLogging(Level logLevel) {
         // set log levels of the framework
         Logger.getLogger("cipm.consistency")
-            .setLevel(Level.DEBUG);
+            .setLevel(Level.INFO);
 
         Logger.getLogger("cipm.consistency.commitintegration.cpr.luapcm")
             .setLevel(Level.WARN);
