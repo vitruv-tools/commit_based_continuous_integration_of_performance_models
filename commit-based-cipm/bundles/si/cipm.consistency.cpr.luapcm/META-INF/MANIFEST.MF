@@ -4,7 +4,7 @@ Bundle-Name: Consistency Preservation Rules from the lua model to the PCM
 Bundle-SymbolicName: cipm.consistency.cpr.luapcm;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Export-Package: cipm.consistency.cpr.luapcm,
- mir.reactions.luaPcm
+ mir.reactions.luaPcmUpdate
 Require-Bundle: org.eclipse.core.resources,
  tools.vitruv.change.correspondence,
  tools.vitruv.change.interaction,

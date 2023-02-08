@@ -33,16 +33,16 @@ public class LoggingSetup {
     public static void setupLogging(Level logLevel) {
         // set log levels of the framework
         Logger.getLogger("cipm.consistency")
-            .setLevel(Level.INFO);
+            .setLevel(Level.DEBUG);
 
         Logger.getLogger("cipm.consistency.commitintegration.cpr.luapcm")
             .setLevel(Level.WARN);
         Logger.getLogger("mir.reactions")
-            .setLevel(Level.INFO);
+            .setLevel(Level.WARN);
         Logger.getLogger("mir.routines")
-            .setLevel(Level.INFO);
+            .setLevel(Level.WARN);
         Logger.getLogger("mir.routines.statement_actions")
-            .setLevel(Level.DEBUG);
+            .setLevel(Level.WARN);
         Logger.getLogger("jamopp")
             .setLevel(Level.ALL);
         Logger.getLogger("tools.vitruv")

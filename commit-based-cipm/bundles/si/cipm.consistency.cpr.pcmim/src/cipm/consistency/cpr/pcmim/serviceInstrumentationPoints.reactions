@@ -1,0 +1,58 @@
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage
+
+import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
+import "http://www.dmodel.com/InstrumentationMetamodel" as im
+
+reactions: serviceInstrumentationPoints
+in reaction to changes in pcm
+execute actions in im
+
+reaction AddedSEFF {
+	after element pcm::ResourceDemandingSEFF inserted in pcm::BasicComponent[serviceEffectSpecifications__BasicComponent]
+	call createOrFindServiceInstrumentationPoint(newValue)
+}
+
+routine createOrFindServiceInstrumentationPoint(pcm::ResourceDemandingSEFF seff) {
+	match {
+		require absence of im::ServiceInstrumentationPoint corresponding to seff
+		val insModel = retrieve im::InstrumentationModel corresponding to InstrumentationModelPackage.Literals.
+			INSTRUMENTATION_MODEL
+	}
+	create {
+		val sip = new im::ServiceInstrumentationPoint
+	}
+	update {
+		sip.active = true
+		sip.service = seff
+		insModel.points += sip
+		addCorrespondenceBetween(sip, seff)
+	}
+}
+
+reaction RemovedSEFF {
+	after element pcm::ResourceDemandingSEFF removed from pcm::BasicComponent[serviceEffectSpecifications__BasicComponent]
+	call checkRemovalOfServiceInstrumentationPoint(oldValue)
+}
+
+routine checkRemovalOfServiceInstrumentationPoint(pcm::ResourceDemandingSEFF seff) {
+	match {
+		val im = retrieve im::InstrumentationModel corresponding to InstrumentationModelPackage.Literals.
+			INSTRUMENTATION_MODEL
+	}
+	update {
+		val sips = im.points.filter[it.service === null || it.service.eIsProxy].toSet
+		if (sips !== null && !sips.empty) {
+			for (si : sips) {
+				si.removeObject
+			}
+		}
+		checkRemovalOfNonProxyServiceInstrumentationPoint(seff)
+	}
+}
+
+routine checkRemovalOfNonProxyServiceInstrumentationPoint(pcm::ResourceDemandingSEFF seff) {
+	match {
+		val sip = retrieve im::ServiceInstrumentationPoint corresponding to seff
+	}
+	update sip.removeObject
+}

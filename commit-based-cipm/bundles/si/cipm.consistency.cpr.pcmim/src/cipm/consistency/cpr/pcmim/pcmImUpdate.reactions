@@ -1,0 +1,9 @@
+import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
+import "http://www.dmodel.com/InstrumentationMetamodel" as im
+
+reactions: pcmImUpdate
+in reaction to changes in pcm
+execute actions in im
+
+import actionInstrumentationPoints
+import serviceInstrumentationPoints

@@ -1,6 +1,7 @@
 package cipm.consistency.vsum.test.appspace;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.emf.cdo.common.util.TransportException;
@@ -17,14 +18,16 @@ import cipm.consistency.commitintegration.lang.lua.LuaModelFacade;
 import cipm.consistency.commitintegration.lang.lua.appspace.detection.AppSpaceComponentDetectionStrategy;
 import cipm.consistency.commitintegration.lang.lua.appspace.detection.StdLibCrownComponentDetectionStrategy;
 import cipm.consistency.commitintegration.lang.lua.changeresolution.LuaHierarchicalStateBasedChangeResolutionStrategy;
-import mir.reactions.luaPcm.LuaPcmChangePropagationSpecification;
+import mir.reactions.imInit.ImInitChangePropagationSpecification;
+import mir.reactions.luaPcmUpdate.LuaPcmUpdateChangePropagationSpecification;
+import mir.reactions.pcmImUpdate.PcmImUpdateChangePropagationSpecification;
 import mir.reactions.pcmInit.PcmInitChangePropagationSpecification;
 import tools.vitruv.change.propagation.ChangePropagationSpecification;
 import tools.vitruv.framework.views.changederivation.StateBasedChangeResolutionStrategy;
 
 public abstract class AppSpaceCommitIntegrationController extends CommitIntegrationController<LuaModelFacade>
         implements CommitIntegration<LuaModelFacade> {
-    
+
     private static final String LUA_FILE_EXTENSION = "lua";
     private static final boolean GIT_DETECT_RENAMES = true;
 
@@ -43,7 +46,12 @@ public abstract class AppSpaceCommitIntegrationController extends CommitIntegrat
 
     @Override
     public List<ChangePropagationSpecification> getChangeSpecs() {
-        return List.of(new LuaPcmChangePropagationSpecification(), new PcmInitChangePropagationSpecification());
+        List<ChangePropagationSpecification> changeSpecs = new ArrayList<>();
+        changeSpecs.add(new PcmInitChangePropagationSpecification());
+        changeSpecs.add(new ImInitChangePropagationSpecification());
+        changeSpecs.add(new LuaPcmUpdateChangePropagationSpecification());
+        changeSpecs.add(new PcmImUpdateChangePropagationSpecification());
+        return changeSpecs;
     }
 
     /*

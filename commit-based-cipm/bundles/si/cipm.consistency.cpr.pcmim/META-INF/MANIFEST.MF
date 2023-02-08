@@ -4,8 +4,8 @@ Bundle-Name: Consistency Preservation Rules from the PCM to the Instrumentation 
 Bundle-SymbolicName: cipm.consistency.cpr.pcmim;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Export-Package: cipm.consistency.cpr.pcmim,
- mir.reactions.imUpdate,
- mir.routines.imUpdate
+ mir.reactions.pcmImUpdate,
+ mir.routines.pcmImUpdate
 Require-Bundle: org.palladiosimulator.pcm,
  org.apache.log4j,
  org.eclipse.emf.ecore,

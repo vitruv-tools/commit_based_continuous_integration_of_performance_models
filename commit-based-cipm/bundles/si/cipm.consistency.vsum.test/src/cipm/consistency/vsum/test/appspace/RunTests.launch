@@ -24,7 +24,7 @@
     </listAttribute>
     <stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value=""/>
     <booleanAttribute key="org.eclipse.jdt.junit.KEEPRUNNING_ATTR" value="false"/>
-    <stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value="testIntegratingVersions010and100fromDisk"/>
+    <stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value="testIntegratingVersion010"/>
     <stringAttribute key="org.eclipse.jdt.junit.TEST_KIND" value="org.eclipse.jdt.junit.loader.junit5"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_ATTR_USE_ARGFILE" value="false"/>
     <booleanAttribute key="org.eclipse.jdt.launching.ATTR_SHOW_CODEDETAILS_IN_EXCEPTION_MESSAGES" value="true"/>
@@ -373,6 +373,7 @@
     <setAttribute key="selected_workspace_bundles">
         <setEntry value="cipm.consistency.commitintegration.lang.lua@default:default"/>
         <setEntry value="cipm.consistency.commitintegration@default:default"/>
+        <setEntry value="cipm.consistency.cpr.iminit@default:default"/>
         <setEntry value="cipm.consistency.cpr.luapcm@default:default"/>
         <setEntry value="cipm.consistency.cpr.pcmim@default:default"/>
         <setEntry value="cipm.consistency.cpr.pcminit@default:default"/>

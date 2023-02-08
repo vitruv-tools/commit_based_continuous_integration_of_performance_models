@@ -23,12 +23,14 @@ Require-Bundle: cipm.consistency.commitintegration,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtend.lib,
  org.eclipse.xtend.lib.macro,
- cipm.consistency.cpr.pcminit,
+ cipm.consistency.cpr.iminit,
  cipm.consistency.cpr.luapcm,
+ cipm.consistency.cpr.pcmim,
  tools.vitruv.dsls.reactions.runtime,
  org.apache.commons.io;bundle-version="2.8.0",
  org.apache.log4j,
  junit-jupiter-api;bundle-version="5.9.0",
- cipm.consistency.designtime.instrumentation2;bundle-version="1.0.0"
+ cipm.consistency.designtime.instrumentation2;bundle-version="1.0.0",
+ cipm.consistency.cpr.pcminit
 Export-Package: cipm.consistency.vsum.test
 Bundle-RequiredExecutionEnvironment: JavaSE-17
