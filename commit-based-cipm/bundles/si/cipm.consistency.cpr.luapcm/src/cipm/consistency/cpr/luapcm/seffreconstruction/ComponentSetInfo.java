@@ -12,6 +12,7 @@ import org.xtext.lua.lua.ComponentSet;
 import org.xtext.lua.lua.Expression_Functioncall_Direct;
 import org.xtext.lua.lua.Expression_String;
 import org.xtext.lua.lua.Expression_VariableName;
+import org.xtext.lua.lua.Refble;
 import org.xtext.lua.lua.Statement_Function_Declaration;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -98,7 +99,7 @@ public class ComponentSetInfo {
      * @param declaration
      * @return boolean
      */
-    public boolean needsSeffReconstruction(Statement_Function_Declaration declaration) {
+    public boolean needsSeffReconstruction(Refble declaration) {
         // TODO Is being served sufficient to determine if a seff reconstruction is needed?
         return servedFunctionNames.contains(declaration.getName());
     }

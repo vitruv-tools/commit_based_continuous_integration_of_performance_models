@@ -31,4 +31,4 @@ Require-Bundle: cipm.consistency.commitintegration,
  junit-jupiter-api;bundle-version="5.9.0",
  cipm.consistency.designtime.instrumentation2;bundle-version="1.0.0"
 Export-Package: cipm.consistency.vsum.test
-Bundle-RequiredExecutionEnvironment: JavaSE-13
+Bundle-RequiredExecutionEnvironment: JavaSE-17

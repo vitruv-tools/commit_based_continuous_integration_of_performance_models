@@ -1,4 +1,3 @@
-import cipm.consistency.cpr.luapcm.seffreconstruction.SeffReconstructionForward
 import org.xtext.lua.LuaUtil
 
 import "http://www.xtext.org/lua/Lua" as lua
@@ -8,80 +7,55 @@ reactions: statementFunctionDeclaration_seff
 in reaction to changes in lua
 execute actions in pcm
 
-routine createSeffForStatementFunctionDeclaration(lua::Statement_Function_Declaration functionDeclaration) {
+routine newStatementFunctionDeclaration(lua::Statement_Function_Declaration functionDeclaration) {
 	match {
-		require absence of pcm::ResourceDemandingSEFF corresponding to functionDeclaration
+		val rdseff = retrieve optional pcm::ResourceDemandingSEFF corresponding to functionDeclaration
 		val operationSignature = retrieve pcm::OperationSignature corresponding to functionDeclaration
 		val basicComponent = retrieve pcm::BasicComponent corresponding to LuaUtil.getComponent(functionDeclaration)
 	}
+	update {
+		if (!rdseff.present) {
+			createSeffForStatementFunctionDeclaration(functionDeclaration, operationSignature, basicComponent)
+		} else {
+			logger.info("Seff for function already present: " + functionDeclaration.name)
+		}
+	}
+}
+
+routine createSeffForStatementFunctionDeclaration(
+	lua::Statement_Function_Declaration functionDeclaration,
+	pcm::OperationSignature operationSignature,
+	pcm::BasicComponent basicComponent
+) {
 	create {
 		val rdseff = new pcm::ResourceDemandingSEFF
 	}
 	update {
+		logger.info(functionDeclaration.name + ": Creating SEFF")
 		// this signature must belong to the interface that is referenced by our provided role
 		rdseff.describedService__SEFF = operationSignature
 		rdseff.basicComponent_ServiceEffectSpecification = basicComponent
 
 		// Reconstruct the step behaviour of the rdseff
-		SeffReconstructionForward.doReconstruction(correspondenceModel, functionDeclaration, rdseff)
-
+//		SeffReconstructionForward.doReconstruction(correspondenceModel, functionDeclaration, rdseff)
 		addCorrespondenceBetween(functionDeclaration, rdseff)
+//		addCorrespondenceBetween(functionDeclaration.function.block, rdseff)
 		basicComponent.serviceEffectSpecifications__BasicComponent += rdseff
-	}
-}
-
-routine fillExternalCallActionFeatures(pcm::ExternalCallAction externalCallAction, pcm::BasicComponent callingComponent) {
-	update {
+		addCorrespondenceBetween(rdseff, basicComponent)
 	}
 }
 
 routine removeSeffForStatementFunctionDeclaration(lua::Statement_Function_Declaration functionDeclaration) {
 	match {
 		val rdseff = retrieve pcm::ResourceDemandingSEFF corresponding to functionDeclaration
-		val basicComponent = retrieve pcm::BasicComponent corresponding to LuaUtil.getComponent(functionDeclaration)
+		val basicComponent = retrieve pcm::BasicComponent corresponding to rdseff
 	}
 	update {
+		logger.info(functionDeclaration.name + ": Removing SEFF")
 		basicComponent.serviceEffectSpecifications__BasicComponent -= rdseff
+
 		removeCorrespondenceBetween(functionDeclaration, rdseff)
+//		removeCorrespondenceBetween(functionDeclaration.function.block, rdseff)
 		rdseff.removeObject
 	}
 }
-
-//routine createSeffFromImplementingInterfaces(lua::Referenceable classMethod, java::Class javaClass) {
-//	match {
-//		require absence of pcm::ResourceDemandingSEFF corresponding to classMethod
-//	}
-//	update {
-//		if (classMethod.modifiers.filter(Abstract).size !== 0) {
-//			return;
-//		}
-//		val implementingInterfaces = findImplementingInterfacesFromTypeRefs(javaClass.implements)
-//		for (implementingInterface : implementingInterfaces) {
-//			createSeffFromImplementingInterface(classMethod, javaClass, implementingInterface)
-//		}
-//	}
-//}
-//
-//routine createSeffFromImplementingInterface(
-//	lua::Referenceable classMethod, java::Class javaClass, java::Interface javaInterface
-//) {
-//	match {
-//		val operationInterface = retrieve pcm::OperationInterface corresponding to javaInterface
-//	}
-//	update {
-//		val methods = javaInterface.methods.filter[hasSameSignature(classMethod)]
-//		for (method : methods) {
-//			createSEFF(method, javaClass, classMethod)
-//		}
-//	}
-//
-//routine checkMembersForOperations(lua::Chunk chunk) {
-//	match {
-//		retrieve pcm::OperationInterface corresponding to chunk
-//	}
-//	update {
-//		chunk.block.statements.filter[it instanceof Statement_Global_Function_Declaration].forEach [
-//			createOrFindPCMSignature(it as Statement_Global_Function_Declaration)
-//		]
-//	}
-//}

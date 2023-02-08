@@ -9,17 +9,15 @@ execute actions in pcm
 
 routine createParameter(lua::Referenceable functionParameter, lua::Statement_Function_Declaration functionDeclaration) {
 	match {
+		require absence of pcm::Parameter corresponding to functionParameter
 		val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
+		val luaAnyType = retrieve pcm::DataType corresponding to RepositoryPackage.Literals.REPOSITORY
 		val operationSignature = retrieve pcm::OperationSignature corresponding to functionDeclaration
 	}
 	create {
 		val pcmParameter = new pcm::Parameter
-		val pcmDataType = new pcm::CompositeDataType
 	}
 	update {
-		// add data type
-		pcmDataType.entityName = functionParameter.name
-		pcmRepository.dataTypes__Repository += pcmDataType
 		
 //		checkCollectionDataTypeCreation(functionParameter.typeReference)
 		pcmParameter.operationSignature__Parameter = operationSignature
@@ -28,11 +26,10 @@ routine createParameter(lua::Referenceable functionParameter, lua::Statement_Fun
 //				operationSignature.interface__OperationSignature.repository__Interface)
 
 		pcmParameter.parameterName = functionParameter.name
-		pcmParameter.dataType__Parameter = pcmDataType
+		pcmParameter.dataType__Parameter = luaAnyType
 
 		operationSignature.parameters__OperationSignature += pcmParameter
 
-		addCorrespondenceBetween(functionParameter, pcmDataType)
 		addCorrespondenceBetween(functionParameter, pcmParameter)
 //		checkInnerDeclarationsCreation(pcmParameter.dataType__Parameter, javaParameter.typeReference)
 	}
@@ -54,7 +51,6 @@ routine deleteParameter(lua::Referenceable functionParameter) {
 		val pcmParameter = retrieve pcm::Parameter corresponding to functionParameter
 	}
 	update {
-		removeCorrespondenceBetween(functionParameter, pcmParameter)
-		removeObject(pcmParameter)
+		pcmParameter.removeObject
 	}
 }

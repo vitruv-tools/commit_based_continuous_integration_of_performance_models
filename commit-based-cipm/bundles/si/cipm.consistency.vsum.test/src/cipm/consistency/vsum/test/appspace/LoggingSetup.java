@@ -9,7 +9,7 @@ import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.LoggingEvent;
 
 public class LoggingSetup {
-    
+
     private static final Level DEFAULT_LOG_LEVEL = Level.DEBUG;
 
     private static class TrimmingLogFormat extends PatternLayout {
@@ -33,27 +33,40 @@ public class LoggingSetup {
     public static void setupLogging(Level logLevel) {
         // set log levels of the framework
         Logger.getLogger("cipm.consistency")
+            .setLevel(Level.INFO);
+
+        Logger.getLogger("cipm.consistency.commitintegration.cpr.luapcm")
+            .setLevel(Level.WARN);
+        Logger.getLogger("mir.reactions")
+            .setLevel(Level.INFO);
+        Logger.getLogger("mir.routines")
+            .setLevel(Level.INFO);
+        Logger.getLogger("mir.routines.statement_actions")
             .setLevel(Level.DEBUG);
-//        Logger.getLogger("cipm.consistency.commitintegration.lang.lua.changeresolution")
-//            .setLevel(Level.TRACE);
         Logger.getLogger("jamopp")
             .setLevel(Level.ALL);
         Logger.getLogger("tools.vitruv")
+            .setLevel(Level.INFO);
+        Logger.getLogger("tools.vitruv.framework.vsum.internal.VirtualModelImpl")
             .setLevel(Level.WARN);
-        Logger.getLogger("mir")
-            .setLevel(Level.INFO); // mir belongs to vitruv
         Logger.getLogger("org.xtext.lua")
             .setLevel(Level.INFO);
 
         var rootLogger = Logger.getRootLogger();
         rootLogger.setLevel(Level.ALL);
         rootLogger.removeAllAppenders();
-        var toTrim = List.of(System.getProperty("user.dir"), "cipm.consistency");
-        var logFormat = new TrimmingLogFormat("%-5p: %c  %m%n", toTrim);
+        var toTrim = List.of(
+                System.getProperty("user.dir"),
+                "org.xtext.lua.lua.impl",
+                "cipm.consistency"//,
+//                "mir.routines",
+//                "mir.reactions"
+                );
+        var logFormat = new TrimmingLogFormat("%-5p: %c%n    %m%n", toTrim);
         ConsoleAppender ap = new ConsoleAppender(logFormat, ConsoleAppender.SYSTEM_OUT);
         rootLogger.addAppender(ap);
     }
-    
+
     public static void setupLogging() {
         setupLogging(DEFAULT_LOG_LEVEL);
     }

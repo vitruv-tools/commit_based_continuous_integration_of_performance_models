@@ -40,7 +40,7 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
     private CM codeModelFacade;
     private CM instrumentedCodeModelFacade;
 
-    // if this state was previously used to propagate something
+    // was this state previously used to propagate something?
     private boolean isFresh = false;
 
     public CommitIntegrationState() {

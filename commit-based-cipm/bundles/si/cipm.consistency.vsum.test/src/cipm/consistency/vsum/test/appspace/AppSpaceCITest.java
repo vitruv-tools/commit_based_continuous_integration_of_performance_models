@@ -5,28 +5,22 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.eclipse.emf.cdo.common.util.TransportException;
-import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 
 import cipm.consistency.commitintegration.CommitIntegrationState;
-import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
-import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
-import cipm.consistency.vsum.test.evaluator.IMUpdateEvaluator;
-import cipm.consistency.vsum.test.evaluator.InstrumentationEvaluator;
 import tools.vitruv.change.composite.description.PropagatedChange;
 
 public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController {
-    private static final Logger LOGGER = Logger.getLogger(AppSpaceCommitIntegrationController.class.getName());
 
     /**
      * The path to the git directory of the whole cipm repository. This path is relative to the
@@ -45,8 +39,8 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
     private Path rootPath;
 
     /**
-     * Returns the path to the local directory in which the test data is stored.
-     * This directory is created if it does not exist
+     * Returns the path to the local directory in which the test data is stored. This directory is
+     * created if it does not exist
      * 
      * The directory is <test data root>/<class name>/<method name> so it can be easily located
      * 
@@ -62,30 +56,60 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
         var methodName = testInfo.getDisplayName()
             .replace("()", "");
 
-        this.rootPath =  TESTDATA_PATH.resolve(className)
+        this.rootPath = TESTDATA_PATH.resolve(className)
             .resolve(methodName);
     }
 
-    @BeforeEach
-    public void initialize(TestInfo testInfo)
-            throws InvalidRemoteException, TransportException, IOException, GitAPIException {
-
+    /**
+     * 
+     * @param testInfo
+     * @param overwrite
+     *            Are existing files (models, etc.) to be deleted before initializing the commit
+     *            integration state?
+     * @throws GitAPIException
+     * @throws IOException
+     * @throws org.eclipse.jgit.api.errors.TransportException
+     * @throws InvalidRemoteException
+     */
+    protected void setup(TestInfo testInfo, boolean overwrite) throws InvalidRemoteException,
+            org.eclipse.jgit.api.errors.TransportException, IOException, GitAPIException {
         // the root path of the integration data contains the current class and method name
         // hence it is dynamically set using the test info
         setRootPath(testInfo);
 
         // Create new empty state
         this.state = new CommitIntegrationState<>();
-
-        // overwrite existing files?
-        var overwrite = true;
+//
+//        // overwrite existing files?
         state.initialize(this, overwrite);
     }
 
+    @BeforeEach
+    public void setup(TestInfo testInfo) throws InvalidRemoteException, org.eclipse.jgit.api.errors.TransportException,
+            IOException, GitAPIException {
+        setup(testInfo, true);
+    }
+
     @AfterEach
-    public void dispose() {
-//        state.createCopyWithTimeStamp("after_testrun");
+    public void cleanupAfterTest() {
         state.dispose();
+    }
+
+    /*
+     * Deletes all testdata before running a new batch of tests
+     */
+    @BeforeAll
+    public static void deleteDataBeforeRunningTests() {
+
+        try {
+            Files.walk(TESTDATA_PATH)
+                .sorted(Comparator.reverseOrder())
+                .forEach(path -> path.toFile()
+                    .delete());
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+//            e.printStackTrace();
+        }
     }
 
     @Override
@@ -97,9 +121,11 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
     }
 
     /**
-     * Propagates the given commits and checks that every commit resulted in non-null propagated changes.
+     * Propagates the given commits and checks that every commit resulted in non-null propagated
+     * changes.
      * 
-     * @param commitIds The commits to be propagated
+     * @param commitIds
+     *            The commits to be propagated
      * @return The list of all the propagated changes, ordered by commit.
      */
     protected List<List<PropagatedChange>> assertSuccessfulPropagation(String... commitIds) {
@@ -228,47 +254,47 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
      * @throws IOException
      *             if an IO operation cannot be performed.
      */
-    @SuppressWarnings("restriction")
-    protected void performIndependentEvaluation() throws IOException {
-        String[] commits = loadCommits();
-        String oldCommit = commits[0];
-        String newCommit = commits[1];
-        LOGGER.debug("Evaluating the propagation " + oldCommit + "->" + newCommit);
-        EvaluationDataContainer evalResult = EvaluationDataContainer.getGlobalContainer();
-        evalResult.getChangeStatistic()
-            .setOldCommit(oldCommit);
-        evalResult.getChangeStatistic()
-            .setNewCommit(newCommit);
-        Resource javaModel = state.getCodeModelFacade()
-            .getResource();
-        LOGGER.debug("Evaluating the Java model.");
-        new JavaModelEvaluator().evaluateJavaModels(javaModel, state.getDirLayout()
-            .getSettingsFilePath(),
-                state.getCodeModelFacade()
-                    .getDirLayout()
-                    .getLocalRepoDir(),
-                evalResult.getJavaComparisonResult(), state.getCodeModelFacade()
-                    .getDirLayout()
-                    .getModuleConfigurationPath());
-
-        LOGGER.debug("Evaluating the instrumentation model.");
-        new IMUpdateEvaluator().evaluateIMUpdate(state.getPcmFacade()
-            .getInMemoryPCM()
-            .getRepository(),
-                state.getImFacade()
-                    .getModel(),
-                evalResult.getImEvalResult(), getRootPath().toString());
-        LOGGER.debug("Evaluating the instrumentation.");
-//        new InstrumentationEvaluator().evaluateInstrumentationIndependently(state.getIm()
-//            .getModel(), javaModel, getCommitChangePropagator().getFileSystemLayout(),
-//                state.getVsum()
-//                    .getVsum()
-//                    .getCorrespondenceModel());
-        new InstrumentationEvaluator().evaluateInstrumentationIndependently(state);
-        EvaluationDataContainerReaderWriter.write(evalResult, getRootPath()
-            .resolveSibling("EvaluationResult-" + newCommit + "-" + evalResult.getEvaluationTime() + ".json"));
-        LOGGER.debug("Finished the evaluation.");
-    }
+//    @SuppressWarnings("restriction")
+//    protected void performIndependentEvaluation() throws IOException {
+//        String[] commits = loadCommits();
+//        String oldCommit = commits[0];
+//        String newCommit = commits[1];
+//        LOGGER.debug("Evaluating the propagation " + oldCommit + "->" + newCommit);
+//        EvaluationDataContainer evalResult = EvaluationDataContainer.getGlobalContainer();
+//        evalResult.getChangeStatistic()
+//            .setOldCommit(oldCommit);
+//        evalResult.getChangeStatistic()
+//            .setNewCommit(newCommit);
+//        Resource javaModel = state.getCodeModelFacade()
+//            .getResource();
+//        LOGGER.debug("Evaluating the Java model.");
+//        new JavaModelEvaluator().evaluateJavaModels(javaModel, state.getDirLayout()
+//            .getSettingsFilePath(),
+//                state.getCodeModelFacade()
+//                    .getDirLayout()
+//                    .getLocalRepoDir(),
+//                evalResult.getJavaComparisonResult(), state.getCodeModelFacade()
+//                    .getDirLayout()
+//                    .getModuleConfigurationPath());
+//
+//        LOGGER.debug("Evaluating the instrumentation model.");
+//        new IMUpdateEvaluator().evaluateIMUpdate(state.getPcmFacade()
+//            .getInMemoryPCM()
+//            .getRepository(),
+//                state.getImFacade()
+//                    .getModel(),
+//                evalResult.getImEvalResult(), getRootPath().toString());
+//        LOGGER.debug("Evaluating the instrumentation.");
+////        new InstrumentationEvaluator().evaluateInstrumentationIndependently(state.getIm()
+////            .getModel(), javaModel, getCommitChangePropagator().getFileSystemLayout(),
+////                state.getVsum()
+////                    .getVsum()
+////                    .getCorrespondenceModel());
+//        new InstrumentationEvaluator().evaluateInstrumentationIndependently(state);
+//        EvaluationDataContainerReaderWriter.write(evalResult, getRootPath()
+//            .resolveSibling("EvaluationResult-" + newCommit + "-" + evalResult.getEvaluationTime() + ".json"));
+//        LOGGER.debug("Finished the evaluation.");
+//    }
 
     /**
      * Returns the path to the settings file.

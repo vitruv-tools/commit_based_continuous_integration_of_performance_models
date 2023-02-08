@@ -31,6 +31,24 @@
 			<unit id="org.junit.jupiter.params" version="5.8.2.v20220624-2009"/>
 			<unit id="org.junit.platform.commons" version="1.8.2.v20220624-2009"/>
 			<unit id="org.slf4j.binding.nop" version="1.7.30.v20200204-2150"/>
+			<unit id="org.apache.batik.gvt" version="1.14.0.v20210324-0332"/>
+			<unit id="org.apache.batik.anim" version="1.14.0.v20210324-0332"/>
+			<unit id="org.apache.batik.awt.util" version="1.14.0.v20210324-0332"/>
+			<unit id="org.apache.batik.bridge" version="1.14.0.v20210324-0332"/>
+			<unit id="org.apache.batik.codec" version="1.14.0.v20210324-0332"/>
+			<unit id="org.apache.batik.constants" version="1.14.0.v20210324-0332"/>
+			<unit id="org.apache.batik.css" version="1.14.0.v20210324-0332"/>
+			<unit id="org.apache.batik.dom" version="1.14.0.v20210324-0332"/>
+			<unit id="org.apache.batik.dom.svg" version="1.14.0.v20210324-0332"/>
+			<unit id="org.apache.batik.ext" version="1.14.0.v20210324-0332"/>
+			<unit id="org.apache.batik.i18n" version="1.14.0.v20210324-0332"/>
+			<unit id="org.apache.batik.parser" version="1.14.0.v20210324-0332"/>
+			<unit id="org.apache.batik.script" version="1.14.0.v20210324-0332"/>
+			<unit id="org.apache.batik.shared.resources" version="1.14.0.v20210324-0332"/>
+			<unit id="org.apache.batik.svggen" version="1.14.0.v20210324-0332"/>
+			<unit id="org.apache.batik.transcoder" version="1.14.0.v20210324-0332"/>
+			<unit id="org.apache.batik.util" version="1.14.0.v20210324-0332"/>
+			<unit id="org.apache.batik.xml" version="1.14.0.v20210324-0332"/>
 		</location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
             <repository location="http://kit-sdq.github.io/updatesite/release/commons/2.0.0/"/>
@@ -85,6 +103,10 @@
 			<unit id="de.uka.ipd.sdq.workflow.feature.core.feature.group" version="5.0.0.202102051701"/>
 			<unit id="de.uka.ipd.sdq.workflow.feature.mdsd.feature.group" version="5.0.0.202102051701"/>
 			<unit id="org.palladiosimulator.pcm.feature.feature.group" version="5.0.0.202102051710"/>
+			<unit id="org.eclipse.sirius.runtime.feature.group" version="6.4.0.202011190936"/>
+			<unit id="org.palladiosimulator.editors.sirius.feature.feature.group" version="5.0.0.202102051940"/>
+			<unit id="org.palladiosimulator.editors.commons.feature.feature.group" version="5.0.0.202102051714"/>
+			<unit id="org.palladiosimulator.editors.tree.feature.feature.group" version="5.0.0.202102051719"/>
 		</location>
 	</locations>
 </target>

@@ -11,8 +11,8 @@
     <booleanAttribute key="clearConfig" value="false"/>
     <booleanAttribute key="clearws" value="false"/>
     <booleanAttribute key="clearwslog" value="false"/>
-    <stringAttribute key="configLocation" value="${workspace_loc}/.metadata/.plugins/org.eclipse.pde.core/SecondInstanceDevelopment"/>
-    <booleanAttribute key="default" value="false"/>
+    <stringAttribute key="configLocation" value="${workspace_loc}/.metadata/.plugins/org.eclipse.pde.core/SecondInstanceDevelopmentAllPlugins"/>
+    <booleanAttribute key="default" value="true"/>
     <setAttribute key="deselected_workspace_bundles"/>
     <stringAttribute key="featureDefaultLocation" value="workspace"/>
     <stringAttribute key="featurePluginResolution" value="workspace"/>
@@ -161,7 +161,7 @@
     </setAttribute>
     <setAttribute key="selected_target_bundles">
         <setEntry value="aopalliance@default:default"/>
-        <setEntry value="com.google.gson"/>
+        <setEntry value="com.google.gson@default:default"/>
         <setEntry value="com.google.guava*27.1.0.v20190517-1946@default:default"/>
         <setEntry value="com.google.guava*30.1.0.v20210127-2300@default:default"/>
         <setEntry value="com.google.inject@default:default"/>
@@ -307,6 +307,7 @@
         <setEntry value="org.eclipse.acceleo.parser@default:default"/>
         <setEntry value="org.eclipse.acceleo.profiler@default:default"/>
         <setEntry value="org.eclipse.acceleo.query@default:default"/>
+        <setEntry value="org.eclipse.acceleo.ui.interpreter@default:default"/>
         <setEntry value="org.eclipse.ant.core@default:default"/>
         <setEntry value="org.eclipse.ant.launching@default:default"/>
         <setEntry value="org.eclipse.ant.ui@default:default"/>
@@ -340,11 +341,8 @@
         <setEntry value="org.eclipse.e4.core.di@default:default"/>
         <setEntry value="org.eclipse.e4.core.services@default:default"/>
         <setEntry value="org.eclipse.e4.emf.xpath@default:default"/>
-        <setEntry value="org.eclipse.e4.tools.compat@default:default"/>
-        <setEntry value="org.eclipse.e4.tools.emf.editor3x@default:default"/>
         <setEntry value="org.eclipse.e4.tools.emf.ui@default:default"/>
         <setEntry value="org.eclipse.e4.tools.services@default:default"/>
-        <setEntry value="org.eclipse.e4.tools@default:default"/>
         <setEntry value="org.eclipse.e4.ui.bindings@default:default"/>
         <setEntry value="org.eclipse.e4.ui.css.core@default:default"/>
         <setEntry value="org.eclipse.e4.ui.css.swt.theme@default:default"/>
@@ -412,6 +410,7 @@
         <setEntry value="org.eclipse.emf.ecore@default:default"/>
         <setEntry value="org.eclipse.emf.edit.ui@default:default"/>
         <setEntry value="org.eclipse.emf.edit@default:default"/>
+        <setEntry value="org.eclipse.emf.eef.runtime@default:default"/>
         <setEntry value="org.eclipse.emf.example.installer@default:default"/>
         <setEntry value="org.eclipse.emf.exporter@default:default"/>
         <setEntry value="org.eclipse.emf.importer.ecore@default:default"/>
@@ -612,6 +611,13 @@
         <setEntry value="org.eclipse.pde.junit.runtime@default:default"/>
         <setEntry value="org.eclipse.pde.launching@default:default"/>
         <setEntry value="org.eclipse.pde.runtime@default:default"/>
+        <setEntry value="org.eclipse.pde.spy.bundle@default:default"/>
+        <setEntry value="org.eclipse.pde.spy.context@default:default"/>
+        <setEntry value="org.eclipse.pde.spy.core@default:default"/>
+        <setEntry value="org.eclipse.pde.spy.css@default:default"/>
+        <setEntry value="org.eclipse.pde.spy.event@default:default"/>
+        <setEntry value="org.eclipse.pde.spy.model@default:default"/>
+        <setEntry value="org.eclipse.pde.spy.preferences@default:default"/>
         <setEntry value="org.eclipse.pde.ua.core@default:default"/>
         <setEntry value="org.eclipse.pde.ua.ui@default:default"/>
         <setEntry value="org.eclipse.pde.ui.templates@default:default"/>
@@ -624,29 +630,51 @@
         <setEntry value="org.eclipse.sirius.common.acceleo.aql@default:default"/>
         <setEntry value="org.eclipse.sirius.common.acceleo.mtl@default:default"/>
         <setEntry value="org.eclipse.sirius.common.interpreter@default:default"/>
+        <setEntry value="org.eclipse.sirius.common.ocl@default:default"/>
+        <setEntry value="org.eclipse.sirius.common.ui.ext@default:default"/>
         <setEntry value="org.eclipse.sirius.common.ui@default:default"/>
         <setEntry value="org.eclipse.sirius.common@default:default"/>
         <setEntry value="org.eclipse.sirius.diagram.formatdata@default:default"/>
+        <setEntry value="org.eclipse.sirius.diagram.sequence.edit@default:default"/>
+        <setEntry value="org.eclipse.sirius.diagram.sequence.ui@default:default"/>
+        <setEntry value="org.eclipse.sirius.diagram.sequence@default:default"/>
+        <setEntry value="org.eclipse.sirius.diagram.ui.ext@default:default"/>
         <setEntry value="org.eclipse.sirius.diagram.ui@default:default"/>
         <setEntry value="org.eclipse.sirius.diagram@default:default"/>
         <setEntry value="org.eclipse.sirius.ecore.extender@default:default"/>
+        <setEntry value="org.eclipse.sirius.eef.adapters@default:default"/>
         <setEntry value="org.eclipse.sirius.ext.base@default:default"/>
         <setEntry value="org.eclipse.sirius.ext.draw2d@default:default"/>
         <setEntry value="org.eclipse.sirius.ext.e3.ui@default:default"/>
+        <setEntry value="org.eclipse.sirius.ext.e3@default:default"/>
         <setEntry value="org.eclipse.sirius.ext.emf.edit@default:default"/>
         <setEntry value="org.eclipse.sirius.ext.emf.tx@default:default"/>
         <setEntry value="org.eclipse.sirius.ext.emf.ui@default:default"/>
         <setEntry value="org.eclipse.sirius.ext.emf@default:default"/>
         <setEntry value="org.eclipse.sirius.ext.gef@default:default"/>
+        <setEntry value="org.eclipse.sirius.ext.gmf.notation@default:default"/>
         <setEntry value="org.eclipse.sirius.ext.gmf.runtime@default:default"/>
         <setEntry value="org.eclipse.sirius.ext.ide@default:default"/>
         <setEntry value="org.eclipse.sirius.ext.jface@default:default"/>
         <setEntry value="org.eclipse.sirius.ext.swt@default:default"/>
+        <setEntry value="org.eclipse.sirius.interpreter@default:default"/>
         <setEntry value="org.eclipse.sirius.properties.core@default:default"/>
         <setEntry value="org.eclipse.sirius.properties.defaultrules@default:default"/>
+        <setEntry value="org.eclipse.sirius.properties.edit@default:default"/>
+        <setEntry value="org.eclipse.sirius.properties.ext.widgets.reference.edit@default:default"/>
         <setEntry value="org.eclipse.sirius.properties.ext.widgets.reference@default:default"/>
         <setEntry value="org.eclipse.sirius.properties@default:default"/>
+        <setEntry value="org.eclipse.sirius.synchronizer@default:default"/>
+        <setEntry value="org.eclipse.sirius.table.ui.ext@default:default"/>
+        <setEntry value="org.eclipse.sirius.table.ui@default:default"/>
+        <setEntry value="org.eclipse.sirius.table@default:default"/>
+        <setEntry value="org.eclipse.sirius.tree.ui.ext@default:default"/>
+        <setEntry value="org.eclipse.sirius.tree.ui@default:default"/>
+        <setEntry value="org.eclipse.sirius.tree@default:default"/>
         <setEntry value="org.eclipse.sirius.ui.editor@default:default"/>
+        <setEntry value="org.eclipse.sirius.ui.ext@default:default"/>
+        <setEntry value="org.eclipse.sirius.ui.properties.ext.widgets.reference@default:default"/>
+        <setEntry value="org.eclipse.sirius.ui.properties@default:default"/>
         <setEntry value="org.eclipse.sirius.ui@default:default"/>
         <setEntry value="org.eclipse.sirius@default:default"/>
         <setEntry value="org.eclipse.swt.gtk.linux.x86_64@default:false"/>
@@ -762,6 +790,9 @@
         <setEntry value="org.emftext.language.java.edit@default:default"/>
         <setEntry value="org.emftext.language.java@default:default"/>
         <setEntry value="org.hamcrest.core@default:default"/>
+        <setEntry value="org.junit.jupiter.api@default:default"/>
+        <setEntry value="org.junit.jupiter.params@default:default"/>
+        <setEntry value="org.junit.platform.commons@default:default"/>
         <setEntry value="org.junit@default:default"/>
         <setEntry value="org.modelversioning.emfprofile.application.registry@default:default"/>
         <setEntry value="org.modelversioning.emfprofile.edit@default:default"/>
@@ -798,7 +829,6 @@
         <setEntry value="org.palladiosimulator.commons.stoex@default:default"/>
         <setEntry value="org.palladiosimulator.commons@default:default"/>
         <setEntry value="org.palladiosimulator.editors.commons.dialogs@default:default"/>
-        <setEntry value="org.palladiosimulator.editors.commons.propertytabs@default:default"/>
         <setEntry value="org.palladiosimulator.editors.commons.tabs@default:default"/>
         <setEntry value="org.palladiosimulator.editors.sirius.allocation.custom@default:default"/>
         <setEntry value="org.palladiosimulator.editors.sirius.allocation@default:default"/>
@@ -819,7 +849,6 @@
         <setEntry value="org.palladiosimulator.mdsdprofiles.api@default:default"/>
         <setEntry value="org.palladiosimulator.mdsdprofiles@default:default"/>
         <setEntry value="org.palladiosimulator.pcm.edit@default:default"/>
-        <setEntry value="org.palladiosimulator.pcm.editor@default:default"/>
         <setEntry value="org.palladiosimulator.pcm.help@default:default"/>
         <setEntry value="org.palladiosimulator.pcm.resources@default:default"/>
         <setEntry value="org.palladiosimulator.pcm.ui@default:default"/>
@@ -827,7 +856,7 @@
         <setEntry value="org.sat4j.core@default:default"/>
         <setEntry value="org.sat4j.pb@default:default"/>
         <setEntry value="org.slf4j.api@default:default"/>
-        <setEntry value="org.slf4j.binding.nop"/>
+        <setEntry value="org.slf4j.binding.nop@default:false"/>
         <setEntry value="org.somox.core@default:default"/>
         <setEntry value="org.somox.filter@default:default"/>
         <setEntry value="org.somox.gast2seff@default:default"/>

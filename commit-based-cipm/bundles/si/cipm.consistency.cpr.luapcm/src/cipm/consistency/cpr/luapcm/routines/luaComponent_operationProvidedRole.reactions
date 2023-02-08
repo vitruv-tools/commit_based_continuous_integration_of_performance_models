@@ -18,7 +18,7 @@ routine createOperationProvidedRoleForLuaComponent(lua::Component luaComponent) 
 	update {
 		operationProvidedRole.providedInterface__OperationProvidedRole = operationInterface
 		operationProvidedRole.providingEntity_ProvidedRole = basicComponent
-		operationProvidedRole.entityName = "role_providing_" + operationInterface.entityName
+		operationProvidedRole.entityName = luaComponent.name + "_providing_role"
 
 		basicComponent.providedRoles_InterfaceProvidingEntity += operationProvidedRole
 
@@ -37,46 +37,3 @@ routine removeOperationProvidedRoleForLuaComponent(lua::Component luaComponent) 
 		operationProvidedRole.removeObject
 	}
 }
-
-//routine checkRemovalOfOperationProvidedRole(lua::NamedChunk namedChunk) {
-//	match {
-//		val interfaze = retrieve pcm::OperationInterface corresponding to namedChunk
-//		val basicCom = retrieve pcm::BasicComponent corresponding to namedChunk
-//		val opRoles = retrieve many pcm::OperationProvidedRole corresponding to namedChunk
-//	}
-//	update {
-//		val role = opRoles.findFirst [
-//			it.providedInterface__OperationProvidedRole == interfaze && it.providingEntity_ProvidedRole == basicCom
-//		]
-//		if (role !== null) {
-//			removeOperationProvidedRole(role)
-//		}
-//	}
-//}
-
-
-// Add 'implements'.
-//reaction AddedTypeReference {
-//	after element java::TypeReference inserted in java::Class[implements]
-//	with newValue instanceof NamespaceClassifierReference || newValue instanceof ClassifierReference
-//	call {
-//		createOrFindOperationProvidedRoleFromTypeReference(newValue)
-//	}
-//}
-
-// Remove 'implements'.
-//reaction RemovedTypeReference {
-//	after element java::TypeReference removed from java::Class[implements]
-//	with oldValue instanceof NamespaceClassifierReference || oldValue instanceof ClassifierReference
-//	call {
-//		checkRemovalOfOperationProvidedRole(affectedEObject, getNormalizedClassifierFromTypeReference(oldValue))
-//	}
-//}
-
-//routine createOrFindOperationProvidedRoleFromTypeReference(java::TypeReference typeReference) {
-//	update {
-//		val javaClass = typeReference.eContainer as Class
-//		var javaInterfaceClassifier = getNormalizedClassifierFromTypeReference(typeReference)
-//		createOrFindOperationProvidedRole(javaInterfaceClassifier, javaClass)
-//	}
-//}

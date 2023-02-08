@@ -11,11 +11,28 @@ reaction AddedPcmRepository {
 	after element pcm::Repository inserted as root
 	call {
 		createRepositoryCorrespondence(newValue)
+		createLuaAnyType(newValue)
 	}
 }
+
 
 routine createRepositoryCorrespondence(pcm::Repository repo) {
 	update {
 		addCorrespondenceBetween(repo, RepositoryPackage.Literals.REPOSITORY)
+		repo.entityName = "AppSpace Repository"
+	}
+}
+
+
+routine createLuaAnyType(pcm::Repository repo) {
+	create {
+		val anyType = new pcm::CompositeDataType
+	}
+	update {
+		anyType.entityName = "LUA_ANY_TYPE"
+		anyType.repository__DataType = repo
+		
+		repo.dataTypes__Repository += anyType
+		addCorrespondenceBetween(anyType, RepositoryPackage.Literals.REPOSITORY)
 	}
 }

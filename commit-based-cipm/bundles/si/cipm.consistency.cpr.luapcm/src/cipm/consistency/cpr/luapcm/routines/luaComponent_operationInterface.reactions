@@ -10,6 +10,7 @@ execute actions in pcm
 routine createOperationInterfaceForLuaComponent(lua::Component luaComponent) {
 	match {
 		require absence of pcm::OperationInterface corresponding to luaComponent
+		val pcmComponent = retrieve pcm::BasicComponent corresponding to luaComponent
 		val pcmRepository = retrieve pcm::Repository corresponding to RepositoryPackage.Literals.REPOSITORY
 	}
 	create {
@@ -19,6 +20,7 @@ routine createOperationInterfaceForLuaComponent(lua::Component luaComponent) {
 		operationInterface.entityName = luaComponent.name + "_interface"
 		pcmRepository.interfaces__Repository += operationInterface
 		addCorrespondenceBetween(luaComponent, operationInterface)
+		addCorrespondenceBetween(pcmComponent, operationInterface)
 	}
 }
 

@@ -18,7 +18,8 @@ import tools.vitruv.change.composite.description.PropagatedChange;
  * This class is responsible for controlling the complete change propagation and adaptive
  * instrumentation.
  * 
- * @param <CM> The code model class that is used for the integration
+ * @param <CM>
+ *            The code model class that is used for the integration
  * 
  * @author Martin Armbruster
  * @author Lukas Burgey
@@ -41,15 +42,28 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
      * @throws IOException
      * @throws GitAPIException
      */
-    protected void reinitialize() throws InvalidRemoteException, TransportException, IOException, GitAPIException {
+    protected void reset() throws InvalidRemoteException, TransportException, IOException, GitAPIException {
         if (!state.isFresh()) {
-            LOGGER.info("Reinitializing commitintegration");
+            LOGGER.info("Resetting commitintegration");
             var ci = state.getCommitIntegration();
             state.getDirLayout()
                 .delete();
             state.dispose();
             state.initialize(ci, true);
         }
+    }
+    
+    /**
+     * Reload the current integration state from disk
+     * @throws GitAPIException 
+     * @throws IOException 
+     * @throws TransportException 
+     * @throws InvalidRemoteException 
+     */
+    protected void reload() throws InvalidRemoteException, TransportException, IOException, GitAPIException {
+        var ci = state.getCommitIntegration();
+        state.dispose();
+        state.initialize(ci);
     }
 
     /**
@@ -96,7 +110,7 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
 
         // make sure the state is clean if the first id is null
         if (commitIds[0] == null) {
-            reinitialize();
+            reset();
         }
 
         var numberOfPropagations = commitIds.length - 1;
