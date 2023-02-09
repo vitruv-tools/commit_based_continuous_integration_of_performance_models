@@ -1,13 +1,8 @@
 package cipm.consistency.designtime.instrumentation2.instrumenter;
 
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationType;
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint;
-import cipm.consistency.designtime.instrumentation.transformation.impl.ApplicationProjectInstrumenterNamespace;
-import cipm.consistency.designtime.instrumentation2.ActionStatementMapping;
 import java.util.EnumMap;
+
 import org.apache.log4j.Logger;
-import org.eclipse.emf.ecore.EObject;
 import org.emftext.language.java.members.Method;
 import org.emftext.language.java.references.IdentifierReference;
 import org.emftext.language.java.references.MethodCall;
@@ -17,6 +12,12 @@ import org.emftext.language.java.statements.Block;
 import org.emftext.language.java.statements.LocalVariableStatement;
 import org.emftext.language.java.statements.StatementsFactory;
 import org.emftext.language.java.variables.VariablesFactory;
+
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationType;
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint;
+import cipm.consistency.designtime.instrumentation.transformation.impl.ApplicationProjectInstrumenterNamespace;
+import cipm.consistency.designtime.instrumentation2.ActionStatementMapping;
 
 /**
  * An instrumenter for ServiceInstrumentationPoints.

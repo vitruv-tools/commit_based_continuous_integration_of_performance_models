@@ -12,17 +12,7 @@ import statement_actions
 reaction AddedStatement {
 	after element lua::Statement inserted in lua::Block[statements]
 	call {
-		if (SeffHelper.needsSeffReconstruction(newValue)) {
-			createActionsForStatement(newValue, affectedEObject)
-		}
-	}
-}
-
-reaction ReplacedStatement {
-	after element lua::Statement replaced at lua::Block[statements]
-	call {
-		if (SeffHelper.needsSeffReconstruction(newValue)) {
-			removeActionsForStatement(oldValue, affectedEObject)
+		if (SeffHelper.needsActionReconstruction(newValue)) {
 			createActionsForStatement(newValue, affectedEObject)
 		}
 	}

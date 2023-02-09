@@ -55,13 +55,7 @@ public class LoggingSetup {
         var rootLogger = Logger.getRootLogger();
         rootLogger.setLevel(Level.ALL);
         rootLogger.removeAllAppenders();
-        var toTrim = List.of(
-                System.getProperty("user.dir"),
-                "org.xtext.lua.lua.impl",
-                "cipm.consistency"//,
-//                "mir.routines",
-//                "mir.reactions"
-                );
+        var toTrim = List.of(System.getProperty("user.dir"), "org.xtext.lua.lua.impl", "cipm.consistency");
         var logFormat = new TrimmingLogFormat("%-5p: %c%n    %m%n", toTrim);
         ConsoleAppender ap = new ConsoleAppender(logFormat, ConsoleAppender.SYSTEM_OUT);
         rootLogger.addAppender(ap);

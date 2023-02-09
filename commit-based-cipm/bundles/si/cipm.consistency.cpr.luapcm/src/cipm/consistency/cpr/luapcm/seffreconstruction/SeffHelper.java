@@ -23,8 +23,23 @@ public class SeffHelper {
         return needsSeff;
     }
 
-    public static boolean needsSeffReconstruction(EObject eObj) {
+    /**
+     * Determine if we need to reconstruct actions for a given eObject.
+     * This is only the case for contenst of a function declaration which needs a seff,
+     * In addition only external calls and objects above them in the tree need action recovery.
+     * 
+     * @param eObj
+     * @return
+     */
+    public static boolean needsActionReconstruction(EObject eObj) {
         var parentDeclaration = EcoreUtil2.getContainerOfType(eObj, Statement_Function_Declaration.class);
-        return needsSeffReconstruction(parentDeclaration);
+        if (!needsSeffReconstruction(parentDeclaration)) {
+            // we don't reconstruct anything outside of declarations which need seffs
+            return false;
+        }
+        
+        // TODO implement policy
+
+        return false;
     }
 }
