@@ -1,11 +1,11 @@
 import cipm.consistency.cpr.luapcm.seffreconstruction.ActionUtil
 import cipm.consistency.cpr.luapcm.seffreconstruction.CorrespondenceUtil
-import cipm.consistency.cpr.luapcm.seffreconstruction.SeffReconstruction
 import org.palladiosimulator.pcm.repository.OperationRequiredRole
 import org.palladiosimulator.pcm.seff.ExternalCallAction
 import org.palladiosimulator.pcm.seff.InternalAction
 import org.xtext.lua.LuaUtil
 import org.xtext.lua.lua.Statement
+import cipm.consistency.cpr.luapcm.seffreconstruction.ActionReconstruction
 
 import "http://www.xtext.org/lua/Lua" as lua
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
@@ -20,7 +20,7 @@ routine createActionsForStatement(lua::Statement statement, lua::Block block) {
 		val rdBehaviour = retrieve pcm::ResourceDemandingBehaviour corresponding to block
 	}
 	update {
-		val statementActions = SeffReconstruction.getActionsForStatement(statement, correspondenceModel)
+		val statementActions = ActionReconstruction.getActionsForStatement(statement, correspondenceModel)
 		if (statementActions.size < 1) {
 			return
 		}

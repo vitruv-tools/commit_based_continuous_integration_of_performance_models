@@ -37,33 +37,6 @@ public class ActionUtil {
         }
     }
 
-//    private static void chainActionList(List<AbstractAction> actions) {
-//        AbstractAction predecessor = null;
-//        for (var action : actions) {
-//            if (predecessor != null) {
-//                chainActions(predecessor, action);
-//            }
-//            predecessor = action;
-//        }
-//    }
-
-//    public static List<AbstractAction> surroundActionList(AbstractAction start, List<AbstractAction> list,
-//            AbstractAction stop) {
-//
-//        List<AbstractAction> actions = new ArrayList<>();
-//        if (start != null) {
-//            actions.add(start);
-//        }
-//        if (list != null) {
-//            actions.addAll(list);
-//        }
-//        if (stop != null) {
-//            actions.add(stop);
-//        }
-//        chainActionList(actions);
-//        return actions;
-//    }
-
     /**
      * Prepares an abstract action for removal.
      * 

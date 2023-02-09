@@ -39,16 +39,28 @@ import tools.vitruv.dsls.reactions.runtime.correspondence.ReactionsCorrespondenc
  * @author Lukas Burgey
  *
  */
-public final class SeffReconstruction {
-    private static final Logger LOGGER = Logger.getLogger(SeffReconstruction.class.getName());
+public final class ActionReconstruction {
+    private static final Logger LOGGER = Logger.getLogger(ActionReconstruction.class.getName());
 
     // TODO find a better default for this stochastic expression
     private static final String LOOP_COUNT_SPECIFICATION = "10";
 
     private EditableCorrespondenceModelView<ReactionsCorrespondence> correspondenceModelView;
 
-    private SeffReconstruction(EditableCorrespondenceModelView<ReactionsCorrespondence> cmv) {
+    private ActionReconstruction(EditableCorrespondenceModelView<ReactionsCorrespondence> cmv) {
         this.correspondenceModelView = cmv;
+    }
+
+    /**
+     * Do we need to reconstruct actions for this object?
+     */
+    public static boolean needsActionReconstruction(EObject eObj) {
+        if (eObj == null) {
+            return false;
+        }
+
+        var infos = ComponentSetInfoRegistry.getInfosForComponentSet(eObj);
+        return infos.needsActionReconstruction(eObj);
     }
 
     private static boolean isControlFlowStatement(EObject eObj) {
@@ -87,6 +99,29 @@ public final class SeffReconstruction {
             return List.of((Expression_Functioncall_Direct) statement);
         }
         return EcoreUtil2.getAllContentsOfType(statement, Expression_Functioncall_Direct.class);
+    }
+
+    private static boolean isExternalCall(Expression_Functioncall_Direct directCall) {
+        var calledFunction = directCall.getCalledFunction();
+        var callingComponent = LuaUtil.getComponent(directCall);
+        var calledComponent = LuaUtil.getComponent(calledFunction);
+
+        var isCallToFunction = calledFunction != null && calledFunction instanceof Statement_Function_Declaration;
+        var isCallToMockedFunction = calledComponent.getName()
+            .equals(LuaLinkingService.MOCK_URI.path());
+        var isInternalCall = calledComponent.equals(callingComponent);
+
+        return isCallToFunction && !isCallToMockedFunction && !isInternalCall;
+    }
+
+    protected static boolean doesStatementContainExternalCall(Statement statement) {
+        var directCalls = getFunctionCallsFromStatement(statement);
+        for (var directCall : directCalls) {
+            if (isExternalCall(directCall)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private AbstractAction convertExternalDirectFunctionCallToAction(Expression_Functioncall_Direct directCall,
@@ -215,7 +250,7 @@ public final class SeffReconstruction {
 
     public static List<AbstractAction> getActionsForStatement(Statement statement,
             EditableCorrespondenceModelView<ReactionsCorrespondence> cmv) {
-        var instance = new SeffReconstruction(cmv);
+        var instance = new ActionReconstruction(cmv);
         return instance.convertStatementToActions(statement);
     }
 }

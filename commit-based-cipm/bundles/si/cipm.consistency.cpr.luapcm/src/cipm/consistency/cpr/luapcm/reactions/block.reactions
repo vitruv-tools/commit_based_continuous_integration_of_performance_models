@@ -1,4 +1,4 @@
-import cipm.consistency.cpr.luapcm.seffreconstruction.SeffHelper
+import cipm.consistency.cpr.luapcm.seffreconstruction.ActionReconstruction
 import org.eclipse.xtext.EcoreUtil2
 import org.xtext.lua.lua.Statement
 
@@ -14,9 +14,10 @@ import block_stepsBehaviour
 reaction AddedBlock {
 	after element lua::Block created
 	call {
-		if (SeffHelper.needsActionReconstruction(affectedEObject)) {
+		if (ActionReconstruction.needsActionReconstruction(affectedEObject)) {
 			val parentStatement = EcoreUtil2.getContainerOfType(affectedEObject, Statement)
-			logger.info(String.format("%s (%s): Needs SEFF reconstruction", affectedEObject, parentStatement.class.name))
+			logger.info(
+				String.format("%s (%s): Needs SEFF reconstruction", affectedEObject, parentStatement.class.name))
 			addedSeffBlock(affectedEObject)
 		}
 	}

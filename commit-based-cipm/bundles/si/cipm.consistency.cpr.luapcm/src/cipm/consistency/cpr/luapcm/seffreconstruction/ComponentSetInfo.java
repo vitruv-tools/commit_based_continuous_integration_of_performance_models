@@ -1,18 +1,22 @@
 package cipm.consistency.cpr.luapcm.seffreconstruction;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.EcoreUtil2;
 import org.palladiosimulator.pcm.seff.ExternalCallAction;
+import org.xtext.lua.lua.Block;
 import org.xtext.lua.lua.Component;
 import org.xtext.lua.lua.ComponentSet;
 import org.xtext.lua.lua.Expression_Functioncall_Direct;
 import org.xtext.lua.lua.Expression_String;
 import org.xtext.lua.lua.Expression_VariableName;
 import org.xtext.lua.lua.Refble;
+import org.xtext.lua.lua.Statement;
 import org.xtext.lua.lua.Statement_Function_Declaration;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -35,8 +39,10 @@ public class ComponentSetInfo {
     // we track which Statement_Function_Declaration are called in an external call action
     private ListMultimap<Statement_Function_Declaration, ExternalCallAction> declarationToCallingActions;
 
-    // map a component to component it depends upon (because it has external calls to it)
+    // map a component to components it depends upon (because it has external calls to it)
     private ListMultimap<Component, Component> componentToRequiredComponents;
+
+    private Set<EObject> eObjectsRequiringActionReconstruction;
 
     /**
      * Initialize the component set info.
@@ -52,6 +58,9 @@ public class ComponentSetInfo {
 
         declarationToCallingActions = ArrayListMultimap.create();
         componentToRequiredComponents = ArrayListMultimap.create();
+
+        eObjectsRequiringActionReconstruction = new HashSet<>();
+        scanFunctionsForActionReconstruction(componentSet);
     }
 
     /**
@@ -112,25 +121,64 @@ public class ComponentSetInfo {
         return componentToRequiredComponents;
     }
 
-//    // TODO document
-//    public void externalCallActionCallsDeclaration(ExternalCallAction callAction,
-//            Statement_Function_Declaration calledDeclaration) {
-//        declarationToCallingActions.put(calledDeclaration, callAction);
-//    }
-//
-//    // TODO document
-//    public List<ExternalCallAction> getCallingActions(Statement_Function_Declaration declaration) {
-//        return declarationToCallingActions.get(declaration);
-//    }
-//
-//    // TODO document
-//    public void addComponentDependency(Component requiringComponent, Component providingComponent) {
-//        componentToRequiredComponents.put(requiringComponent, providingComponent);
-//    }
-//    
-//
-//    // TODO document
-//    public List<Component> getCallingActions(Component requiringComponent) {
-//        return componentToRequiredComponents.get(requiringComponent);
-//    }
+    /**
+     * Determine if we need to reconstruct actions for a given eObject. This is only the case for
+     * contenst of a function declaration which needs a seff, In addition only external calls and
+     * objects above them in the tree need action recovery.s
+     * 
+     * @param eObj
+     * @return
+     */
+    public boolean needsActionReconstruction(EObject eObj) {
+        var parentDeclaration = EcoreUtil2.getContainerOfType(eObj, Statement_Function_Declaration.class);
+        if (parentDeclaration == null || !needsSeffReconstruction(parentDeclaration)) {
+            return false;
+        }
+
+        return eObjectsRequiringActionReconstruction.contains(eObj);
+    }
+
+    private void scanFunctionsForActionReconstruction(ComponentSet componentSet) {
+        var functionDecls = EcoreUtil2.getAllContentsOfType(componentSet, Statement_Function_Declaration.class);
+        for (var functionDecl : functionDecls) {
+            if (needsSeffReconstruction(functionDecl)) {
+                scanFunctionForActionReconstruction(functionDecl);
+            }
+        }
+    }
+
+    private void scanFunctionForActionReconstruction(Statement_Function_Declaration decl) {
+        var statements = EcoreUtil2.getAllContentsOfType(decl, Statement.class);
+        for (var statement : statements) {
+            if (!eObjectsRequiringActionReconstruction.contains(statement)
+                    && ActionReconstruction.doesStatementContainExternalCall(statement)) {
+                // mark objects and its parent towards the declaration for action reconstruction
+                markForActionReconstruction(statement, decl);
+            }
+        }
+    }
+
+    /*
+     * Mark all e objects on the path from statement (inclusive) to root (exclusive) for action
+     * reconstruction.
+     * 
+     * Also marks all other statements in blocks which are traversed.
+     */
+    private void markForActionReconstruction(Statement statement, Statement_Function_Declaration decl) {
+        EObject current = statement;
+        do {
+            // mark directly traversed Objects
+            eObjectsRequiringActionReconstruction.add(current);
+
+            // also mark other statements in traversed blocks
+            if (current instanceof Block block) {
+                for (var blockStatement : block.getStatements()) {
+                    eObjectsRequiringActionReconstruction.add(blockStatement);
+                }
+            }
+
+            // continue traversal
+            current = current.eContainer();
+        } while (!current.equals(decl));
+    }
 }
