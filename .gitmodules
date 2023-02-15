@@ -21,3 +21,6 @@
 	path = luaXtext
 	url = https://git.scc.kit.edu/luaCIPM/luaXtext
 	branch = dev
+[submodule "commit-based-cipm/bundles/Vitruv-Change"]
+	path = commit-based-cipm/bundles/Vitruv-Change
+	url = https://github.com/vitruv-tools/Vitruv-Change
