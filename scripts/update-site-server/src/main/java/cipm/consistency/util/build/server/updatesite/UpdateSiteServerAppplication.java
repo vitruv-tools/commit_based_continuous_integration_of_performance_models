@@ -20,6 +20,8 @@ public class UpdateSiteServerAppplication implements WebMvcConfigurer {
         String somoxUpdateSite = Paths.get("..", "..", "Palladio-ReverseEngineering-SoMoX-JaMoPP", "releng",
             "org.somox.updatesite", "target", "repository").toAbsolutePath().toUri().toString();
         registry.addResourceHandler("/somox/**").addResourceLocations(somoxUpdateSite);
+		String cipmUpdateSite = Paths.get("..", "..", "commit-based-cipm", "releng", "cipm.consistency.updatesite.fi", "target", "repository").toAbsolutePath().toUri().toString();
+		registry.addResourceHandler("/cipm/**").addResourceLocations(cipmUpdateSite);
     }
 
     public static void main(String[] args) {
