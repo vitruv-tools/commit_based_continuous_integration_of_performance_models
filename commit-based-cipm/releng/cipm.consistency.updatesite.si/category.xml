@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <bundle id="cipm.consistency.commitintegration"/>
+   <bundle id="cipm.consistency.cpr.javaim"/>
+   <bundle id="cipm.consistency.cpr.javapcm.additional.validation"/>
+   <bundle id="cipm.consistency.cpr.javapcm.msa"/>
+   <bundle id="cipm.consistency.cpr.javapcm.teammates"/>
+   <bundle id="cipm.consistency.cpr.pcmim"/>
+   <bundle id="cipm.consistency.cpr.util"/>
+   <bundle id="cipm.consistency.designtime.instrumentation2"/>
+   <bundle id="cipm.consistency.vsum"/>
+   <bundle id="tools.vitruv.applications.pcmjava.seffstatements"/>
+   <bundle id="tools.vitruv.applications.pcmjava.seffstatements.extended"/>
+   <bundle id="tools.vitruv.applications.pcmjava.seffstatements.finegrained"/>
+   <bundle id="tools.vitruv.applications.pcmjava.seffstatements.pojotransformations"/>
+</site>
