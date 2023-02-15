@@ -7,8 +7,8 @@ import org.somox.gast2seff.visitors.AbstractFunctionClassificationStrategy
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.Java2PcmMethodBodyChangePreprocessor
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.ClassMethodBodyChangedTransformation
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.BasicComponentFinding
-import cipm.consistency.domains.java.AdjustedJavaDomainProvider
-import cipm.consistency.domains.pcm.ExtendedPcmDomainProvider
+import tools.vitruv.domains.provider.java.AdjustedJavaDomainProvider
+import tools.vitruv.domains.provider.pcm.ExtendedPcmDomainProvider
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.Code2SeffFactory
 
 class ExtendedJava2PcmMethodBodyChangePreprocessor extends Java2PcmMethodBodyChangePreprocessor {
