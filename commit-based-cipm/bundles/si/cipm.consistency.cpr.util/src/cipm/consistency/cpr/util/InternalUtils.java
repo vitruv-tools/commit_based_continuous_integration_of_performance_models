@@ -1,5 +1,6 @@
-package cipm.consistency.cpr.javapcm.internal;
+package cipm.consistency.cpr.util;
 
+import org.eclipse.emf.ecore.EObject;
 import org.emftext.language.java.classifiers.ConcreteClassifier;
 import org.emftext.language.java.commons.Commentable;
 import org.emftext.language.java.members.Method;
@@ -13,6 +14,9 @@ import org.palladiosimulator.pcm.repository.Interface;
 import org.palladiosimulator.pcm.repository.OperationRequiredRole;
 import org.palladiosimulator.pcm.repository.PrimitiveDataType;
 import org.palladiosimulator.pcm.repository.RepositoryComponent;
+import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
+import org.palladiosimulator.pcm.seff.ResourceDemandingInternalBehaviour;
+import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended.CommitIntegrationCodeToSeffFactory;
 import tools.vitruv.applications.pcmjava.seffstatements.pojotransformations.code2seff.FunctionClassificationStrategyForPackageMapping;
@@ -113,6 +117,27 @@ public final class InternalUtils {
 					return opRole;
 				}
 			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Finds the parent ResourceDemandingSEFF for a ResourceDemandingBehaviour which is a ResourceDemandingSEFF,
+	 * not a ResourceDemandingInternalBehaviour, or not contained within a ResourceDemandingInternalBehaviour.
+	 * 
+	 * @param behaviour the ResourceDemandingBehaviour.
+	 * @return the parent ResourceDemandingSEFF or null if it cannot be found, the behaviour is a
+	 *         ResourceDemandingInternalBehaviour, or the behaviour is contained within a
+	 *         ResourceDemandingInternalBehaviour.
+	 */
+	public static ResourceDemandingSEFF getParentSEFFNotForInternalBehaviour(ResourceDemandingBehaviour behaviour) {
+		EObject parent = behaviour;
+		while (parent != null && !(parent instanceof RepositoryComponent)
+				&& !(parent instanceof ResourceDemandingInternalBehaviour)) {
+			if (parent instanceof ResourceDemandingSEFF) {
+				return (ResourceDemandingSEFF) parent;
+			}
+			parent = parent.eContainer();
 		}
 		return null;
 	}

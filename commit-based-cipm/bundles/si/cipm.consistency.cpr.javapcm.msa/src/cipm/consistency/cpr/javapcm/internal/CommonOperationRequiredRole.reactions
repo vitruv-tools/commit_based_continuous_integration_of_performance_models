@@ -1,5 +1,5 @@
 import static tools.vitruv.applications.util.temporary.java.JavaTypeUtil.*
-import static cipm.consistency.cpr.javapcm.internal.InternalUtils.findRequiredRole
+import static cipm.consistency.cpr.util.InternalUtils.findRequiredRole
 import org.palladiosimulator.pcm.repository.OperationRequiredRole
 import org.palladiosimulator.pcm.repository.RepositoryPackage
 

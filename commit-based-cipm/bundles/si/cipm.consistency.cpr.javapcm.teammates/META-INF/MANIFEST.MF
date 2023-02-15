@@ -24,6 +24,7 @@ Require-Bundle: org.emftext.language.java,
  org.palladiosimulator.pcm,
  tools.vitruv.applications.pcmjava.util,
  tools.vitruv.domains.java,
- tools.vitruv.domains.pcm
+ tools.vitruv.domains.pcm,
+ cipm.consistency.cpr.util
 Automatic-Module-Name: cipm.consistency.cpr.javapcm.teammates
 Bundle-RequiredExecutionEnvironment: JavaSE-11
