@@ -1,5 +1,6 @@
-package cipm.consistency.domains.java;
+package tools.vitruv.domains.provider.java;
 
+import cipm.consistency.domains.java.AdjustedJavaDomain;
 import tools.vitruv.framework.domains.VitruvDomain;
 import tools.vitruv.framework.domains.VitruvDomainProvider;
 

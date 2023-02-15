@@ -4,7 +4,8 @@ Bundle-Name: Adjusted Java Domain
 Bundle-SymbolicName: cipm.consistency.domains.java;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Export-Package: cipm.consistency.domains.java,
- cipm.consistency.domains.java.propagation
+ cipm.consistency.domains.java.propagation,
+ tools.vitruv.domains.provider.java
 Require-Bundle: org.emftext.language.java,
  tools.vitruv.framework.vsum,
  org.eclipse.emf.ecore,
