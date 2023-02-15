@@ -1,6 +1,6 @@
 :: Check Java version
 %JAVA_HOME%\bin\java -version 2>&1|findstr /R "11\.0\."
-if %ERRORLEVEL% NEQ 0 (exit 1)
+if %ERRORLEVEL% NEQ 0 (exit /B 1)
 
 :: Initialize submodules
 git submodule init
@@ -23,8 +23,8 @@ call mvnw.cmd clean verify -Dmaven.test.skip=true
 cd ..
 
 :: Check that the server for the update site runs
-curl --retry 10 --retry-connrefused --retry-delay 1 http://localhost:8081/administration/status
-if %ERRORLEVEL% NEQ 0 (exit 1)
+curl --retry 100 --retry-connrefused --retry-delay 1 http://localhost:8081/administration/status
+if %ERRORLEVEL% NEQ 0 (exit /B 1)
 
 :: Build SoMoX
 cd Palladio-ReverseEngineering-SoMoX-JaMoPP
