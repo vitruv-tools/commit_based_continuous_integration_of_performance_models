@@ -4,7 +4,7 @@
     <booleanAttribute key="append.args" value="true"/>
     <booleanAttribute key="askclear" value="true"/>
     <booleanAttribute key="automaticAdd" value="true"/>
-    <booleanAttribute key="automaticIncludeRequirements" value="true"/>
+    <booleanAttribute key="automaticIncludeRequirements" value="false"/>
     <booleanAttribute key="automaticValidate" value="true"/>
     <stringAttribute key="bootstrap" value=""/>
     <stringAttribute key="checked" value="[NONE]"/>
@@ -161,7 +161,7 @@
     </setAttribute>
     <setAttribute key="selected_target_bundles">
         <setEntry value="aopalliance@default:default"/>
-        <setEntry value="com.google.gson"/>
+        <setEntry value="com.google.gson@default:default"/>
         <setEntry value="com.google.guava*27.1.0.v20190517-1946@default:default"/>
         <setEntry value="com.google.guava*30.1.0.v20210127-2300@default:default"/>
         <setEntry value="com.google.inject@default:default"/>
@@ -827,7 +827,7 @@
         <setEntry value="org.sat4j.core@default:default"/>
         <setEntry value="org.sat4j.pb@default:default"/>
         <setEntry value="org.slf4j.api@default:default"/>
-        <setEntry value="org.slf4j.binding.nop"/>
+        <setEntry value="org.slf4j.binding.nop@default:false"/>
         <setEntry value="org.somox.core@default:default"/>
         <setEntry value="org.somox.filter@default:default"/>
         <setEntry value="org.somox.gast2seff@default:default"/>
@@ -846,7 +846,6 @@
         <setEntry value="org.yakindu.base.xtext.utils.gmf@default:default"/>
         <setEntry value="org.yakindu.base.xtext.utils.jface@default:default"/>
         <setEntry value="tools.vitruv.change.atomic@default:default"/>
-        <setEntry value="tools.vitruv.change.composite@default:default"/>
         <setEntry value="tools.vitruv.change.correspondence@default:default"/>
         <setEntry value="tools.vitruv.change.interaction.model@default:default"/>
         <setEntry value="tools.vitruv.change.interaction@default:default"/>
@@ -879,6 +878,7 @@
         <setEntry value="org.xtext.lua.ui.tests@default:default"/>
         <setEntry value="org.xtext.lua.ui@default:default"/>
         <setEntry value="org.xtext.lua@default:default"/>
+        <setEntry value="tools.vitruv.change.composite@default:default"/>
     </setAttribute>
     <booleanAttribute key="show_selected_only" value="false"/>
     <stringAttribute key="templateConfig" value="${target_home}\configuration\config.ini"/>

@@ -9,6 +9,7 @@ import org.eclipse.emf.compare.match.resource.StrategyResourceMatcher;
 import org.eclipse.emf.compare.scope.IComparisonScope;
 import org.eclipse.emf.compare.utils.EqualityHelper;
 import org.eclipse.emf.compare.utils.IEqualityHelper;
+import org.eclipse.emf.compare.utils.UseIdentifiers;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 import org.splevo.diffing.match.HierarchicalMatchEngine;
@@ -19,10 +20,13 @@ import org.splevo.diffing.match.HierarchicalStrategyResourceMatcher;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 
+import cipm.consistency.commitintegration.lang.lua.changeresolution.equality.LuaEqualityHelper;
+import cipm.consistency.commitintegration.lang.lua.changeresolution.equality.LuaEqualityStrategy;
+
 public class LuaHierarchicalMatchEngineFactory extends MatchEngineFactoryImpl {
 
     public LuaHierarchicalMatchEngineFactory() {
-        super();
+        super(UseIdentifiers.NEVER);
     }
 
     /**
@@ -46,7 +50,7 @@ public class LuaHierarchicalMatchEngineFactory extends MatchEngineFactoryImpl {
      */
     private IEqualityHelper initEqualityHelper() {
         final LoadingCache<EObject, org.eclipse.emf.common.util.URI> cache = initEqualityCache();
-        IEqualityHelper equalityHelper = new EqualityHelper(cache);
+        IEqualityHelper equalityHelper = new LuaEqualityHelper(cache);
         return equalityHelper;
     }
 
@@ -54,9 +58,7 @@ public class LuaHierarchicalMatchEngineFactory extends MatchEngineFactoryImpl {
     public IMatchEngine getMatchEngine() {
         IEqualityHelper equalityHelper = initEqualityHelper();
 
-//        EqualityStrategy equalityStrategy = new JaMoPPEqualityStrategy(similarityChecker);
-
-        EqualityStrategy equalityStrategy = new LuaEqualityStrategy();
+        EqualityStrategy equalityStrategy = new LuaEqualityStrategy(equalityHelper);
 
         IgnoreStrategy ignoreStrategy = new LuaIgnoreStrategy();
 
@@ -77,6 +79,17 @@ public class LuaHierarchicalMatchEngineFactory extends MatchEngineFactoryImpl {
     @Override
     public boolean isMatchEngineFactoryFor(IComparisonScope scope) {
         return containsCodeModel(scope.getLeft()) && containsCodeModel(scope.getRight());
+    }
+    
+    
+    /**
+     * We don't ignore anything currently
+     */
+    public class LuaIgnoreStrategy implements IgnoreStrategy {
+        @Override
+        public boolean ignore(EObject element) {
+            return false;
+        }
     }
 
 }

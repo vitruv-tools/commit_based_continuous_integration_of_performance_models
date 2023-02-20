@@ -41,7 +41,6 @@ routine createActionsForStatement(lua::Statement statement, lua::Block block) {
 		for (action : statementActions) {
 			addCorrespondenceBetween(action, statement)
 			if (actionToCheckForFusing instanceof InternalAction && action instanceof InternalAction) {
-				// TODO do action fusing if the previous action is also an internalAction
 				// we fuse with the previous internal action and don't need a separate internal action here
 				fuseTwoInternalActions(actionToCheckForFusing as InternalAction, action as InternalAction)
 			} else {
@@ -52,7 +51,6 @@ routine createActionsForStatement(lua::Statement statement, lua::Block block) {
 				}
 
 				logger.info("Action is added to step behaviour")
-
 				// insert the action into the step behaviour
 				ActionUtil.chainActions(previousAction, action)
 				rdBehaviour.steps_Behaviour.add(insertionIndex, action)
@@ -79,7 +77,7 @@ routine fuseTwoInternalActions(pcm::InternalAction a, pcm::InternalAction b) {
 		val statementsCorrespondingToB = retrieve many lua::Statement corresponding to b
 	}
 	update {
-		logger.info("Fusing two internal actions")
+		logger.debug("Fusing two internal actions")
 		// transfer the correspondences from b to a and delete b
 		statementsCorrespondingToB.forEach [
 			addCorrespondenceBetween(a, it)
@@ -214,7 +212,7 @@ routine createOperationRequiredRole(pcm::ExternalCallAction action, pcm::BasicCo
 		// add the role to the calling component
 		pcmCallingComponent.requiredRoles_InterfaceRequiringEntity += operationRequiredRole
 
-		// make sute the action uses the role
+		// make sure the action uses the role
 		action.role_ExternalService = operationRequiredRole
 		addCorrespondenceBetween(action, operationRequiredRole)
 	}

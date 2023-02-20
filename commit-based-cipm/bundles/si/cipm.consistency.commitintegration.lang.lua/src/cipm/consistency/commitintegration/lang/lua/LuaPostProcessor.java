@@ -3,6 +3,7 @@ package cipm.consistency.commitintegration.lang.lua;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.eclipse.xtext.EcoreUtil2;
@@ -17,7 +18,6 @@ import org.xtext.lua.scoping.LuaLinkingService;
 
 public class LuaPostProcessor {
     private static final Logger LOGGER = Logger.getLogger(LuaPostProcessor.class.getName());
-
 
     /*
      * Get all functions that were mocked during the linking of the code model
@@ -40,7 +40,7 @@ public class LuaPostProcessor {
     /*
      * Get all functions that are served in the application
      */
-     private static Map<String, Statement_Function_Declaration> getServedFunctionsOfComponentSet(ComponentSet set) {
+    private static Map<String, Statement_Function_Declaration> getServedFunctionsOfComponentSet(ComponentSet set) {
         Map<String, Statement_Function_Declaration> servedFuncs = new HashMap<>();
 
         final String serveFunctionName = "Script.serveFunction";
@@ -50,8 +50,8 @@ public class LuaPostProcessor {
         // iterate over all function calls which may be calls to "Script.serveFunction"
         for (var directCall : directCalls) {
             Consumer<String> logErrorWithCall = (errorMessage) -> {
-                LOGGER.error(String.format("Code contains invalid serve call - %s:\n\t%s",
-                        "TODO implement resolving function name to declaration", LuaUtil.eObjectToTokenText(directCall)));
+                LOGGER.warn(String.format("Code contains invalid serve call - %s:\n\t%s", errorMessage,
+                        LuaUtil.eObjectToTokenText(directCall)));
             };
 
             // is this a not a call to Script.serveFunction? Then continue with the next
@@ -79,8 +79,8 @@ public class LuaPostProcessor {
                 } else if (serveFuncArg instanceof Expression_String serveFuncNameExp) {
                     var servedFuncName = LuaUtil.expressionStringToString(serveFuncNameExp);
 
-                    var servedFunctionDeclaration = LuaUtil.getFunctionDeclarationByName(servedFuncName,
-                            EcoreUtil2.getContainerOfType(directCall, Chunk.class));
+                    var parentChunk = EcoreUtil2.getContainerOfType(directCall, Chunk.class);
+                    var servedFunctionDeclaration = LuaUtil.getFunctionDeclarationByName(servedFuncName, parentChunk);
                     if (servedFunctionDeclaration.isPresent()) {
                         servedFuncs.put(servedName, servedFunctionDeclaration.get());
                     } else {
@@ -98,39 +98,79 @@ public class LuaPostProcessor {
         return servedFuncs;
     }
 
+    private static void sortComponentSet(ComponentSet set) {
+
+        // we cannot call sort on the EList directly, so we sort in a temporary array instead
+
+        var components = set.getComponents()
+            .stream()
+            .collect(Collectors.toList());
+
+        // sort components by name
+        components.sort((comp1, comp2) -> comp1.getName()
+            .compareTo(comp2.getName()));
+
+        // and their chunks by name
+        components.forEach(component -> {
+            var chunks = component.getChunks()
+                .stream()
+                .collect(Collectors.toList());
+            chunks.sort((chunk1, chunk2) -> chunk1.getName()
+                .compareTo(chunk2.getName()));
+            component.getChunks()
+                .removeAll(chunks);
+            component.getChunks()
+                .addAll(chunks);
+        });
+
+        // dirty
+        set.getComponents()
+            .removeAll(components);
+        set.getComponents()
+            .addAll(components);
+    }
+
     /*
-     * Resolve crown calls which are actually calls to "serves" of another app
+     * function calls which were mocked, but are served by another component must be resolved to the
+     * actually served function
      */
-    public static void postProcessComponentSet(ComponentSet set) {
+    private static void resolveMockedAndServedFunctions(ComponentSet set) {
         // find functions that were mocked during the linking process, because the were not in scope
         var mockedFuncs = getMockedFunctions(set);
+        if (mockedFuncs == null) {
+            return;
+        }
 
         // find functions that are served by apps to other apps
         var servedFuncs = getServedFunctionsOfComponentSet(set);
 
-        // function calls which were mocked, but are served by another component must be resolved
-        // to the actually served function
+        for (var served : servedFuncs.entrySet()) {
+            var mockedFunc = mockedFuncs.get(served.getKey());
+            if (mockedFunc != null) {
+                LOGGER.trace(String.format("MOCKED but SERVED function: %s", served.getKey()));
+                var servedFunc = served.getValue();
 
-        if (mockedFuncs != null) {
-            for (var served : servedFuncs.entrySet()) {
-                var mockedFunc = mockedFuncs.get(served.getKey());
-                if (mockedFunc != null) {
-                    LOGGER.trace(String.format("MOCKED but SERVED function: %s", served.getKey()));
-                    var servedFunc = served.getValue();
-
-                    // TODO Replace references to mockFunc with references to servedFunc
-
-                    var refs = EcoreUtil2.getAllContentsOfType(set, Expression_Functioncall_Direct.class);
-                    for (var ref : refs) {
-                        if (ref.getCalledFunction()
-                            .equals(mockedFunc)) {
-                            LOGGER.trace(
-                                    String.format("Replacing ref to mock with served function: %s", served.getKey()));
-                            ref.setCalledFunction(servedFunc);
-                        }
+                var refs = EcoreUtil2.getAllContentsOfType(set, Expression_Functioncall_Direct.class);
+                for (var ref : refs) {
+                    if (ref.getCalledFunction()
+                        .equals(mockedFunc)) {
+                        LOGGER.trace(String.format("Replacing ref to mock with served function: %s", served.getKey()));
+                        ref.setCalledFunction(servedFunc);
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Post process the given component set, so it can be used for change propagation
+     * 
+     * 
+     * @param set
+     */
+    public static void postProcessComponentSet(ComponentSet set) {
+        resolveMockedAndServedFunctions(set);
+
+        sortComponentSet(set);
     }
 }

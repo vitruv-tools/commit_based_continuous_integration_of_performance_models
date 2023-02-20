@@ -1,7 +1,10 @@
+import cipm.consistency.cpr.luapcm.seffreconstruction.BranchActionUtil
 import org.eclipse.xtext.EcoreUtil2
 import org.palladiosimulator.pcm.seff.BranchAction
 import org.palladiosimulator.pcm.seff.LoopAction
+import org.palladiosimulator.pcm.seff.ProbabilisticBranchTransition
 import org.xtext.lua.LuaUtil
+import org.xtext.lua.lua.LuaPackage
 import org.xtext.lua.lua.Statement
 import org.xtext.lua.lua.Statement_Function_Declaration
 
@@ -57,7 +60,8 @@ routine createRDSeff(lua::Block block) {
 		rdSeff.basicComponent_ServiceEffectSpecification = basicComponent.get
 		rdSeff.describedService__SEFF = operationSignature.get
 
-		initializeRDBehaviour(rdSeff, block)
+		initializeRDBehaviour(rdSeff, block.toString)
+		addCorrespondenceBetween(rdSeff, block)
 
 		basicComponent.get.serviceEffectSpecifications__BasicComponent += rdSeff
 	}
@@ -74,29 +78,32 @@ routine createRDBehaviour(lua::Block block) {
 	}
 	update {
 		logger.info(block.toString + ": Creating RDBehaviour")
-		initializeRDBehaviour(rdBehaviour, block)
+		initializeRDBehaviour(rdBehaviour, block.toString)
+		addCorrespondenceBetween(rdBehaviour, block)
 
-		if (!parentAction.present) {
-			logger.warn("No parent action for block")
-			return
-		}
-
-		if (parentAction.get instanceof LoopAction) {
-			logger.info("Adding RD Behaviour to parent loop action")
-			val loopAction = parentAction.get as LoopAction
-			loopAction.bodyBehaviour_Loop = rdBehaviour
-		} else if (parentAction.get instanceof BranchAction) {
-			logger.info("Adding RD Behaviour to parent branch action")
-			if (!createBranchForBlock(parentAction.get as BranchAction, rdBehaviour, block)) {
-				logger.error("Unable to create branch transitions for branch action")
-			}
+		if (parentAction.present) {
+			addRDBehaviourToParentAction(parentAction.get, rdBehaviour, block)
 		} else {
-			logger.warn("NOT implemented: Adding rd behaviour to this type abstract action " + parentAction.class.name)
+			logger.warn("No parent action for block")
 		}
 	}
 }
 
-routine createBranchForBlock(pcm::BranchAction branchAction, pcm::ResourceDemandingBehaviour rdBehaviour, lua::Block block) {
+routine addRDBehaviourToParentAction(pcm::AbstractAction parentAction, pcm::ResourceDemandingBehaviour rdBehaviour, lua::Block block) {
+	update {
+		if (parentAction instanceof LoopAction) {
+			logger.info("Adding RD Behaviour to parent loop action")
+			val loopAction = parentAction
+			loopAction.bodyBehaviour_Loop = rdBehaviour
+		} else if (parentAction instanceof BranchAction) {
+			if (!addBranchToParentBranchAction(parentAction, rdBehaviour, block)) {
+				logger.error("Unable to create branch transitions for branch action")
+			}
+		}
+	}
+}
+
+routine addBranchToParentBranchAction(pcm::BranchAction branchAction, pcm::ResourceDemandingBehaviour rdBehaviour, lua::Block block) {
 	match {
 		val ifStatement = retrieve lua::Statement_If_Then_Else corresponding to branchAction
 	}
@@ -104,31 +111,77 @@ routine createBranchForBlock(pcm::BranchAction branchAction, pcm::ResourceDemand
 		val branchTransition = new pcm::ProbabilisticBranchTransition
 	}
 	update {
-		var branchCount = 0
-		if (ifStatement.elseBlock !== null) {
-			branchCount += 1
-		}
-		if (ifStatement.block !== null) {
-			branchCount += 1
-		}
-		branchCount += ifStatement.elseIf.length
+		logger.info("Adding Branch to parent branch action")
+		branchTransition.setBranchBehaviour_BranchTransition(rdBehaviour)
 
-		branchTransition.setBranchProbability(1.0 / (branchCount as double));
-		branchTransition.setBranchBehaviour_BranchTransition(rdBehaviour);
+		// the conditional branches are all block wrappers, so we can use this to determine
+		// if the added block is an else block
+		val isElseBranch = !block.eContainmentFeature.equals(LuaPackage.Literals.BLOCK_WRAPPER__BLOCK)
+		if (isElseBranch) {
+			branchTransition.entityName = "ELSE_BRANCH"
+		} else {
+			branchTransition.entityName = "CONDITIONAL_BRANCH"
+		}
+		
+		// has this action a synthentic else branch
+		val syntheticElseBranch = BranchActionUtil.getSyntheticBranchTransition(branchAction)
+
+		// make sure there is always an else branch (synthetic or not)
+		if (syntheticElseBranch.empty && !isElseBranch) {
+			addSyntheticElseBranch(branchAction)
+		} else if (syntheticElseBranch.present && isElseBranch) {
+			removeSyntheticElseBranch(branchAction)
+		}
+		
+		// add the actual branch transition
 		branchAction.branches_Branch.add(branchTransition);
+
+		// make all branches equally probable
+		val branchCount = branchAction.branches_Branch.size
+		for (branch : branchAction.branches_Branch) {
+			(branch as ProbabilisticBranchTransition).setBranchProbability(1.0 / (branchCount as double))
+		}
 	}
 }
 
-routine initializeRDBehaviour(pcm::ResourceDemandingBehaviour rdBehaviour, lua::Block block) {
+routine addSyntheticElseBranch(pcm::BranchAction branchAction) {
+	create {
+		val syntheticNotTakenBranch = new pcm::ProbabilisticBranchTransition
+		val emptyBehaviour = new pcm::ResourceDemandingBehaviour
+	}
+	update {
+		syntheticNotTakenBranch.setBranchBehaviour_BranchTransition(emptyBehaviour)
+		syntheticNotTakenBranch.entityName = BranchActionUtil.NAME_SYNTHETIC_ELSE_BRANCH;
+		initializeRDBehaviour(emptyBehaviour, "SYNTHETIC_ELSE_BEHAVIOUR")
+		branchAction.branches_Branch.add(syntheticNotTakenBranch);
+		addCorrespondenceBetween(branchAction, syntheticNotTakenBranch)
+	}
+}
+
+routine removeSyntheticElseBranch(pcm::BranchAction branchAction) {
+	update {
+		for (branch : branchAction.branches_Branch) {
+			if (branch.entityName == BranchActionUtil.NAME_SYNTHETIC_ELSE_BRANCH) {
+				removeCorrespondenceBetween(branchAction, branch)
+				branchAction.branches_Branch -= branch
+
+				branch.branchBehaviour_BranchTransition.steps_Behaviour.forEach[removeObject]
+				branch.branchBehaviour_BranchTransition.removeObject
+				branch.removeObject
+			}
+		}
+	}
+}
+
+routine initializeRDBehaviour(pcm::ResourceDemandingBehaviour rdBehaviour, String name) {
 	create {
 		val startAction = new pcm::StartAction
 		val stopAction = new pcm::StopAction
 	}
 	update {
-		addCorrespondenceBetween(rdBehaviour, block)
 
-		startAction.entityName = block.toString
-		stopAction.entityName = block.toString
+		startAction.entityName = name + "_START"
+		stopAction.entityName = name + "_STOP"
 
 		rdBehaviour.steps_Behaviour += startAction
 		rdBehaviour.steps_Behaviour += stopAction

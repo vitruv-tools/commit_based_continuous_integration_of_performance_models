@@ -60,7 +60,7 @@ public class LuaModelFacade implements CodeModelFacade {
     }
 
     private XtextResourceSet parseDirToResourceSet(Path sourceCodeDirPath) {
-        LOGGER.info("Parsing source code directory");
+        LOGGER.debug("Parsing source code directory");
         // get a resource from the provider
         var resourceSet = resourceSetProvider.get();
         resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);

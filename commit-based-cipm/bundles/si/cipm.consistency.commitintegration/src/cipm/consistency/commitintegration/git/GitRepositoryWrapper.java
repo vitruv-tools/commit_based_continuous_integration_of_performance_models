@@ -1,6 +1,5 @@
 package cipm.consistency.commitintegration.git;
 
-import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +8,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
@@ -43,6 +43,8 @@ import org.eclipse.jgit.treewalk.EmptyTreeIterator;
 import org.eclipse.jgit.treewalk.filter.PathSuffixFilter;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.io.NullOutputStream;
+
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 
 /**
  * Wraps and represents a Git repository.
@@ -133,6 +135,15 @@ public class GitRepositoryWrapper {
         return repository;
     }
 
+    private void tryFetch() {
+        try {
+            git.fetch()
+                .call();
+        } catch (GitAPIException e) {
+            // we ignore errors here
+        }
+    }
+
     /**
      * Performs the <code>git checkout</code> command.
      * 
@@ -152,6 +163,9 @@ public class GitRepositoryWrapper {
      */
     public void checkout(String id) throws RefAlreadyExistsException, RefNotFoundException, InvalidRefNameException,
             CheckoutConflictException, GitAPIException {
+        // always fetch before checkout
+        tryFetch();
+
         git.checkout()
             .setName(id)
             .call();

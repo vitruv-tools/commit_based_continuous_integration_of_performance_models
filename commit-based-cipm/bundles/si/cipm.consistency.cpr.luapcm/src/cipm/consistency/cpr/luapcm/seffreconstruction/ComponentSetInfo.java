@@ -18,6 +18,7 @@ import org.xtext.lua.lua.Expression_VariableName;
 import org.xtext.lua.lua.Refble;
 import org.xtext.lua.lua.Statement;
 import org.xtext.lua.lua.Statement_Function_Declaration;
+import org.xtext.lua.lua.Statement_If_Then_Else;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -42,7 +43,7 @@ public class ComponentSetInfo {
     // map a component to components it depends upon (because it has external calls to it)
     private ListMultimap<Component, Component> componentToRequiredComponents;
 
-    private Set<EObject> eObjectsRequiringActionReconstruction;
+    private Set<Block> blocksRequiringActionReconstruction;
 
     /**
      * Initialize the component set info.
@@ -59,7 +60,7 @@ public class ComponentSetInfo {
         declarationToCallingActions = ArrayListMultimap.create();
         componentToRequiredComponents = ArrayListMultimap.create();
 
-        eObjectsRequiringActionReconstruction = new HashSet<>();
+        blocksRequiringActionReconstruction = new HashSet<>();
         scanFunctionsForActionReconstruction(componentSet);
     }
 
@@ -135,7 +136,8 @@ public class ComponentSetInfo {
             return false;
         }
 
-        return eObjectsRequiringActionReconstruction.contains(eObj);
+        var parentBlock = EcoreUtil2.getContainerOfType(eObj, Block.class);
+        return blocksRequiringActionReconstruction.contains(parentBlock);
     }
 
     private void scanFunctionsForActionReconstruction(ComponentSet componentSet) {
@@ -150,10 +152,10 @@ public class ComponentSetInfo {
     private void scanFunctionForActionReconstruction(Statement_Function_Declaration decl) {
         var statements = EcoreUtil2.getAllContentsOfType(decl, Statement.class);
         for (var statement : statements) {
-            if (!eObjectsRequiringActionReconstruction.contains(statement)
+            if (!needsActionReconstruction(statement)
                     && ActionReconstruction.doesStatementContainExternalCall(statement)) {
                 // mark objects and its parent towards the declaration for action reconstruction
-                markForActionReconstruction(statement, decl);
+                markObjectAndParentsForActionReconstruction(statement, decl);
             }
         }
     }
@@ -164,21 +166,43 @@ public class ComponentSetInfo {
      * 
      * Also marks all other statements in blocks which are traversed.
      */
-    private void markForActionReconstruction(Statement statement, Statement_Function_Declaration decl) {
+    private void markObjectAndParentsForActionReconstruction(Statement statement, Statement_Function_Declaration decl) {
         EObject current = statement;
         do {
-            // mark directly traversed Objects
-            eObjectsRequiringActionReconstruction.add(current);
-
-            // also mark other statements in traversed blocks
-            if (current instanceof Block block) {
-                for (var blockStatement : block.getStatements()) {
-                    eObjectsRequiringActionReconstruction.add(blockStatement);
-                }
-            }
+            markEObjectForActionReconstruction(current);
 
             // continue traversal
             current = current.eContainer();
         } while (!current.equals(decl));
+    }
+
+    /*
+     * We mark the blocks for action reconstruction
+     */
+    private void markEObjectForActionReconstruction(EObject eObj) {
+
+        var parentBlock = EcoreUtil2.getContainerOfType(eObj, Block.class);
+
+        // mark directly traversed Objects
+        markBlockForActionReconstruction(parentBlock);
+
+        // also mark other child block when marking branch actions
+        if (eObj instanceof Statement_If_Then_Else ifStatement) {
+            // mark other branches
+            if (ifStatement.getBlock() != null) {
+                markBlockForActionReconstruction(ifStatement.getBlock());
+            }
+            for (var elseIf : ifStatement.getElseIf()) {
+                markBlockForActionReconstruction(elseIf.getBlock());
+            }
+            if (ifStatement.getElseBlock() != null) {
+                markBlockForActionReconstruction(ifStatement.getElseBlock());
+            }
+        }
+    }
+
+    private void markBlockForActionReconstruction(Block block) {
+        LOGGER.debug("Block marked for action reconstruction: " + block.toString());
+        blocksRequiringActionReconstruction.add(block);
     }
 }

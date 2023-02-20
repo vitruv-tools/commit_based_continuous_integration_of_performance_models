@@ -255,7 +255,8 @@ public class VsumFacadeImpl implements VsumFacade {
             .filter(root -> root.eResource()
                 .getURI() == actualtargetUri)
             .findAny();
-        if (possiblyExistingRoot.isPresent()) {
+        var replaceRootObject = possiblyExistingRoot.isPresent();
+        if (replaceRootObject) {
             LOGGER.trace(String.format("Replacing old root object (%s) at %s", newRootEobject.getClass(), targetUri));
             // replace the existing root with the new one
             var existingContents = possiblyExistingRoot.get()
@@ -270,10 +271,27 @@ public class VsumFacadeImpl implements VsumFacade {
         }
 
         var propagatedChanges = view.commitChangesAndUpdate();
-        LOGGER.info(String.format("%d change(s) in resource: %s", propagatedChanges.size(), resource.getURI()
-            .lastSegment()));
+        logPropagatedChanges(resource, propagatedChanges);
 
         return propagatedChanges;
+    }
+
+    private void logPropagatedChanges(Resource res, List<PropagatedChange> changes) {
+        var originalChanges = 0;
+        var consequentialChanges = 0;
+        for (var change : changes) {
+            consequentialChanges += change.getConsequentialChanges()
+                .getEChanges()
+                .size();
+            originalChanges += change.getOriginalChange()
+                .getEChanges()
+                .size();
+        }
+        originalChanges -= consequentialChanges;
+        if (originalChanges > 0 || consequentialChanges > 0) {
+            LOGGER.info(String.format("Propagated changes in model %s: ORIGINAL: %d  CONSEQUENTIAL: %d", res.getURI()
+                .lastSegment(), originalChanges, consequentialChanges));
+        }
     }
 
     @Override
