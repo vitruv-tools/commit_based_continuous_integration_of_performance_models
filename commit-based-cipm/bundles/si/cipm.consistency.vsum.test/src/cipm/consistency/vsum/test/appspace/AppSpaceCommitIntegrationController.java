@@ -17,7 +17,7 @@ import cipm.consistency.commitintegration.lang.detection.strategy.ComponentDetec
 import cipm.consistency.commitintegration.lang.lua.LuaModelFacade;
 import cipm.consistency.commitintegration.lang.lua.appspace.detection.AppSpaceComponentDetectionStrategy;
 import cipm.consistency.commitintegration.lang.lua.appspace.detection.StdLibCrownComponentDetectionStrategy;
-import cipm.consistency.commitintegration.lang.lua.changeresolution.LuaHierarchicalStateBasedChangeResolutionStrategy;
+import cipm.consistency.commitintegration.lang.lua.changeresolution.HierarchicalStateBasedChangeResolutionStrategy;
 import mir.reactions.imInit.ImInitChangePropagationSpecification;
 import mir.reactions.luaPcmUpdate.LuaPcmUpdateChangePropagationSpecification;
 import mir.reactions.pcmImUpdate.PcmImUpdateChangePropagationSpecification;
@@ -65,6 +65,6 @@ public abstract class AppSpaceCommitIntegrationController extends CommitIntegrat
 
     @Override
     public StateBasedChangeResolutionStrategy getStateBasedChangeResolutionStrategy() {
-        return new LuaHierarchicalStateBasedChangeResolutionStrategy();
+        return new HierarchicalStateBasedChangeResolutionStrategy();
     }
 }

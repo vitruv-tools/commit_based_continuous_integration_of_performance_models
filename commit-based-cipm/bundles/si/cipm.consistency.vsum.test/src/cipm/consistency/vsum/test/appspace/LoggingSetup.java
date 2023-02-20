@@ -35,18 +35,23 @@ public class LoggingSetup {
         Logger.getLogger("cipm.consistency")
             .setLevel(Level.INFO);
 
-        Logger.getLogger("cipm.consistency.commitintegration.cpr.luapcm")
-            .setLevel(Level.WARN);
+//        Logger.getLogger("cipm.consistency.commitintegration.cpr.luapcm")
+//            .setLevel(Level.INFO);
+        Logger.getLogger("cipm.consistency.commitintegration.lang.lua.changeresolution")
+            .setLevel(Level.DEBUG);
+
         Logger.getLogger("mir.reactions")
             .setLevel(Level.WARN);
         Logger.getLogger("mir.routines")
             .setLevel(Level.WARN);
         Logger.getLogger("mir.routines.statement_actions")
             .setLevel(Level.WARN);
+        Logger.getLogger("mir.routines.block_rdBehaviour")
+            .setLevel(Level.WARN);
         Logger.getLogger("jamopp")
             .setLevel(Level.ALL);
         Logger.getLogger("tools.vitruv")
-            .setLevel(Level.INFO);
+            .setLevel(Level.WARN);
         Logger.getLogger("tools.vitruv.framework.vsum.internal.VirtualModelImpl")
             .setLevel(Level.WARN);
         Logger.getLogger("org.xtext.lua")
