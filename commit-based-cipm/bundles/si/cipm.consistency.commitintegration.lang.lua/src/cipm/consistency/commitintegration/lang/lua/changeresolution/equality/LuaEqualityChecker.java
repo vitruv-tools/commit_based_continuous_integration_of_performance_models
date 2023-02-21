@@ -37,20 +37,16 @@ public class LuaEqualityChecker {
         return refblesDoMatch(left.getRef(), right.getRef());
     }
 
-    /*
-     * Only negative matching here
-     */
     private static Boolean match(Expression_Functioncall_Direct left, Expression_Functioncall_Direct right) {
         if (left.getCalledFunction() == null || right.getCalledFunction() == null
                 || !refblesDoMatch(left.getCalledFunction(), right.getCalledFunction())) {
             return false;
         }
-        return null;
+
+        return true;
     }
 
-    /*
-     * Only negative matching here
-     */
+    
     private static Boolean match(Statement_Assignment left, Statement_Assignment right) {
         // assignment using same destinations
         var leftDests = left.getDests();
@@ -64,7 +60,8 @@ public class LuaEqualityChecker {
                 return false;
             }
         }
-        return null;
+
+        return true;
     }
 
     /**

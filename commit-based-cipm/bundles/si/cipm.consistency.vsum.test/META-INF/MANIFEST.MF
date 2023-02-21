@@ -31,6 +31,7 @@ Require-Bundle: cipm.consistency.commitintegration,
  org.apache.log4j,
  junit-jupiter-api;bundle-version="5.9.0",
  cipm.consistency.designtime.instrumentation2;bundle-version="1.0.0",
- cipm.consistency.cpr.pcminit
+ cipm.consistency.cpr.pcminit,
+ org.eclipse.xtext
 Export-Package: cipm.consistency.vsum.test
 Bundle-RequiredExecutionEnvironment: JavaSE-17

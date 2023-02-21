@@ -12,8 +12,13 @@ import java.util.function.Consumer;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.xtext.EcoreUtil2;
+import org.xtext.lua.lua.Component;
 
 import cipm.consistency.vsum.Propagation;
+import tools.vitruv.change.atomic.eobject.EObjectExistenceEChange;
 
 /**
  * This class can be used to evaluate one propagation step, including the state based change

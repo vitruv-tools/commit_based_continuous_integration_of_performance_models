@@ -1,7 +1,5 @@
 package cipm.consistency.vsum.test.appspace;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-
 //import cipm.consistency.vsum.test.evaluator.JavaModelEvaluator;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -144,9 +142,13 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
             for (var commitId : commitIds) {
                 // only one commit, only one propagation
                 var propagation = propagateChanges(commitId);
-                assert propagation.size() == 1;
 
-                if (commitId != null && !evaluatePropagation(propagation.get(0))) {
+                if (commitId == null) {
+                    continue;
+                }
+
+                assert propagation.size() == 1;
+                if (!evaluatePropagation(propagation.get(0))) {
                     Assert.fail("Propagation failed evaluation: " + propagation.toString());
                 }
                 allPropagations.addAll(propagation);
