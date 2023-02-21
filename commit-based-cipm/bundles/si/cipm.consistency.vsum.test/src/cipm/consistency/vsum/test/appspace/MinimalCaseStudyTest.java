@@ -36,14 +36,14 @@ public class MinimalCaseStudyTest extends AppSpaceCITest {
     public void testIntegratigeCompleteHistory() throws Exception {
         state.setTag("complete_history");
         // propagating the same version twice
-        var propagatedChanges = assertSuccessfulPropagation(null, COMMIT_1, COMMIT_2, COMMIT_PROBLEM, COMMIT_4);
+        var propagatedChanges = propagateAndEvaluate(null, COMMIT_1, COMMIT_2, COMMIT_PROBLEM, COMMIT_4);
         Assert.assertTrue("Four sets of changes must exist", propagatedChanges.size() == 4);
     }
 
     @Test
     public void testIntegratingLastCommit() throws Exception {
         state.setTag("skip_intermediate");
-        var propagatedChanges = assertSuccessfulPropagation(null, COMMIT_4);
+        var propagatedChanges = propagateAndEvaluate(null, COMMIT_4);
         Assert.assertTrue("One change must exists", propagatedChanges.size() == 1);
 //        var result = executePropagationAndEvaluation(null, getLatestCommitId(), 0);
 //        Assert.assertTrue(result);
@@ -53,7 +53,7 @@ public class MinimalCaseStudyTest extends AppSpaceCITest {
     public void testIntegratingSameCommitTwice() throws Exception {
         state.setTag("same_commit_twice");
         // propagating the same version twice
-        var propagatedChanges = assertSuccessfulPropagation(null, COMMIT_2, COMMIT_2);
+        var propagatedChanges = propagateAndEvaluate(null, COMMIT_2, COMMIT_2);
         var lastPropagationResult = propagatedChanges.get(propagatedChanges.size() - 1);
         Assert.assertTrue("No changes must be generated when propagating a previously propagated commit",
                 lastPropagationResult.isEmpty());

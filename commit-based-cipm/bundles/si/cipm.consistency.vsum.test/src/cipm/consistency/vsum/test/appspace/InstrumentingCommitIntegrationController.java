@@ -23,7 +23,7 @@ import cipm.consistency.commitintegration.util.ExternalCommandExecutionUtils;
 import cipm.consistency.designtime.instrumentation2.CodeInstrumenter;
 import cipm.consistency.models.CodeModelFacade;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
-import tools.vitruv.change.composite.description.PropagatedChange;
+import cipm.consistency.vsum.Propagation;
 
 public abstract class InstrumentingCommitIntegrationController<CM extends CodeModelFacade>
         extends CommitIntegrationController<CM> {
@@ -79,7 +79,7 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
      *             if an IO operation fails.
      */
     @Override
-    protected List<PropagatedChange> propagateChanges(String oldCommit, String newCommit) throws IOException {
+    protected Propagation propagateChanges(String oldCommit, String newCommit) throws IOException {
         // track the commit ids in a file
         addCommitToCommitsFile(oldCommit, newCommit);
 

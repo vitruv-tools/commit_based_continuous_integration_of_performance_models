@@ -57,8 +57,9 @@ import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 public class GitRepositoryWrapper {
     private Git git;
     private Repository repository;
-    private RevCommit latestCommit;
-    private String defaultBranch;
+    private RevCommit currentCheckoutCommit;
+
+//    private String defaultBranch;
     private String sourceFileExt;
     private boolean detectRenames;
     private File repoDir;
@@ -96,11 +97,11 @@ public class GitRepositoryWrapper {
     }
 
     public GitRepositoryWrapper initialize() throws IOException, NoHeadException, GitAPIException {
-        defaultBranch = repository.getBranch();
+//        defaultBranch = repository.getBranch();
         git.log()
             .setMaxCount(1)
             .call()
-            .forEach(c -> latestCommit = c);
+            .forEach(c -> currentCheckoutCommit = c);
         return this;
     }
 
@@ -172,7 +173,7 @@ public class GitRepositoryWrapper {
         git.log()
             .setMaxCount(1)
             .call()
-            .forEach(c -> latestCommit = c);
+            .forEach(c -> currentCheckoutCommit = c);
     }
 
     /**
@@ -483,36 +484,28 @@ public class GitRepositoryWrapper {
         }
     }
 
-    public RevCommit getLatestCommit() {
-        return latestCommit;
-    }
-
-//    public File getRootDirectory() {
-//        return rootDirectory;
-//    }
-
     /**
      * Performs a <code>git fetch</code> in order to receive all new commits between the latest
      * local commit and the latest commit in the remote repository.
      * 
      * @return the list of all new commits.
      */
-    public List<RevCommit> fetchAndGetNewCommits() {
-        List<RevCommit> result = new ArrayList<>();
-        try {
-            git.fetch()
-                .call();
-            ObjectId curCommit = latestCommit.getId();
-            ObjectId lastCommit = repository.resolve("origin/" + defaultBranch);
-            git.log()
-                .addRange(curCommit, lastCommit)
-                .call()
-                .forEach(result::add);
-        } catch (GitAPIException | IOException e) {
-        }
-        Collections.reverse(result);
-        return result;
-    }
+//    public List<RevCommit> fetchAndGetNewCommits() {
+//        List<RevCommit> result = new ArrayList<>();
+//        try {
+//            git.fetch()
+//                .call();
+//            ObjectId curCommit = currentCheckoutCommit.getId();
+//            ObjectId lastCommit = repository.resolve("origin/" + defaultBranch);
+//            git.log()
+//                .addRange(curCommit, lastCommit)
+//                .call()
+//                .forEach(result::add);
+//        } catch (GitAPIException | IOException e) {
+//        }
+//        Collections.reverse(result);
+//        return result;
+//    }
 
     /**
      * Performs a complete cleaning of the git repository, i. e., all untracked and ignored files
@@ -546,5 +539,9 @@ public class GitRepositoryWrapper {
                 }
             }
         }
+    }
+
+    public String getCurrentCommitHash() {
+        return currentCheckoutCommit.getId().getName();
     }
 }

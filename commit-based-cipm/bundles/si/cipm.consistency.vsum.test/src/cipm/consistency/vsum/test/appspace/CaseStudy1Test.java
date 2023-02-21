@@ -34,14 +34,14 @@ public class CaseStudy1Test extends AppSpaceCITest {
     @Disabled
     @Test
     public void testIntegratingVersion010() {
-        assertSuccessfulPropagation(null, COMMIT_TAG_0_1_0);
+        propagateAndEvaluate(null, COMMIT_TAG_0_1_0);
     }
 
     @Disabled
     @Test
     public void testIntegratingVersion100() {
         // Integrates casestudy version 1.0.
-        assertSuccessfulPropagation(null, COMMIT_TAG_1_0_0);
+        propagateAndEvaluate(null, COMMIT_TAG_1_0_0);
 //        Assert.assertTrue(executePropagationAndEvaluation(null, COMMIT_TAG_1_0_0, 0));
 //		performIndependentEvaluation();
     }
@@ -49,55 +49,55 @@ public class CaseStudy1Test extends AppSpaceCITest {
     @Disabled
     @Test
     public void testIntegratingVersion101() {
-        assertSuccessfulPropagation(null, COMMIT_TAG_1_0_1);
+        propagateAndEvaluate(null, COMMIT_TAG_1_0_1);
     }
 
     @Disabled
     @Test
     public void testIntegratingVersion102() {
-        assertSuccessfulPropagation(null, COMMIT_TAG_1_0_2);
+        propagateAndEvaluate(null, COMMIT_TAG_1_0_2);
     }
 
     @Test
     public void testIntegratingVersion100twice() {
-        var propagatedChanges = assertSuccessfulPropagation(null, COMMIT_TAG_1_0_0, COMMIT_TAG_1_0_0);
+        var propagatedChanges = propagateAndEvaluate(null, COMMIT_TAG_1_0_0, COMMIT_TAG_1_0_0);
         var lastPropagatedChanges = propagatedChanges.get(propagatedChanges.size() - 1);
         Assert.assertTrue(lastPropagatedChanges.isEmpty());
     }
 
     @Test
     public void testIntegratingVersions010and100() {
-        assertSuccessfulPropagation(null, COMMIT_TAG_0_1_0, COMMIT_TAG_1_0_0);
+        propagateAndEvaluate(null, COMMIT_TAG_0_1_0, COMMIT_TAG_1_0_0);
     }
 
     @Test
     public void testIntegratingVersions100and101() {
-        assertSuccessfulPropagation(null, COMMIT_TAG_1_0_0, COMMIT_TAG_1_0_1);
+        propagateAndEvaluate(null, COMMIT_TAG_1_0_0, COMMIT_TAG_1_0_1);
     }
 
     @Test
     public void testIntegratingVersions100and101and102() {
-        assertSuccessfulPropagation(null, COMMIT_TAG_1_0_0, COMMIT_TAG_1_0_1, COMMIT_TAG_1_0_2);
+        propagateAndEvaluate(null, COMMIT_TAG_1_0_0, COMMIT_TAG_1_0_1, COMMIT_TAG_1_0_2);
     }
 
     @Test
     public void testIntegratingVersionsMove() {
         // the MOVE commit only switches two statements. This is for debugging move commands
-        assertSuccessfulPropagation(null, COMMIT_TAG_1_0_2, COMMIT_TAG_MOVE);
+        propagateAndEvaluate(null, COMMIT_TAG_1_0_2, COMMIT_TAG_MOVE);
     }
 
     @Disabled
     @Test
     public void testIntegratingVersionsComplete() {
-        assertSuccessfulPropagation(null, COMMIT_TAG_0_1_0, COMMIT_TAG_1_0_0, COMMIT_TAG_1_0_1, COMMIT_TAG_1_0_2);
+        propagateAndEvaluate(null, COMMIT_TAG_0_1_0, COMMIT_TAG_1_0_0, COMMIT_TAG_1_0_1, COMMIT_TAG_1_0_2);
     }
 
     @Disabled
     @Test
     public void testIntegratingVersions010and100fromDisk()
             throws InvalidRemoteException, TransportException, IOException, GitAPIException {
-        assertSuccessfulPropagation(null, COMMIT_TAG_0_1_0);
+        propagateAndEvaluate(null, COMMIT_TAG_0_1_0);
         reload(); // dispose an reload from disk
-        assertSuccessfulPropagation(COMMIT_TAG_1_0_0);
+        propagateAndEvaluate(COMMIT_TAG_1_0_0);
     }
 }

@@ -1,6 +1,5 @@
 package cipm.consistency.commitintegration.lang.lua.changeresolution.equality;
 
-import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EObject;
 import org.xtext.lua.lua.Expression_Functioncall_Direct;
 import org.xtext.lua.lua.Expression_VariableName;
@@ -8,7 +7,6 @@ import org.xtext.lua.lua.Refble;
 import org.xtext.lua.lua.Statement_Assignment;
 
 public class LuaEqualityChecker {
-    private static final Logger LOGGER = Logger.getLogger(LuaEqualityHelper.class);
 
     private static boolean eClassMatch(EObject left, EObject right) {
         var leftClass = left.eClass()

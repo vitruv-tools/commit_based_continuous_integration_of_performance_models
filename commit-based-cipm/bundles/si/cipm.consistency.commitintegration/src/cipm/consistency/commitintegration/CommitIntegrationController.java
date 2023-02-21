@@ -1,10 +1,9 @@
 package cipm.consistency.commitintegration;
 
-import cipm.consistency.models.CodeModelFacade;
-import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
@@ -12,7 +11,10 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
-import tools.vitruv.change.composite.description.PropagatedChange;
+
+import cipm.consistency.models.CodeModelFacade;
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
+import cipm.consistency.vsum.Propagation;
 
 /**
  * This class is responsible for controlling the complete change propagation and adaptive
@@ -52,13 +54,14 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
             state.initialize(ci, true);
         }
     }
-    
+
     /**
      * Reload the current integration state from disk
-     * @throws GitAPIException 
-     * @throws IOException 
-     * @throws TransportException 
-     * @throws InvalidRemoteException 
+     * 
+     * @throws GitAPIException
+     * @throws IOException
+     * @throws TransportException
+     * @throws InvalidRemoteException
      */
     protected void reload() throws InvalidRemoteException, TransportException, IOException, GitAPIException {
         var ci = state.getCommitIntegration();
@@ -67,22 +70,41 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
     }
 
     /**
+     * Propagate the work tree that is currently checked out by the git repo wrapper.
      * 
-     * @return The changes which were propagated when propagating the current checked out version
+     * @return The Propagation instance including the used model paths
      */
-    private List<PropagatedChange> propagateCurrentCheckout() {
+    private Propagation propagateCurrentCheckout() {
         var workTree = state.getGitRepositoryWrapper()
             .getWorkTree()
             .toPath();
+
+        var previousParsedModelPath = state.getCurrentParsedModelPath();
+
         var resource = state.getCodeModelFacade()
             .parseSourceCodeDir(workTree);
 
-        var propagatedChanges = state.getVsumFacade()
-            .propagateResource(resource);
+        var parsedModelPath = state.createParsedCodeModelSnapshot();
+        state.setCurrentParsedModelPath(parsedModelPath);
 
-        state.createCopyWithTimeStamp(String.format("after_propagation_of_%d_changes", propagatedChanges.size()));
+        LOGGER.info(String.format("\n\tPropagating commit #%d: %s", state.getParsedCodeModelCount(),
+                state.getGitRepositoryWrapper()
+                    .getCurrentCommitHash()));
 
-        return propagatedChanges;
+        var propagation = state.getVsumFacade()
+            .propagateResource(resource, state.getDirLayout()
+                .getVsumCodeModelURI());
+
+        var propagationResultPath = state.createVsumCodeModelSnapshot();
+
+        propagation.setPreviousVersionParsedModelPath(previousParsedModelPath);
+        propagation.setTargetVersionParsedModelPath(parsedModelPath);
+        propagation.setPropagationResultModelPath(propagationResultPath);
+
+//        state.createSnapshotWithCount(String.format("after_changes_original-%d_consequential-%d",
+//                propagatedChanges.getOriginalChangeCount(), propagatedChanges.getConsequentialChangeCount()));
+
+        return propagation;
     }
 
     /**
@@ -100,10 +122,10 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
      * @throws IOException
      *             if the repository cannot be read.
      */
-    public List<List<PropagatedChange>> propagateChanges(String... commitIds) throws GitAPIException, IOException {
+    public List<Propagation> propagateChanges(String... commitIds) throws GitAPIException, IOException {
         if (commitIds.length == 0) {
             return List.of(propagateCurrentCheckout());
-        } else if (commitIds.length == 1) {
+        } else if (commitIds.length == 1 && commitIds[0] != null) {
             checkout(commitIds[0]);
             return List.of(propagateCurrentCheckout());
         }
@@ -114,7 +136,7 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
         }
 
         var numberOfPropagations = commitIds.length - 1;
-        var allPropagatedChanges = new ArrayList<List<PropagatedChange>>(numberOfPropagations);
+        List<Propagation> allPropagatedChanges = new ArrayList<>(numberOfPropagations);
 
         for (var i = 0; i < numberOfPropagations; i++) {
             var propagatedChanges = propagateChanges(commitIds[i], commitIds[i + 1]);
@@ -192,7 +214,7 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
         return true;
     }
 
-    protected List<PropagatedChange> propagateChanges(String firstCommitId, String secondCommitId)
+    protected Propagation propagateChanges(String firstCommitId, String secondCommitId)
             throws IncorrectObjectTypeException, IOException {
         if (!prePropagationChecks(firstCommitId, secondCommitId)) {
             LOGGER.info("Prechecks indicate no propagation is needed.");

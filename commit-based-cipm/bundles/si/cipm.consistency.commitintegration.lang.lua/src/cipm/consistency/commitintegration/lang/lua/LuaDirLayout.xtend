@@ -11,14 +11,14 @@ class LuaDirLayout extends ModelDirLayoutImpl {
 	static final package String instrumentationDirName = "instrumented"
 
 	static final package String parsedFileName = "parsed.code.xmi"
-	static final package String modelFileName = "vsum.code.xmi"
+//	static final package String modelFileName = "vsum.code.xmi"
 	static final package String moduleConfigurationFileName = "module-configuration.properties"
 	static final package String externalCallTargetPairsFileName = "external-call-target-pairs.json"
 
 	package Path localRepoDir
 	package Path instrumentationDir
 
-	package Path modelFilePath
+//	package Path modelFilePath
 	package Path parsedFilePath
 	package Path moduleConfigurationPath
 	package Path externalCallTargetPairsFilePath
@@ -32,12 +32,12 @@ class LuaDirLayout extends ModelDirLayoutImpl {
 		localRepoDir = rootDirPath.resolve(localRepoDirName)
 		instrumentationDir = rootDirPath.resolve(instrumentationDirName)
 
-		modelFilePath = rootDirPath.resolve(modelFileName).toAbsolutePath()
+//		modelFilePath = rootDirPath.resolve(modelFileName).toAbsolutePath()
 		parsedFilePath = rootDirPath.resolve(parsedFileName).toAbsolutePath()
 		moduleConfigurationPath = rootDirPath.resolve(moduleConfigurationFileName)
 		externalCallTargetPairsFilePath = rootDirPath.resolve(externalCallTargetPairsFileName)
 		
-		modelFileUri = URI.createFileURI(modelFilePath.toString())
+//		modelFileUri = URI.createFileURI(modelFilePath.toString())
 		parsedFileUri = URI.createFileURI(parsedFilePath.toString())
 	}
 }

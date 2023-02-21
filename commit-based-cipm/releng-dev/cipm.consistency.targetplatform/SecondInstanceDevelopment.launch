@@ -846,6 +846,7 @@
         <setEntry value="org.yakindu.base.xtext.utils.gmf@default:default"/>
         <setEntry value="org.yakindu.base.xtext.utils.jface@default:default"/>
         <setEntry value="tools.vitruv.change.atomic@default:default"/>
+        <setEntry value="tools.vitruv.change.composite@default:default"/>
         <setEntry value="tools.vitruv.change.correspondence@default:default"/>
         <setEntry value="tools.vitruv.change.interaction.model@default:default"/>
         <setEntry value="tools.vitruv.change.interaction@default:default"/>
@@ -878,7 +879,6 @@
         <setEntry value="org.xtext.lua.ui.tests@default:default"/>
         <setEntry value="org.xtext.lua.ui@default:default"/>
         <setEntry value="org.xtext.lua@default:default"/>
-        <setEntry value="tools.vitruv.change.composite@default:default"/>
     </setAttribute>
     <booleanAttribute key="show_selected_only" value="false"/>
     <stringAttribute key="templateConfig" value="${target_home}\configuration\config.ini"/>

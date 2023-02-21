@@ -1,10 +1,13 @@
 package cipm.consistency.vsum.test.appspace;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+
 //import cipm.consistency.vsum.test.evaluator.JavaModelEvaluator;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -18,7 +21,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 
 import cipm.consistency.commitintegration.CommitIntegrationState;
-import tools.vitruv.change.composite.description.PropagatedChange;
+import cipm.consistency.vsum.Propagation;
+import cipm.consistency.vsum.test.evaluator.PropagationEvaluator;
 
 public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController {
 
@@ -120,25 +124,34 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
         return super.prePropagationChecks(firstCommitId, secondCommitId);
     }
 
+    protected boolean evaluatePropagation(Propagation propagation) {
+        if (propagation == null) {
+            Assert.fail("PropagatedChanges may not be null");
+        }
+        return PropagationEvaluator.evaluate(propagation);
+    }
+
     /**
-     * Propagates the given commits and checks that every commit resulted in non-null propagated
-     * changes.
+     * Propagates the given commits and evaluates every propagation.
      * 
      * @param commitIds
      *            The commits to be propagated
-     * @return The list of all the propagated changes, ordered by commit.
+     * @return The list of all the propagations.
      */
-    protected List<List<PropagatedChange>> assertSuccessfulPropagation(String... commitIds) {
-        List<List<PropagatedChange>> allChanges;
+    protected List<Propagation> propagateAndEvaluate(String... commitIds) {
+        List<Propagation> allPropagations = new ArrayList<>();
         try {
-            allChanges = propagateChanges(commitIds);
-            for (var changes : allChanges) {
-                if (changes == null) {
-                    Assert.fail("PropagatedChanges may not be null");
+            for (var commitId : commitIds) {
+                // only one commit, only one propagation
+                var propagation = propagateChanges(commitId);
+                assert propagation.size() == 1;
+
+                if (commitId != null && !evaluatePropagation(propagation.get(0))) {
+                    Assert.fail("Propagation failed evaluation: " + propagation.toString());
                 }
+                allPropagations.addAll(propagation);
             }
-            return allChanges;
-//        } catch (Exception e) {
+            return allPropagations;
         } catch (IOException | GitAPIException e) {
             e.printStackTrace();
             Assert.fail(e.getMessage());
@@ -309,15 +322,4 @@ public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController
     public void setUpLogging() {
         LoggingSetup.setupLogging(Level.WARN);
     }
-
-    protected String getLatestCommitId() {
-        try {
-            return getGitRepositoryWrapper().getLatestCommit()
-                .getName();
-        } catch (GitAPIException | IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
 }

@@ -84,19 +84,24 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 	}
 
 	static def isCodeModel(Resource res) {
-		res.getURI.lastSegment.equals("parsed.code.xmi")
+		res.getURI.lastSegment.endsWith(".code.xmi")
 	}
 
+	/*
+	 * print some infos about the differences we found in code models
+	 */
 	private def printModelChanges(Resource res, EList<Diff> differences) {
-		if (isCodeModel(res)) {
-			var changeText = "EMFcompare found changes in model " + res.URI.lastSegment + ":"
-			for (kind : DifferenceKind.VALUES) {
-				changeText += "  " + kind + ": " + differences.stream.filter [
-					it.kind == kind
-				].count
-			}
-			LOGGER.info(changeText)
+		if (!isCodeModel(res)) {
+			return;
 		}
+
+		var changeText = "EMFcompare found changes in model " + res.URI.lastSegment + ":"
+		for (kind : DifferenceKind.VALUES) {
+			changeText += "  " + kind + ": " + differences.stream.filter [
+				it.kind == kind
+			].count
+		}
+		LOGGER.info(changeText)
 	}
 
 	/**

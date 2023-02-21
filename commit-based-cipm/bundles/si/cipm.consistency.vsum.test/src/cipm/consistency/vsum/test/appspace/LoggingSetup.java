@@ -40,6 +40,10 @@ public class LoggingSetup {
         Logger.getLogger("cipm.consistency.commitintegration.lang.lua.changeresolution")
             .setLevel(Level.DEBUG);
 
+        // TODO lower this level once the we use a valid git history (without the invalid serve calls)
+        Logger.getLogger("cipm.consistency.commitintegration.lang.lua.LuaPostProcessor")
+            .setLevel(Level.ERROR);
+
         Logger.getLogger("mir.reactions")
             .setLevel(Level.WARN);
         Logger.getLogger("mir.routines")

@@ -1,13 +1,15 @@
 package cipm.consistency.vsum;
 
-import cipm.consistency.models.ModelFacade;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+
+import cipm.consistency.models.ModelFacade;
 import tools.vitruv.change.composite.description.PropagatedChange;
 import tools.vitruv.change.correspondence.Correspondence;
 import tools.vitruv.change.correspondence.view.EditableCorrespondenceModelView;
@@ -190,7 +192,7 @@ public class VsumFacadeImpl implements VsumFacade {
      * @return The propagated changes
      */
     @Override
-    public List<PropagatedChange> propagateResource(Resource resource) {
+    public Propagation propagateResource(Resource resource) {
         return propagateResource(resource, null, null);
     }
 
@@ -204,7 +206,7 @@ public class VsumFacadeImpl implements VsumFacade {
      * @return The propagated changes
      */
     @Override
-    public List<PropagatedChange> propagateResource(Resource resource, URI targetUri) {
+    public Propagation propagateResource(Resource resource, URI targetUri) {
         return propagateResource(resource, targetUri, null);
     }
 
@@ -219,7 +221,7 @@ public class VsumFacadeImpl implements VsumFacade {
      *            Optional, may be used to override the vsum to which the change is propagated
      * @return The propagated changes
      */
-    private List<PropagatedChange> propagateResource(Resource resource, URI targetUri, InternalVirtualModel vsum) {
+    private Propagation propagateResource(Resource resource, URI targetUri, InternalVirtualModel vsum) {
         if (vsum == null) {
             vsum = this.vsum;
         }
@@ -243,7 +245,7 @@ public class VsumFacadeImpl implements VsumFacade {
         if (resource.getContents()
             .size() == 0) {
             LOGGER.debug(String.format("Not propagating empty resource: %s", resource.getURI()));
-            return List.of();
+            return null;
         }
 
         var view = getView(vsum);
@@ -270,27 +272,18 @@ public class VsumFacadeImpl implements VsumFacade {
             view.registerRoot(newRootEobject, targetUri);
         }
 
-        var propagatedChanges = view.commitChangesAndUpdate();
+        var changeList = view.commitChangesAndUpdate();
+        var propagatedChanges = new Propagation(changeList);
+
         logPropagatedChanges(resource, propagatedChanges);
 
         return propagatedChanges;
     }
 
-    private void logPropagatedChanges(Resource res, List<PropagatedChange> changes) {
-        var originalChanges = 0;
-        var consequentialChanges = 0;
-        for (var change : changes) {
-            consequentialChanges += change.getConsequentialChanges()
-                .getEChanges()
-                .size();
-            originalChanges += change.getOriginalChange()
-                .getEChanges()
-                .size();
-        }
-        originalChanges -= consequentialChanges;
-        if (originalChanges > 0 || consequentialChanges > 0) {
+    private void logPropagatedChanges(Resource res, Propagation changes) {
+        if (changes.getOriginalChangeCount() > 0 || changes.getConsequentialChangeCount() > 0) {
             LOGGER.info(String.format("Propagated changes in model %s: ORIGINAL: %d  CONSEQUENTIAL: %d", res.getURI()
-                .lastSegment(), originalChanges, consequentialChanges));
+                .lastSegment(), changes.getOriginalChangeCount(), changes.getConsequentialChangeCount()));
         }
     }
 
@@ -311,4 +304,5 @@ public class VsumFacadeImpl implements VsumFacade {
         }
         return null;
     }
+
 }

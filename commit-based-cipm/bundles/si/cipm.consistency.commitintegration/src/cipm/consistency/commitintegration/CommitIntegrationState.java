@@ -1,5 +1,16 @@
 package cipm.consistency.commitintegration;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.jgit.api.errors.TransportException;
+
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
 import cipm.consistency.models.CodeModelFacade;
@@ -7,28 +18,18 @@ import cipm.consistency.models.im.ImFacade;
 import cipm.consistency.models.pcm.PcmFacade;
 import cipm.consistency.vsum.VsumFacade;
 import cipm.consistency.vsum.VsumFacadeImpl;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.time.LocalDateTime;
-import java.util.List;
-import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.api.errors.InvalidRemoteException;
-import org.eclipse.jgit.api.errors.TransportException;
 
 /**
  * Encapsulates all state of an ongoing integration
  * 
- * @param <CM> The code model class that is used for the integration
+ * @param <CM>
+ *            The code model class that is used for the integration
  * 
  * @author Lukas Burgey
  *
  */
 public class CommitIntegrationState<CM extends CodeModelFacade> {
     private static final Logger LOGGER = Logger.getLogger(CommitIntegrationState.class.getName());
-
-    private String tag = "";
 
     private CommitIntegration<CM> commitIntegration;
 
@@ -38,7 +39,13 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
     private PcmFacade pcmFacade;
     private ImFacade imFacade;
     private CM codeModelFacade;
-    private CM instrumentedCodeModelFacade;
+
+    private String tag = "";
+    private int snapshotCount = 0;
+    private int parsedCodeModelCount = 0;
+    private int vsumCodeModelCount = 0;
+    
+    private Path currentParsedModelPath = null;
 
     // was this state previously used to propagate something?
     private boolean isFresh = false;
@@ -84,11 +91,6 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
             .get();
         codeModelFacade.initialize(dirLayout.getCodeDirPath());
 
-        // initialize the code model
-        instrumentedCodeModelFacade = commitIntegration.getCodeModelFacadeSupplier()
-            .get();
-        instrumentedCodeModelFacade.initialize(dirLayout.getInstrumentedCodeDirPath());
-
         // initialize the vsum
         vsumFacade.initialize(dirLayout.getVsumDirPath(), List.of(pcmFacade, imFacade),
                 commitIntegration.getChangeSpecs(), commitIntegration.getStateBasedChangeResolutionStrategy());
@@ -96,34 +98,80 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
 
     @SuppressWarnings("restriction")
     public void dispose() {
-        LOGGER.info("Disposing of the CommitIntegrationState");
+        LOGGER.debug("Disposing of the CommitIntegrationState");
         vsumFacade.getVsum()
             .dispose();
         gitRepositoryWrapper.closeRepository();
     }
 
-    public Path createCopyWithTimeStamp() {
-        return createCopyWithTimeStamp("");
+    public Path createParsedCodeModelSnapshot() {
+        var currentCommitHash = getGitRepositoryWrapper().getCurrentCommitHash();
+        parsedCodeModelCount += 1;
+        var name = String.valueOf(parsedCodeModelCount) + "-" + currentCommitHash;
+        try {
+            return getCodeModelFacade().createNamedCopyOfParsedModel(name);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    public Path createCopyWithTimeStamp(String description) {
-        var fileName = commitIntegration.getRootPath()
+    public Path createVsumCodeModelSnapshot() {
+        var currentCommitHash = getGitRepositoryWrapper().getCurrentCommitHash();
+        vsumCodeModelCount += 1;
+        var name = "vsum-" + String.valueOf(vsumCodeModelCount) + "-" + currentCommitHash + ".code.xmi";
+        var path = dirLayout.getVsumCodeModelPath();
+        var targetPath = path.resolveSibling(name);
+        try {
+            FileUtils.copyFile(path.toFile(), targetPath.toFile());
+            return targetPath;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Path createSnapshotWithCount() {
+        return createSnapshotWithCount("");
+    }
+
+    public Path createSnapshotWithCount(String additionalIdentifier) {
+        snapshotCount += 1;
+        var identifier = String.valueOf(snapshotCount);
+        if (!additionalIdentifier.equals("")) {
+            identifier += "_" + additionalIdentifier;
+        }
+        return createSnapshot(identifier);
+    }
+
+    public Path createSnapshotWithTimeStamp() {
+        return createSnapshotWithTimeStamp("");
+    }
+
+    public Path createSnapshotWithTimeStamp(String additionalIdentifier) {
+        var identifier = "_" + LocalDateTime.now()
+            .toString();
+
+        if (!additionalIdentifier.equals("")) {
+            identifier += "_" + additionalIdentifier;
+        }
+        return createSnapshot(identifier);
+    }
+
+    private Path createSnapshot(String identifier) {
+        var dirName = commitIntegration.getRootPath()
             .getFileName()
             .toString();
 
-        if (tag != "") {
-            fileName += "_" + tag;
+        if (!identifier.equals("")) {
+            dirName += "_" + identifier;
         }
-
-        fileName += "_" + LocalDateTime.now()
-            .toString();
-
-        if (!description.equals("")) {
-            fileName += "_" + description;
+        if (tag != "") {
+            dirName += "_" + tag;
         }
 
         try {
-            return createCopy(fileName);
+            return createCopy(dirName);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -168,10 +216,6 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         return codeModelFacade;
     }
 
-    public CM getInstrumentedCodeModelFacade() {
-        return instrumentedCodeModelFacade;
-    }
-
     public CommitIntegrationDirLayout getDirLayout() {
         return dirLayout;
     }
@@ -190,5 +234,17 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    public Path getCurrentParsedModelPath() {
+        return currentParsedModelPath;
+    }
+
+    public void setCurrentParsedModelPath(Path currentParsedModelPath) {
+        this.currentParsedModelPath = currentParsedModelPath;
+    }
+
+    public int getParsedCodeModelCount() {
+        return parsedCodeModelCount;
     }
 }

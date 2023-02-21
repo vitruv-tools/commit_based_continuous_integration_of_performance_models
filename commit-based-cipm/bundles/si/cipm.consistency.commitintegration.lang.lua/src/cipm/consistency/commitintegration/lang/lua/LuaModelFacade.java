@@ -1,9 +1,7 @@
 package cipm.consistency.commitintegration.lang.lua;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -95,21 +93,12 @@ public class LuaModelFacade implements CodeModelFacade {
         var path = Path.of(uri.toFileString());
         if (path.toFile()
             .exists()) {
-            LOGGER.debug(String.format("Deleting backed up resource: %s", uri));
-            var backupPath = Path.of(uri.toFileString() + ".bak");
-            try {
-                Files.move(path, backupPath, StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException e) {
-            }
+            FileUtils.deleteQuietly(path.toFile());
         }
 
         var res = rs.createResource(uri);
         return res;
     }
-
-
-
-
 
     /**
      * Merges all chunks of the resource set into one SuperChunk and puts it in a separate resource
@@ -201,7 +190,7 @@ public class LuaModelFacade implements CodeModelFacade {
 
     @Override
     public Resource parseSourceCodeDir(Path sourceCodeDir) {
-        LOGGER.info("Propagating the current worktree");
+        LOGGER.debug("Propagating the current worktree");
         // parse all lua files into one resource set
         var workTreeResourceSet = parseDirToResourceSet(sourceCodeDir);
 
@@ -214,7 +203,7 @@ public class LuaModelFacade implements CodeModelFacade {
     }
 
     public boolean existsOnDisk() {
-        return dirLayout.getModelFilePath()
+        return dirLayout.getParsedFilePath()
             .toFile()
             .exists();
     }
@@ -236,5 +225,15 @@ public class LuaModelFacade implements CodeModelFacade {
     @Override
     public Resource getResource() {
         return currentResource;
+    }
+
+    @Override
+    public Path createNamedCopyOfParsedModel(String name) throws IOException {
+        var path = getDirLayout().getParsedFilePath();
+        var copyPath = path.resolveSibling("parsed-" + name + ".code.xmi");
+
+        FileUtils.copyFile(path.toFile(), copyPath.toFile());
+
+        return copyPath;
     }
 }
