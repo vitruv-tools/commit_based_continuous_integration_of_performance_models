@@ -50,6 +50,8 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
     // was this state previously used to propagate something?
     private boolean isFresh = false;
 
+    private int repositoryModelCount;
+
     public CommitIntegrationState() {
         dirLayout = new CommitIntegrationDirLayout();
         vsumFacade = new VsumFacadeImpl();
@@ -121,6 +123,21 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         vsumCodeModelCount += 1;
         var name = "vsum-" + String.valueOf(vsumCodeModelCount) + "-" + currentCommitHash + ".code.xmi";
         var path = dirLayout.getVsumCodeModelPath();
+        var targetPath = path.resolveSibling(name);
+        try {
+            FileUtils.copyFile(path.toFile(), targetPath.toFile());
+            return targetPath;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Path createRepositoryModelSnapshot() {
+        var currentCommitHash = getGitRepositoryWrapper().getCurrentCommitHash();
+        repositoryModelCount += 1;
+        var name = "Repository-" + String.valueOf(vsumCodeModelCount) + "-" + currentCommitHash + ".repository";
+        var path = pcmFacade.getDirLayout().getPcmRepositoryPath();
         var targetPath = path.resolveSibling(name);
         try {
             FileUtils.copyFile(path.toFile(), targetPath.toFile());

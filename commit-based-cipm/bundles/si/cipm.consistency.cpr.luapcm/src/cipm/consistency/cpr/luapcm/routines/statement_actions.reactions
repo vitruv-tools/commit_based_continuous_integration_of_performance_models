@@ -24,7 +24,7 @@ routine createActionsForStatement(lua::Statement statement, lua::Block block) {
 		if (statementActions.size < 1) {
 			return
 		}
-		logger.info(String.format("%s: %d action(s) reconstructed", statement, statementActions.size()))
+		logger.debug(String.format("%s: %d action(s) reconstructed", statement, statementActions.size()))
 
 		var previousAction = ActionUtil.getPreviousActionOfStatement(statement, block, rdBehaviour,
 			correspondenceModel);
@@ -45,12 +45,12 @@ routine createActionsForStatement(lua::Statement statement, lua::Block block) {
 				fuseTwoInternalActions(actionToCheckForFusing as InternalAction, action as InternalAction)
 			} else {
 				if (action instanceof ExternalCallAction) {
-					logger.info("External call was found")
+					logger.debug("External call was found")
 					val componentOfStatement = LuaUtil.getComponent(statement)
 					registerExternalCallAction(action, rdBehaviour, componentOfStatement)
 				}
 
-				logger.info("Action is added to step behaviour")
+				logger.debug("Action is added to step behaviour")
 				// insert the action into the step behaviour
 				ActionUtil.chainActions(previousAction, action)
 				rdBehaviour.steps_Behaviour.add(insertionIndex, action)
@@ -98,7 +98,7 @@ routine removeActionsForStatement(lua::Statement statement, lua::Block block) {
 		val rdBehaviour = retrieve pcm::ResourceDemandingBehaviour corresponding to block
 	}
 	update {
-		logger.info(String.format("Statement with actions removed: %s", statement))
+		logger.debug(String.format("Statement with actions removed: %s", statement))
 		for (action : statementActions) {
 			action.removeCorrespondenceBetween(statement)
 			// delete if the action has no other corresponding statements
@@ -129,7 +129,7 @@ routine removeActionFromStepBehaviourOfBlock(pcm::AbstractAction action, lua::Bl
 			return
 		}
 
-		logger.info(action.toString + ": Removing action from step behaviour" + rdBehaviour.toString)
+		logger.debug(action.toString + ": Removing action from step behaviour" + rdBehaviour.toString)
 
 		// trigger other clean up actions
 		if (action instanceof ExternalCallAction) {
@@ -183,15 +183,15 @@ routine findOrCreateOperationRequiredRole(pcm::ExternalCallAction action, lua::C
 				].findAny
 
 			if (existingRoleForInterface.present) {
-				logger.info("Found role for requiring interface")
+				logger.debug("Found role for requiring interface")
 				addCorrespondenceBetween(action, existingRoleForInterface.get)
 
 			} else {
-				logger.info("Required role needs to be created")
+				logger.debug("Required role needs to be created")
 				createOperationRequiredRole(action, pcmCallingComponent.get, requiredInterface.get)
 			}
 		} else {
-			logger.error("Unable to find required interface or calling component for creating a required role")
+			logger.debug("Unable to find required interface or calling component for creating a required role")
 		}
 	}
 }
@@ -204,7 +204,7 @@ routine createOperationRequiredRole(pcm::ExternalCallAction action, pcm::BasicCo
 		val operationRequiredRole = new pcm::OperationRequiredRole
 	}
 	update {
-		logger.info("Creating OperationRequiredRole")
+		logger.debug("Creating OperationRequiredRole")
 		operationRequiredRole.requiringEntity_RequiredRole = pcmCallingComponent
 		operationRequiredRole.requiredInterface__OperationRequiredRole = requiredInterface
 		operationRequiredRole.entityName = calledComponent.entityName + "_requiring_role"
@@ -224,7 +224,7 @@ routine deregisterExternalCallAction(pcm::ExternalCallAction action) {
 		val allActionsOfRequiredRole = retrieve many pcm::ExternalCallAction corresponding to operationRequiredRole
 	}
 	update {
-		logger.info("Removing OperationRequiredRole")
+		logger.debug("Removing OperationRequiredRole")
 		removeCorrespondenceBetween(operationRequiredRole, action)
 
 		// if there were no other corresponding actions, we delete the role	

@@ -273,11 +273,11 @@ public class VsumFacadeImpl implements VsumFacade {
         }
 
         var changeList = view.commitChangesAndUpdate();
-        var propagatedChanges = new Propagation(changeList);
+        var propagation = new Propagation(changeList);
 
-        logPropagatedChanges(resource, propagatedChanges);
+        logPropagatedChanges(resource, propagation);
 
-        return propagatedChanges;
+        return propagation;
     }
 
     private void logPropagatedChanges(Resource res, Propagation changes) {

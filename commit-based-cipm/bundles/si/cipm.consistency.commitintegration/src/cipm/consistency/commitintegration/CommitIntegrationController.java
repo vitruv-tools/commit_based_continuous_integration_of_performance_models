@@ -12,6 +12,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 
+import cipm.consistency.commitintegration.lang.lua.runtimedata.ChangedResources;
 import cipm.consistency.models.CodeModelFacade;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.vsum.Propagation;
@@ -83,6 +84,8 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
 
         var resource = state.getCodeModelFacade()
             .parseSourceCodeDir(workTree);
+        // this informs the component set info singleton that we changed resourced which it had mapped infos for 
+        ChangedResources.setResourcesWereChanged();
 
         var parsedModelPath = state.createParsedCodeModelSnapshot();
         state.setCurrentParsedModelPath(parsedModelPath);
@@ -91,19 +94,21 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
                 state.getGitRepositoryWrapper()
                     .getCurrentCommitHash()));
 
+        // do the actual propagation
         var propagation = state.getVsumFacade()
             .propagateResource(resource, state.getDirLayout()
                 .getVsumCodeModelURI());
 
-        var propagationResultPath = state.createVsumCodeModelSnapshot();
+        var propagationResultCodeModelPath = state.createVsumCodeModelSnapshot();
+        var propagationResultRepositoryModelPath = state.createRepositoryModelSnapshot();
 
-        propagation.setPreviousVersionParsedModelPath(previousParsedModelPath);
-        propagation.setTargetVersionParsedModelPath(parsedModelPath);
-        propagation.setPropagationResultModelPath(propagationResultPath);
+        propagation.setParsedCodeModelPreviousVersionPath(previousParsedModelPath);
+        propagation.setParsedCodeModelTargetVersionPath(parsedModelPath);
+        propagation.setPropagationResultCodeModelPath(propagationResultCodeModelPath);
+        propagation.setPropagationResultRepositoryModelPath(propagationResultRepositoryModelPath);
 
 //        state.createSnapshotWithCount(String.format("after_changes_original-%d_consequential-%d",
 //                propagatedChanges.getOriginalChangeCount(), propagatedChanges.getConsequentialChangeCount()));
-
         return propagation;
     }
 

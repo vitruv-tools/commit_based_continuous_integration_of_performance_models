@@ -9,14 +9,14 @@ reactions: block
 in reaction to changes in lua
 execute actions in pcm
 
-import block_stepsBehaviour
+import block_rdBehaviour
 
 reaction AddedBlock {
 	after element lua::Block created
 	call {
 		if (ActionReconstruction.needsActionReconstruction(affectedEObject)) {
 			val parentStatement = EcoreUtil2.getContainerOfType(affectedEObject, Statement)
-			logger.info(
+			logger.debug(
 				String.format("%s (%s): Needs SEFF reconstruction", affectedEObject, parentStatement.class.name))
 			addedSeffBlock(affectedEObject)
 		}

@@ -19,12 +19,13 @@ import tools.vitruv.change.composite.description.PropagatedChange;
  */
 public class Propagation {
 
-    private Path previousVersionParsedModelPath;
+    private Path parsedCodeModelPreviousVersionPath;
 
     // target version parsed model and propagation result should be identical if the change
     // resolution and propagation worked correctly
-    private Path targetVersionParsedModelPath;
-    private Path propagationResultModelPath;
+    private Path parsedCodeModelTargetVersionPath;
+    private Path propagationResultCodeModelPath;
+    private Path propagationResultRepositoryModelPath;
 
     private int originalChangeCount = 0;
     private int consequentialChangeCount = 0;
@@ -64,27 +65,36 @@ public class Propagation {
         return changes != null && changes.isEmpty();
     }
 
-    public Path getPreviousVersionParsedModelPath() {
-        return previousVersionParsedModelPath;
+    public Path getParsedCodeModelPreviousVersionPath() {
+        return parsedCodeModelPreviousVersionPath;
     }
 
-    public Path getTargetVersionParsedModelPath() {
-        return targetVersionParsedModelPath;
+    public void setParsedCodeModelPreviousVersionPath(Path parsedCodeModelPreviousVersionPath) {
+        this.parsedCodeModelPreviousVersionPath = parsedCodeModelPreviousVersionPath;
     }
 
-    public Path getPropagationResultModelPath() {
-        return propagationResultModelPath;
+    public Path getParsedCodeModelTargetVersionPath() {
+        return parsedCodeModelTargetVersionPath;
     }
 
-    public void setPreviousVersionParsedModelPath(Path previousVersionParsedModelPath) {
-        this.previousVersionParsedModelPath = previousVersionParsedModelPath;
+    public void setParsedCodeModelTargetVersionPath(Path parsedCodeModelTargetVersionPath) {
+        this.parsedCodeModelTargetVersionPath = parsedCodeModelTargetVersionPath;
     }
 
-    public void setTargetVersionParsedModelPath(Path targetVersionParsedModelPath) {
-        this.targetVersionParsedModelPath = targetVersionParsedModelPath;
+    public Path getPropagationResultCodeModelPath() {
+        return propagationResultCodeModelPath;
     }
 
-    public void setPropagationResultModelPath(Path propagationResultModelPath) {
-        this.propagationResultModelPath = propagationResultModelPath;
+    public void setPropagationResultCodeModelPath(Path propagationResultCodeModelPath) {
+        this.propagationResultCodeModelPath = propagationResultCodeModelPath;
     }
+
+    public Path getPropagationResultRepositoryModelPath() {
+        return propagationResultRepositoryModelPath;
+    }
+
+    public void setPropagationResultRepositoryModelPath(Path propagationResultRepositoryModelPath) {
+        this.propagationResultRepositoryModelPath = propagationResultRepositoryModelPath;
+    }
+
 }

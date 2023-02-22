@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Runtimedata
+Bundle-SymbolicName: cipm.consistency.commitintegration.lang.lua.runtimedata
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.emf.ecore
+Automatic-Module-Name: cipm.consistency.commitintegration.lang.lua.runtimedata
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Export-Package: cipm.consistency.commitintegration.lang.lua.runtimedata

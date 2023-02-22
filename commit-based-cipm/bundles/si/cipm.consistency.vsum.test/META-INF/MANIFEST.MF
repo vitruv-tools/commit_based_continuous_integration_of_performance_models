@@ -15,7 +15,6 @@ Require-Bundle: cipm.consistency.commitintegration,
  cipm.consistency.tools.evaluation.data,
  cipm.consistency.commitintegration.settings,
  org.junit,
- cipm.consistency.commitintegration.lang.java;resolution:=optional,
  cipm.consistency.commitintegration.lang.lua,
  cipm.consistency.vsum,
  cipm.consistency.models,
@@ -32,6 +31,7 @@ Require-Bundle: cipm.consistency.commitintegration,
  junit-jupiter-api;bundle-version="5.9.0",
  cipm.consistency.designtime.instrumentation2;bundle-version="1.0.0",
  cipm.consistency.cpr.pcminit,
- org.eclipse.xtext
+ org.eclipse.xtext,
+ org.palladiosimulator.pcm
 Export-Package: cipm.consistency.vsum.test
 Bundle-RequiredExecutionEnvironment: JavaSE-17

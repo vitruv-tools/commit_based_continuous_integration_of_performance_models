@@ -2,9 +2,13 @@ package cipm.consistency.vsum.test.appspace;
 
 import java.io.IOException;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.junit.Assert;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
@@ -33,24 +37,20 @@ public class CaseStudy1AlternativeTest extends AppSpaceCITest {
 
     @Test
     public void testIntegratingVersions1To7() {
-        // 3 -> 4 is currently broken because the state based change resolution does not work
         propagateAndEvaluate(null, COMMIT_TAG_1, COMMIT_TAG_2, COMMIT_TAG_3, COMMIT_TAG_4, COMMIT_TAG_5,
                 COMMIT_TAG_6, COMMIT_TAG_7);
     }
 
+    @Disabled
     @Test
-    public void testIntegratingVersions3To4() {
-        // 3 -> 4 is currently broken because the state based change resolution does not work
-        propagateAndEvaluate(null, COMMIT_TAG_3, COMMIT_TAG_4);
-    }
+    public void testIntegratingVersionsProbabilities() {
+        LoggingSetup.setMinLogLevel(Level.ERROR);
+        propagateAndEvaluate(null, COMMIT_TAG_4);
+        LoggingSetup.resetLogLevels();
 
-    @Test
-    public void testIntegratingVersions1To3() {
-        propagateAndEvaluate(null, COMMIT_TAG_1, COMMIT_TAG_2, COMMIT_TAG_3);
-    }
-
-    @Test
-    public void testIntegratingVersions4To7() {
-        propagateAndEvaluate(null, COMMIT_TAG_4, COMMIT_TAG_5, COMMIT_TAG_6, COMMIT_TAG_7);
+        var propagation = propagateAndEvaluate(COMMIT_TAG_5).get(0);
+        if (propagation.getConsequentialChangeCount() == 0) {
+            Assert.fail("No pcm changes after moving one statement");
+        }
     }
 }

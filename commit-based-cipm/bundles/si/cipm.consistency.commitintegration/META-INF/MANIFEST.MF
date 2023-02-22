@@ -20,6 +20,7 @@ Require-Bundle: org.apache.log4j,
  cipm.consistency.vsum,
  cipm.consistency.models.instrumentation,
  tools.vitruv.framework.vsum;bundle-version="3.0.0",
- cipm.consistency.models
+ cipm.consistency.models,
+ cipm.consistency.commitintegration.lang.lua.runtimedata;bundle-version="1.0.0"
 Automatic-Module-Name: cipm.consistency.commitintegration
 Bundle-RequiredExecutionEnvironment: JavaSE-13

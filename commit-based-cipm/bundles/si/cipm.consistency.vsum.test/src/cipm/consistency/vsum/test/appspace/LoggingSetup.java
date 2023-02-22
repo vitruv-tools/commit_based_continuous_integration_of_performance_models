@@ -1,6 +1,8 @@
 package cipm.consistency.vsum.test.appspace;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
@@ -30,36 +32,58 @@ public class LoggingSetup {
         }
     }
 
+    /*
+     * mute the logger
+     */
+    public static void setMinLogLevel(Level minLevel) {
+        for (var key : getLevels().keySet()) {
+            var logger = Logger.getLogger(key);
+            if (logger.getLevel()
+                .toInt() < minLevel.toInt()) {
+                logger.setLevel(minLevel);
+            }
+        }
+    }
+
+    public static void setMaxLogLevel(Level maxLevel) {
+        for (var key : getLevels().keySet()) {
+            var logger = Logger.getLogger(key);
+            if (logger.getLevel()
+                .toInt() > maxLevel.toInt()) {
+                logger.setLevel(maxLevel);
+            }
+        }
+    }
+
+    public static void resetLogLevels() {
+        // set log levels
+        for (var entry : getLevels().entrySet()) {
+            Logger.getLogger(entry.getKey())
+                .setLevel(entry.getValue());
+        }
+    }
+
+    private static Map<String, Level> getLevels() {
+        var levels = new HashMap<String, Level>();
+        levels.put("cipm.consistency", Level.INFO);
+        // TODO lower this level once the we use a valid git history (without the invalid serve
+        // calls)
+        levels.put("cipm.consistency.commitintegration.lang.lua.LuaPostProcessor", Level.ERROR);
+        levels.put("mir.reactions", Level.INFO);
+        levels.put("mir.reactions.block", Level.TRACE);
+        levels.put("mir.routines", Level.TRACE);
+        levels.put("tools.vitruv", Level.INFO);
+        levels.put("tools.vitruv.change.atomic.id.IdResolverImpl", Level.WARN);
+        levels.put("tools.vitruv.change.propagation.impl.ChangePropagator", Level.TRACE);
+        levels.put("tools.vitruv.framework.vsum.internal.VirtualModelImpl", Level.WARN);
+        levels.put("org.xtext.lua", Level.INFO);
+        levels.put("jamopp", Level.ALL);
+        return levels;
+    }
+
     public static void setupLogging(Level logLevel) {
-        // set log levels of the framework
-        Logger.getLogger("cipm.consistency")
-            .setLevel(Level.INFO);
-
-//        Logger.getLogger("cipm.consistency.commitintegration.cpr.luapcm")
-//            .setLevel(Level.INFO);
-        Logger.getLogger("cipm.consistency.commitintegration.lang.lua.changeresolution")
-            .setLevel(Level.DEBUG);
-
-        // TODO lower this level once the we use a valid git history (without the invalid serve calls)
-        Logger.getLogger("cipm.consistency.commitintegration.lang.lua.LuaPostProcessor")
-            .setLevel(Level.ERROR);
-
-        Logger.getLogger("mir.reactions")
-            .setLevel(Level.WARN);
-        Logger.getLogger("mir.routines")
-            .setLevel(Level.WARN);
-        Logger.getLogger("mir.routines.statement_actions")
-            .setLevel(Level.WARN);
-        Logger.getLogger("mir.routines.block_rdBehaviour")
-            .setLevel(Level.WARN);
-        Logger.getLogger("jamopp")
-            .setLevel(Level.ALL);
-        Logger.getLogger("tools.vitruv")
-            .setLevel(Level.WARN);
-        Logger.getLogger("tools.vitruv.framework.vsum.internal.VirtualModelImpl")
-            .setLevel(Level.WARN);
-        Logger.getLogger("org.xtext.lua")
-            .setLevel(Level.INFO);
+        resetLogLevels();
+        setMinLogLevel(Level.INFO);
 
         var rootLogger = Logger.getRootLogger();
         rootLogger.setLevel(Level.ALL);

@@ -3,9 +3,12 @@ package cipm.consistency.cpr.luapcm.seffreconstruction;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.EcoreUtil2;
 import org.xtext.lua.lua.ComponentSet;
+
+import cipm.consistency.commitintegration.lang.lua.runtimedata.ChangedResources;
 
 /**
  * This singleton class is used to store and retrieve infos about component sets.
@@ -16,21 +19,19 @@ import org.xtext.lua.lua.ComponentSet;
 public final class ComponentSetInfoRegistry {
 
     // singleton info map
-    private static Map<ComponentSet, ComponentSetInfo> setToInfos;
-    
-    private static Map<ComponentSet, ComponentSetInfo> getInfos() {
-       if (setToInfos == null) {
-           setToInfos = new HashMap<>();
-       }
-       return setToInfos;
-    }
+    private static Map<ComponentSet, ComponentSetInfo> uriToInfos = new HashMap<>();
     
     public static ComponentSetInfo getInfosForComponentSet(ComponentSet componentSet) {
-        if (getInfos().containsKey(componentSet)) {
-            return getInfos().get(componentSet);
+        if (ChangedResources.getAndResetResourcesWereChanged()) {
+            uriToInfos = new HashMap<>();
         }
+        
+        if (uriToInfos.containsKey(componentSet)) {
+            return uriToInfos.get(componentSet);
+        }
+
         var newInfos = new ComponentSetInfo(componentSet);
-        getInfos().put(componentSet, newInfos);
+        uriToInfos.put(componentSet, newInfos);
         return newInfos;
     }
 

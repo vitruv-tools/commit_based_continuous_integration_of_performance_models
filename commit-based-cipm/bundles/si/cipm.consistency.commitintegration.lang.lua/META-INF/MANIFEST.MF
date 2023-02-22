@@ -9,8 +9,7 @@ Export-Package: cipm.consistency.commitintegration.lang.lua,
  cipm.consistency.commitintegration.lang.lua.appspace,
  cipm.consistency.commitintegration.lang.lua.appspace.detection,
  cipm.consistency.commitintegration.lang.lua.changeresolution
-Require-Bundle: cipm.consistency.commitintegration,
- tools.vitruv.change.composite,
+Require-Bundle: tools.vitruv.change.composite,
  tools.vitruv.framework.vsum,
  org.eclipse.xtend.lib,
  org.eclipse.xtext.testing;bundle-version="2.28.0",
@@ -21,4 +20,5 @@ Require-Bundle: cipm.consistency.commitintegration,
  edu.kit.ipd.sdq.commons.util.emf;bundle-version="2.0.0",
  org.splevo.diffing;bundle-version="1.0.0",
  edu.kit.ipd.sdq.activextendannotations,
- org.eclipse.emf.edit;bundle-version="2.17.0"
+ org.eclipse.emf.edit;bundle-version="2.17.0",
+ cipm.consistency.commitintegration;bundle-version="1.0.0"

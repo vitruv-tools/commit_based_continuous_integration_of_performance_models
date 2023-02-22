@@ -25,21 +25,21 @@ reaction RemovedStatement {
 	}
 }
 
-reaction AddedServeCall {
-	after element lua::Expression_Functioncall_Direct created
-	call {
-		// if (isThisAServeCall?) {
-		// TODO make sure that that the according seff is created
-		// }
-	}
-	
-}
-
-reaction RemovedServeCall {
-	after element lua::Statement removed from lua::Block[statements]
-	call {
-		// if (isThisAServeCall?) {
-		// TODO make sure that that the according seff removed
-		// }
-	}
-}
+//reaction AddedServeCall {
+//	after element lua::Expression_Functioncall_Direct created
+//	call {
+//		// if (isThisAServeCall?) {
+//		// TODO make sure that that the according seff is created
+//		// }
+//	}
+//	
+//}
+//
+//reaction RemovedServeCall {
+//	after element lua::Statement removed from lua::Block[statements]
+//	call {
+//		// if (isThisAServeCall?) {
+//		// TODO make sure that that the according seff removed
+//		// }
+//	}
+//}

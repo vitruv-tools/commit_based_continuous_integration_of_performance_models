@@ -40,7 +40,6 @@ public class PcmFacade implements ModelFacade {
             createModelResources();
         } else {
             loadFromDisk();
-
         }
     }
 
