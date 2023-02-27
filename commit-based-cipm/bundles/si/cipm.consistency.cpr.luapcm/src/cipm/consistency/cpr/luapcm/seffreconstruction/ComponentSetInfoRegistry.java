@@ -3,7 +3,6 @@ package cipm.consistency.cpr.luapcm.seffreconstruction;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.EcoreUtil2;
 import org.xtext.lua.lua.ComponentSet;
