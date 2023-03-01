@@ -11,6 +11,7 @@ import org.palladiosimulator.pcm.seff.AbstractAction;
  * 
  * @author Martin Armbruster
  */
+@SuppressWarnings("serial")
 public class ActionStatementMapping extends HashMap<AbstractAction, Statement> {
     private HashMap<AbstractAction, Statement> actionToLastStatement = new HashMap<>();
 

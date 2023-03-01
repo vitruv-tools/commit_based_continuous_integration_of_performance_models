@@ -20,7 +20,6 @@ routine addedSeffBlock(lua::Block block) {
 		val rdBehaviour = retrieve optional pcm::ResourceDemandingBehaviour corresponding to block
 	}
 	update {
-		logger.info("foo")
 		if (rdBehaviour.present) {
 			logger.warn(block.toString + ": RD behaviour already exists")
 			return

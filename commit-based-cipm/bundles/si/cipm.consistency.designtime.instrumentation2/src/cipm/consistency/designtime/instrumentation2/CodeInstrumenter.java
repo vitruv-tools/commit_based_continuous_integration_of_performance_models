@@ -86,13 +86,12 @@ public final class CodeInstrumenter {
 
         LOGGER.trace("Saving the instrumented code.");
 
-        ModelSaverInRepositoryCopy.saveModels(targetSet, copy, state.getInstrumentedCodeModelFacade()
-            .getDirLayout()
-            .getRootDirPath(),
-                state.getGitRepositoryWrapper()
-                    .getWorkTree()
-                    .toPath(),
-                gen);
+        var path = state.getDirLayout()
+            .getRootDirPath()
+            .resolve("instrumented-code");
+        ModelSaverInRepositoryCopy.saveModels(targetSet, copy, path, state.getGitRepositoryWrapper()
+            .getWorkTree()
+            .toPath(), gen);
 
         LOGGER.trace("Finished the instrumentation.");
         return copy;
