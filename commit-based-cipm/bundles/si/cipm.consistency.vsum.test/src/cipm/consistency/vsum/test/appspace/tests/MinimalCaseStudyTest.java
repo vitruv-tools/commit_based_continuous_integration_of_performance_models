@@ -1,4 +1,4 @@
-package cipm.consistency.vsum.test.appspace;
+package cipm.consistency.vsum.test.appspace.tests;
 
 import java.io.IOException;
 
@@ -9,13 +9,14 @@ import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
+import cipm.consistency.vsum.test.appspace.AppSpaceCITestController;
 
 /**
  * Testclass for a minimal case study to test the functionality of the approach
  * 
  * @author Lukas Burgey
  */
-public class MinimalCaseStudyTest extends AppSpaceCITest {
+public class MinimalCaseStudyTest extends AppSpaceCITestController {
     private static final String CASESTUDY_SUBMODULE = "commit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/minimalCaseStudy";
     private static final String COMMIT_1 = "842ec92f3406da965a5f9e7f468eb80eeb287b04";
     private static final String COMMIT_2 = "f63d05a18a5dd36f29e7312d797f2806d935e3a3";

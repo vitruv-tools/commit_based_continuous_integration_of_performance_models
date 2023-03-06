@@ -8,36 +8,21 @@ in reaction to changes in lua
 execute actions in pcm
 
 import statementFunctionDeclaration_operationSignature
-//import statementFunctionDeclaration_seff
 
 reaction AddedDeclaration {
 	after element lua::Statement_Function_Declaration inserted in lua::Block[statements]
-	call addedDeclaration(newValue)
-}
-
-reaction RemovedDeclaration {
-	after element lua::Statement_Function_Declaration removed from lua::Block[statements]
-	call removedDeclaration(oldValue)
-}
-
-routine addedDeclaration(lua::Statement_Function_Declaration decl) {
-	update {
-		if (SeffHelper.needsSeffReconstruction(decl)) {
-			logger.info(decl.name + ": New function needs Seff reconstruction")
-			createOperationSignatureForStatementFunctionDeclaration(decl)
-//			newStatementFunctionDeclaration(decl)
+	call {
+		if (SeffHelper.needsSeffReconstruction(newValue)) {
+			logger.info(newValue.name + ": New function needs Seff reconstruction")
+			createOperationSignatureForStatementFunctionDeclaration(newValue)
 		}
 	}
 }
 
-routine removedDeclaration(lua::Statement_Function_Declaration decl) {
-	match {
-		retrieve pcm::ResourceDemandingSEFF corresponding to decl
-		retrieve pcm::OperationSignature corresponding to decl
-	}
-	update {
-		logger.info(decl.name + ": Function with SEFF removed")
-//		removeSeffForStatementFunctionDeclaration(decl)
-		removeOperationSignatureForStatementFunctionDeclaration(decl)
+reaction RemovedDeclaration {
+	after element lua::Statement_Function_Declaration removed from lua::Block[statements]
+	call {
+		logger.info(oldValue.name + ": Function with SEFF removed")
+		removeOperationSignatureForStatementFunctionDeclaration(oldValue)
 	}
 }

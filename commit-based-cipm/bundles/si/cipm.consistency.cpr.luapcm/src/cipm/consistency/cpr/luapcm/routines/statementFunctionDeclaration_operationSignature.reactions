@@ -1,4 +1,5 @@
 import cipm.consistency.cpr.luapcm.seffreconstruction.ComponentSetInfoRegistry
+import org.palladiosimulator.pcm.seff.ExternalCallAction
 import org.xtext.lua.LuaUtil
 
 import "http://www.xtext.org/lua/Lua" as lua
@@ -24,14 +25,14 @@ routine createOperationSignatureForStatementFunctionDeclaration(lua::Statement_F
 		operationSignature.interface__OperationSignature = operationInterface
 		operationInterface.signatures__OperationInterface += operationSignature
 
-		// TODO remove 
-//		println("adding signature " + operationSignature.entityName)
 		// some external call actions may be created before this signature is created, so we fix the ExternalCallAction
 		// set signature in external call actions which are calling this declaration
 		ComponentSetInfoRegistry.getInfosForComponentSet(functionDeclaration).declarationToCallingActions.get(
 			functionDeclaration).forEach [
-			logger.debug("Found a calling external call the created signature. Registerring it.")
-			it.calledService_ExternalService = operationSignature
+				if (it instanceof ExternalCallAction) {
+					logger.debug("ExternalCallAction for newly created signature exists. Binding it.")
+					it.calledService_ExternalService = operationSignature
+				}
 		]
 
 		addCorrespondenceBetween(functionDeclaration, operationSignature)

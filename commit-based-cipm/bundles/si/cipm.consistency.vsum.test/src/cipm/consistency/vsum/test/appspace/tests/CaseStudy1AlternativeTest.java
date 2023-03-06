@@ -1,9 +1,8 @@
-package cipm.consistency.vsum.test.appspace;
+package cipm.consistency.vsum.test.appspace.tests;
 
 import java.io.IOException;
 
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
@@ -12,6 +11,8 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
+import cipm.consistency.vsum.test.appspace.AppSpaceCITestController;
+import cipm.consistency.vsum.test.appspace.LoggingSetup;
 
 /**
  * A test class for the AppSpace Case Study
@@ -19,7 +20,7 @@ import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
  * @author Martin Armbruster
  * @author Lukas Burgey
  */
-public class CaseStudy1AlternativeTest extends AppSpaceCITest {
+public class CaseStudy1AlternativeTest extends AppSpaceCITestController {
     private static final String CASESTUDY_SUBMODULE = "commit-based-cipm/bundles/si/cipm.consistency.vsum.test/ciTestRepos/caseStudy1";
     private static final String COMMIT_TAG_1 = "fce1b9f12c0719451141078cdc7785e866fdb12f";
     private static final String COMMIT_TAG_2 = "95f0868b5f61bb1110862da75f21cfabc0530737";

@@ -28,7 +28,7 @@ routine addedSeffBlock(lua::Block block) {
 		val parentStatement = EcoreUtil2.getContainerOfType(block, Statement)
 		if (parentStatement instanceof Statement_Function_Declaration) {
 			// create the RDSEFF for the block
-			createRDSeff(block)
+			createRDSeff(block, parentStatement)
 		} else {
 			// create the RDBehaviour for the block
 			createRDBehaviour(block)
@@ -36,7 +36,7 @@ routine addedSeffBlock(lua::Block block) {
 	}
 }
 
-routine createRDSeff(lua::Block block) {
+routine createRDSeff(lua::Block block, lua::Statement_Function_Declaration declaration) {
 	match {
 		require absence of pcm::ResourceDemandingBehaviour corresponding to block
 		val basicComponent = retrieve optional pcm::BasicComponent corresponding to LuaUtil.getComponent(block)
@@ -56,12 +56,23 @@ routine createRDSeff(lua::Block block) {
 			return
 		}
 
-		logger.debug(block.toString + ": Creating RDSeff")
+		logger.info(block.toString + ": Creating RDSeff")
 		rdSeff.basicComponent_ServiceEffectSpecification = basicComponent.get
 		rdSeff.describedService__SEFF = operationSignature.get
 
 		initializeRDBehaviour(rdSeff, block.toString)
 		addCorrespondenceBetween(rdSeff, block)
+		addCorrespondenceBetween(rdSeff, declaration)
+
+//		ComponentSetInfoRegistry.getInfosForComponentSet(declaration).declarationToCallingActions.get(declaration).
+//			forEach [
+//				if (it instanceof InternalCallAction) {
+//					logger.debug("InternalCallAction for newly created rd behaviour exists. Registering it.")
+//					var internalBehaviour = SeffFactory.eINSTANCE.createResourceDemandingInternalBehaviour
+//					internalBehaviour.resourceDemandingSEFF_ResourceDemandingInternalBehaviour = rdSeff
+//					it.calledResourceDemandingInternalBehaviour = internalBehaviour
+//				}
+//			]
 
 		basicComponent.get.serviceEffectSpecifications__BasicComponent += rdSeff
 	}
@@ -104,13 +115,18 @@ routine addRDBehaviourToParentAction(pcm::AbstractAction parentAction, pcm::Reso
 }
 
 routine addBranchToParentBranchAction(pcm::BranchAction branchAction, pcm::ResourceDemandingBehaviour rdBehaviour, lua::Block block) {
-	match {
-		val ifStatement = retrieve lua::Statement_If_Then_Else corresponding to branchAction
-	}
+//	match {
+//		val ifStatement = retrieve optional lua::Statement_If_Then_Else corresponding to branchAction
+//	}
 	create {
 		val branchTransition = new pcm::ProbabilisticBranchTransition
 	}
 	update {
+//		if (ifStatement.empty) {
+//			logger.error("Cannot add branch to parent branch action")
+//			return
+//		}
+		
 		logger.debug("Adding Branch to parent branch action")
 		branchTransition.setBranchBehaviour_BranchTransition(rdBehaviour)
 

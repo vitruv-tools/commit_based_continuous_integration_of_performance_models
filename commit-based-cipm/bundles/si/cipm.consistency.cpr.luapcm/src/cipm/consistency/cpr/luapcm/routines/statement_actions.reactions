@@ -64,7 +64,7 @@ routine createActionsForStatement(lua::Statement statement, lua::Block block) {
 		// (because that would imply the are both InternalActions which should not happen)
 		if (actionToCheckForFusing !== previousAction && actionToCheckForFusing instanceof InternalAction &&
 			subsequentAction instanceof InternalAction) {
-			logger.warn("Fusing last statement action with subsequent action")
+			logger.debug("Fusing last statement action with subsequent action")
 			fuseTwoInternalActions(actionToCheckForFusing as InternalAction, subsequentAction as InternalAction)
 		} else {
 			ActionUtil.chainActions(actionToCheckForFusing, subsequentAction)
@@ -171,27 +171,29 @@ routine findOrCreateOperationRequiredRole(pcm::ExternalCallAction action, lua::C
 	update {
 		if (existingRole.present) {
 			logger.warn("External action is already associated with a required role")
-			return;
+			return
 		}
 
 		if (requiredInterface.present && pcmCallingComponent.present) {
 			// is there already a role for calls from this component to the called component?
 			// -> then use it
-			val existingRoleForInterface = pcmCallingComponent.get.requiredRoles_InterfaceRequiringEntity.stream().
+			val existingRequiredRoleForInterface = pcmCallingComponent.get.requiredRoles_InterfaceRequiringEntity.stream().
 				filter [
-					(it as OperationRequiredRole).requiredInterface__OperationRequiredRole.equals(requiredInterface)
+					requiredInterface.get.equals((it as OperationRequiredRole).requiredInterface__OperationRequiredRole)
+				].map[
+					it as OperationRequiredRole
 				].findAny
 
-			if (existingRoleForInterface.present) {
+			if (existingRequiredRoleForInterface.present) {
 				logger.debug("Found role for requiring interface")
-				addCorrespondenceBetween(action, existingRoleForInterface.get)
+				bindExternalCallAndRequiredRole(action, existingRequiredRoleForInterface.get)
 
 			} else {
 				logger.debug("Required role needs to be created")
 				createOperationRequiredRole(action, pcmCallingComponent.get, requiredInterface.get)
 			}
 		} else {
-			logger.debug("Unable to find required interface or calling component for creating a required role")
+			logger.warn("Unable to find required interface or calling component for creating a required role")
 		}
 	}
 }
@@ -213,8 +215,14 @@ routine createOperationRequiredRole(pcm::ExternalCallAction action, pcm::BasicCo
 		pcmCallingComponent.requiredRoles_InterfaceRequiringEntity += operationRequiredRole
 
 		// make sure the action uses the role
-		action.role_ExternalService = operationRequiredRole
-		addCorrespondenceBetween(action, operationRequiredRole)
+		bindExternalCallAndRequiredRole(action, operationRequiredRole)
+	}
+}
+
+routine bindExternalCallAndRequiredRole(pcm::ExternalCallAction action, pcm::OperationRequiredRole requiredRole) {
+	update {
+		action.role_ExternalService = requiredRole
+		addCorrespondenceBetween(action, requiredRole)
 	}
 }
 

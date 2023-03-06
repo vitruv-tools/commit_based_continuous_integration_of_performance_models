@@ -66,15 +66,18 @@ public class LoggingSetup {
     private static Map<String, Level> getLevels() {
         var levels = new HashMap<String, Level>();
         levels.put("cipm.consistency", Level.INFO);
+        levels.put("cipm.consistency.cpr.luapcm.seffreconstruction", Level.DEBUG);
         // TODO lower this level once the we use a valid git history (without the invalid serve
         // calls)
-        levels.put("cipm.consistency.commitintegration.lang.lua.LuaPostProcessor", Level.ERROR);
+//        levels.put("cipm.consistency.commitintegration.lang.lua.LuaPostProcessor", Level.ERROR);
         levels.put("mir.reactions", Level.INFO);
-        levels.put("mir.reactions.block", Level.TRACE);
-        levels.put("mir.routines", Level.TRACE);
+//        levels.put("mir.reactions.block", Level.INFO);
+        levels.put("mir.routines", Level.INFO);
+        levels.put("mir.routines.statementFunctionDeclaration_operationSignature", Level.WARN);
+        levels.put("mir.routines.statement_actions", Level.INFO);
         levels.put("tools.vitruv", Level.INFO);
         levels.put("tools.vitruv.change.atomic.id.IdResolverImpl", Level.WARN);
-        levels.put("tools.vitruv.change.propagation.impl.ChangePropagator", Level.TRACE);
+//        levels.put("tools.vitruv.change.propagation.impl.ChangePropagator", Level.TRACE);
         levels.put("tools.vitruv.framework.vsum.internal.VirtualModelImpl", Level.WARN);
         levels.put("org.xtext.lua", Level.INFO);
         levels.put("jamopp", Level.ALL);
@@ -83,7 +86,7 @@ public class LoggingSetup {
 
     public static void setupLogging(Level logLevel) {
         resetLogLevels();
-        setMinLogLevel(Level.INFO);
+        setMinLogLevel(Level.DEBUG);
 
         var rootLogger = Logger.getRootLogger();
         rootLogger.setLevel(Level.ALL);

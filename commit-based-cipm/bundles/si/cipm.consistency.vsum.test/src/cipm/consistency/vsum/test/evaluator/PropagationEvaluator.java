@@ -13,13 +13,13 @@ import java.util.function.Consumer;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.BasicDiagnostic;
+import org.eclipse.emf.common.util.WrappedException;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EObjectValidator;
+import org.eclipse.emf.ecore.xmi.UnresolvedReferenceException;
 import org.eclipse.xtext.EcoreUtil2;
 import org.palladiosimulator.pcm.repository.Repository;
-import org.palladiosimulator.pcm.repository.util.RepositoryValidator;
-import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
-import org.palladiosimulator.pcm.seff.util.SeffValidator;
+import org.xtext.lua.lua.ComponentSet;
 
 import cipm.consistency.base.shared.ModelUtil;
 import cipm.consistency.vsum.Propagation;
@@ -49,6 +49,11 @@ public class PropagationEvaluator {
      * @return True if the vsum code model was updated correctly during the propagation
      */
     private static boolean evaluateChangeResolution(Propagation propagation) {
+        var codeModelValid = evaluateVsumCodeModel(propagation);
+        if (!codeModelValid) {
+            LOGGER.warn("Vsum code model is invalid");
+        }
+
         var targetModelPath = propagation.getParsedCodeModelTargetVersionPath();
         var actualModelPath = propagation.getPropagationResultCodeModelPath();
         if (targetModelPath == null || actualModelPath == null) {
@@ -66,24 +71,13 @@ public class PropagationEvaluator {
         return modelsSimilar;
     }
 
-    /**
-     * Runs the Repository validator against the repository model that was the result of this
-     * propagation.
-     * 
-     * @param propagation
-     * @return True if valid
+    /*
+     * Validate a given EObject and all its children
      */
-    private static boolean evaluateResultingRepositoryModel(Propagation propagation) {
-        var repoModelPath = propagation.getPropagationResultRepositoryModelPath();
-        var repo = ModelUtil.readFromFile(repoModelPath.toFile(), Repository.class);
-        if (repo == null) {
-            LOGGER.warn("Could not read the repo snapshot file for evaluation");
-            return false;
-        }
-
+    private static boolean validateEObject(EObject rootEObject) {
         var diagnostics = new BasicDiagnostic();
         var eObjValidator = new EObjectValidator();
-        var allContents = EcoreUtil2.getAllContentsOfType(repo, EObject.class);
+        var allContents = EcoreUtil2.getAllContentsOfType(rootEObject, EObject.class);
         var contentsValid = true;
         for (var eObj : allContents) {
             var valid = eObjValidator.validate(eObj, diagnostics, null);
@@ -94,8 +88,43 @@ public class PropagationEvaluator {
                 LOGGER.warn(diag.getMessage());
             }
         }
-
         return contentsValid;
+    }
+
+    private static boolean evaluateVsumCodeModel(Propagation propagation) {
+        var componentSet = ModelUtil.readFromFile(propagation.getPropagationResultCodeModelPath()
+            .toFile(), ComponentSet.class);
+        if (componentSet == null) {
+            LOGGER.warn("Could not read vsum code model for evaluation");
+            return false;
+        }
+        return validateEObject(componentSet);
+    }
+
+    /**
+     * Runs the Repository validator against the repository model that was the result of this
+     * propagation.
+     * 
+     * @param propagation
+     * @return True if valid
+     */
+    private static boolean evaluateResultingRepositoryModel(Propagation propagation) {
+        var repoModelPath = propagation.getPropagationResultRepositoryModelPath();
+        try {
+            var repo = ModelUtil.readFromFile(repoModelPath.toFile(), Repository.class);
+            if (repo == null) {
+                LOGGER.warn("Could not read the repo snapshot file for evaluation");
+                return false;
+            }
+            return validateEObject(repo);
+        } catch (WrappedException e) {
+            LOGGER.warn(e.getMessage());
+            if (e.getCause() instanceof UnresolvedReferenceException unresExp) {
+                LOGGER.warn("Could not resolve " + unresExp.getFeature()
+                    .getName() + " / " + unresExp.getReference() + " on " + unresExp.getObject());
+            }
+            return false;
+        }
     }
 
     public static boolean evaluate(Propagation propagation) {

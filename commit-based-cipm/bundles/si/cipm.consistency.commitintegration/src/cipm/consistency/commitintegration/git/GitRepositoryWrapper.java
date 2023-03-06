@@ -96,7 +96,7 @@ public class GitRepositoryWrapper {
         return this;
     }
 
-    public GitRepositoryWrapper initialize() throws IOException, NoHeadException, GitAPIException {
+    public GitRepositoryWrapper initialize() throws NoHeadException, GitAPIException {
 //        defaultBranch = repository.getBranch();
         git.log()
             .setMaxCount(1)

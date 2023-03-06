@@ -1,3 +1,4 @@
+import cipm.consistency.commitintegration.lang.lua.appspace.AppSpaceSemantics
 import cipm.consistency.cpr.luapcm.seffreconstruction.ActionReconstruction
 
 import "http://www.xtext.org/lua/Lua" as lua
@@ -28,18 +29,20 @@ reaction RemovedStatement {
 //reaction AddedServeCall {
 //	after element lua::Expression_Functioncall_Direct created
 //	call {
-//		// if (isThisAServeCall?) {
-//		// TODO make sure that that the according seff is created
-//		// }
+//		if (AppSpaceSemantics.isServingFunctionCall(affectedEObject)) {
+//			var decl = AppSpaceSemantics.getFunctionDeclarationFromServingFunctionCall(affectedEObject)
+//			if (decl !== null) {
+//				createSeffForDeclaration(decl)
+//			}
+//		}
 //	}
-//	
 //}
 //
 //reaction RemovedServeCall {
-//	after element lua::Statement removed from lua::Block[statements]
+//	after element lua::Expression_Functioncall_Direct deleted
 //	call {
-//		// if (isThisAServeCall?) {
-//		// TODO make sure that that the according seff removed
-//		// }
+//		if (AppSpaceSemantics.isServingFunctionCall(affectedEObject)) {
+//			// TODO make sure that that the according seff removed
+//		}
 //	}
 //}

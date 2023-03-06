@@ -1,12 +1,13 @@
 import "http://www.xtext.org/lua/Lua" as lua
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
 
+
 reactions: luaPcmUpdate
 in reaction to changes in lua
 execute actions in pcm
 
 import luaComponent
-import statementFunctionDeclaration
 import parameter
 import block
 import statement
+import statementFunctionDeclaration

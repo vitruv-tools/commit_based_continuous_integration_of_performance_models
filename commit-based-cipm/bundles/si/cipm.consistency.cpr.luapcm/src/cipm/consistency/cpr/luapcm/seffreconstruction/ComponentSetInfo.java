@@ -8,7 +8,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.EcoreUtil2;
-import org.palladiosimulator.pcm.seff.ExternalCallAction;
+import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.xtext.lua.lua.Block;
 import org.xtext.lua.lua.Component;
 import org.xtext.lua.lua.ComponentSet;
@@ -25,7 +25,6 @@ import com.google.common.collect.ListMultimap;
 
 import cipm.consistency.commitintegration.lang.lua.appspace.AppSpaceSemantics;
 
-
 /**
  * This class contains information about a ComponentSet and its contents which is needed during SEFF
  * reconstruction
@@ -39,7 +38,7 @@ public class ComponentSetInfo {
     private List<String> servedFunctionNames;
 
     // we track which Statement_Function_Declaration are called in an external call action
-    private ListMultimap<Statement_Function_Declaration, ExternalCallAction> declarationToCallingActions;
+    private ListMultimap<Statement_Function_Declaration, AbstractAction> declarationToCallingActions;
 
     // map a component to components it depends upon (because it has external calls to it)
     private ListMultimap<Component, Component> componentToRequiredComponents;
@@ -115,7 +114,7 @@ public class ComponentSetInfo {
         return servedFunctionNames.contains(declaration.getName());
     }
 
-    public ListMultimap<Statement_Function_Declaration, ExternalCallAction> getDeclarationToCallingActions() {
+    public ListMultimap<Statement_Function_Declaration, AbstractAction> getDeclarationToCallingActions() {
         return declarationToCallingActions;
     }
 
@@ -138,24 +137,60 @@ public class ComponentSetInfo {
         }
 
         var parentBlock = EcoreUtil2.getContainerOfType(eObj, Block.class);
-        return blocksRequiringActionReconstruction.contains(parentBlock);
+        var needsReconstruction = blocksRequiringActionReconstruction.contains(parentBlock);
+
+        if (eObj instanceof Statement_If_Then_Else ifStatement) {
+            for (var block : getBlocksFromIfStatement(ifStatement)) {
+                needsReconstruction |= blocksRequiringActionReconstruction.contains(block);
+            }
+        }
+        return needsReconstruction;
+    }
+
+    // TODO move this to a utility class
+    public static List<Block> getBlocksFromIfStatement(Statement_If_Then_Else ifStatement) {
+        List<Block> blocks = new ArrayList<>();
+        if (ifStatement.getBlock() != null) {
+            blocks.add(ifStatement.getBlock());
+        }
+        for (var elseIf : ifStatement.getElseIf()) {
+            blocks.add(elseIf.getBlock());
+        }
+        if (ifStatement.getElseBlock() != null) {
+            blocks.add(ifStatement.getElseBlock());
+        }
+        return blocks;
     }
 
     private void scanFunctionsForActionReconstruction(ComponentSet componentSet) {
         var functionDecls = EcoreUtil2.getAllContentsOfType(componentSet, Statement_Function_Declaration.class);
         for (var functionDecl : functionDecls) {
             if (needsSeffReconstruction(functionDecl)) {
-                scanFunctionForActionReconstruction(functionDecl);
+                scanSeffFunctionForActionReconstruction(functionDecl);
             }
         }
     }
 
-    private void scanFunctionForActionReconstruction(Statement_Function_Declaration decl) {
+    private void scanSeffFunctionForActionReconstruction(Statement_Function_Declaration decl) {
+        /*
+         *  We always mark the root block of a seff function for reconstruction.
+         *  The SEFF may only contain an internal action in which case the marking algorithm will not
+         *  catch the root block.
+         */
+        var func = decl.getFunction();
+        if (func != null) {
+            var rootBlock = func.getBlock();
+            if (rootBlock != null) {
+                markBlockForActionReconstruction(rootBlock);
+            }
+        }
+
         var statements = EcoreUtil2.getAllContentsOfType(decl, Statement.class);
         for (var statement : statements) {
             if (!needsActionReconstruction(statement)
-                    && ActionReconstruction.doesStatementContainExternalCall(statement)) {
+                    && ActionReconstruction.doesStatementContainArchitecturallyRelevantCall(statement, this)) {
                 // mark objects and its parent towards the declaration for action reconstruction
+//                LOGGER.debug("Scan found cause for action reconstruction: " + statement.toString());
                 markObjectAndParentsForActionReconstruction(statement, decl);
             }
         }
@@ -170,36 +205,19 @@ public class ComponentSetInfo {
     private void markObjectAndParentsForActionReconstruction(Statement statement, Statement_Function_Declaration decl) {
         EObject current = statement;
         do {
-            markEObjectForActionReconstruction(current);
+            if (current instanceof Block block) {
+                markBlockForActionReconstruction(block);
+            } else if (current instanceof Statement_If_Then_Else ifStatement) {
+                // also mark other child block when marking branch actions
+                // mark other branches
+                for (var block : getBlocksFromIfStatement(ifStatement)) {
+                    markBlockForActionReconstruction(block);
+                }
+            }
 
             // continue traversal
             current = current.eContainer();
         } while (!current.equals(decl));
-    }
-
-    /*
-     * We mark the blocks for action reconstruction
-     */
-    private void markEObjectForActionReconstruction(EObject eObj) {
-
-        var parentBlock = EcoreUtil2.getContainerOfType(eObj, Block.class);
-
-        // mark directly traversed Objects
-        markBlockForActionReconstruction(parentBlock);
-
-        // also mark other child block when marking branch actions
-        if (eObj instanceof Statement_If_Then_Else ifStatement) {
-            // mark other branches
-            if (ifStatement.getBlock() != null) {
-                markBlockForActionReconstruction(ifStatement.getBlock());
-            }
-            for (var elseIf : ifStatement.getElseIf()) {
-                markBlockForActionReconstruction(elseIf.getBlock());
-            }
-            if (ifStatement.getElseBlock() != null) {
-                markBlockForActionReconstruction(ifStatement.getElseBlock());
-            }
-        }
     }
 
     private void markBlockForActionReconstruction(Block block) {

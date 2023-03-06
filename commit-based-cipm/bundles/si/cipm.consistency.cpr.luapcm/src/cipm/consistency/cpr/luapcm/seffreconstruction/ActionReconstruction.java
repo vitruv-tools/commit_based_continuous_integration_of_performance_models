@@ -9,12 +9,11 @@ import org.eclipse.xtext.EcoreUtil2;
 import org.palladiosimulator.pcm.core.CoreFactory;
 import org.palladiosimulator.pcm.repository.OperationSignature;
 import org.palladiosimulator.pcm.seff.AbstractAction;
-import org.palladiosimulator.pcm.seff.BranchAction;
-import org.palladiosimulator.pcm.seff.LoopAction;
+import org.palladiosimulator.pcm.seff.InternalCallAction;
+import org.palladiosimulator.pcm.seff.ResourceDemandingSEFF;
 import org.palladiosimulator.pcm.seff.SeffFactory;
 import org.xtext.lua.LuaUtil;
 import org.xtext.lua.lua.BlockWrapper;
-import org.xtext.lua.lua.Component;
 import org.xtext.lua.lua.Expression_Functioncall;
 import org.xtext.lua.lua.Expression_Functioncall_Direct;
 import org.xtext.lua.lua.Statement;
@@ -39,10 +38,18 @@ import tools.vitruv.dsls.reactions.runtime.correspondence.ReactionsCorrespondenc
  * @author Lukas Burgey
  *
  */
+// TODO we currently have dead code because of the final config variables:
+@SuppressWarnings("unused")
 public final class ActionReconstruction {
+
+    enum ReconstructionType {
+        InternalAction, InternalCallAction, ExternalCallAction;
+    }
+
+    private static final ReconstructionType RECONSTRUCTION_TYPE_INTERNAL_SEFF_CALL = ReconstructionType.InternalAction;
+
     private static final Logger LOGGER = Logger.getLogger(ActionReconstruction.class.getName());
 
-    // TODO find a better default for this stochastic expression
     private static final String LOOP_COUNT_SPECIFICATION = "10";
 
     private EditableCorrespondenceModelView<ReactionsCorrespondence> correspondenceModelView;
@@ -68,26 +75,58 @@ public final class ActionReconstruction {
                 || eObj instanceof Statement_While || eObj instanceof Statement_Repeat);
     }
 
-    private BranchAction convertIfStatementToAction(Statement_If_Then_Else ifStatement) {
-        var branchAction = SeffFactory.eINSTANCE.createBranchAction();
-        return branchAction;
+    private AbstractAction reconstructBranchAction(Statement_If_Then_Else ifStatement) {
+
+        // we only reconstruct the if statement as a branch if at least one brach was marked as
+        // interesting
+        var ifBlocks = ComponentSetInfo.getBlocksFromIfStatement(ifStatement);
+        var reconstructAsBranchAction = false;
+        for (var block : ifBlocks) {
+            if (needsActionReconstruction(block)) {
+                reconstructAsBranchAction = true;
+                break;
+            }
+        }
+
+        if (reconstructAsBranchAction) {
+            var branchAction = SeffFactory.eINSTANCE.createBranchAction();
+            branchAction.setEntityName("IF " + ifStatement.getIfExpression()
+                .eClass()
+                .getName());
+            return branchAction;
+        }
+
+        var action = SeffFactory.eINSTANCE.createInternalAction();
+        action.setEntityName("IF BLOCK " + ifStatement.getIfExpression()
+            .eClass()
+            .getName());
+        return action;
     }
 
-    private LoopAction convertLoopStatementToAction(BlockWrapper statement) {
-        var loopAction = SeffFactory.eINSTANCE.createLoopAction();
-        loopAction.setEntityName(statement.toString());
+    private AbstractAction reconstructLoopAction(BlockWrapper statement) {
+        var loopBlock = statement.getBlock();
+        if (needsActionReconstruction(loopBlock)) {
 
-        var randomLoopCount = CoreFactory.eINSTANCE.createPCMRandomVariable();
-        randomLoopCount.setSpecification(LOOP_COUNT_SPECIFICATION);
-        loopAction.setIterationCount_LoopAction(randomLoopCount);
-        return loopAction;
+            var loopAction = SeffFactory.eINSTANCE.createLoopAction();
+            loopAction.setEntityName(statement.toString());
+
+            var randomLoopCount = CoreFactory.eINSTANCE.createPCMRandomVariable();
+            randomLoopCount.setSpecification(LOOP_COUNT_SPECIFICATION);
+            loopAction.setIterationCount_LoopAction(randomLoopCount);
+
+            return loopAction;
+        }
+
+        var action = SeffFactory.eINSTANCE.createInternalAction();
+        action.setEntityName("LOOP BLOCK " + statement.toString());
+        return action;
     }
 
-    private AbstractAction convertControlFlowStatementToAction(Statement statement) {
+    private AbstractAction reconstructControlFlowStatementToAction(Statement statement) {
         if (statement instanceof Statement_If_Then_Else ifStatement) {
-            return convertIfStatementToAction(ifStatement);
+            return reconstructBranchAction(ifStatement);
         } else if (statement instanceof BlockWrapper blockWrappingStatement) {
-            return convertLoopStatementToAction(blockWrappingStatement);
+            return reconstructLoopAction(blockWrappingStatement);
         }
 
         LOGGER.error("Action reconstructon of control flow statement is not implemented");
@@ -101,7 +140,8 @@ public final class ActionReconstruction {
         return EcoreUtil2.getAllContentsOfType(statement, Expression_Functioncall_Direct.class);
     }
 
-    private static boolean isExternalCall(Expression_Functioncall_Direct directCall) {
+    private static boolean isCallArchitecturallyRelevant(Expression_Functioncall_Direct directCall,
+            ComponentSetInfo info) {
         var calledFunction = directCall.getCalledFunction();
         var callingComponent = LuaUtil.getComponent(directCall);
         var calledComponent = LuaUtil.getComponent(calledFunction);
@@ -110,76 +150,146 @@ public final class ActionReconstruction {
         var isCallToMockedFunction = calledComponent.getName()
             .equals(LuaLinkingService.MOCK_URI.path());
         var isInternalCall = calledComponent.equals(callingComponent);
+        var isExternalCall = !isInternalCall;
 
-        return isCallToFunction && !isCallToMockedFunction && !isInternalCall;
+        var calledFunctionHasSeff = info.needsSeffReconstruction(calledFunction);
+
+        return isCallToFunction && !isCallToMockedFunction
+                && (isExternalCall || (RECONSTRUCTION_TYPE_INTERNAL_SEFF_CALL == ReconstructionType.InternalCallAction
+                        && isInternalCall && calledFunctionHasSeff));
     }
 
-    protected static boolean doesStatementContainExternalCall(Statement statement) {
+    protected static boolean doesStatementContainArchitecturallyRelevantCall(Statement statement,
+            ComponentSetInfo info) {
         var directCalls = getFunctionCallsFromStatement(statement);
         for (var directCall : directCalls) {
-            if (isExternalCall(directCall)) {
+            if (isCallArchitecturallyRelevant(directCall, info)) {
+                LOGGER.debug("Scan found architecturally relevant function call to: " + directCall.getCalledFunction()
+                    .getName());
                 return true;
             }
         }
         return false;
     }
 
-    private AbstractAction convertExternalDirectFunctionCallToAction(Expression_Functioncall_Direct directCall,
-            Component callingComponent, Component calledComponent) {
+    /*
+     * TODO Using internal call actions to model calling SEFFs from the same component does not work
+     * as we cannot reference the step behaviour of the called SEFF. We would have to duplicate it,
+     * which would likely break the fine grained seff reconstruction.
+     * 
+     * TODO method does currently not work correctly
+     */
+    private InternalCallAction reconstructInternalSeffCallAsInternalCallAction(
+            Expression_Functioncall_Direct directCall) {
+        var calledFunction = (Statement_Function_Declaration) directCall.getCalledFunction();
+        var calledComponent = LuaUtil.getComponent(calledFunction);
 
-        var calledFunction = directCall.getCalledFunction();
-        if (calledFunction instanceof Statement_Function_Declaration calledFunctionDeclaration) {
-            // external call
-            var externalCallAction = SeffFactory.eINSTANCE.createExternalCallAction();
+        // internal call
+        LOGGER.trace(String.format("Call classification: Internal call to SEFF %s ", calledFunction.getName()));
+        var internalCallAction = SeffFactory.eINSTANCE.createInternalCallAction();
+        internalCallAction.setEntityName(calledFunction.getName());
 
-            // determine the signature of the called function
-            // TODO PROBLEM this signature may not yet exist
-            var calledSignature = CorrespondenceUtil.getCorrespondingEObjectByType(correspondenceModelView,
-                    calledFunctionDeclaration, OperationSignature.class);
-            if (calledSignature == null) {
-                LOGGER.info(calledFunctionDeclaration.getName() + ": Signature does not exist");
-            } else {
-                externalCallAction.setCalledService_ExternalService(calledSignature);
-            }
-
-            ComponentSetInfoRegistry.getInfosForComponentSet(directCall)
-                .getDeclarationToCallingActions()
-                .put(calledFunctionDeclaration, externalCallAction);
-
-            LOGGER.trace("Adding correspondence for external call " + externalCallAction.toString());
-            correspondenceModelView.addCorrespondenceBetween(externalCallAction, calledComponent, null);
-
-            return externalCallAction;
+        var calledFunctionRootBlock = calledFunction.getFunction()
+            .getBlock();
+        var rdSeff = CorrespondenceUtil.getCorrespondingEObjectByType(correspondenceModelView, calledFunctionRootBlock,
+                ResourceDemandingSEFF.class);
+        if (rdSeff != null) {
+            var internalBehaviour = SeffFactory.eINSTANCE.createResourceDemandingInternalBehaviour();
+            internalBehaviour.setResourceDemandingSEFF_ResourceDemandingInternalBehaviour(rdSeff);
+            internalCallAction.setCalledResourceDemandingInternalBehaviour(internalBehaviour);
+        } else {
+            // TODO implement this if needed
+            LOGGER.warn("Cannot find rd seff for internal call");
         }
 
-        return null;
+        ComponentSetInfoRegistry.getInfosForComponentSet(directCall)
+            .getDeclarationToCallingActions()
+            .put(calledFunction, internalCallAction);
+
+        LOGGER.trace("Adding correspondence for internal call " + internalCallAction.toString());
+        correspondenceModelView.addCorrespondenceBetween(internalCallAction, calledComponent, null);
+        return internalCallAction;
     }
 
-    private AbstractAction convertDirectFunctionCallToAction(Expression_Functioncall_Direct directCall) {
-        var calledFunction = directCall.getCalledFunction();
-        if (calledFunction == null) {
+    private AbstractAction reconstructExternalSeffCall(Expression_Functioncall_Direct directCall) {
+        var calledFunction = (Statement_Function_Declaration) directCall.getCalledFunction();
+        var calledComponent = LuaUtil.getComponent(calledFunction);
+
+        // external call
+        var externalCallAction = SeffFactory.eINSTANCE.createExternalCallAction();
+
+        // determine the signature of the called function
+        var calledSignature = CorrespondenceUtil.getCorrespondingEObjectByType(correspondenceModelView, calledFunction,
+                OperationSignature.class);
+        if (calledSignature != null) {
+            externalCallAction.setCalledService_ExternalService(calledSignature);
+        } else {
+            LOGGER.warn(calledFunction.getName() + ": Signature does not exist");
+        }
+
+        ComponentSetInfoRegistry.getInfosForComponentSet(directCall)
+            .getDeclarationToCallingActions()
+            .put(calledFunction, externalCallAction);
+
+        LOGGER.trace("Adding correspondence for external call " + externalCallAction.toString());
+        correspondenceModelView.addCorrespondenceBetween(externalCallAction, calledComponent, null);
+
+        return externalCallAction;
+    }
+
+    private AbstractAction reconstructInternalSeffCall(Expression_Functioncall_Direct directCall) {
+        var calledFunction = (Statement_Function_Declaration) directCall.getCalledFunction();
+
+        // we have two alternatives to modelling internal seff calls as internal actions:
+        // Both are currently not working / fit our overall modelling
+        switch (RECONSTRUCTION_TYPE_INTERNAL_SEFF_CALL) {
+        case ExternalCallAction:
+            return reconstructExternalSeffCall(directCall);
+        case InternalCallAction:
+            return reconstructInternalSeffCallAsInternalCallAction(directCall);
+        default:
+        }
+
+        LOGGER.trace(String.format("Call classification: Internal call to non-SEFF %s ", calledFunction.getName()));
+        var action = SeffFactory.eINSTANCE.createInternalAction();
+        action.setEntityName("CALL_TO_SEFF_" + calledFunction.getName());
+        return action;
+    }
+
+    private AbstractAction reconstructExternalStdlibCrownCall(Expression_Functioncall_Direct directCall) {
+        var calledFunction = (Statement_Function_Declaration) directCall.getCalledFunction();
+        var calledComponent = LuaUtil.getComponent(calledFunction);
+
+        var action = SeffFactory.eINSTANCE.createInternalAction();
+        action.setEntityName("CALL_TO_STDLIB/CROWN " + calledComponent.getName());
+        return action;
+    }
+
+    private AbstractAction reconstructDirectFunctionCallToAction(Expression_Functioncall_Direct directCall) {
+        if (directCall.getCalledFunction() == null) {
             return null;
         }
 
+        if (!(directCall.getCalledFunction() instanceof Statement_Function_Declaration)) {
+            LOGGER.warn("Called function is not function declaration");
+            return null;
+        }
+        var calledFunction = (Statement_Function_Declaration) directCall.getCalledFunction();
         var callingComponent = LuaUtil.getComponent(directCall);
         var calledComponent = LuaUtil.getComponent(calledFunction);
 
         // if we call another of our own seffs we use their step behaviour
         if (callingComponent.equals(calledComponent)) {
             if (SeffHelper.needsSeffReconstruction(calledFunction)) {
-                // internal call
-                LOGGER.trace(String.format("Call classification: Internal call to SEFF %s ", calledFunction.getName()));
-                var action = SeffFactory.eINSTANCE.createInternalCallAction();
-                action.setEntityName(calledFunction.getName());
-                // TODO implement this if needed
-                action.setCalledResourceDemandingInternalBehaviour(null);
+                LOGGER.trace("Call classification: Internal call to SEFF " + calledFunction.getName());
+                return reconstructInternalSeffCall(directCall);
+
+            } else {
+                LOGGER.trace("Call classification: Internal call to non-SEFF " + calledFunction.getName());
+                var action = SeffFactory.eINSTANCE.createInternalAction();
+                action.setEntityName("CALL_TO_NON-SEFF_" + calledFunction.getName());
                 return action;
             }
-
-            LOGGER.trace(String.format("Call classification: Internal call to non-SEFF %s ", calledFunction.getName()));
-            var action = SeffFactory.eINSTANCE.createInternalAction();
-            action.setEntityName(calledFunction.getName());
-            return action;
         }
 
         // external or library call
@@ -188,25 +298,23 @@ public final class ActionReconstruction {
         if (isCallToMockedFunction) {
             // library call
             LOGGER.trace(String.format("Call classification: Library call %s ", calledFunction.getName()));
-            var action = SeffFactory.eINSTANCE.createInternalAction();
-            action.setEntityName(calledComponent.getName());
-            return action;
+            return reconstructExternalStdlibCrownCall(directCall);
         }
 
-        LOGGER.trace(String.format("Call classification: External call to SEFF %s ", calledFunction.getName()));
-        return convertExternalDirectFunctionCallToAction(directCall, callingComponent, calledComponent);
+        LOGGER.debug(String.format("Call classification: External call to SEFF %s ", calledFunction.getName()));
+        return reconstructExternalSeffCall(directCall);
     }
 
     // TODO this is currently only implemented for direct functioncalls
-    private AbstractAction convertFunctionCallToAction(Expression_Functioncall call) {
+    private AbstractAction reconstructFunctionCallToAction(Expression_Functioncall call) {
         if (call instanceof Expression_Functioncall_Direct directCall) {
-            return convertDirectFunctionCallToAction(directCall);
+            return reconstructDirectFunctionCallToAction(directCall);
         }
         LOGGER.error("Function classification for non-direct function calls is not yet implemented");
         return null;
     }
 
-    private List<AbstractAction> convertFunctionCallStatementToActions(Statement statement) {
+    private List<AbstractAction> reconstructFunctionCallStatementToActions(Statement statement) {
         List<AbstractAction> actions = new ArrayList<>();
 
         // all function calls in this statement (or the statement may be a call itself)
@@ -217,7 +325,7 @@ public final class ActionReconstruction {
         AbstractAction predecessor = null;
         AbstractAction action = null;
         for (var functionCall : functionCalls) {
-            action = convertFunctionCallToAction(functionCall);
+            action = reconstructFunctionCallToAction(functionCall);
             if (action != null) {
                 action.setEntityName("CALL_TO " + functionCall.getCalledFunction()
                     .getName());
@@ -231,17 +339,16 @@ public final class ActionReconstruction {
         return actions;
     }
 
-    private List<AbstractAction> convertStatementToActions(Statement statement) {
+    private List<AbstractAction> reconstructActionsForStatement(Statement statement) {
         if (isControlFlowStatement(statement)) {
-            var cfAction = convertControlFlowStatementToAction(statement);
+            var cfAction = reconstructControlFlowStatementToAction(statement);
             if (cfAction != null) {
                 return List.of(cfAction);
             }
         } else {
             // statements which contains function calls, but is NO control flow statement
-            var statementActions = convertFunctionCallStatementToActions(statement);
+            var statementActions = reconstructFunctionCallStatementToActions(statement);
             if (statementActions.size() > 0) {
-                LOGGER.trace("Statement contains actions");
                 return statementActions;
             }
         }
@@ -251,6 +358,6 @@ public final class ActionReconstruction {
     public static List<AbstractAction> getActionsForStatement(Statement statement,
             EditableCorrespondenceModelView<ReactionsCorrespondence> cmv) {
         var instance = new ActionReconstruction(cmv);
-        return instance.convertStatementToActions(statement);
+        return instance.reconstructActionsForStatement(statement);
     }
 }

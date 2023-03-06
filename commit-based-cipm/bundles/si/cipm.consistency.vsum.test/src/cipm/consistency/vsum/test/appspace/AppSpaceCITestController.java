@@ -22,7 +22,7 @@ import cipm.consistency.commitintegration.CommitIntegrationState;
 import cipm.consistency.vsum.Propagation;
 import cipm.consistency.vsum.test.evaluator.PropagationEvaluator;
 
-public abstract class AppSpaceCITest extends AppSpaceCommitIntegrationController {
+public abstract class AppSpaceCITestController extends AppSpaceCommitIntegrationController {
 
     /**
      * The path to the git directory of the whole cipm repository. This path is relative to the
