@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.junit.Assert;
@@ -23,6 +24,8 @@ import cipm.consistency.vsum.Propagation;
 import cipm.consistency.vsum.test.evaluator.PropagationEvaluator;
 
 public abstract class AppSpaceCITestController extends AppSpaceCommitIntegrationController {
+
+    private static final Logger LOGGER = Logger.getLogger(AppSpaceCITestController.class);
 
     /**
      * The path to the git directory of the whole cipm repository. This path is relative to the
@@ -87,9 +90,15 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
     }
 
     @BeforeEach
-    public void setup(TestInfo testInfo) throws InvalidRemoteException, org.eclipse.jgit.api.errors.TransportException,
-            IOException, GitAPIException {
-        setup(testInfo, true);
+    public void setup(TestInfo testInfo) {
+        try {
+            LoggingSetup.setMinLogLevel(Level.WARN);
+            setup(testInfo, true);
+        } catch (IOException | GitAPIException e) {
+            e.printStackTrace();
+        } finally {
+            LoggingSetup.resetLogLevels();
+        }
     }
 
     @AfterEach
@@ -129,6 +138,10 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
         return PropagationEvaluator.evaluate(propagation);
     }
 
+    private boolean getImmediateEvaluation() {
+        return false;
+    }
+
     /**
      * Propagates the given commits and evaluates every propagation.
      * 
@@ -137,6 +150,7 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
      * @return The list of all the propagations.
      */
     protected List<Propagation> propagateAndEvaluate(String... commitIds) {
+
         List<Propagation> allPropagations = new ArrayList<>();
         try {
             for (var commitId : commitIds) {
@@ -148,11 +162,23 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
                 }
 
                 assert propagation.size() == 1;
-                if (!evaluatePropagation(propagation.get(0))) {
-                    Assert.fail("Propagation failed evaluation: " + propagation.toString());
+                if (getImmediateEvaluation() && !evaluatePropagation(propagation.get(0))) {
+                    failTest("Propagation failed evaluation (immediate abort)");
                 }
                 allPropagations.addAll(propagation);
             }
+
+            if (!getImmediateEvaluation()) {
+                LOGGER.info("\n\tEvaluating all propagations");
+                var i = 1;
+                for (var propagation : allPropagations) {
+                    if (!evaluatePropagation(propagation)) {
+                        failTest(String.format("Propagation #%d failed evaluation", i));
+                    }
+                    i++;
+                }
+            }
+
             return allPropagations;
         } catch (IOException | GitAPIException e) {
             e.printStackTrace();
@@ -160,6 +186,11 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
         }
 
         return null;
+    }
+    
+    private void failTest(String msg) {
+        LOGGER.error(msg);
+        Assert.fail(msg);
     }
 
     /**
@@ -260,6 +291,14 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
         }
     }
 
+    protected void propagateAndEvaluateIndividually(TestInfo testInfo, String... commits) {
+        for (var commit : commits) {
+            setup(testInfo);
+            propagateAndEvaluate(null, commit);
+            cleanupAfterTest();
+        }
+    }
+
     /**
      * Performs an evaluation independent of the change propagation. It requires that changes
      * between two commits has been propagated. It is recommended that this method is not executed
@@ -322,6 +361,6 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
 
     @BeforeEach
     public void setUpLogging() {
-        LoggingSetup.setupLogging(Level.WARN);
+        LoggingSetup.setupLogging(Level.INFO);
     }
 }

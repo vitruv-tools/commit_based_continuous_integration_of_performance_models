@@ -130,6 +130,14 @@ public class PropagationEvaluator {
     public static boolean evaluate(Propagation propagation) {
         var changeResolution = evaluateChangeResolution(propagation);
         var repositoryValid = evaluateResultingRepositoryModel(propagation);
+        
+        if (!changeResolution) {
+            LOGGER.warn("Change resolution did not pass evaluation");
+        }
+        if (!repositoryValid) {
+            LOGGER.warn("PCM repository did not pass evaluation");
+        }
+
         var valid = changeResolution && repositoryValid;
         if (valid) {
             LOGGER.info("Propagation passed evaluation");
@@ -152,18 +160,17 @@ public class PropagationEvaluator {
     private static void printDiffBetween(Path target, Path actual) {
         try {
             var process = Runtime.getRuntime()
-                .exec(String.format("/usr/bin/icdiff --cols=120 %s %s", target.toString(), actual.toString()));
+                .exec(String.format("/usr/bin/icdiff --cols=200 %s %s", target.toString(), actual.toString()));
 
             StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
             Future<?> future = Executors.newSingleThreadExecutor()
                 .submit(streamGobbler);
 
             int exitCode = process.waitFor();
-            assert exitCode == 0;
-
-            future.get();
+            if (exitCode == 0) {
+                future.get();
+            }
         } catch (IOException | InterruptedException | ExecutionException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

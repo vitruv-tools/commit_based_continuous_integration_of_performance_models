@@ -368,6 +368,9 @@
         <setEntry value="org.eclipse.ecf.provider.filetransfer@default:default"/>
         <setEntry value="org.eclipse.ecf.ssl@default:false"/>
         <setEntry value="org.eclipse.ecf@default:default"/>
+        <setEntry value="org.eclipse.eclemma.core@default:default"/>
+        <setEntry value="org.eclipse.eclemma.doc@default:default"/>
+        <setEntry value="org.eclipse.eclemma.ui@default:default"/>
         <setEntry value="org.eclipse.eef.common.ui@default:default"/>
         <setEntry value="org.eclipse.eef.common@default:default"/>
         <setEntry value="org.eclipse.eef.core.ext.widgets.reference@default:default"/>
@@ -762,12 +765,16 @@
         <setEntry value="org.emftext.language.java.edit@default:default"/>
         <setEntry value="org.emftext.language.java@default:default"/>
         <setEntry value="org.hamcrest.core@default:default"/>
+        <setEntry value="org.jacoco.agent@default:default"/>
+        <setEntry value="org.jacoco.core@default:default"/>
+        <setEntry value="org.jacoco.report@default:default"/>
         <setEntry value="org.junit@default:default"/>
         <setEntry value="org.modelversioning.emfprofile.application.registry@default:default"/>
         <setEntry value="org.modelversioning.emfprofile.edit@default:default"/>
         <setEntry value="org.modelversioning.emfprofile.project@default:default"/>
         <setEntry value="org.modelversioning.emfprofile.registry@default:default"/>
         <setEntry value="org.modelversioning.emfprofile@default:default"/>
+        <setEntry value="org.objectweb.asm.commons@default:default"/>
         <setEntry value="org.objectweb.asm.tree@default:default"/>
         <setEntry value="org.objectweb.asm@default:default"/>
         <setEntry value="org.opentest4j@default:default"/>

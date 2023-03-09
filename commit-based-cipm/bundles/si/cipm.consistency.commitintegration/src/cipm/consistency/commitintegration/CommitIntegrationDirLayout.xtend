@@ -18,6 +18,7 @@ class CommitIntegrationDirLayout extends ModelDirLayoutImpl {
 	
 	static String commitsFileName = "commits"
 	static String settingsFileName = "settings.settings"
+	static String reactionsLogFileName = "reactions.log"
 	
 	Path vsumDirPath
 	Path pcmDirPath
@@ -30,6 +31,7 @@ class CommitIntegrationDirLayout extends ModelDirLayoutImpl {
 	
 	Path commitsFilePath
 	Path settingsFilePath
+	Path reactionsLogPath
 	
 	override initialize(Path rootDirPath) {
 		super.initialize(rootDirPath)
@@ -45,6 +47,7 @@ class CommitIntegrationDirLayout extends ModelDirLayoutImpl {
 		
 		commitsFilePath = rootDirPath.resolve(commitsFileName)
 		settingsFilePath = rootDirPath.resolve(settingsFileName)
+		reactionsLogPath = rootDirPath.resolve(reactionsLogFileName)
 	}
 	
 }

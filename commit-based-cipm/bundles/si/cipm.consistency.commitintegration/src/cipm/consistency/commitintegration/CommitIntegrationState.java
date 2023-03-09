@@ -6,7 +6,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.SimpleLayout;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
@@ -96,6 +99,9 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         // initialize the vsum
         vsumFacade.initialize(dirLayout.getVsumDirPath(), List.of(pcmFacade, imFacade),
                 commitIntegration.getChangeSpecs(), commitIntegration.getStateBasedChangeResolutionStrategy());
+        
+        // enable some file logging so we can account the reactions
+//        initializeReactionsLogging();
     }
 
     @SuppressWarnings("restriction")
@@ -104,6 +110,8 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         vsumFacade.getVsum()
             .dispose();
         gitRepositoryWrapper.closeRepository();
+        
+        processReactionsLog();
     }
 
     public Path createParsedCodeModelSnapshot() {
@@ -211,6 +219,63 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         FileUtils.copyDirectory(commitIntegration.getRootPath()
             .toFile(), copyPath.toFile());
         return copyPath;
+    }
+    
+    /**
+     * Setup logging to a file so we can count which reactions were executed
+     */
+    private void initializeReactionsLogging() {
+        var level = Level.ALL;
+        var logger = Logger.getRootLogger();
+        logger.setLevel(level);
+        logger.removeAllAppenders();
+
+        Logger.getLogger("mir.reactions").setLevel(level);
+        Logger.getLogger("mir.reactions.block").setLevel(level);
+        Logger.getLogger("mir.reactions.block_rdBehaviour").setLevel(level);
+        Logger.getLogger("mir.reactions.block_rdBehaviour_internal").setLevel(level);
+        Logger.getLogger("mir.reactions.luaComponent").setLevel(level);
+        Logger.getLogger("mir.reactions.luaComponent_basicComponent").setLevel(level);
+        Logger.getLogger("mir.reactions.luaComponent_operationInterface").setLevel(level);
+        Logger.getLogger("mir.reactions.luaComponent_operationProvidedInterface").setLevel(level);
+        Logger.getLogger("mir.reactions.luaComponent_operationProvidedInterface").setLevel(level);
+        Logger.getLogger("mir.reactions.luaPcmUpdate").setLevel(level);
+        Logger.getLogger("mir.reactions.parameter").setLevel(level);
+        Logger.getLogger("mir.reactions.referenceable_parameter").setLevel(level);
+        Logger.getLogger("mir.reactions.statement").setLevel(level);
+        Logger.getLogger("mir.reactions.statement_actions").setLevel(level);
+        Logger.getLogger("mir.reactions.statement_serveCall").setLevel(level);
+        Logger.getLogger("mir.reactions.statementFunctionDeclaration").setLevel(level);
+        Logger.getLogger("mir.reactions.statementFunctionDeclaration_operationSignature").setLevel(level);
+        Logger.getLogger("mir.routines").setLevel(level);
+        Logger.getLogger("mir.routines.block").setLevel(level);
+        Logger.getLogger("mir.routines.block_rdBehaviour").setLevel(level);
+        Logger.getLogger("mir.routines.block_rdBehaviour_internal").setLevel(level);
+        Logger.getLogger("mir.routines.luaComponent").setLevel(level);
+        Logger.getLogger("mir.routines.luaComponent_basicComponent").setLevel(level);
+        Logger.getLogger("mir.routines.luaComponent_operationInterface").setLevel(level);
+        Logger.getLogger("mir.routines.luaComponent_operationProvidedInterface").setLevel(level);
+        Logger.getLogger("mir.routines.luaComponent_operationProvidedInterface").setLevel(level);
+        Logger.getLogger("mir.routines.luaPcmUpdate").setLevel(level);
+        Logger.getLogger("mir.routines.parameter").setLevel(level);
+        Logger.getLogger("mir.routines.referenceable_parameter").setLevel(level);
+        Logger.getLogger("mir.routines.statement").setLevel(level);
+        Logger.getLogger("mir.routines.statement_actions").setLevel(level);
+        Logger.getLogger("mir.routines.statement_serveCall").setLevel(level);
+        Logger.getLogger("mir.routines.statementFunctionDeclaration").setLevel(level);
+        Logger.getLogger("mir.routines.statementFunctionDeclaration_operationSignature").setLevel(level);
+        var fileName = dirLayout.getReactionsLogPath().toAbsolutePath().toString();
+        try {
+            var fileAppender = new FileAppender(new SimpleLayout(), fileName);
+            logger.addAppender(fileAppender);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void processReactionsLog() {
+        // TODO hard code the number of reactions
+        // TODO 
     }
 
     public GitRepositoryWrapper getGitRepositoryWrapper() {

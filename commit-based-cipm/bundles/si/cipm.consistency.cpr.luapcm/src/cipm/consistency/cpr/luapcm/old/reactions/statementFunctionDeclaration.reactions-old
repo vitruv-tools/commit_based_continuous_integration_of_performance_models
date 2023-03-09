@@ -7,7 +7,9 @@ reactions: statementFunctionDeclaration
 in reaction to changes in lua
 execute actions in pcm
 
-import statementFunctionDeclaration_operationSignature
+import statement_serveCall
+
+//import statementFunctionDeclaration_operationSignature
 
 reaction AddedDeclaration {
 	after element lua::Statement_Function_Declaration inserted in lua::Block[statements]

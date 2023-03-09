@@ -24,6 +24,8 @@ import org.xtext.lua.lua.Statement_Repeat;
 import org.xtext.lua.lua.Statement_While;
 import org.xtext.lua.scoping.LuaLinkingService;
 
+import cipm.consistency.cpr.luapcm.Config;
+import cipm.consistency.cpr.luapcm.Config.ReconstructionType;
 import tools.vitruv.change.correspondence.view.EditableCorrespondenceModelView;
 import tools.vitruv.dsls.reactions.runtime.correspondence.ReactionsCorrespondence;
 
@@ -38,15 +40,7 @@ import tools.vitruv.dsls.reactions.runtime.correspondence.ReactionsCorrespondenc
  * @author Lukas Burgey
  *
  */
-// TODO we currently have dead code because of the final config variables:
-@SuppressWarnings("unused")
 public final class ActionReconstruction {
-
-    enum ReconstructionType {
-        InternalAction, InternalCallAction, ExternalCallAction;
-    }
-
-    private static final ReconstructionType RECONSTRUCTION_TYPE_INTERNAL_SEFF_CALL = ReconstructionType.InternalAction;
 
     private static final Logger LOGGER = Logger.getLogger(ActionReconstruction.class.getName());
 
@@ -155,8 +149,9 @@ public final class ActionReconstruction {
         var calledFunctionHasSeff = info.needsSeffReconstruction(calledFunction);
 
         return isCallToFunction && !isCallToMockedFunction
-                && (isExternalCall || (RECONSTRUCTION_TYPE_INTERNAL_SEFF_CALL == ReconstructionType.InternalCallAction
-                        && isInternalCall && calledFunctionHasSeff));
+                && (isExternalCall
+                        || (Config.getReconstructionTypeInternalSeffCall() == ReconstructionType.InternalCallAction
+                                && isInternalCall && calledFunctionHasSeff));
     }
 
     protected static boolean doesStatementContainArchitecturallyRelevantCall(Statement statement,
@@ -187,7 +182,7 @@ public final class ActionReconstruction {
         // internal call
         LOGGER.trace(String.format("Call classification: Internal call to SEFF %s ", calledFunction.getName()));
         var internalCallAction = SeffFactory.eINSTANCE.createInternalCallAction();
-        internalCallAction.setEntityName(calledFunction.getName());
+        internalCallAction.setEntityName("CALL_TO_INTERNAL_SEFF " + calledFunction.getName());
 
         var calledFunctionRootBlock = calledFunction.getFunction()
             .getBlock();
@@ -217,6 +212,7 @@ public final class ActionReconstruction {
 
         // external call
         var externalCallAction = SeffFactory.eINSTANCE.createExternalCallAction();
+        externalCallAction.setEntityName("CALL_TO_SEFF " + calledFunction.getName());
 
         // determine the signature of the called function
         var calledSignature = CorrespondenceUtil.getCorrespondingEObjectByType(correspondenceModelView, calledFunction,
@@ -224,7 +220,7 @@ public final class ActionReconstruction {
         if (calledSignature != null) {
             externalCallAction.setCalledService_ExternalService(calledSignature);
         } else {
-            LOGGER.warn(calledFunction.getName() + ": Signature does not exist");
+            LOGGER.debug(calledFunction.getName() + ": Signature does not exist");
         }
 
         ComponentSetInfoRegistry.getInfosForComponentSet(directCall)
@@ -242,7 +238,7 @@ public final class ActionReconstruction {
 
         // we have two alternatives to modelling internal seff calls as internal actions:
         // Both are currently not working / fit our overall modelling
-        switch (RECONSTRUCTION_TYPE_INTERNAL_SEFF_CALL) {
+        switch (Config.getReconstructionTypeInternalSeffCall()) {
         case ExternalCallAction:
             return reconstructExternalSeffCall(directCall);
         case InternalCallAction:
@@ -252,7 +248,7 @@ public final class ActionReconstruction {
 
         LOGGER.trace(String.format("Call classification: Internal call to non-SEFF %s ", calledFunction.getName()));
         var action = SeffFactory.eINSTANCE.createInternalAction();
-        action.setEntityName("CALL_TO_SEFF_" + calledFunction.getName());
+        action.setEntityName("CALL_TO_INTERNAL_NON_SEFF " + calledFunction.getName());
         return action;
     }
 
@@ -327,8 +323,6 @@ public final class ActionReconstruction {
         for (var functionCall : functionCalls) {
             action = reconstructFunctionCallToAction(functionCall);
             if (action != null) {
-                action.setEntityName("CALL_TO " + functionCall.getCalledFunction()
-                    .getName());
                 actions.add(action);
 
                 ActionUtil.chainActions(predecessor, action);

@@ -1,8 +1,10 @@
 package cipm.consistency.cpr.luapcm.seffreconstruction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -35,7 +37,7 @@ public class ComponentSetInfo {
 
     private static final Logger LOGGER = Logger.getLogger(ComponentSetInfo.class.getName());
 
-    private List<String> servedFunctionNames;
+    private Map<String, Expression_Functioncall_Direct> functionNameToServeCall;
 
     // we track which Statement_Function_Declaration are called in an external call action
     private ListMultimap<Statement_Function_Declaration, AbstractAction> declarationToCallingActions;
@@ -55,7 +57,7 @@ public class ComponentSetInfo {
      */
     public ComponentSetInfo(ComponentSet componentSet) {
         LOGGER.debug("Initializing ComponentSetInfo for " + componentSet.toString());
-        servedFunctionNames = generateServedFunctionNames(componentSet);
+        functionNameToServeCall = generateServedFunctionNames(componentSet);
 
         declarationToCallingActions = ArrayListMultimap.create();
         componentToRequiredComponents = ArrayListMultimap.create();
@@ -70,11 +72,11 @@ public class ComponentSetInfo {
      * @param root
      * @return
      */
-    private static List<String> generateServedFunctionNames(EObject root) {
+    private static Map<String, Expression_Functioncall_Direct> generateServedFunctionNames(EObject root) {
         // TODO we can assume that functions that end with '.register' and have 2 / 3 arguments are
         // registerring a function
         // so we don't have to hardcode so much
-        List<String> servedNames = new ArrayList<>();
+        Map<String, Expression_Functioncall_Direct> servedNamesToServeCalls = new HashMap<>();
 
         var functionCalls = EcoreUtil2.getAllContentsOfType(root, Expression_Functioncall_Direct.class);
         for (var functionCall : functionCalls) {
@@ -88,10 +90,10 @@ public class ComponentSetInfo {
                 var nameIndex = args.size() - 1;
                 var funcName = args.get(nameIndex);
                 if (funcName instanceof Expression_String funcNameExpString) {
-                    servedNames.add(funcNameExpString.getValue());
+                    servedNamesToServeCalls.put(funcNameExpString.getValue(), functionCall);
                 } else if (funcName instanceof Expression_VariableName funcNameExpVar) {
-                    servedNames.add(funcNameExpVar.getRef()
-                        .getName());
+                    servedNamesToServeCalls.put(funcNameExpVar.getRef()
+                        .getName(), functionCall);
                 } else {
                     throw new IllegalStateException("Invalid Script.serveFunction call: Arguments are of invalid type");
                 }
@@ -99,7 +101,7 @@ public class ComponentSetInfo {
                 throw new IllegalStateException("Invalid Script.serveFunction call: Must have 2 or 3 arguments");
             }
         }
-        return servedNames;
+        return servedNamesToServeCalls;
     }
 
     /**
@@ -110,8 +112,16 @@ public class ComponentSetInfo {
      * @return boolean
      */
     public boolean needsSeffReconstruction(Refble declaration) {
-        // TODO Is being served sufficient to determine if a seff reconstruction is needed?
-        return servedFunctionNames.contains(declaration.getName());
+        return functionNameToServeCall.containsKey(declaration.getName());
+    }
+
+    /**
+     * Returns the serve call that causes a function to be served
+     * @param declaration
+     * @return
+     */
+    public Expression_Functioncall_Direct getServeCallForDeclaration(Refble declaration) {
+        return functionNameToServeCall.get(declaration.getName());
     }
 
     public ListMultimap<Statement_Function_Declaration, AbstractAction> getDeclarationToCallingActions() {
@@ -173,9 +183,9 @@ public class ComponentSetInfo {
 
     private void scanSeffFunctionForActionReconstruction(Statement_Function_Declaration decl) {
         /*
-         *  We always mark the root block of a seff function for reconstruction.
-         *  The SEFF may only contain an internal action in which case the marking algorithm will not
-         *  catch the root block.
+         * We always mark the root block of a seff function for reconstruction. The SEFF may only
+         * contain an internal action in which case the marking algorithm will not catch the root
+         * block.
          */
         var func = decl.getFunction();
         if (func != null) {
@@ -190,7 +200,7 @@ public class ComponentSetInfo {
             if (!needsActionReconstruction(statement)
                     && ActionReconstruction.doesStatementContainArchitecturallyRelevantCall(statement, this)) {
                 // mark objects and its parent towards the declaration for action reconstruction
-//                LOGGER.debug("Scan found cause for action reconstruction: " + statement.toString());
+                LOGGER.debug("Scan found cause for action reconstruction: " + statement.toString());
                 markObjectAndParentsForActionReconstruction(statement, decl);
             }
         }
@@ -221,7 +231,7 @@ public class ComponentSetInfo {
     }
 
     private void markBlockForActionReconstruction(Block block) {
-        LOGGER.debug("Block marked for action reconstruction: " + block.toString());
+        LOGGER.trace("Block marked for action reconstruction: " + block.toString());
         blocksRequiringActionReconstruction.add(block);
     }
 }

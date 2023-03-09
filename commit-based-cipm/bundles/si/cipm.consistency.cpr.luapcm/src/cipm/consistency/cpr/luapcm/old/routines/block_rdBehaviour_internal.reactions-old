@@ -1,68 +1,34 @@
+import cipm.consistency.cpr.luapcm.seffreconstruction.ActionUtil
 import cipm.consistency.cpr.luapcm.seffreconstruction.BranchActionUtil
-import org.eclipse.xtext.EcoreUtil2
 import org.palladiosimulator.pcm.seff.BranchAction
 import org.palladiosimulator.pcm.seff.LoopAction
 import org.palladiosimulator.pcm.seff.ProbabilisticBranchTransition
-import org.xtext.lua.LuaUtil
 import org.xtext.lua.lua.LuaPackage
-import org.xtext.lua.lua.Statement
-import org.xtext.lua.lua.Statement_Function_Declaration
 
 import "http://www.xtext.org/lua/Lua" as lua
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
 
-reactions: block_rdBehaviour
+reactions: block_rdBehaviour_internal
 in reaction to changes in lua
 execute actions in pcm
 
-routine addedSeffBlock(lua::Block block) {
-	match {
-		val rdBehaviour = retrieve optional pcm::ResourceDemandingBehaviour corresponding to block
-	}
-	update {
-		if (rdBehaviour.present) {
-			logger.warn(block.toString + ": RD behaviour already exists")
-			return
-		}
 
-		val parentStatement = EcoreUtil2.getContainerOfType(block, Statement)
-		if (parentStatement instanceof Statement_Function_Declaration) {
-			// create the RDSEFF for the block
-			createRDSeff(block, parentStatement)
-		} else {
-			// create the RDBehaviour for the block
-			createRDBehaviour(block)
-		}
-	}
-}
-
-routine createRDSeff(lua::Block block, lua::Statement_Function_Declaration declaration) {
+routine createRDSeff(lua::Block block, lua::Statement_Function_Declaration declaration, pcm::BasicComponent basicComponent, pcm::OperationSignature operationSignature) {
 	match {
 		require absence of pcm::ResourceDemandingBehaviour corresponding to block
-		val basicComponent = retrieve optional pcm::BasicComponent corresponding to LuaUtil.getComponent(block)
-		val operationSignature = retrieve optional pcm::OperationSignature corresponding to LuaUtil.
-			getDeclaration(block)
 	}
 	create {
 		val rdSeff = new pcm::ResourceDemandingSEFF
 	}
 	update {
-		if (!basicComponent.present) {
-			logger.warn("Component of Block has no corresponding basic component")
-			return
-		}
-		if (!operationSignature.present) {
-			logger.warn("Declaration of Block has no corresponding operation signature")
-			return
-		}
+		logger.debug(block.toString + ": Creating RDSeff")
+		rdSeff.basicComponent_ServiceEffectSpecification = basicComponent
+		rdSeff.describedService__SEFF = operationSignature
 
-		logger.info(block.toString + ": Creating RDSeff")
-		rdSeff.basicComponent_ServiceEffectSpecification = basicComponent.get
-		rdSeff.describedService__SEFF = operationSignature.get
-
-		initializeRDBehaviour(rdSeff, block.toString)
+		initializeRDBehaviour(rdSeff, ActionUtil.getBlockName(block))
 		addCorrespondenceBetween(rdSeff, block)
 		addCorrespondenceBetween(rdSeff, declaration)
+		basicComponent.serviceEffectSpecifications__BasicComponent += rdSeff
 
 //		ComponentSetInfoRegistry.getInfosForComponentSet(declaration).declarationToCallingActions.get(declaration).
 //			forEach [
@@ -73,30 +39,21 @@ routine createRDSeff(lua::Block block, lua::Statement_Function_Declaration decla
 //					it.calledResourceDemandingInternalBehaviour = internalBehaviour
 //				}
 //			]
-
-		basicComponent.get.serviceEffectSpecifications__BasicComponent += rdSeff
 	}
 }
 
-routine createRDBehaviour(lua::Block block) {
+routine createRDBehaviour(lua::Block block, pcm::AbstractAction parentAction) {
 	match {
 		require absence of pcm::ResourceDemandingBehaviour corresponding to block
-		val parentAction = retrieve optional pcm::AbstractAction corresponding to EcoreUtil2.
-			getContainerOfType(block, Statement)
 	}
 	create {
 		val rdBehaviour = new pcm::ResourceDemandingBehaviour
 	}
 	update {
 		logger.debug(block.toString + ": Creating RDBehaviour")
-		initializeRDBehaviour(rdBehaviour, block.toString)
+		initializeRDBehaviour(rdBehaviour, ActionUtil.getBlockName(block))
 		addCorrespondenceBetween(rdBehaviour, block)
-
-		if (parentAction.present) {
-			addRDBehaviourToParentAction(parentAction.get, rdBehaviour, block)
-		} else {
-			logger.warn("No parent action for block")
-		}
+		addRDBehaviourToParentAction(parentAction, rdBehaviour, block)
 	}
 }
 
@@ -126,7 +83,6 @@ routine addBranchToParentBranchAction(pcm::BranchAction branchAction, pcm::Resou
 //			logger.error("Cannot add branch to parent branch action")
 //			return
 //		}
-		
 		logger.debug("Adding Branch to parent branch action")
 		branchTransition.setBranchBehaviour_BranchTransition(rdBehaviour)
 
@@ -195,22 +151,10 @@ routine initializeRDBehaviour(pcm::ResourceDemandingBehaviour rdBehaviour, Strin
 		val stopAction = new pcm::StopAction
 	}
 	update {
-
 		startAction.entityName = name + "_START"
 		stopAction.entityName = name + "_STOP"
 
 		rdBehaviour.steps_Behaviour += startAction
 		rdBehaviour.steps_Behaviour += stopAction
-	}
-}
-
-routine removedSeffBlock(lua::Block block) {
-	match {
-		val rdBehaviour = retrieve pcm::ResourceDemandingBehaviour corresponding to block
-	}
-	update {
-		logger.debug(block.toString + ": Block deleted -> Removing RD Behaviour")
-		removeCorrespondenceBetween(rdBehaviour, block)
-		rdBehaviour.removeObject
 	}
 }

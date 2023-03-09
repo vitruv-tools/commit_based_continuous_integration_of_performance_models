@@ -26,17 +26,6 @@ public class LuaEqualityHelper extends EqualityHelper {
 
     @Override
     protected boolean matchingEObjects(EObject left, EObject right) {
-//        var parentAssignment = EcoreUtil2.getContainerOfType(left, Statement_Assignment.class);
-//        if (parentAssignment != null && parentAssignment.getDests()
-//            .size() == 1 && parentAssignment.getDests()
-//                .get(0) instanceof Refble destRefble) {
-//            if (destRefble.getName()
-//                .equals("localOnSqlChangeEventName")
-//                    || destRefble.getName()
-//                        .equals("localOnResultEventName")) {
-//                var foo = 42;
-//            }
-//        }
         if (left == null || right == null) {
             LOGGER.warn("Equality helper invoked for null EObject");
             return false;

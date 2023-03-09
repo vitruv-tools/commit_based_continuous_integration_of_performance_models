@@ -7,7 +7,6 @@ import org.xtext.lua.lua.Refble;
 import org.xtext.lua.lua.Statement_Assignment;
 
 public class LuaEqualityChecker {
-
     private static boolean eClassMatch(EObject left, EObject right) {
         var leftClass = left.eClass()
             .getName();
@@ -22,8 +21,6 @@ public class LuaEqualityChecker {
     private static boolean refblesDoMatch(Refble left, Refble right) {
         return left.getName()
             .equals(right.getName());
-//        return left != null && right != null && left.getName()
-//            .equals(right.getName());
     }
 
     private static Boolean match(Refble left, Refble right) {
@@ -43,10 +40,23 @@ public class LuaEqualityChecker {
             return false;
         }
 
+        var leftArgs = left.getCalledFunctionArgs()
+            .getArguments();
+        var rightArgs = right.getCalledFunctionArgs()
+            .getArguments();
+        if (leftArgs.size() != rightArgs.size()) {
+            return false;
+        }
+        for (var i = 0; i < leftArgs.size(); i++) {
+            var argsMatch = match(leftArgs.get(i), rightArgs.get(i));
+            if (argsMatch != null && !argsMatch) {
+                return false;
+            }
+        }
+
         return true;
     }
 
-    
     private static Boolean match(Statement_Assignment left, Statement_Assignment right) {
         // assignment using same destinations
         var leftDests = left.getDests();

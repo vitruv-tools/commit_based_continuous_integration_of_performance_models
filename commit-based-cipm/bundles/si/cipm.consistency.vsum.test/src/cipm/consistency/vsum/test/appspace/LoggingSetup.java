@@ -12,7 +12,7 @@ import org.apache.log4j.spi.LoggingEvent;
 
 public class LoggingSetup {
 
-    private static final Level DEFAULT_LOG_LEVEL = Level.DEBUG;
+    private static final Level DEFAULT_LOG_LEVEL = Level.INFO;
 
     private static class TrimmingLogFormat extends PatternLayout {
         private List<String> trim;
@@ -38,7 +38,7 @@ public class LoggingSetup {
     public static void setMinLogLevel(Level minLevel) {
         for (var key : getLevels().keySet()) {
             var logger = Logger.getLogger(key);
-            if (logger.getLevel()
+            if (logger.getLevel() == null || logger.getLevel()
                 .toInt() < minLevel.toInt()) {
                 logger.setLevel(minLevel);
             }
@@ -66,15 +66,14 @@ public class LoggingSetup {
     private static Map<String, Level> getLevels() {
         var levels = new HashMap<String, Level>();
         levels.put("cipm.consistency", Level.INFO);
-        levels.put("cipm.consistency.cpr.luapcm.seffreconstruction", Level.DEBUG);
-        // TODO lower this level once the we use a valid git history (without the invalid serve
-        // calls)
-//        levels.put("cipm.consistency.commitintegration.lang.lua.LuaPostProcessor", Level.ERROR);
-        levels.put("mir.reactions", Level.INFO);
-//        levels.put("mir.reactions.block", Level.INFO);
-        levels.put("mir.routines", Level.INFO);
-        levels.put("mir.routines.statementFunctionDeclaration_operationSignature", Level.WARN);
-        levels.put("mir.routines.statement_actions", Level.INFO);
+        levels.put("cipm.consistency.cpr.luapcm.seffreconstruction", Level.WARN);
+        levels.put("cipm.consistency.commitintegration.lang.lua.LuaPostProcessor", Level.ERROR);
+        levels.put("mir.reactions", Level.WARN);
+        levels.put("mir.reactions.luaPcmUpdate", Level.INFO);
+        levels.put("mir.routines.luaPcmUpdate", Level.DEBUG);
+        levels.put("mir.routines", Level.WARN);
+//        levels.put("mir.routines.statementFunctionDeclaration_operationSignature", Level.WARN);
+//        levels.put("mir.routines.statement_actions", Level.INFO);
         levels.put("tools.vitruv", Level.INFO);
         levels.put("tools.vitruv.change.atomic.id.IdResolverImpl", Level.WARN);
 //        levels.put("tools.vitruv.change.propagation.impl.ChangePropagator", Level.TRACE);
@@ -84,18 +83,20 @@ public class LoggingSetup {
         return levels;
     }
 
-    public static void setupLogging(Level logLevel) {
+    public static void setupLogging(Level minLogLevel) {
         resetLogLevels();
-        setMinLogLevel(Level.DEBUG);
+        var level = Level.DEBUG;
+        setMinLogLevel(level);
 
         var rootLogger = Logger.getRootLogger();
-        rootLogger.setLevel(Level.ALL);
+        rootLogger.setLevel(level);
         rootLogger.removeAllAppenders();
         var toTrim = List.of(System.getProperty("user.dir"), "org.xtext.lua.lua.impl", "cipm.consistency");
         var logFormat = new TrimmingLogFormat("%-5p: %c%n    %m%n", toTrim);
         ConsoleAppender ap = new ConsoleAppender(logFormat, ConsoleAppender.SYSTEM_OUT);
         rootLogger.addAppender(ap);
     }
+
 
     public static void setupLogging() {
         setupLogging(DEFAULT_LOG_LEVEL);

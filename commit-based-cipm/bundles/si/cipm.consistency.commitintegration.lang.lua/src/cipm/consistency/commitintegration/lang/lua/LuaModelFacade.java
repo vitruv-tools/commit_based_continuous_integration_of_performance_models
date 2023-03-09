@@ -1,14 +1,21 @@
 package cipm.consistency.commitintegration.lang.lua;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.util.EObjectValidator;
+import org.eclipse.xtext.EcoreUtil2;
 import org.eclipse.xtext.resource.XtextResource;
 import org.eclipse.xtext.resource.XtextResourceSet;
 import org.xtext.lua.LuaStandaloneSetup;
@@ -63,6 +70,8 @@ public class LuaModelFacade implements CodeModelFacade {
         var resourceSet = resourceSetProvider.get();
         resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
 
+        printFileStats(sourceCodeDirPath);
+
         var iterator = FileUtils.iterateFiles(sourceCodeDirPath.toFile(), null, true);
         while (iterator.hasNext()) {
             var file = iterator.next();
@@ -85,6 +94,46 @@ public class LuaModelFacade implements CodeModelFacade {
         }
 
         return resourceSet;
+    }
+
+    private void printFileStats(Path sourceCodeDir) {
+        var clocCommand = "cloc --hide-rate --quiet --include-lang=lua " + sourceCodeDir.toAbsolutePath()
+            .toString();
+        var clocStats = executeShell("sh", "-c", clocCommand + " | grep -P 'Lua|Language'");
+//        var clocStats = executeShell("sh", "-c", clocCommand+ " | grep Lua");
+
+        LOGGER.info("Commits stats:\n" + clocStats);
+    }
+
+    private String executeShell(String... commands) {
+        Runtime rt = Runtime.getRuntime();
+        Process proc;
+        try {
+            proc = rt.exec(commands);
+
+            BufferedReader stdOutput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+//            BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+//            // Read the output from the command
+//            System.out.println("Here is the standard output of the command:\n");
+//            String s = null;
+//            while ((s = stdOutput.readLine()) != null) {
+//                System.out.println(s);
+//            }
+//
+//            // Read any errors from the attempted command
+//            System.out.println("Here is the standard error of the command (if any):\n");
+//            while ((s = stdError.readLine()) != null) {
+//                System.out.println(s);
+//            }
+
+            return IOUtils.toString(stdOutput);
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return "";
     }
 
     private Resource getCleanResource(URI uri) {
@@ -198,8 +247,33 @@ public class LuaModelFacade implements CodeModelFacade {
         var storeUri = dirLayout.getParsedFileUri();
         currentComponentSet = resolveResourceSetToComponents(sourceCodeDir, workTreeResourceSet, storeUri);
 
+        if (!validateEObject(currentComponentSet)) {
+            LOGGER.error("Code model is invalid!");
+            return null;
+        }
+
         currentResource = currentComponentSet.eResource();
         return currentResource;
+    }
+
+    /*
+     * Validate a given EObject and all its children
+     */
+    private static boolean validateEObject(EObject rootEObject) {
+        var diagnostics = new BasicDiagnostic();
+        var eObjValidator = new EObjectValidator();
+        var allContents = EcoreUtil2.getAllContentsOfType(rootEObject, EObject.class);
+        var contentsValid = true;
+        for (var eObj : allContents) {
+            var valid = eObjValidator.validate(eObj, diagnostics, null);
+            contentsValid &= valid;
+        }
+        if (!contentsValid) {
+            for (var diag : diagnostics.getChildren()) {
+                LOGGER.warn(diag.getMessage());
+            }
+        }
+        return contentsValid;
     }
 
     public boolean existsOnDisk() {

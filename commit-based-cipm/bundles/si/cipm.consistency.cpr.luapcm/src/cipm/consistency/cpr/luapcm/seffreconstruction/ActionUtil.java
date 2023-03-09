@@ -1,11 +1,13 @@
 package cipm.consistency.cpr.luapcm.seffreconstruction;
 
 import org.apache.log4j.Logger;
+import org.eclipse.xtext.EcoreUtil2;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 import org.palladiosimulator.pcm.seff.StartAction;
 import org.palladiosimulator.pcm.seff.StopAction;
 import org.xtext.lua.lua.Block;
+import org.xtext.lua.lua.Refble;
 import org.xtext.lua.lua.Statement;
 
 import com.google.common.collect.Iterables;
@@ -105,5 +107,13 @@ public class ActionUtil {
         LOGGER.error("Could not find stop action of rd behaviour");
 
         return null;
+    }
+    
+    public static String getBlockName(Block block) {
+        var parentStatement = EcoreUtil2.getContainerOfType(block, Statement.class);
+        if (parentStatement instanceof Refble refble) {
+            return refble.getName() + "_ROOT_BLOCK";
+        }
+        return parentStatement.toString();
     }
 }

@@ -18,8 +18,16 @@ public class AppSpaceSemantics {
     private static final int REGISTER_FUNCTION_ARG_MAX = 3;
 
     public static boolean isServingFunctionCall(Expression_Functioncall_Direct call) {
-        var functionName = call.getCalledFunction()
-            .getName();
+        if (call == null) {
+            return false;   
+        }
+
+        var calledFunction = call.getCalledFunction();
+        if (calledFunction == null) {
+            return false;
+        }
+
+        var functionName = calledFunction.getName();
         var argumentCount = call.getCalledFunctionArgs()
             .getArguments()
             .size();

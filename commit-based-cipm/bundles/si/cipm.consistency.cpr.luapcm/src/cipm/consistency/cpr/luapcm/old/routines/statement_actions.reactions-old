@@ -16,19 +16,33 @@ execute actions in pcm
 
 routine createActionsForStatement(lua::Statement statement, lua::Block block) {
 	match {
-		require absence of pcm::AbstractAction corresponding to statement
-		val rdBehaviour = retrieve pcm::ResourceDemandingBehaviour corresponding to block
+		val existingActions = retrieve many pcm::AbstractAction corresponding to statement
+		val rdBehaviour = retrieve optional pcm::ResourceDemandingBehaviour corresponding to block
 	}
 	update {
+		if (!ActionReconstruction.needsActionReconstruction(statement)) {
+			return
+		}
+		
+		if (!rdBehaviour.present) {
+			logger.warn("Unable to create actions for statements: no RD Behaviour")
+			return
+		}
+
+		if (existingActions.size > 0) {
+			logger.trace("Action(s) already present for statement " + statement + ": " + existingActions)
+			return
+		}
 		val statementActions = ActionReconstruction.getActionsForStatement(statement, correspondenceModel)
 		if (statementActions.size < 1) {
 			return
 		}
+		
 		logger.debug(String.format("%s: %d action(s) reconstructed", statement, statementActions.size()))
 
-		var previousAction = ActionUtil.getPreviousActionOfStatement(statement, block, rdBehaviour,
+		var previousAction = ActionUtil.getPreviousActionOfStatement(statement, block, rdBehaviour.get,
 			correspondenceModel);
-		var subsequentAction = ActionUtil.getSubsequentActionOfStatement(statement, block, rdBehaviour,
+		var subsequentAction = ActionUtil.getSubsequentActionOfStatement(statement, block, rdBehaviour.get,
 			correspondenceModel);
 
 		// every new action is possibly fused with this action
@@ -36,7 +50,7 @@ routine createActionsForStatement(lua::Statement statement, lua::Block block) {
 
 		// insert the actions of the statement into the step behaviour
 		// TODO do internal action merging here
-		var insertionIndex = rdBehaviour.steps_Behaviour.indexOf(previousAction) + 1
+		var insertionIndex = rdBehaviour.get.steps_Behaviour.indexOf(previousAction) + 1
 
 		for (action : statementActions) {
 			addCorrespondenceBetween(action, statement)
@@ -47,13 +61,13 @@ routine createActionsForStatement(lua::Statement statement, lua::Block block) {
 				if (action instanceof ExternalCallAction) {
 					logger.debug("External call was found")
 					val componentOfStatement = LuaUtil.getComponent(statement)
-					registerExternalCallAction(action, rdBehaviour, componentOfStatement)
+					registerExternalCallAction(action, rdBehaviour.get, componentOfStatement)
 				}
 
 				logger.debug("Action is added to step behaviour")
 				// insert the action into the step behaviour
 				ActionUtil.chainActions(previousAction, action)
-				rdBehaviour.steps_Behaviour.add(insertionIndex, action)
+				rdBehaviour.get.steps_Behaviour.add(insertionIndex, action)
 				insertionIndex += 1
 				actionToCheckForFusing = action
 			}
