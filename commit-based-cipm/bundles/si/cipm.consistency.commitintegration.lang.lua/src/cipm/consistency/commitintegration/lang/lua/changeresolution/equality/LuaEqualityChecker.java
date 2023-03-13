@@ -71,6 +71,17 @@ public class LuaEqualityChecker {
             }
         }
 
+        var leftVals = left.getValues();
+        var rightVals = right.getValues();
+        if (leftVals.size() != rightVals.size()) {
+            return false;
+        }
+        for (var i = 0; i < leftVals.size(); i++) {
+            var valMatch = match(leftVals.get(i), rightVals.get(i));
+            if (valMatch != null && !valMatch) {
+                return false;
+            }
+        }
         return true;
     }
 

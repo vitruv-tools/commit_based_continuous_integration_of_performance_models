@@ -21,7 +21,9 @@ import org.eclipse.xtext.EcoreUtil2;
 import org.palladiosimulator.pcm.repository.Repository;
 import org.xtext.lua.lua.ComponentSet;
 
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.base.shared.ModelUtil;
+import cipm.consistency.commitintegration.CommitIntegrationDirLayout;
 import cipm.consistency.vsum.Propagation;
 
 /**
@@ -91,32 +93,15 @@ public class PropagationEvaluator {
         return contentsValid;
     }
 
-    private static boolean evaluateVsumCodeModel(Propagation propagation) {
-        var componentSet = ModelUtil.readFromFile(propagation.getPropagationResultCodeModelPath()
-            .toFile(), ComponentSet.class);
-        if (componentSet == null) {
-            LOGGER.warn("Could not read vsum code model for evaluation");
-            return false;
-        }
-        return validateEObject(componentSet);
-    }
-
-    /**
-     * Runs the Repository validator against the repository model that was the result of this
-     * propagation.
-     * 
-     * @param propagation
-     * @return True if valid
-     */
-    private static boolean evaluateResultingRepositoryModel(Propagation propagation) {
-        var repoModelPath = propagation.getPropagationResultRepositoryModelPath();
+    private static boolean evaluateModel(Path modelPath, Class<? extends EObject> clazz) {
         try {
-            var repo = ModelUtil.readFromFile(repoModelPath.toFile(), Repository.class);
-            if (repo == null) {
-                LOGGER.warn("Could not read the repo snapshot file for evaluation");
+            var modelRootElement = ModelUtil.readFromFile(modelPath.toFile(), clazz);
+            if (modelRootElement == null) {
+                LOGGER.warn("Could read model from evaluate model");
                 return false;
             }
-            return validateEObject(repo);
+            EcoreUtil2.resolveAll(modelRootElement);
+            return validateEObject(modelRootElement);
         } catch (WrappedException e) {
             LOGGER.warn(e.getMessage());
             if (e.getCause() instanceof UnresolvedReferenceException unresExp) {
@@ -127,18 +112,80 @@ public class PropagationEvaluator {
         }
     }
 
+    private static boolean evaluateVsumCodeModel(Propagation propagation) {
+        var valid = evaluateModel(propagation.getPropagationResultCodeModelPath(), ComponentSet.class);
+        if (!valid) {
+            LOGGER.warn("Vsum Code Model did not validate");
+        }
+        return valid;
+    }
+
+    /**
+     * Runs the Repository validator against the repository model that was the result of this
+     * propagation.
+     * 
+     * @param propagation
+     * @return True if valid
+     */
+    private static boolean evaluateResultingRepositoryModel(Path path) {
+        var valid = evaluateModel(path, Repository.class);
+        if (!valid) {
+            LOGGER.debug("Repository model is invalid");
+        }
+        return valid;
+    }
+
+    /**
+     * Check if the IMM passes validation
+     * 
+     * @param propagation
+     * @return True if valid
+     */
+    private static boolean evaluateResultingImm(Path path) {
+        var valid = evaluateModel(path, InstrumentationModel.class);
+        if (!valid) {
+            LOGGER.debug("IMM is invalid");
+        }
+        return valid;
+    }
+
+//    public static boolean evaluateOld(Propagation propagation) {
+//        var changeResolution = evaluateChangeResolution(propagation);
+//        if (!changeResolution) {
+//            LOGGER.warn("Change resolution did not pass evaluation");
+//        }
+//
+//        var valid = changeResolution;
+//
+//        valid &= evaluateResultingRepositoryModel(propagation);
+//        valid &= evaluateResultingImm(propagation);
+//
+//        if (valid) {
+//            LOGGER.info("Propagation passed evaluation");
+//        }
+//        return valid;
+//    }    
+
     public static boolean evaluate(Propagation propagation) {
+
         var changeResolution = evaluateChangeResolution(propagation);
-        var repositoryValid = evaluateResultingRepositoryModel(propagation);
-        
         if (!changeResolution) {
             LOGGER.warn("Change resolution did not pass evaluation");
         }
-        if (!repositoryValid) {
-            LOGGER.warn("PCM repository did not pass evaluation");
+        var valid = changeResolution;
+
+        var stateCopyPath = propagation.getCommitIntegrationStateCopyPath();
+        if (stateCopyPath != null) {
+            var dirLayout = new CommitIntegrationDirLayout();
+            dirLayout.initialize(propagation.getCommitIntegrationStateCopyPath());
+            valid &= evaluateResultingRepositoryModel(dirLayout.getPcmDirPath()
+                .resolve("Repository.repository"));
+            valid &= evaluateResultingImm(dirLayout.getImDirPath()
+                .resolve("imm.imm"));
+        } else {
+            LOGGER.error("Could not find commit integration state copy");
         }
 
-        var valid = changeResolution && repositoryValid;
         if (valid) {
             LOGGER.info("Propagation passed evaluation");
         }

@@ -155,27 +155,34 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
         try {
             for (var commitId : commitIds) {
                 // only one commit, only one propagation
-                var propagation = propagateChanges(commitId);
+                var propagations = propagateChanges(commitId);
 
-                if (commitId == null) {
+                if (commitId == null || propagations.size() != 1 || propagations.get(0)
+                    .isEmpty()) {
                     continue;
                 }
 
-                assert propagation.size() == 1;
-                if (getImmediateEvaluation() && !evaluatePropagation(propagation.get(0))) {
+                var propagation = propagations.get(0)
+                    .get();
+                if (getImmediateEvaluation() && !evaluatePropagation(propagation)) {
                     failTest("Propagation failed evaluation (immediate abort)");
                 }
-                allPropagations.addAll(propagation);
+                allPropagations.add(propagation);
             }
 
             if (!getImmediateEvaluation()) {
                 LOGGER.info("\n\tEvaluating all propagations");
                 var i = 1;
+                var failures = 0;
                 for (var propagation : allPropagations) {
                     if (!evaluatePropagation(propagation)) {
-                        failTest(String.format("Propagation #%d failed evaluation", i));
+                        failures++;
+                        LOGGER.error(String.format("Propagation #%d failed evaluation", i));
                     }
                     i++;
+                }
+                if (failures > 0) {
+                    failTest(String.format("%d propagations where invalid", failures));
                 }
             }
 
@@ -187,7 +194,7 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
 
         return null;
     }
-    
+
     private void failTest(String msg) {
         LOGGER.error(msg);
         Assert.fail(msg);

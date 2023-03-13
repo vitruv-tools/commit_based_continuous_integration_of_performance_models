@@ -26,11 +26,14 @@ public class Propagation {
     private Path parsedCodeModelTargetVersionPath;
     private Path propagationResultCodeModelPath;
     private Path propagationResultRepositoryModelPath;
+    private Path propagationResultIMMPath;
+    private Path commitIntegrationStateCopyPath;
 
     private int originalChangeCount = 0;
     private int consequentialChangeCount = 0;
 
     private List<PropagatedChange> changes = null;
+
 
     Propagation(List<PropagatedChange> changes) {
         if (changes == null) {
@@ -95,6 +98,22 @@ public class Propagation {
 
     public void setPropagationResultRepositoryModelPath(Path propagationResultRepositoryModelPath) {
         this.propagationResultRepositoryModelPath = propagationResultRepositoryModelPath;
+    }
+
+    public void setPropagationResultIMMPath(Path propagationResultIMMPath) {
+        this.propagationResultIMMPath = propagationResultIMMPath;
+    }
+
+    public Path getPropagationResultIMMPath() {
+        return propagationResultIMMPath;
+    }
+
+    public Path getCommitIntegrationStateCopyPath() {
+        return commitIntegrationStateCopyPath;
+    }
+
+    public void setCommitIntegrationStateCopyPath(Path commitIntegrationStateCopyPath) {
+        this.commitIntegrationStateCopyPath = commitIntegrationStateCopyPath;
     }
 
 }

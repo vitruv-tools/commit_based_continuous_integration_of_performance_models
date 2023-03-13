@@ -2,14 +2,10 @@ package cipm.consistency.commitintegration;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.SimpleLayout;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
@@ -43,17 +39,18 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
     private ImFacade imFacade;
     private CM codeModelFacade;
 
-    private String tag = "";
+//    private String tag = "";
     private int snapshotCount = 0;
     private int parsedCodeModelCount = 0;
     private int vsumCodeModelCount = 0;
-    
+    private int immCount = 0;
+    private int repositoryModelCount;
+
     private Path currentParsedModelPath = null;
 
     // was this state previously used to propagate something?
     private boolean isFresh = false;
 
-    private int repositoryModelCount;
 
     public CommitIntegrationState() {
         dirLayout = new CommitIntegrationDirLayout();
@@ -99,9 +96,6 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         // initialize the vsum
         vsumFacade.initialize(dirLayout.getVsumDirPath(), List.of(pcmFacade, imFacade),
                 commitIntegration.getChangeSpecs(), commitIntegration.getStateBasedChangeResolutionStrategy());
-        
-        // enable some file logging so we can account the reactions
-//        initializeReactionsLogging();
     }
 
     @SuppressWarnings("restriction")
@@ -110,8 +104,6 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         vsumFacade.getVsum()
             .dispose();
         gitRepositoryWrapper.closeRepository();
-        
-        processReactionsLog();
     }
 
     public Path createParsedCodeModelSnapshot() {
@@ -141,11 +133,12 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         return null;
     }
 
-    public Path createRepositoryModelSnapshot() {
+    public Path createInstrumentationModelSnapshot() {
         var currentCommitHash = getGitRepositoryWrapper().getCurrentCommitHash();
-        repositoryModelCount += 1;
-        var name = "Repository-" + String.valueOf(vsumCodeModelCount) + "-" + currentCommitHash + ".repository";
-        var path = pcmFacade.getDirLayout().getPcmRepositoryPath();
+        immCount += 1;
+        var name = "imm-" + String.valueOf(vsumCodeModelCount) + "-" + currentCommitHash + ".imm";
+        var path = getImFacade().getDirLayout()
+            .getImFilePath();
         var targetPath = path.resolveSibling(name);
         try {
             FileUtils.copyFile(path.toFile(), targetPath.toFile());
@@ -156,52 +149,80 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         return null;
     }
 
-    public Path createSnapshotWithCount() {
-        return createSnapshotWithCount("");
-    }
-
-    public Path createSnapshotWithCount(String additionalIdentifier) {
-        snapshotCount += 1;
-        var identifier = String.valueOf(snapshotCount);
-        if (!additionalIdentifier.equals("")) {
-            identifier += "_" + additionalIdentifier;
-        }
-        return createSnapshot(identifier);
-    }
-
-    public Path createSnapshotWithTimeStamp() {
-        return createSnapshotWithTimeStamp("");
-    }
-
-    public Path createSnapshotWithTimeStamp(String additionalIdentifier) {
-        var identifier = "_" + LocalDateTime.now()
-            .toString();
-
-        if (!additionalIdentifier.equals("")) {
-            identifier += "_" + additionalIdentifier;
-        }
-        return createSnapshot(identifier);
-    }
-
-    private Path createSnapshot(String identifier) {
-        var dirName = commitIntegration.getRootPath()
-            .getFileName()
-            .toString();
-
-        if (!identifier.equals("")) {
-            dirName += "_" + identifier;
-        }
-        if (tag != "") {
-            dirName += "_" + tag;
-        }
-
+    public Path createRepositoryModelSnapshot() {
+        var currentCommitHash = getGitRepositoryWrapper().getCurrentCommitHash();
+        repositoryModelCount += 1;
+        var name = "Repository-" + String.valueOf(vsumCodeModelCount) + "-" + currentCommitHash + ".repository";
+        var path = pcmFacade.getDirLayout()
+            .getPcmRepositoryPath();
+        var targetPath = path.resolveSibling(name);
         try {
-            return createCopy(dirName);
+            FileUtils.copyFile(path.toFile(), targetPath.toFile());
+            return targetPath;
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
+
+    public Path createSnapshot() {
+        var currentCommitHash = getGitRepositoryWrapper().getCurrentCommitHash();
+        var name = getDirLayout().getRootDirPath()
+            .getFileName() + "-" + String.valueOf(++snapshotCount) + "-" + currentCommitHash;
+        try {
+            return createCopy(name);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+//    public Path createSnapshotWithCount() {
+//        return createSnapshotWithCount("");
+//    }
+//
+//    public Path createSnapshotWithCount(String additionalIdentifier) {
+//        snapshotCount += 1;
+//        var identifier = String.valueOf(snapshotCount);
+//        if (!additionalIdentifier.equals("")) {
+//            identifier += "_" + additionalIdentifier;
+//        }
+//        return createSnapshot(identifier);
+//    }
+//
+//    public Path createSnapshotWithTimeStamp() {
+//        return createSnapshotWithTimeStamp("");
+//    }
+//
+//    public Path createSnapshotWithTimeStamp(String additionalIdentifier) {
+//        var identifier = "_" + LocalDateTime.now()
+//            .toString();
+//
+//        if (!additionalIdentifier.equals("")) {
+//            identifier += "_" + additionalIdentifier;
+//        }
+//        return createSnapshot(identifier);
+//    }
+//
+//    private Path createSnapshot(String identifier) {
+//        var dirName = commitIntegration.getRootPath()
+//            .getFileName()
+//            .toString();
+//
+//        if (!identifier.equals("")) {
+//            dirName += "_" + identifier;
+//        }
+//        if (tag != "") {
+//            dirName += "_" + tag;
+//        }
+//
+//        try {
+//            return createCopy(dirName);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
     /**
      * Copies the files of this integration to a target path
@@ -219,63 +240,6 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         FileUtils.copyDirectory(commitIntegration.getRootPath()
             .toFile(), copyPath.toFile());
         return copyPath;
-    }
-    
-    /**
-     * Setup logging to a file so we can count which reactions were executed
-     */
-    private void initializeReactionsLogging() {
-        var level = Level.ALL;
-        var logger = Logger.getRootLogger();
-        logger.setLevel(level);
-        logger.removeAllAppenders();
-
-        Logger.getLogger("mir.reactions").setLevel(level);
-        Logger.getLogger("mir.reactions.block").setLevel(level);
-        Logger.getLogger("mir.reactions.block_rdBehaviour").setLevel(level);
-        Logger.getLogger("mir.reactions.block_rdBehaviour_internal").setLevel(level);
-        Logger.getLogger("mir.reactions.luaComponent").setLevel(level);
-        Logger.getLogger("mir.reactions.luaComponent_basicComponent").setLevel(level);
-        Logger.getLogger("mir.reactions.luaComponent_operationInterface").setLevel(level);
-        Logger.getLogger("mir.reactions.luaComponent_operationProvidedInterface").setLevel(level);
-        Logger.getLogger("mir.reactions.luaComponent_operationProvidedInterface").setLevel(level);
-        Logger.getLogger("mir.reactions.luaPcmUpdate").setLevel(level);
-        Logger.getLogger("mir.reactions.parameter").setLevel(level);
-        Logger.getLogger("mir.reactions.referenceable_parameter").setLevel(level);
-        Logger.getLogger("mir.reactions.statement").setLevel(level);
-        Logger.getLogger("mir.reactions.statement_actions").setLevel(level);
-        Logger.getLogger("mir.reactions.statement_serveCall").setLevel(level);
-        Logger.getLogger("mir.reactions.statementFunctionDeclaration").setLevel(level);
-        Logger.getLogger("mir.reactions.statementFunctionDeclaration_operationSignature").setLevel(level);
-        Logger.getLogger("mir.routines").setLevel(level);
-        Logger.getLogger("mir.routines.block").setLevel(level);
-        Logger.getLogger("mir.routines.block_rdBehaviour").setLevel(level);
-        Logger.getLogger("mir.routines.block_rdBehaviour_internal").setLevel(level);
-        Logger.getLogger("mir.routines.luaComponent").setLevel(level);
-        Logger.getLogger("mir.routines.luaComponent_basicComponent").setLevel(level);
-        Logger.getLogger("mir.routines.luaComponent_operationInterface").setLevel(level);
-        Logger.getLogger("mir.routines.luaComponent_operationProvidedInterface").setLevel(level);
-        Logger.getLogger("mir.routines.luaComponent_operationProvidedInterface").setLevel(level);
-        Logger.getLogger("mir.routines.luaPcmUpdate").setLevel(level);
-        Logger.getLogger("mir.routines.parameter").setLevel(level);
-        Logger.getLogger("mir.routines.referenceable_parameter").setLevel(level);
-        Logger.getLogger("mir.routines.statement").setLevel(level);
-        Logger.getLogger("mir.routines.statement_actions").setLevel(level);
-        Logger.getLogger("mir.routines.statement_serveCall").setLevel(level);
-        Logger.getLogger("mir.routines.statementFunctionDeclaration").setLevel(level);
-        Logger.getLogger("mir.routines.statementFunctionDeclaration_operationSignature").setLevel(level);
-        var fileName = dirLayout.getReactionsLogPath().toAbsolutePath().toString();
-        try {
-            var fileAppender = new FileAppender(new SimpleLayout(), fileName);
-            logger.addAppender(fileAppender);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    private void processReactionsLog() {
-        // TODO hard code the number of reactions
-        // TODO 
     }
 
     public GitRepositoryWrapper getGitRepositoryWrapper() {
@@ -313,10 +277,10 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
     public void setNotFresh() {
         isFresh = false;
     }
-
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
+//
+//    public void setTag(String tag) {
+//        this.tag = tag;
+//    }
 
     public Path getCurrentParsedModelPath() {
         return currentParsedModelPath;
@@ -326,7 +290,7 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         this.currentParsedModelPath = currentParsedModelPath;
     }
 
-    public int getParsedCodeModelCount() {
-        return parsedCodeModelCount;
+    public int getSnapshotCount() {
+        return snapshotCount;
     }
 }

@@ -45,7 +45,7 @@
         <setEntry value="cipm.consistency.commitintegration.settings@default:default"/>
         <setEntry value="cipm.consistency.models.instrumentation@default:default"/>
         <setEntry value="com.google.gson@default:default"/>
-        <setEntry value="com.google.guava@default:default"/>
+        <setEntry value="com.google.guava*30.1.0.v20210127-2300@default:default"/>
         <setEntry value="com.google.inject@default:default"/>
         <setEntry value="com.ibm.icu@default:default"/>
         <setEntry value="com.jcraft.jsch@default:default"/>
@@ -87,12 +87,12 @@
         <setEntry value="junit-platform-suite-engine@default:default"/>
         <setEntry value="junit-vintage-engine@default:default"/>
         <setEntry value="lpg.runtime.java@default:default"/>
-        <setEntry value="org.antlr.runtime@default:default"/>
+        <setEntry value="org.antlr.runtime*4.7.2.v20200218-0804@default:default"/>
         <setEntry value="org.apache.ant@default:default"/>
         <setEntry value="org.apache.batik.constants@default:default"/>
         <setEntry value="org.apache.batik.css@default:default"/>
         <setEntry value="org.apache.batik.i18n@default:default"/>
-        <setEntry value="org.apache.batik.util@default:default"/>
+        <setEntry value="org.apache.batik.util*1.14.0.v20210324-0332@default:default"/>
         <setEntry value="org.apache.commons.cli@default:default"/>
         <setEntry value="org.apache.commons.io@default:default"/>
         <setEntry value="org.apache.commons.jxpath@default:default"/>

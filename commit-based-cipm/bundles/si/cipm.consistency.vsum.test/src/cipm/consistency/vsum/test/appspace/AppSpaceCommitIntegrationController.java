@@ -48,8 +48,8 @@ public abstract class AppSpaceCommitIntegrationController extends CommitIntegrat
     public List<ChangePropagationSpecification> getChangeSpecs() {
         List<ChangePropagationSpecification> changeSpecs = new ArrayList<>();
         changeSpecs.add(new PcmInitChangePropagationSpecification());
-        changeSpecs.add(new LuaPcmUpdateChangePropagationSpecification());
         changeSpecs.add(new ImInitChangePropagationSpecification());
+        changeSpecs.add(new LuaPcmUpdateChangePropagationSpecification());
         changeSpecs.add(new PcmImUpdateChangePropagationSpecification());
         return changeSpecs;
     }

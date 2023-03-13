@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
@@ -79,7 +80,7 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
      *             if an IO operation fails.
      */
     @Override
-    protected Propagation propagateChanges(String oldCommit, String newCommit) throws IOException {
+    protected Optional<Propagation> propagateChanges(String oldCommit, String newCommit) throws IOException {
         // track the commit ids in a file
         addCommitToCommitsFile(oldCommit, newCommit);
 

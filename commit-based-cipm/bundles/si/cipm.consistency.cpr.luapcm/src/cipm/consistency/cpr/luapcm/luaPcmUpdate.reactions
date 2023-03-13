@@ -25,7 +25,10 @@ import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
 
 reactions: luaPcmUpdate
 in reaction to changes in lua
+//execute actions in pcm and im 
 execute actions in pcm
+
+//import luaImUpdate
 
 reaction AddedBlock {
 	after element lua::Block created
@@ -128,6 +131,7 @@ reaction RemovedServeCall {
 			var decl = AppSpaceSemantics.getFunctionDeclarationFromServingFunctionCall(oldValue)
 			if (decl !== null) {
 				logger.info("ServeCall for declaration was removed: " + decl.name)
+
 				removeSeffForDeclaration(decl)
 			}
 		}
@@ -189,6 +193,9 @@ routine removeRDBehaviourForBlock(lua::Block block) {
 	update {
 		logger.debug(block.toString + ": Block deleted -> Removing RD Behaviour")
 		removeCorrespondenceBetween(rdBehaviour, block)
+//		if (rdBehaviour instanceof ResourceDemandingSEFF) {
+//			checkRemovalOfServiceInstrumentationPoint(rdBehaviour)
+//		}
 		rdBehaviour.removeObject
 	}
 }
@@ -209,6 +216,8 @@ routine createRDSeff(lua::Block block, lua::Statement_Function_Declaration decla
 		addCorrespondenceBetween(rdSeff, block)
 		addCorrespondenceBetween(rdSeff, declaration)
 		basicComponent.serviceEffectSpecifications__BasicComponent += rdSeff
+
+//		createOrFindServiceInstrumentationPoint(rdSeff)
 
 //		ComponentSetInfoRegistry.getInfosForComponentSet(declaration).declarationToCallingActions.get(declaration).
 //			forEach [
@@ -314,11 +323,20 @@ routine removeSyntheticElseBranch(pcm::BranchAction branchAction) {
 	update {
 		for (branch : branchAction.branches_Branch) {
 			if (branch.entityName == BranchActionUtil.NAME_SYNTHETIC_ELSE_BRANCH) {
-				removeCorrespondenceBetween(branchAction, branch)
-				branchAction.branches_Branch -= branch
+				// empty the branches behaviour
+				var branchBehaviour = branch.branchBehaviour_BranchTransition
+				// these deletions don't propagate into the IM sadly
+				branchBehaviour.steps_Behaviour.retainAll(#[])
+//				for (action : stepBehaviour) {
+//					logger.error("Parent branch goes away. Removing from step behaviour: " + action)
+//					branch.branchBehaviour_BranchTransition.steps_Behaviour -= action
+//					logger.error("Parent branch goes away. deleting: " + action)
+//				}
+				logger.debug("Done deleting else branch")
 
-				branch.branchBehaviour_BranchTransition.steps_Behaviour.forEach[removeObject]
 				branch.branchBehaviour_BranchTransition.removeObject
+				branchAction.branches_Branch -= branch
+				removeCorrespondenceBetween(branchAction, branch)
 				branch.removeObject
 			}
 		}
@@ -555,12 +573,14 @@ routine fuseTwoInternalActions(pcm::InternalAction a, pcm::InternalAction b) {
 			addCorrespondenceBetween(a, it)
 			b.removeCorrespondenceBetween(it)
 		]
+		// TODO do we need to change the predecessor / successors here?
 		b.removeObject
 
 		//
 		var newStatementCount = CorrespondenceUtil.getCorrespondingEObjectsByType(correspondenceModel, a, Statement).
 			size()
 		a.entityName = String.format("Internal: %d statements", newStatementCount)
+		
 	}
 }
 
@@ -612,8 +632,8 @@ routine removeAction(pcm::AbstractAction action, pcm::ResourceDemandingBehaviour
 //		}
 
 		// fix the chaining of the remaining actions
-		val pred = action.getPredecessor_AbstractAction()
-		val succ = action.getPredecessor_AbstractAction()
+		val pred = action.predecessor_AbstractAction
+		val succ = action.successor_AbstractAction
 		if (pred !== null) {
 			pred.setSuccessor_AbstractAction(succ);
 		}

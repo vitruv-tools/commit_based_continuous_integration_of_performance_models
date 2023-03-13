@@ -91,6 +91,21 @@ public class LuaModelFacade implements CodeModelFacade {
             } else {
                 LOGGER.debug(String.format("Loaded resource: %s", uri));
             }
+            
+            var warnings = res.getWarnings();
+            if (warnings != null && warnings.size() > 0) {
+                for (var warning: warnings) {
+                    LOGGER.warn(warning.getMessage());
+                }
+            }
+
+            var errors = res.getErrors();
+            if (errors != null && errors.size() > 0) {
+                for (var error : errors) {
+                    LOGGER.error(error.getMessage());
+                }
+                return null;
+            }
         }
 
         return resourceSet;
@@ -242,6 +257,9 @@ public class LuaModelFacade implements CodeModelFacade {
         LOGGER.debug("Propagating the current worktree");
         // parse all lua files into one resource set
         var workTreeResourceSet = parseDirToResourceSet(sourceCodeDir);
+        if (workTreeResourceSet == null) {
+            return null;
+        }
 
         // where the processed resource is stored prior to propagation
         var storeUri = dirLayout.getParsedFileUri();

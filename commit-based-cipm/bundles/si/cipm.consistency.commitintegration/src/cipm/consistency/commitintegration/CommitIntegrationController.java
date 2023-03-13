@@ -3,6 +3,7 @@ package cipm.consistency.commitintegration;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -75,8 +76,8 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
      * 
      * @return The Propagation instance including the used model paths
      */
-    private Propagation propagateCurrentCheckout() {
-        LOGGER.info(String.format("\n\tPropagating commit #%d: %s", state.getParsedCodeModelCount() + 1,
+    private Optional<Propagation> propagateCurrentCheckout() {
+        LOGGER.info(String.format("\n\tPropagating commit #%d: %s", state.getSnapshotCount() + 1,
                 state.getGitRepositoryWrapper()
                     .getCurrentCommitHash()));
 
@@ -88,6 +89,12 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
 
         var resource = state.getCodeModelFacade()
             .parseSourceCodeDir(workTree);
+        if (resource == null) {
+            LOGGER.error("Error parsing code model, not running propagation");
+            return Optional.empty();
+        }
+        
+        
         // this informs the component set info singleton that we changed resourced which it had mapped infos for 
         ChangedResources.setResourcesWereChanged();
 
@@ -101,15 +108,20 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
 
         var propagationResultCodeModelPath = state.createVsumCodeModelSnapshot();
         var propagationResultRepositoryModelPath = state.createRepositoryModelSnapshot();
+        var propagationResultIMMPath = state.createInstrumentationModelSnapshot();
 
+        propagation.setCommitIntegrationStateCopyPath(state.createSnapshot());
+
+        // the rest should not be needed anymore
         propagation.setParsedCodeModelPreviousVersionPath(previousParsedModelPath);
         propagation.setParsedCodeModelTargetVersionPath(parsedModelPath);
         propagation.setPropagationResultCodeModelPath(propagationResultCodeModelPath);
         propagation.setPropagationResultRepositoryModelPath(propagationResultRepositoryModelPath);
+        propagation.setPropagationResultIMMPath(propagationResultIMMPath);
 
 //        state.createSnapshotWithCount(String.format("after_changes_original-%d_consequential-%d",
 //                propagatedChanges.getOriginalChangeCount(), propagatedChanges.getConsequentialChangeCount()));
-        return propagation;
+        return Optional.of(propagation);
     }
 
     /**
@@ -127,7 +139,7 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
      * @throws IOException
      *             if the repository cannot be read.
      */
-    public List<Propagation> propagateChanges(String... commitIds) throws GitAPIException, IOException {
+    public List<Optional<Propagation>> propagateChanges(String... commitIds) throws GitAPIException, IOException {
         if (commitIds.length == 0) {
             return List.of(propagateCurrentCheckout());
         } else if (commitIds.length == 1 && commitIds[0] != null) {
@@ -141,7 +153,7 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
         }
 
         var numberOfPropagations = commitIds.length - 1;
-        List<Propagation> allPropagatedChanges = new ArrayList<>(numberOfPropagations);
+        List<Optional<Propagation>> allPropagatedChanges = new ArrayList<>(numberOfPropagations);
 
         for (var i = 0; i < numberOfPropagations; i++) {
             var propagatedChanges = propagateChanges(commitIds[i], commitIds[i + 1]);
@@ -172,11 +184,11 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
         return true;
     }
 
-    protected Propagation propagateChanges(String firstCommitId, String secondCommitId)
+    protected Optional<Propagation> propagateChanges(String firstCommitId, String secondCommitId)
             throws IncorrectObjectTypeException, IOException {
         if (!prePropagationChecks(firstCommitId, secondCommitId)) {
             LOGGER.info("Prechecks indicate no propagation is needed.");
-            return null;
+            return Optional.empty();
         }
 
         var cs = EvaluationDataContainer.getGlobalContainer()
@@ -190,7 +202,8 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
         if (checkout(secondCommitId)) {
             return propagateCurrentCheckout();
         }
-        return null;
+
+        return Optional.empty();
     }
 
     /**

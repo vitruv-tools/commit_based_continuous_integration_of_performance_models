@@ -69,8 +69,8 @@ public class LoggingSetup {
         levels.put("cipm.consistency.cpr.luapcm.seffreconstruction", Level.WARN);
         levels.put("cipm.consistency.commitintegration.lang.lua.LuaPostProcessor", Level.ERROR);
         levels.put("mir.reactions", Level.WARN);
-        levels.put("mir.reactions.luaPcmUpdate", Level.INFO);
-        levels.put("mir.routines.luaPcmUpdate", Level.DEBUG);
+//        levels.put("mir.reactions.luaPcmUpdate", Level.INFO);
+//        levels.put("mir.routines.luaPcmUpdate", Level.INFO);
         levels.put("mir.routines", Level.WARN);
 //        levels.put("mir.routines.statementFunctionDeclaration_operationSignature", Level.WARN);
 //        levels.put("mir.routines.statement_actions", Level.INFO);
