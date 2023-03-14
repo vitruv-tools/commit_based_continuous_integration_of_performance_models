@@ -31,10 +31,13 @@ public class LuaEqualityHelper extends EqualityHelper {
             return false;
         }
 
+        // we do custom matching in here:
         var match = LuaEqualityChecker.match(left, right);
         if (match != null) {
             return match;
         }
+        
+        // for very easy cases we can use the edition distance matcher:
         if (editionDistanceEqualityChecker.match(left, right)) {
             return true;
         }

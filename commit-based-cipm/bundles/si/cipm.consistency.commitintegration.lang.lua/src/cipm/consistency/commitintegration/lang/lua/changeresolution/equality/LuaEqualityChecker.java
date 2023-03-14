@@ -2,7 +2,9 @@ package cipm.consistency.commitintegration.lang.lua.changeresolution.equality;
 
 import org.eclipse.emf.ecore.EObject;
 import org.xtext.lua.lua.Expression_Functioncall_Direct;
+import org.xtext.lua.lua.Expression_TableConstructor;
 import org.xtext.lua.lua.Expression_VariableName;
+import org.xtext.lua.lua.Field_AppendEntryToTable;
 import org.xtext.lua.lua.Refble;
 import org.xtext.lua.lua.Statement_Assignment;
 
@@ -15,28 +17,21 @@ public class LuaEqualityChecker {
         return leftClass.equals(rightClass);
     }
 
-    /*
-     * Do refbles match by name
-     */
-    private static boolean refblesDoMatch(Refble left, Refble right) {
+    private static boolean match(Refble left, Refble right) {
+        if (left == null || right == null) {
+            return false;
+        }
         return left.getName()
             .equals(right.getName());
     }
 
-    private static Boolean match(Refble left, Refble right) {
-        return refblesDoMatch(left, right);
-    }
-
     private static Boolean match(Expression_VariableName left, Expression_VariableName right) {
-        if (left.getRef() == null || right.getRef() == null) {
-            return false;
-        }
-        return refblesDoMatch(left.getRef(), right.getRef());
+        return match(left.getRef(), right.getRef());
     }
 
     private static Boolean match(Expression_Functioncall_Direct left, Expression_Functioncall_Direct right) {
         if (left.getCalledFunction() == null || right.getCalledFunction() == null
-                || !refblesDoMatch(left.getCalledFunction(), right.getCalledFunction())) {
+                || !match(left.getCalledFunction(), right.getCalledFunction())) {
             return false;
         }
 
@@ -55,6 +50,30 @@ public class LuaEqualityChecker {
         }
 
         return true;
+    }
+
+    private static Boolean match(Expression_TableConstructor left, Expression_TableConstructor right) {
+        var leftFields = left.getFields();
+        var rightFields = left.getFields();
+        if (leftFields.size() != rightFields.size()) {
+            return false;
+        }
+        var i = 0;
+        for (var leftField : leftFields) {
+            var rightField = rightFields.get(i);
+            var doMatch = match(leftField, rightField);
+            if (doMatch != null && !doMatch) {
+                return false;
+            }
+            i++;
+        }
+        return true;
+    }
+
+    private static Boolean match(Field_AppendEntryToTable left, Field_AppendEntryToTable right) {
+        var leftValue = left.getValue();
+        var rightValue = left.getValue();
+        return match(leftValue, rightValue);
     }
 
     private static Boolean match(Statement_Assignment left, Statement_Assignment right) {
@@ -96,20 +115,24 @@ public class LuaEqualityChecker {
         if (left == null || right == null) {
             return false;
         }
+
         if (!eClassMatch(left, right)) {
             return false;
         }
 
-        if (left instanceof Refble leftRef && right instanceof Refble rightRef) {
-            return match(leftRef, rightRef);
-        } else if (left instanceof Expression_Functioncall_Direct leftCall
-                && right instanceof Expression_Functioncall_Direct rightCall) {
-            return match(leftCall, rightCall);
-        } else if (left instanceof Expression_VariableName leftVar
-                && right instanceof Expression_VariableName rightVar) {
-            return match(leftVar, rightVar);
-        } else if (left instanceof Statement_Assignment leftAss && right instanceof Statement_Assignment rightAss) {
-            return match(leftAss, rightAss);
+        if (left instanceof Statement_Assignment l && right instanceof Statement_Assignment r) {
+            return match(l, r);
+        } else if (left instanceof Expression_Functioncall_Direct l
+                && right instanceof Expression_Functioncall_Direct r) {
+            return match(l, r);
+        } else if (left instanceof Expression_VariableName l && right instanceof Expression_VariableName r) {
+            return match(l, r);
+        } else if (left instanceof Field_AppendEntryToTable l && right instanceof Field_AppendEntryToTable r) {
+            return match(l, r);
+        } else if (left instanceof Expression_TableConstructor l && right instanceof Expression_TableConstructor r) {
+            return match(l, r);
+        } else if (left instanceof Refble l && right instanceof Refble r) {
+            return match(l, r);
         }
         return null;
     }

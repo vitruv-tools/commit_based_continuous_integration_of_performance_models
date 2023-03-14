@@ -17,13 +17,13 @@ import org.eclipse.emf.compare.utils.UseIdentifiers
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl
 import org.eclipse.emf.ecore.util.EcoreUtil
+import tools.vitruv.change.composite.description.TransactionalChange
 import tools.vitruv.change.composite.recording.ChangeRecorder
 import tools.vitruv.framework.views.changederivation.StateBasedChangeResolutionStrategy
 
 import static com.google.common.base.Preconditions.checkArgument
 
 import static extension edu.kit.ipd.sdq.commons.util.org.eclipse.emf.ecore.resource.ResourceUtil.getReferencedProxies
-import tools.vitruv.change.composite.description.TransactionalChange
 
 /**
  * This change resolution strategy tries to uses multiple match engines to resolve
@@ -91,9 +91,6 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 	 * print some infos about the differences we found in code models
 	 */
 	private def printModelChanges(Resource res, EList<Diff> differences) {
-		if (!isCodeModel(res)) {
-			return;
-		}
 
 		var changeText = "EMFcompare found changes in model " + res.URI.lastSegment + ":"
 		for (kind : DifferenceKind.VALUES) {
@@ -101,8 +98,14 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 				it.kind == kind
 			].count
 		}
+		
+		
 		LOGGER.info(changeText)
 	}
+//	
+//	private def getComponentSetMatches(Diff difference) {
+//		var comparisionSpec = EcoreUtil2.getContainerOfType(difference, ComparisionSpec.class);
+//	}
 
 	/**
 	 * Compares states using EMFCompare and replays the changes to the current state.
@@ -119,8 +122,10 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 		val comparision = compare.compare(scope)
 		val differences = comparision.differences
 
-		// print the changes
-		printModelChanges(newState, differences)
+		if (isCodeModel(newState)) {
+			// print the changes
+			printModelChanges(newState, differences)
+		}
 
 		// Replay the EMF compare differences
 		val mergerRegistry = IMerger.RegistryImpl.createStandaloneInstance()
