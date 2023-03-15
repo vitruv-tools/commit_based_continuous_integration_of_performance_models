@@ -88,24 +88,17 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 	}
 
 	/*
-	 * print some infos about the differences we found in code models
+	 * print some infos about the differences we found in models
 	 */
 	private def printModelChanges(Resource res, EList<Diff> differences) {
-
 		var changeText = "EMFcompare found changes in model " + res.URI.lastSegment + ":"
 		for (kind : DifferenceKind.VALUES) {
 			changeText += "  " + kind + ": " + differences.stream.filter [
 				it.kind == kind
 			].count
 		}
-		
-		
 		LOGGER.info(changeText)
 	}
-//	
-//	private def getComponentSetMatches(Diff difference) {
-//		var comparisionSpec = EcoreUtil2.getContainerOfType(difference, ComparisionSpec.class);
-//	}
 
 	/**
 	 * Compares states using EMFCompare and replays the changes to the current state.
