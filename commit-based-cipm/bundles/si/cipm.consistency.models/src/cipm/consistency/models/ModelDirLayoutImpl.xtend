@@ -8,7 +8,7 @@ class ModelDirLayoutImpl implements ModelDirLayout {
 	protected Path rootDirPath
 
 	override void initialize(Path rootDirPath) {
-		this.rootDirPath = rootDirPath;
+		this.rootDirPath = rootDirPath.toAbsolutePath();
 		if (!rootDirPath.toFile().exists()) {
 			Files.createDirectories(rootDirPath);
 		}

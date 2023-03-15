@@ -24,9 +24,9 @@ public class Propagation {
     // target version parsed model and propagation result should be identical if the change
     // resolution and propagation worked correctly
     private Path parsedCodeModelTargetVersionPath;
-    private Path propagationResultCodeModelPath;
-    private Path propagationResultRepositoryModelPath;
-    private Path propagationResultIMMPath;
+    private Path vsumCodeModelPath;
+    private Path vsumRepositoryModelPath;
+    private Path vsumImmPath;
     private Path commitIntegrationStateCopyPath;
 
     private int originalChangeCount = 0;
@@ -85,27 +85,27 @@ public class Propagation {
     }
 
     public Path getPropagationResultCodeModelPath() {
-        return propagationResultCodeModelPath;
+        return vsumCodeModelPath;
     }
 
     public void setPropagationResultCodeModelPath(Path propagationResultCodeModelPath) {
-        this.propagationResultCodeModelPath = propagationResultCodeModelPath;
+        this.vsumCodeModelPath = propagationResultCodeModelPath;
     }
 
     public Path getPropagationResultRepositoryModelPath() {
-        return propagationResultRepositoryModelPath;
+        return vsumRepositoryModelPath;
     }
 
     public void setPropagationResultRepositoryModelPath(Path propagationResultRepositoryModelPath) {
-        this.propagationResultRepositoryModelPath = propagationResultRepositoryModelPath;
+        this.vsumRepositoryModelPath = propagationResultRepositoryModelPath;
     }
 
     public void setPropagationResultIMMPath(Path propagationResultIMMPath) {
-        this.propagationResultIMMPath = propagationResultIMMPath;
+        this.vsumImmPath = propagationResultIMMPath;
     }
 
     public Path getPropagationResultIMMPath() {
-        return propagationResultIMMPath;
+        return vsumImmPath;
     }
 
     public Path getCommitIntegrationStateCopyPath() {
