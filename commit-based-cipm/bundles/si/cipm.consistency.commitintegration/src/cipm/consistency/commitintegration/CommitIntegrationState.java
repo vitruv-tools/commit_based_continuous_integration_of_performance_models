@@ -12,9 +12,11 @@ import org.eclipse.jgit.api.errors.TransportException;
 
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
-import cipm.consistency.models.CodeModelFacade;
+import cipm.consistency.models.code.CodeModelFacade;
 import cipm.consistency.models.im.ImFacade;
 import cipm.consistency.models.pcm.PcmFacade;
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
 import cipm.consistency.vsum.VsumFacade;
 import cipm.consistency.vsum.VsumFacadeImpl;
 
@@ -39,18 +41,12 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
     private ImFacade imFacade;
     private CM codeModelFacade;
 
-//    private String tag = "";
     private int snapshotCount = 0;
     private int parsedCodeModelCount = 0;
-    private int vsumCodeModelCount = 0;
-    private int immCount = 0;
-    private int repositoryModelCount;
-
     private Path currentParsedModelPath = null;
 
     // was this state previously used to propagate something?
     private boolean isFresh = false;
-
 
     public CommitIntegrationState() {
         dirLayout = new CommitIntegrationDirLayout();
@@ -63,14 +59,19 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
 
     public void initialize(CommitIntegration<CM> commitIntegration)
             throws InvalidRemoteException, TransportException, IOException, GitAPIException {
-        initialize(commitIntegration, false);
+        initialize(commitIntegration, commitIntegration.getRootPath(), false);
     }
 
-    public void initialize(CommitIntegration<CM> commitIntegration, boolean overwrite)
+    public void initialize(CommitIntegration<CM> commitIntegration, Path rootPath, boolean overwrite)
+            throws InvalidRemoteException, TransportException, IOException, GitAPIException {
+        initialize(commitIntegration, rootPath, overwrite, true);
+    }
+
+    public void initialize(CommitIntegration<CM> commitIntegration, Path rootPath, boolean overwrite, boolean loadVsum)
             throws IOException, InvalidRemoteException, TransportException, GitAPIException {
-        LOGGER.info("Initializing the CommitIntegrationState");
+        LOGGER.debug("Initializing the CommitIntegrationState");
         this.commitIntegration = commitIntegration;
-        dirLayout.initialize(commitIntegration.getRootPath());
+        dirLayout.initialize(rootPath);
 
         // delete the directory layout if we are overwriting
         if (overwrite) {
@@ -92,10 +93,15 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         codeModelFacade = commitIntegration.getCodeModelFacadeSupplier()
             .get();
         codeModelFacade.initialize(dirLayout.getCodeDirPath());
+        
+        // load evaluation data from disk into the current singleton
+        loadEvaluationData();
 
         // initialize the vsum
-        vsumFacade.initialize(dirLayout.getVsumDirPath(), List.of(pcmFacade, imFacade),
-                commitIntegration.getChangeSpecs(), commitIntegration.getStateBasedChangeResolutionStrategy());
+        if (loadVsum) {
+            vsumFacade.initialize(dirLayout.getVsumDirPath(), List.of(pcmFacade, imFacade),
+                    commitIntegration.getChangeSpecs(), commitIntegration.getStateBasedChangeResolutionStrategy());
+        }
     }
 
     @SuppressWarnings("restriction")
@@ -118,54 +124,69 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         return null;
     }
 
-    public Path createVsumCodeModelSnapshot() {
-        var currentCommitHash = getGitRepositoryWrapper().getCurrentCommitHash();
-        vsumCodeModelCount += 1;
-        var name = "vsum-" + String.valueOf(vsumCodeModelCount) + "-" + currentCommitHash + ".code.xmi";
-        var path = dirLayout.getVsumCodeModelPath();
-        var targetPath = path.resolveSibling(name);
-        try {
-            FileUtils.copyFile(path.toFile(), targetPath.toFile());
-            return targetPath;
-        } catch (IOException e) {
-            e.printStackTrace();
+//    public Path createVsumCodeModelSnapshot() {
+//        var currentCommitHash = getGitRepositoryWrapper().getCurrentCommitHash();
+//        vsumCodeModelCount += 1;
+//        var name = "vsum-" + String.valueOf(vsumCodeModelCount) + "-" + currentCommitHash + ".code.xmi";
+//        var path = dirLayout.getVsumCodeModelPath();
+//        var targetPath = path.resolveSibling(name);
+//        try {
+//            FileUtils.copyFile(path.toFile(), targetPath.toFile());
+//            return targetPath;
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
+
+//    public Path createInstrumentationModelSnapshot() {
+//        var currentCommitHash = getGitRepositoryWrapper().getCurrentCommitHash();
+//        immCount += 1;
+//        var name = "imm-" + String.valueOf(vsumCodeModelCount) + "-" + currentCommitHash + ".imm";
+//        var path = getImFacade().getDirLayout()
+//            .getImFilePath();
+//        var targetPath = path.resolveSibling(name);
+//        try {
+//            FileUtils.copyFile(path.toFile(), targetPath.toFile());
+//            return targetPath;
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
+
+//    public Path createRepositoryModelSnapshot() {
+//        var currentCommitHash = getGitRepositoryWrapper().getCurrentCommitHash();
+//        repositoryModelCount += 1;
+//        var name = "Repository-" + String.valueOf(vsumCodeModelCount) + "-" + currentCommitHash + ".repository";
+//        var path = pcmFacade.getDirLayout()
+//            .getPcmRepositoryPath();
+//        var targetPath = path.resolveSibling(name);
+//        try {
+//            FileUtils.copyFile(path.toFile(), targetPath.toFile());
+//            return targetPath;
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
+
+    private void loadEvaluationData() {
+        var loadedContainer = EvaluationDataContainerReaderWriter.read(dirLayout.getEvaluationDataFilePath());
+        if (loadedContainer != null) {
+            EvaluationDataContainer.setGlobalContainer(loadedContainer);
         }
-        return null;
     }
 
-    public Path createInstrumentationModelSnapshot() {
-        var currentCommitHash = getGitRepositoryWrapper().getCurrentCommitHash();
-        immCount += 1;
-        var name = "imm-" + String.valueOf(vsumCodeModelCount) + "-" + currentCommitHash + ".imm";
-        var path = getImFacade().getDirLayout()
-            .getImFilePath();
-        var targetPath = path.resolveSibling(name);
-        try {
-            FileUtils.copyFile(path.toFile(), targetPath.toFile());
-            return targetPath;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public Path createRepositoryModelSnapshot() {
-        var currentCommitHash = getGitRepositoryWrapper().getCurrentCommitHash();
-        repositoryModelCount += 1;
-        var name = "Repository-" + String.valueOf(vsumCodeModelCount) + "-" + currentCommitHash + ".repository";
-        var path = pcmFacade.getDirLayout()
-            .getPcmRepositoryPath();
-        var targetPath = path.resolveSibling(name);
-        try {
-            FileUtils.copyFile(path.toFile(), targetPath.toFile());
-            return targetPath;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public void persistEvaluationData() {
+        var data = EvaluationDataContainer.getGlobalContainer();
+        EvaluationDataContainerReaderWriter.write(data, dirLayout.getEvaluationDataFilePath());
     }
 
     public Path createSnapshot() {
+        // save all the evaluation data that may have been produced
+        persistEvaluationData();
+
         var currentCommitHash = getGitRepositoryWrapper().getCurrentCommitHash();
         var name = getDirLayout().getRootDirPath()
             .getFileName() + "-" + String.valueOf(++snapshotCount) + "-" + currentCommitHash;
@@ -177,58 +198,11 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         return null;
     }
 
-//    public Path createSnapshotWithCount() {
-//        return createSnapshotWithCount("");
-//    }
-//
-//    public Path createSnapshotWithCount(String additionalIdentifier) {
-//        snapshotCount += 1;
-//        var identifier = String.valueOf(snapshotCount);
-//        if (!additionalIdentifier.equals("")) {
-//            identifier += "_" + additionalIdentifier;
-//        }
-//        return createSnapshot(identifier);
-//    }
-//
-//    public Path createSnapshotWithTimeStamp() {
-//        return createSnapshotWithTimeStamp("");
-//    }
-//
-//    public Path createSnapshotWithTimeStamp(String additionalIdentifier) {
-//        var identifier = "_" + LocalDateTime.now()
-//            .toString();
-//
-//        if (!additionalIdentifier.equals("")) {
-//            identifier += "_" + additionalIdentifier;
-//        }
-//        return createSnapshot(identifier);
-//    }
-//
-//    private Path createSnapshot(String identifier) {
-//        var dirName = commitIntegration.getRootPath()
-//            .getFileName()
-//            .toString();
-//
-//        if (!identifier.equals("")) {
-//            dirName += "_" + identifier;
-//        }
-//        if (tag != "") {
-//            dirName += "_" + tag;
-//        }
-//
-//        try {
-//            return createCopy(dirName);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-
     /**
-     * Copies the files of this integration to a target path
+     * Creates a copy of this commit integration state in the same directory as
+     * the original with the given fileName
      * 
-     * @param Suffix
-     *            added to the root path of this integration
+     * @param fileName the 
      * @throws IOException
      */
     private Path createCopy(String fileName) throws IOException {

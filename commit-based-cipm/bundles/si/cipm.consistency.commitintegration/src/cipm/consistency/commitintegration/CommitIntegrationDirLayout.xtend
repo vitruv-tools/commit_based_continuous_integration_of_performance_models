@@ -18,7 +18,7 @@ class CommitIntegrationDirLayout extends ModelDirLayoutImpl {
 	
 	static String commitsFileName = "commits"
 	static String settingsFileName = "settings.settings"
-	static String reactionsLogFileName = "reactions.log"
+	static String evaluationDataFileName = "evaluationData.json"
 	
 	Path vsumDirPath
 	Path pcmDirPath
@@ -31,7 +31,7 @@ class CommitIntegrationDirLayout extends ModelDirLayoutImpl {
 	
 	Path commitsFilePath
 	Path settingsFilePath
-	Path reactionsLogPath
+	Path evaluationDataFilePath
 	
 	override initialize(Path rootDirPath) {
 		super.initialize(rootDirPath)
@@ -42,12 +42,12 @@ class CommitIntegrationDirLayout extends ModelDirLayoutImpl {
 		codeDirPath = rootDirPath.resolve(codeDirName)
 		instrumentedCodeDirPath = rootDirPath.resolve(instrumentedCodeDirName)
 		
-		vsumCodeModelPath = codeDirPath.resolve(vsumCodeModelName)
+		vsumCodeModelPath = codeDirPath.resolve(vsumCodeModelName).toAbsolutePath()
 		vsumCodeModelURI = URI.createFileURI(vsumCodeModelPath.toString())
 		
 		commitsFilePath = rootDirPath.resolve(commitsFileName)
 		settingsFilePath = rootDirPath.resolve(settingsFileName)
-		reactionsLogPath = rootDirPath.resolve(reactionsLogFileName)
+		evaluationDataFilePath = rootDirPath.resolve(evaluationDataFileName).toAbsolutePath()
 	}
 	
 }

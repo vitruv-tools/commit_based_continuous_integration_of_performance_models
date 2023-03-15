@@ -99,11 +99,8 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 		}
 		LOGGER.info(changeText)
 	}
-
-	/**
-	 * Compares states using EMFCompare and replays the changes to the current state.
-	 */
-	private def compareStatesAndReplayChanges(Resource newState, Resource currentState) {
+	
+	def compareStates(Resource newState, Resource currentState) {
 		// need to have the same URI for comparison
 		if (currentState.URI != newState.URI) {
 			currentState.URI = newState.URI
@@ -112,8 +109,15 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 		// left: newState,  right: currentState
 		val scope = new DefaultComparisonScope(newState, currentState, null)
 		val compare = getEmfCompare()
-		val comparision = compare.compare(scope)
-		val differences = comparision.differences
+		compare.compare(scope)
+	}
+
+	/**
+	 * Compares states using EMFCompare and replays the changes to the current state.
+	 */
+	private def compareStatesAndReplayChanges(Resource newState, Resource currentState) {
+		var comparison = compareStates(newState, currentState)
+		val differences = comparison.differences
 
 		if (isCodeModel(newState)) {
 			// print the changes

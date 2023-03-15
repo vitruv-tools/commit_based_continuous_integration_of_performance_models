@@ -85,7 +85,7 @@ public class PcmFacade implements ModelFacade {
     }
 
     private void loadFromDisk() {
-        LOGGER.info("Loading PCM from disk");
+        LOGGER.debug("Loading PCM from disk");
 
         var files = fileLayout.getFilePCM();
         pcm = new InMemoryPCM();

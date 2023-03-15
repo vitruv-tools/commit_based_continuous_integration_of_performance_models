@@ -243,6 +243,9 @@ public class GitRepositoryWrapper {
      * @return commits between two particular commits.
      */
     public List<RevCommit> getAllCommitsBetweenTwoCommits(final String startCommitHash, final String endCommitHash) {
+        if (endCommitHash == null) {
+            return List.of();
+        }
         List<RevCommit> listOfCommits = new ArrayList<>();
         try {
             ObjectId refTo = repository.resolve(endCommitHash);
@@ -282,7 +285,10 @@ public class GitRepositoryWrapper {
      */
     public List<DiffEntry> computeDiffsBetweenTwoCommits(String firstCommitId, String secondCommitId)
             throws RevisionSyntaxException, IOException, IncorrectObjectTypeException {
-        var firstCommit = this.getCommitForId(firstCommitId);
+        RevCommit firstCommit = null;
+        if (firstCommitId != null) {
+            firstCommit = this.getCommitForId(firstCommitId);
+        }
         var secondCommit = this.getCommitForId(secondCommitId);
         return computeDiffsBetweenTwoCommits(firstCommit, secondCommit);
     }
@@ -542,6 +548,7 @@ public class GitRepositoryWrapper {
     }
 
     public String getCurrentCommitHash() {
-        return currentCheckoutCommit.getId().getName();
+        return currentCheckoutCommit.getId()
+            .getName();
     }
 }

@@ -13,17 +13,29 @@ import java.util.function.Consumer;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.BasicDiagnostic;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.common.util.WrappedException;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EObjectValidator;
 import org.eclipse.emf.ecore.xmi.UnresolvedReferenceException;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.xtext.EcoreUtil2;
 import org.palladiosimulator.pcm.repository.Repository;
 import org.xtext.lua.lua.ComponentSet;
 
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.base.shared.ModelUtil;
+import cipm.consistency.commitintegration.CommitIntegration;
 import cipm.consistency.commitintegration.CommitIntegrationDirLayout;
+import cipm.consistency.commitintegration.CommitIntegrationState;
+import cipm.consistency.commitintegration.diff.util.ComparisonBasedJaccardCoefficientCalculator;
+import cipm.consistency.commitintegration.lang.lua.changeresolution.HierarchicalStateBasedChangeResolutionStrategy;
+import cipm.consistency.models.code.CodeModelFacade;
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.vsum.Propagation;
 
 /**
@@ -34,43 +46,29 @@ import cipm.consistency.vsum.Propagation;
  * the target version.
  *
  * 
+ * @param <CM>
+ *            The used code model
  * @author Lukas Burgey
  */
-public class PropagationEvaluator {
+public class PropagationEvaluator<CM extends CodeModelFacade> {
     private static final Logger LOGGER = Logger.getLogger(PropagationEvaluator.class);
 
-    /**
-     * Evaluates if the change resolution that was used during the propagation is correct.
-     * 
-     * During the change resolution we generate a change sequence between the previously parsed code
-     * model and the parsed code model of the new ("target") version. If applying this change
-     * sequence to the code model of the vsum does not result in a model similar to the parsed code
-     * model of the target version something went wrong.
-     * 
-     * @param propagation
-     * @return True if the vsum code model was updated correctly during the propagation
-     */
-    private static boolean evaluateChangeResolution(Propagation propagation) {
-        var codeModelValid = evaluateVsumCodeModel(propagation);
-        if (!codeModelValid) {
-            LOGGER.warn("Vsum code model is invalid");
-        }
+    private Propagation propagation;
+    private CommitIntegrationState<CM> state;
 
-        var targetModelPath = propagation.getParsedCodeModelTargetVersionPath();
-        var actualModelPath = propagation.getPropagationResultCodeModelPath();
-        if (targetModelPath == null || actualModelPath == null) {
-            // no evaluation if we don't have the respective model files to evaluate
-            return true;
-        }
+    public PropagationEvaluator(Propagation propagation, CommitIntegration<CM> commitIntegration) {
+        this.propagation = propagation;
 
-        var modelsSimilar = diffModelFiles(targetModelPath, actualModelPath);
-        if (!modelsSimilar) {
-            printDiffBetween(targetModelPath, actualModelPath);
-            LOGGER.warn(
-                    "Parsed target version and actual propagation result are not similar! Something is wrong with the change resolution!");
+        state = new CommitIntegrationState<CM>();
+        try {
+            // load the CIS without overwriting and loading the vsum
+            // (Loading a moved VSUM is currently not possible, because the paths in its
+            // models.models file
+            // are absolute and not relative)
+            state.initialize(commitIntegration, propagation.getCommitIntegrationStateCopyPath(), false, false);
+        } catch (IOException | GitAPIException e) {
+            e.printStackTrace();
         }
-
-        return modelsSimilar;
     }
 
     /*
@@ -93,6 +91,16 @@ public class PropagationEvaluator {
         return contentsValid;
     }
 
+    private static boolean validateResource(Resource res) {
+        var invalidEobjects = 0;
+        for (var eObj : res.getContents()) {
+            if (!validateEObject(eObj)) {
+                invalidEobjects++;
+            }
+        }
+        return invalidEobjects == 0;
+    }
+
     private static boolean evaluateModel(Path modelPath, Class<? extends EObject> clazz) {
         try {
             var modelRootElement = ModelUtil.readFromFile(modelPath.toFile(), clazz);
@@ -112,10 +120,82 @@ public class PropagationEvaluator {
         }
     }
 
-    private static boolean evaluateVsumCodeModel(Propagation propagation) {
-        var valid = evaluateModel(propagation.getPropagationResultCodeModelPath(), ComponentSet.class);
+    private boolean evaluateChangeResolutionTextFileSimilarity() {
+        var targetModelPath = state.getCodeModelFacade()
+            .getDirLayout()
+            .getParsedCodePath();
+        var actualModelPath = state.getDirLayout()
+            .getVsumCodeModelPath();
+        if (targetModelPath == null || actualModelPath == null) {
+            // no evaluation if we don't have the respective model files to evaluate
+            return true;
+        }
+
+        var modelsSimilar = diffModelFiles(targetModelPath, actualModelPath);
+        if (!modelsSimilar) {
+            printDiffBetween(targetModelPath, actualModelPath);
+            LOGGER.warn(
+                    "Parsed target version and actual propagation result are not similar! Something is wrong with the change resolution!");
+        }
+
+        return modelsSimilar;
+    }
+
+    private Resource getCodeModel(Path path) {
+        var file = path.toFile();
+        ResourceSet resourceSet = new ResourceSetImpl();
+        resourceSet.getResourceFactoryRegistry()
+            .getExtensionToFactoryMap()
+            .put(Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl());
+
+        URI filePathUri = org.eclipse.emf.common.util.URI.createFileURI(file.getAbsolutePath());
+
+        Resource resource = resourceSet.getResource(filePathUri, true);
+        return resource;
+    }
+
+    private Resource getVsumCodeModel() {
+        return getCodeModel(state.getDirLayout()
+            .getVsumCodeModelPath());
+    }
+
+    private void evaluateChangeResolutionJaccard() {
+        var vsumCodeModel = getVsumCodeModel();
+        Resource parsedCodeModel = state.getCodeModelFacade()
+            .getResource();
+
+        var changeResolutionStrategy = new HierarchicalStateBasedChangeResolutionStrategy();
+        var comparison = changeResolutionStrategy.compareStates(parsedCodeModel, vsumCodeModel);
+        var jaccardResult = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comparison);
+        EvaluationDataContainer.getGlobalContainer()
+            .getJavaComparisonResult()
+            .setValuesUsingJaccardCoefficientResult(jaccardResult);
+    }
+
+    /**
+     * Evaluates if the change resolution that was used during the propagation is correct.
+     * 
+     * During the change resolution we generate a change sequence between the previously parsed code
+     * model and the parsed code model of the new ("target") version. If applying this change
+     * sequence to the code model of the vsum does not result in a model similar to the parsed code
+     * model of the target version something went wrong.
+     * 
+     * @param propagation
+     * @return True if the vsum code model was updated correctly during the propagation
+     */
+    private boolean evaluateChangeResolution() {
+
+        var valid = evaluateChangeResolutionTextFileSimilarity();
         if (!valid) {
-            LOGGER.warn("Vsum Code Model did not validate");
+            LOGGER.warn("Change resolution did not pass evaluation");
+        }
+        return valid;
+    }
+
+    private boolean evaluateVsumCodeModel() {
+        var valid = validateResource(getVsumCodeModel());
+        if (!valid) {
+            LOGGER.warn("VSUM Code model is invalid");
         }
         return valid;
     }
@@ -127,10 +207,10 @@ public class PropagationEvaluator {
      * @param propagation
      * @return True if valid
      */
-    private static boolean evaluateResultingRepositoryModel(Path path) {
+    private static boolean evaluateVsumRepositoryModel(Path path) {
         var valid = evaluateModel(path, Repository.class);
         if (!valid) {
-            LOGGER.debug("Repository model is invalid");
+            LOGGER.debug("VSUM Repository model is invalid");
         }
         return valid;
     }
@@ -149,42 +229,23 @@ public class PropagationEvaluator {
         return valid;
     }
 
-//    public static boolean evaluateOld(Propagation propagation) {
-//        var changeResolution = evaluateChangeResolution(propagation);
-//        if (!changeResolution) {
-//            LOGGER.warn("Change resolution did not pass evaluation");
-//        }
-//
-//        var valid = changeResolution;
-//
-//        valid &= evaluateResultingRepositoryModel(propagation);
-//        valid &= evaluateResultingImm(propagation);
-//
-//        if (valid) {
-//            LOGGER.info("Propagation passed evaluation");
-//        }
-//        return valid;
-//    }    
+    public boolean evaluate() {
+        // Evaluations that only write to the evaluation data: 
+        evaluateChangeResolutionJaccard();
 
-    public static boolean evaluate(Propagation propagation) {
-
-        var changeResolution = evaluateChangeResolution(propagation);
-        if (!changeResolution) {
-            LOGGER.warn("Change resolution did not pass evaluation");
-        }
-        var valid = changeResolution;
-
-        var stateCopyPath = propagation.getCommitIntegrationStateCopyPath();
-        if (stateCopyPath != null) {
-            var dirLayout = new CommitIntegrationDirLayout();
-            dirLayout.initialize(propagation.getCommitIntegrationStateCopyPath());
-            valid &= evaluateResultingRepositoryModel(dirLayout.getPcmDirPath()
-                .resolve("Repository.repository"));
-            valid &= evaluateResultingImm(dirLayout.getImDirPath()
-                .resolve("imm.imm"));
-        } else {
-            LOGGER.error("Could not find commit integration state copy");
-        }
+        // save the evaluation data to the directory of the integration state copy
+        state.persistEvaluationData();
+        
+        // Evaluations with binary result: 
+        var valid = true;
+        valid &= evaluateChangeResolution();
+        valid &= evaluateVsumCodeModel();
+        valid &= evaluateVsumRepositoryModel(state.getPcmFacade()
+            .getDirLayout()
+            .getPcmRepositoryPath());
+        valid &= evaluateResultingImm(state.getImFacade()
+            .getDirLayout()
+            .getImFilePath());
 
         if (valid) {
             LOGGER.info("Propagation passed evaluation");

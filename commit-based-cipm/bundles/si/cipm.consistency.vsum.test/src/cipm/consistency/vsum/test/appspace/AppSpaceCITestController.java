@@ -20,6 +20,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 
 import cipm.consistency.commitintegration.CommitIntegrationState;
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
 import cipm.consistency.vsum.Propagation;
 import cipm.consistency.vsum.test.evaluator.PropagationEvaluator;
 
@@ -86,7 +88,7 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
         this.state = new CommitIntegrationState<>();
 //
 //        // overwrite existing files?
-        state.initialize(this, overwrite);
+        state.initialize(this, this.getRootPath(), overwrite);
     }
 
     @BeforeEach
@@ -135,7 +137,18 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
         if (propagation == null) {
             Assert.fail("PropagatedChanges may not be null");
         }
-        return PropagationEvaluator.evaluate(propagation);
+
+        var evaluator = new PropagationEvaluator<>(propagation, this);
+
+        var result = evaluator.evaluate();
+
+        var evaluationDataContainer = EvaluationDataContainer.getGlobalContainer();
+        var evaluationFileName = "evaluationData.json";
+        var evaluationPath = propagation.getCommitIntegrationStateCopyPath()
+            .resolve(evaluationFileName);
+        EvaluationDataContainerReaderWriter.write(evaluationDataContainer, evaluationPath);
+
+        return result;
     }
 
     private boolean getImmediateEvaluation() {
@@ -153,17 +166,21 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
 
         List<Propagation> allPropagations = new ArrayList<>();
         try {
+            String previousCommitId = null;
             for (var commitId : commitIds) {
-                // only one commit, only one propagation
-                var propagations = propagateChanges(commitId);
-
-                if (commitId == null || propagations.size() != 1 || propagations.get(0)
-                    .isEmpty()) {
+                if (commitId == null) {
+                    // do an empty propagation to reset the models
+                    propagateChanges(commitId);
                     continue;
                 }
 
-                var propagation = propagations.get(0)
-                    .get();
+                var propagations = propagateChanges(previousCommitId, commitId);
+                previousCommitId = commitId;
+                if (propagations.isEmpty()) {
+                    continue;
+                }
+
+                var propagation = propagations.get();
                 if (getImmediateEvaluation() && !evaluatePropagation(propagation)) {
                     failTest("Propagation failed evaluation (immediate abort)");
                 }

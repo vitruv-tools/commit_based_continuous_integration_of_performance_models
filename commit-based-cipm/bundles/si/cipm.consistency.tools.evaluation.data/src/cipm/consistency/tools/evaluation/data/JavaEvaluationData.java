@@ -1,5 +1,7 @@
 package cipm.consistency.tools.evaluation.data;
 
+import cipm.consistency.commitintegration.diff.util.ComparisonBasedJaccardCoefficientCalculator.JaccardCoefficientResult;
+
 /**
  * A data structure for the evaluation of the update of the Java models.
  * 
@@ -50,5 +52,13 @@ public final class JavaEvaluationData {
 
     public void setJc(double jc) {
         this.jc = jc;
+    }
+    
+    public void setValuesUsingJaccardCoefficientResult(JaccardCoefficientResult comparison) {
+        this.jc = comparison.getJC();
+        this.newElementsCount = comparison.getNewUnmatched().size();
+        this.oldElementsCount = comparison.getOldUnmatched().size();
+        this.intersectionCardinality = comparison.getIntersectionCardinality();
+        this.unionCardinality = comparison.getUnionCardinality();
     }
 }

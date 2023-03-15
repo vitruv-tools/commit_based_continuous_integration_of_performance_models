@@ -45,6 +45,7 @@ public final class EvaluationDataContainerReaderWriter {
         try (BufferedWriter writer = Files.newBufferedWriter(file)) {
             gson.toJson(result, EvaluationDataContainer.class, gson.newJsonWriter(writer));
         } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

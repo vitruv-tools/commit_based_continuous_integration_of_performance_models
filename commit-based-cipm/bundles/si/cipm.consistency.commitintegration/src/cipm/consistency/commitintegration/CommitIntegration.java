@@ -1,7 +1,8 @@
 package cipm.consistency.commitintegration;
 
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
-import cipm.consistency.models.CodeModelFacade;
+import cipm.consistency.models.code.CodeModelFacade;
+
 import com.google.common.base.Supplier;
 import java.io.IOException;
 import java.nio.file.Path;

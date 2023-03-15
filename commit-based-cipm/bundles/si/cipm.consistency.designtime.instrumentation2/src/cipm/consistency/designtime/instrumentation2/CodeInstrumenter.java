@@ -21,7 +21,7 @@ import cipm.consistency.base.models.instrumentation.InstrumentationModel.Service
 import cipm.consistency.commitintegration.CommitIntegrationState;
 import cipm.consistency.designtime.instrumentation2.instrumenter.MinimalMonitoringEnvironmentModelGenerator;
 import cipm.consistency.designtime.instrumentation2.instrumenter.ServiceInstrumentationPointInstrumenter;
-import cipm.consistency.models.CodeModelFacade;
+import cipm.consistency.models.code.CodeModelFacade;
 import tools.vitruv.change.correspondence.Correspondence;
 import tools.vitruv.change.correspondence.view.CorrespondenceModelView;
 

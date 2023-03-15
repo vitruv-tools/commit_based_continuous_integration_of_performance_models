@@ -31,7 +31,7 @@ import cipm.consistency.commitintegration.lang.detection.ComponentDetector;
 import cipm.consistency.commitintegration.lang.detection.ComponentDetectorImpl;
 import cipm.consistency.commitintegration.lang.detection.ComponentState;
 import cipm.consistency.commitintegration.lang.detection.strategy.ComponentDetectionStrategy;
-import cipm.consistency.models.CodeModelFacade;
+import cipm.consistency.models.code.CodeModelFacade;
 
 public class LuaModelFacade implements CodeModelFacade {
     private static final Logger LOGGER = Logger.getLogger(LuaModelFacade.class.getName());
@@ -56,6 +56,9 @@ public class LuaModelFacade implements CodeModelFacade {
     @Override
     public void initialize(Path dirPath) {
         this.dirLayout.initialize(dirPath);
+        if (existsOnDisk()) {
+            loadParsedFile();
+        }
     }
 
     public void setComponentDetectionStrategies(List<ComponentDetectionStrategy> strategies) {
@@ -63,12 +66,17 @@ public class LuaModelFacade implements CodeModelFacade {
             this.componentDetector.addComponentDetectionStrategy(strat);
         }
     }
+    
+    private XtextResourceSet getEmptyResourceSet() {
+        var resourceSet = resourceSetProvider.get();
+        resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
+        return resourceSet;
+    }
 
     private XtextResourceSet parseDirToResourceSet(Path sourceCodeDirPath) {
         LOGGER.debug("Parsing source code directory");
         // get a resource from the provider
-        var resourceSet = resourceSetProvider.get();
-        resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
+        var resourceSet = getEmptyResourceSet();
 
         printFileStats(sourceCodeDirPath);
 
@@ -298,6 +306,11 @@ public class LuaModelFacade implements CodeModelFacade {
         return dirLayout.getParsedFilePath()
             .toFile()
             .exists();
+    }
+    
+    private void loadParsedFile() {
+        var resourceSet =  getEmptyResourceSet();
+        currentResource = resourceSet.getResource(dirLayout.getParsedFileUri(), true);
     }
 
     @Override

@@ -22,7 +22,7 @@ import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsCont
 import cipm.consistency.commitintegration.settings.SettingKeys;
 import cipm.consistency.commitintegration.util.ExternalCommandExecutionUtils;
 import cipm.consistency.designtime.instrumentation2.CodeInstrumenter;
-import cipm.consistency.models.CodeModelFacade;
+import cipm.consistency.models.code.CodeModelFacade;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.vsum.Propagation;
 

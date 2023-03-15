@@ -1,5 +1,8 @@
 package cipm.consistency.tools.evaluation.data;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * A data structure for statistics about the propagated changes.
  * 
@@ -13,6 +16,7 @@ public class ChangeStatistic {
     private int numberAddedLines;
     private int numberRemovedLines;
     private int numberVitruvChanges;
+    private Map<String, Integer> numberVitruvChangesPerModel = new HashMap<>();
 
     public String getOldCommit() {
         return oldCommit;
@@ -68,5 +72,9 @@ public class ChangeStatistic {
 
     public void setNumberVitruvChanges(int numberVitruvChanges) {
         this.numberVitruvChanges = numberVitruvChanges;
+    }
+
+    public void setNumberVitruvChangesPerModel(String uri, int changeCount) {
+        this.numberVitruvChangesPerModel.put(uri, changeCount);
     }
 }

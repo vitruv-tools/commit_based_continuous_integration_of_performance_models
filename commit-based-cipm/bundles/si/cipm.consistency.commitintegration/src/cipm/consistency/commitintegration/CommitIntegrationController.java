@@ -14,9 +14,10 @@ import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.RevisionSyntaxException;
 
 import cipm.consistency.commitintegration.lang.lua.runtimedata.ChangedResources;
-import cipm.consistency.models.CodeModelFacade;
+import cipm.consistency.models.code.CodeModelFacade;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.vsum.Propagation;
+import tools.vitruv.change.composite.description.PropagatedChange;
 
 /**
  * This class is responsible for controlling the complete change propagation and adaptive
@@ -53,7 +54,7 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
             state.getDirLayout()
                 .delete();
             state.dispose();
-            state.initialize(ci, true);
+            state.initialize(ci, ci.getRootPath(), true);
         }
     }
 
@@ -81,47 +82,68 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
                 state.getGitRepositoryWrapper()
                     .getCurrentCommitHash()));
 
+        var previousParsedModelPath = state.getCurrentParsedModelPath();
+
         var workTree = state.getGitRepositoryWrapper()
             .getWorkTree()
             .toPath();
-
-        var previousParsedModelPath = state.getCurrentParsedModelPath();
-
         var resource = state.getCodeModelFacade()
             .parseSourceCodeDir(workTree);
         if (resource == null) {
             LOGGER.error("Error parsing code model, not running propagation");
             return Optional.empty();
         }
-        
-        
-        // this informs the component set info singleton that we changed resourced which it had mapped infos for 
+
+        // this informs the ComponentSetInfoRegistry singleton that we changed resources which it
+        // had
+        // mapped infos for
         ChangedResources.setResourcesWereChanged();
 
         var parsedModelPath = state.createParsedCodeModelSnapshot();
         state.setCurrentParsedModelPath(parsedModelPath);
 
         // do the actual propagation
+        var vsumCodeModelUri = state.getDirLayout()
+            .getVsumCodeModelURI();
         var propagation = state.getVsumFacade()
-            .propagateResource(resource, state.getDirLayout()
-                .getVsumCodeModelURI());
+            .propagateResource(resource, vsumCodeModelUri);
 
-        var propagationResultCodeModelPath = state.createVsumCodeModelSnapshot();
-        var propagationResultRepositoryModelPath = state.createRepositoryModelSnapshot();
-        var propagationResultIMMPath = state.createInstrumentationModelSnapshot();
+        addChangeNumbersToEvaluationData(propagation.getChanges());
 
-        propagation.setCommitIntegrationStateCopyPath(state.createSnapshot());
+        var snapshotPath = state.createSnapshot();
 
-        // the rest should not be needed anymore
+        // add some information needed for the evaluation to the propagation object
+        propagation.setCommitIntegrationStateSnapshotPath(snapshotPath);
         propagation.setParsedCodeModelPreviousVersionPath(previousParsedModelPath);
         propagation.setParsedCodeModelTargetVersionPath(parsedModelPath);
-        propagation.setPropagationResultCodeModelPath(propagationResultCodeModelPath);
-        propagation.setPropagationResultRepositoryModelPath(propagationResultRepositoryModelPath);
-        propagation.setPropagationResultIMMPath(propagationResultIMMPath);
 
-//        state.createSnapshotWithCount(String.format("after_changes_original-%d_consequential-%d",
-//                propagatedChanges.getOriginalChangeCount(), propagatedChanges.getConsequentialChangeCount()));
         return Optional.of(propagation);
+    }
+
+    protected Optional<Propagation> propagateChanges(String firstCommitId, String secondCommitId)
+            throws IncorrectObjectTypeException, IOException {
+        if (!prePropagationChecks(firstCommitId, secondCommitId)) {
+            LOGGER.info("Prechecks indicate no propagation is needed.");
+            return Optional.empty();
+        }
+
+        var cs = EvaluationDataContainer.getGlobalContainer()
+            .getChangeStatistic();
+        cs.setOldCommit(firstCommitId);
+        cs.setNewCommit(secondCommitId);
+        cs.setNumberCommits(state.getGitRepositoryWrapper()
+            .getAllCommitsBetweenTwoCommits(firstCommitId, secondCommitId)
+            .size());
+
+        // this computes diff data and puts it into the evaluation data
+        state.getGitRepositoryWrapper()
+            .computeDiffsBetweenTwoCommits(firstCommitId, secondCommitId);
+
+        if (checkout(secondCommitId)) {
+            return propagateCurrentCheckout();
+        }
+
+        return Optional.empty();
     }
 
     /**
@@ -162,7 +184,6 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
         return allPropagatedChanges;
     }
 
-
     protected boolean prePropagationChecks(String firstCommitId, String secondCommitId) {
         if (firstCommitId != null) {
             return true;
@@ -184,26 +205,24 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
         return true;
     }
 
-    protected Optional<Propagation> propagateChanges(String firstCommitId, String secondCommitId)
-            throws IncorrectObjectTypeException, IOException {
-        if (!prePropagationChecks(firstCommitId, secondCommitId)) {
-            LOGGER.info("Prechecks indicate no propagation is needed.");
-            return Optional.empty();
-        }
-
+    private void addChangeNumbersToEvaluationData(List<PropagatedChange> changes) {
         var cs = EvaluationDataContainer.getGlobalContainer()
             .getChangeStatistic();
-        cs.setOldCommit(firstCommitId);
-        cs.setNewCommit(secondCommitId);
-        cs.setNumberCommits(state.getGitRepositoryWrapper()
-            .getAllCommitsBetweenTwoCommits(firstCommitId, secondCommitId)
-            .size() + 1);
+        var totalChanges = 0;
 
-        if (checkout(secondCommitId)) {
-            return propagateCurrentCheckout();
+        for (var change : changes) {
+            var changeCount = change.getOriginalChange()
+                .getEChanges()
+                .size();
+            totalChanges += changeCount;
+            for (var modelDescriptor : change.getOriginalChange()
+                .getAffectedEObjectsMetamodelDescriptors()) {
+                for (var uri : modelDescriptor.getNsUris()) {
+                    cs.setNumberVitruvChangesPerModel(uri, changeCount);
+                }
+            }
         }
-
-        return Optional.empty();
+        cs.setNumberVitruvChanges(totalChanges);
     }
 
     /**

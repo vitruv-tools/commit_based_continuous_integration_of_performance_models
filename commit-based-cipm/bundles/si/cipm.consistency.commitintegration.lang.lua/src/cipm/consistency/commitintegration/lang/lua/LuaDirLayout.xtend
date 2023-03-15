@@ -1,12 +1,13 @@
 package cipm.consistency.commitintegration.lang.lua
 
+import cipm.consistency.models.ModelDirLayoutImpl
+import cipm.consistency.models.code.CodeModelDirLayout
 import java.nio.file.Path
 import org.eclipse.emf.common.util.URI
 import org.eclipse.xtend.lib.annotations.Accessors
-import cipm.consistency.models.ModelDirLayoutImpl
 
 @Accessors
-class LuaDirLayout extends ModelDirLayoutImpl {
+class LuaDirLayout extends ModelDirLayoutImpl implements CodeModelDirLayout {
 	static final package String localRepoDirName = "local-repo-clone"
 	static final package String instrumentationDirName = "instrumented"
 
@@ -40,4 +41,13 @@ class LuaDirLayout extends ModelDirLayoutImpl {
 //		modelFileUri = URI.createFileURI(modelFilePath.toString())
 		parsedFileUri = URI.createFileURI(parsedFilePath.toString())
 	}
+	
+	override getParsedCodePath() {
+		parsedFilePath
+	}
+	
+	override getParsedCodeURI() {
+		parsedFileUri
+	}
+	
 }

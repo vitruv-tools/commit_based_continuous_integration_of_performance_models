@@ -112,7 +112,7 @@ public class Propagation {
         return commitIntegrationStateCopyPath;
     }
 
-    public void setCommitIntegrationStateCopyPath(Path commitIntegrationStateCopyPath) {
+    public void setCommitIntegrationStateSnapshotPath(Path commitIntegrationStateCopyPath) {
         this.commitIntegrationStateCopyPath = commitIntegrationStateCopyPath;
     }
 
