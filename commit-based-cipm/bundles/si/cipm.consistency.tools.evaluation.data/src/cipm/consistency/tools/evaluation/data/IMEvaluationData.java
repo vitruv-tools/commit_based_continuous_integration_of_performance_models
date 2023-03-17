@@ -9,31 +9,79 @@ import java.util.List;
  * @author Martin Armbruster
  */
 public class IMEvaluationData {
-    private int numberMatchedIP;
-    private int numberAllIP;
+    private int numberIP;
+
     private int numberSIP;
+    private int numberMatchedSIP;
+
     private int numberAIP;
-    private int numberDeactivatedAIP;
-    private int numberActivatedAIP;
-    private double deactivatedIPAllIPRatio;
-    private double deactivatedAIPAllAIPRatio;
-    private List<String> unmatchedSEFFElements = new ArrayList<>();
-    private int differenceChangedActionsActivatedAIP;
+    private int numberMatchedAIP;
 
-    public int getNumberMatchedIP() {
-        return numberMatchedIP;
+    private int numberActiveAIP;
+    private int numberMatchedActiveAIP;
+    private int numberChangedActions;
+
+    private double ratioActiveAIPs;
+
+    private double ratioAipPerSip;
+    
+    private double proportionalOverheadReduction;
+
+    private double fScoreServiceInstrumentationPoints;
+    private double fScoreActionInstrumentationPoints;
+    private double fScoreActiveActionInstrumentationPoints;
+
+    private List<String> unmatchedSIPs = new ArrayList<>();
+    private List<String> unmatchedAIPs = new ArrayList<>();
+    private List<String> unmatchedActiveAIPs = new ArrayList<>();
+
+    private List<String> unmatchedSEFFs = new ArrayList<>();
+    private List<String> unmatchedActions = new ArrayList<>();
+    private List<String> unmatchedChangedActions = new ArrayList<>();
+
+    public void calculateDerivedValues() {        
+        numberAIP = numberIP - numberSIP;
+        ratioActiveAIPs = (double) numberActiveAIP / numberAIP;
+        ratioAipPerSip = (double) numberAIP / numberSIP;
+        
+        proportionalOverheadReduction = 1 - ratioActiveAIPs;
+
+        fScoreServiceInstrumentationPoints = calcFScore(numberMatchedSIP, unmatchedSIPs.size(), unmatchedSEFFs.size());
+        fScoreActionInstrumentationPoints = calcFScore(numberMatchedAIP, unmatchedAIPs.size(), unmatchedActions.size());
+        fScoreActiveActionInstrumentationPoints = calcFScore(numberMatchedActiveAIP, unmatchedChangedActions.size(),
+                unmatchedActiveAIPs.size());
     }
 
-    public void setNumberMatchedIP(int numberMatchedIP) {
-        this.numberMatchedIP = numberMatchedIP;
+    private double calcFScore(int truePos, int falsePos, int falseNeg) {
+        var fScore = ((double) 2 * truePos) / ((double) 2 * truePos + falsePos + falseNeg);
+        if (Double.isNaN(fScore)) {
+            fScore = -1;
+        }
+        return fScore;
     }
 
-    public int getNumberAllIP() {
-        return numberAllIP;
+    public int getNumberMatchedAIP() {
+        return numberMatchedAIP;
     }
 
-    public void setNumberAllIP(int numberAllIP) {
-        this.numberAllIP = numberAllIP;
+    public void setNumberMatchedAIP(int numberMatchedIP) {
+        this.numberMatchedAIP = numberMatchedIP;
+    }
+
+    public int getNumberMatchedSIP() {
+        return numberMatchedSIP;
+    }
+
+    public void setNumberMatchedSIP(int numberMatchedSIP) {
+        this.numberMatchedSIP = numberMatchedSIP;
+    }
+
+    public int getNumberIP() {
+        return numberIP;
+    }
+
+    public void setNumberIP(int numberAllIP) {
+        this.numberIP = numberAllIP;
     }
 
     public int getNumberSIP() {
@@ -52,55 +100,95 @@ public class IMEvaluationData {
         this.numberAIP = numberAIP;
     }
 
-    public int getNumberDeactivatedAIP() {
-        return numberDeactivatedAIP;
+    public int getNumberActiveAIP() {
+        return numberActiveAIP;
     }
 
-    public void setNumberDeactivatedAIP(int numberDeactivatedAIP) {
-        this.numberDeactivatedAIP = numberDeactivatedAIP;
+    public void setNumberActiveAIP(int numberActivatedAIP) {
+        this.numberActiveAIP = numberActivatedAIP;
     }
 
-    public int getNumberActivatedAIP() {
-        return numberActivatedAIP;
+//    public double getDeactivatedIPRatio() {
+//        return deactivatedIPRatio;
+//    }
+
+//    public void setDeactivatedIPRatio(double deactivatedIPAllIPRatio) {
+//        if (deactivatedIPAllIPRatio == Double.NaN) {
+//            this.deactivatedAIPRatio = -1;
+//        } else {
+//            this.deactivatedIPRatio = deactivatedIPAllIPRatio;
+//        }
+//    }
+
+    public double getRatioActiveAIPs() {
+        return ratioActiveAIPs;
     }
 
-    public void setNumberActivatedAIP(int numberActivatedAIP) {
-        this.numberActivatedAIP = numberActivatedAIP;
+    public List<String> getUnmatchedSEFFs() {
+        return unmatchedSEFFs;
     }
 
-    public double getDeactivatedIPAllIPRatio() {
-        return deactivatedIPAllIPRatio;
+    public List<String> getUnmatchedActions() {
+        return unmatchedActions;
     }
 
-    public void setDeactivatedIPAllIPRatio(double deactivatedIPAllIPRatio) {
-        if (deactivatedIPAllIPRatio == Double.NaN) {
-            this.deactivatedAIPAllAIPRatio = -1;
-        } else {
-            this.deactivatedIPAllIPRatio = deactivatedIPAllIPRatio;
-        }
+    public List<String> getUnmatchedSIPs() {
+        return unmatchedSIPs;
     }
 
-    public double getDeactivatedAIPAllAIPRatio() {
-        return deactivatedAIPAllAIPRatio;
+    public List<String> getUnmatchedAIPs() {
+        return unmatchedAIPs;
     }
 
-    public void setDeactivatedAIPAllAIPRatio(double deactivatedAIPAllAIPRatio) {
-        if (deactivatedAIPAllAIPRatio == Double.NaN) {
-            this.deactivatedAIPAllAIPRatio = -1;
-        } else {
-            this.deactivatedAIPAllAIPRatio = deactivatedAIPAllAIPRatio;
-        }
+    public double getfScoreActionInstrumentation() {
+        return fScoreActionInstrumentationPoints;
     }
 
-    public List<String> getUnmatchedSEFFElements() {
-        return unmatchedSEFFElements;
+    public double getfScoreServiceInstrumentation() {
+        return fScoreServiceInstrumentationPoints;
     }
 
-    public int getDifferenceChangedActionsActivatedAIP() {
-        return differenceChangedActionsActivatedAIP;
+    public double getfScoreActiveActionInstrumentationPoints() {
+        return fScoreActiveActionInstrumentationPoints;
     }
 
-    public void setDifferenceChangedActionsActivatedAIP(int differenceChangedActionsActivatedAIP) {
-        this.differenceChangedActionsActivatedAIP = differenceChangedActionsActivatedAIP;
+    public List<String> getUnmatchedActiveAIPs() {
+        return unmatchedActiveAIPs;
+    }
+
+    public void setUnmatchedActiveAIPs(List<String> unmatchedActiveAIPs) {
+        this.unmatchedActiveAIPs = unmatchedActiveAIPs;
+    }
+
+    public List<String> getUnmatchedChangedActions() {
+        return unmatchedChangedActions;
+    }
+
+    public void setUnmatchedChangedActions(List<String> unmatchedChangedActions) {
+        this.unmatchedChangedActions = unmatchedChangedActions;
+    }
+
+    public int getNumberMatchedActiveAIP() {
+        return numberMatchedActiveAIP;
+    }
+
+    public void setNumberMatchedActiveAIP(int numberMatchedActiveAIP) {
+        this.numberMatchedActiveAIP = numberMatchedActiveAIP;
+    }
+
+    public int getNumberChangedActions() {
+        return numberChangedActions;
+    }
+
+    public void setNumberChangedActions(int numberChangedActions) {
+        this.numberChangedActions = numberChangedActions;
+    }
+
+    public double getProportionalOverheadReduction() {
+        return proportionalOverheadReduction;
+    }
+
+    public double getRatioAipPerSip() {
+        return ratioAipPerSip;
     }
 }

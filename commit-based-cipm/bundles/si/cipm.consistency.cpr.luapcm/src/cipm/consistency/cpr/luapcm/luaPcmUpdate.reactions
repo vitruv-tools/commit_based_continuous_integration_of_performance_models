@@ -1,3 +1,4 @@
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelPackage
 import cipm.consistency.commitintegration.lang.lua.appspace.AppSpaceSemantics
 import cipm.consistency.cpr.luapcm.Config
 import cipm.consistency.cpr.luapcm.seffreconstruction.ActionReconstruction
@@ -22,14 +23,45 @@ import org.xtext.lua.lua.Statement_Function_Declaration
 
 import "http://www.xtext.org/lua/Lua" as lua
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
+import "http://www.dmodel.com/InstrumentationMetamodel" as im
 
 reactions: luaPcmUpdate
 in reaction to changes in lua
-//execute actions in pcm and im 
-execute actions in pcm
+execute actions in pcm and im
+/**
+ * 
+ * TODO TODO TODO
+ * 
+ * This is a nasty hack!
+ * 
+ * I'm having issues deactivating the action instrumentation points of the IM from outside the VSUM,
+ * as the view that has the IM only returns an invalid IM without any point, which makes modifying them 
+ * impossible.
+ * 
+ * So as a hack im doing it here
+ */
+reaction DeactivateAllIPs {
+	after anychange
+	call {
+		deactiveAllAIPs()
+	}
+}
+
+routine deactiveAllAIPs() {
+	match {
+		val im = retrieve im::InstrumentationModel corresponding to InstrumentationModelPackage.Literals.
+			INSTRUMENTATION_MODEL
+	}
+	update {
+		for (sip : im.points) {
+			for (aip : sip.actionInstrumentationPoints) {
+				aip.active = false
+			}
+		}
+	}
+}
 
 //import luaImUpdate
-
 reaction AddedBlock {
 	after element lua::Block created
 	call {
@@ -218,7 +250,6 @@ routine createRDSeff(lua::Block block, lua::Statement_Function_Declaration decla
 		basicComponent.serviceEffectSpecifications__BasicComponent += rdSeff
 
 //		createOrFindServiceInstrumentationPoint(rdSeff)
-
 //		ComponentSetInfoRegistry.getInfosForComponentSet(declaration).declarationToCallingActions.get(declaration).
 //			forEach [
 //				if (it instanceof InternalCallAction) {
@@ -351,6 +382,8 @@ routine initializeRDBehaviour(pcm::ResourceDemandingBehaviour rdBehaviour, Strin
 	update {
 		startAction.entityName = name + "_START"
 		stopAction.entityName = name + "_STOP"
+
+		ActionUtil.chainActions(startAction, stopAction)
 
 		rdBehaviour.steps_Behaviour += startAction
 		rdBehaviour.steps_Behaviour += stopAction
@@ -565,6 +598,7 @@ routine createActionsForStatement(lua::Statement statement, lua::Block block) {
 routine fuseTwoInternalActions(pcm::InternalAction a, pcm::InternalAction b) {
 	match {
 		val statementsCorrespondingToB = retrieve many lua::Statement corresponding to b
+		val aip = retrieve optional im::ActionInstrumentationPoint corresponding to a
 	}
 	update {
 		logger.debug("Fusing two internal actions")
@@ -575,12 +609,17 @@ routine fuseTwoInternalActions(pcm::InternalAction a, pcm::InternalAction b) {
 		]
 		// TODO do we need to change the predecessor / successors here?
 		b.removeObject
+		
+		if (aip.present) {
+			logger.error("forcing aip active")
+			aip.get.active = true
+		}
 
 		//
 		var newStatementCount = CorrespondenceUtil.getCorrespondingEObjectsByType(correspondenceModel, a, Statement).
 			size()
 		a.entityName = String.format("Internal: %d statements", newStatementCount)
-		
+
 	}
 }
 
@@ -624,13 +663,11 @@ routine removeAction(pcm::AbstractAction action, pcm::ResourceDemandingBehaviour
 			removeRequiredRoleForExternalCallAction(action)
 		}
 
-
 		logger.debug(action.toString + ": Removing action from RD behaviour" + rdBehaviour.toString)
 		// trigger other clean up actions
 //		if (action instanceof ExternalCallAction) {
 //			deregisterExternalCallAction(action)
 //		}
-
 		// fix the chaining of the remaining actions
 		val pred = action.predecessor_AbstractAction
 		val succ = action.successor_AbstractAction
@@ -639,7 +676,7 @@ routine removeAction(pcm::AbstractAction action, pcm::ResourceDemandingBehaviour
 		}
 		if (succ !== null) {
 			succ.setPredecessor_AbstractAction(pred);
-		} 
+		}
 
 		rdBehaviour.steps_Behaviour -= action
 
@@ -678,7 +715,6 @@ routine removeAction(pcm::AbstractAction action, pcm::ResourceDemandingBehaviour
 //		action.removeObject
 //	}
 //}
-
 routine createRequiredRoleForExternalCallAction(pcm::ExternalCallAction action, pcm::ResourceDemandingBehaviour rdseff, lua::Component callingComponent) {
 	match {
 		val calledComponent = retrieve optional lua::Component corresponding to action
@@ -898,3 +934,4 @@ routine removeSeffForDeclaration(lua::Statement_Function_Declaration declaration
 //		}
 	}
 }
+

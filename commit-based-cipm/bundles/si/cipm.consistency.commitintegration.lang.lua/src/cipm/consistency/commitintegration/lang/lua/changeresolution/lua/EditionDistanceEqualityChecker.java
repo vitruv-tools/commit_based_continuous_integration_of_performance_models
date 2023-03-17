@@ -1,4 +1,4 @@
-package cipm.consistency.commitintegration.lang.lua.changeresolution.equality;
+package cipm.consistency.commitintegration.lang.lua.changeresolution.lua;
 
 import java.util.ArrayList;
 

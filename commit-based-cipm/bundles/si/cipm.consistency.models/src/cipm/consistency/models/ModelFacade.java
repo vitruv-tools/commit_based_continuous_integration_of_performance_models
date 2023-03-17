@@ -23,6 +23,11 @@ public interface ModelFacade {
      * @return the model resource
      */
     public List<Resource> getResources();
+    
+    /**
+     * Reload models from disk
+     */
+    public void reload();
 
 //    public List<Resource> createModelResources();
 

@@ -31,6 +31,7 @@ Require-Bundle: cipm.consistency.commitintegration,
  cipm.consistency.designtime.instrumentation2;bundle-version="1.0.0",
  cipm.consistency.cpr.pcminit,
  org.eclipse.xtext,
- org.palladiosimulator.pcm
+ org.palladiosimulator.pcm,
+ com.google.gson
 Export-Package: cipm.consistency.vsum.test
 Bundle-RequiredExecutionEnvironment: JavaSE-17

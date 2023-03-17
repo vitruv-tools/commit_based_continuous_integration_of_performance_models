@@ -64,7 +64,7 @@ reaction ActionAdded {
 	call {
 		val actionType = InternalUtils.abstractActionToActionTypeValue(newValue)
 		var seff = InternalUtils.getParentSEFFNotForInternalBehaviour(affectedEObject)
-		if (seff !== null) {
+		if (seff !== null && actionType !== -1) {
 			createOrFindActionInstrumentationPoint(seff, newValue, actionType)
 		}
 	}

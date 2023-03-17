@@ -8,9 +8,10 @@ import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.xtext.lua.lua.ComponentSet;
 
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.models.ModelFacade;
-import tools.vitruv.change.composite.description.PropagatedChange;
 import tools.vitruv.change.correspondence.Correspondence;
 import tools.vitruv.change.correspondence.view.EditableCorrespondenceModelView;
 import tools.vitruv.change.interaction.UserInteractionFactory;
@@ -36,6 +37,8 @@ public class VsumFacadeImpl implements VsumFacade {
     private InternalVirtualModel vsum;
     private StateBasedChangeResolutionStrategy stateBasedChangeResolutionStrategy;
 
+    private List<ModelFacade> models;
+
     // initialized is used as a breakpoint conditional
     @SuppressWarnings("unused")
     private boolean initialized = false;
@@ -50,36 +53,50 @@ public class VsumFacadeImpl implements VsumFacade {
         this.changeSpecs = changeSpecs;
         this.stateBasedChangeResolutionStrategy = stateBasedChangeResolutionStrategy;
         loadOrCreateVsum();
-        loadModels(models);
+
+        this.models = models;
+        loadModels(models, false);
 
         initialized = true;
     }
 
-    private void loadModelResource(Resource res) {
-        var loaded = vsum.getModelInstance(res.getURI());
-        if (loaded == null) {
+    /*
+     * load the given resource if it is not yet loaded or if we positively want to do it
+     */
+    private void loadModelResource(Resource res, boolean force) {
+        if (force || vsum.getModelInstance(res.getURI()) == null) {
             this.propagateResource(res);
         }
     }
 
-    @Override
-    public List<PropagatedChange> loadModels(List<ModelFacade> models) {
-        for (var model : models) {
-            // multiple resources
-            var resources = model.getResources();
-            if (resources != null) {
-                for (var resource : resources) {
-                    loadModelResource(resource);
+    private void loadModel(ModelFacade model, boolean force) {
+        // multiple resources
+        var resources = model.getResources();
+        if (resources != null) {
+            for (var resource : resources) {
+                if (resource != null) {
+                    loadModelResource(resource, force);
                 }
             }
-
-            // single resource
-            var resource = model.getResource();
-            if (resource != null) {
-                loadModelResource(resource);
-            }
         }
-        return null;
+
+        // single resource
+        var resource = model.getResource();
+        if (resource != null) {
+            loadModelResource(resource, force);
+        }
+    }
+
+    @Override
+    public void loadModels(List<ModelFacade> models, boolean force) {
+        for (var model : models) {
+            loadModel(model, force);
+        }
+    }
+
+    @Override
+    public void forceReload() {
+        loadModels(this.models, true);
     }
 
     private void loadOrCreateVsum() {
@@ -87,19 +104,43 @@ public class VsumFacadeImpl implements VsumFacade {
 
         LOGGER.info("Loading VSUM");
         vsum = vsumBuilder.buildAndInitialize();
-        getView(vsum);
+        getChangeDerivingView(vsum);
     }
 
-    private CommittableView getView(InternalVirtualModel theVsum) {
+    private CommittableView getChangeDerivingView(InternalVirtualModel theVsum) {
         var viewType = ViewTypeFactory.createIdentityMappingViewType("myView");
         var viewSelector = viewType.createSelector(theVsum);
 
-        // Selecting all elements here
+//        // Selecting all elements here
+//        viewSelector.getSelectableElements()
+//            .forEach(ele -> viewSelector.setSelected(ele, true));
+
         viewSelector.getSelectableElements()
-            .forEach(ele -> viewSelector.setSelected(ele, true));
+            .forEach(ele -> {
+                if (ele instanceof ComponentSet) {
+                    viewSelector.setSelected(ele, true);
+                }
+            });
 
         var view = viewSelector.createView()
             .withChangeDerivingTrait(stateBasedChangeResolutionStrategy);
+
+        return view;
+    }
+
+    public CommittableView getChangeRecordingView() {
+        var viewType = ViewTypeFactory.createIdentityMappingViewType("myRecordingView");
+        var viewSelector = viewType.createSelector(vsum);
+
+        // Selecting all elements here
+        viewSelector.getSelectableElements()
+            .forEach(ele -> {
+                if (ele instanceof InstrumentationModel) {
+                    viewSelector.setSelected(ele, true);
+                }
+            });
+        var view = viewSelector.createView()
+            .withChangeRecordingTrait();
 
         return view;
     }
@@ -248,7 +289,7 @@ public class VsumFacadeImpl implements VsumFacade {
             return null;
         }
 
-        var view = getView(vsum);
+        var view = getChangeDerivingView(vsum);
         var newRootEobject = resource.getContents()
             .get(0);
 

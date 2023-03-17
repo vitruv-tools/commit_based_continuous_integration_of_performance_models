@@ -25,12 +25,10 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.xtext.EcoreUtil2;
 import org.palladiosimulator.pcm.repository.Repository;
-import org.xtext.lua.lua.ComponentSet;
 
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.base.shared.ModelUtil;
 import cipm.consistency.commitintegration.CommitIntegration;
-import cipm.consistency.commitintegration.CommitIntegrationDirLayout;
 import cipm.consistency.commitintegration.CommitIntegrationState;
 import cipm.consistency.commitintegration.diff.util.ComparisonBasedJaccardCoefficientCalculator;
 import cipm.consistency.commitintegration.lang.lua.changeresolution.HierarchicalStateBasedChangeResolutionStrategy;
@@ -167,7 +165,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         var changeResolutionStrategy = new HierarchicalStateBasedChangeResolutionStrategy();
         var comparison = changeResolutionStrategy.compareStates(parsedCodeModel, vsumCodeModel);
         var jaccardResult = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comparison);
-        EvaluationDataContainer.getGlobalContainer()
+        EvaluationDataContainer.get()
             .getJavaComparisonResult()
             .setValuesUsingJaccardCoefficientResult(jaccardResult);
     }
@@ -229,14 +227,29 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         return valid;
     }
 
+    private void evaluateImUpdate() {
+        var evaluator = new IMUpdateEvaluator();
+        var repo = state.getPcmFacade()
+            .getInMemoryPCM()
+            .getRepository();
+        var im = state.getImFacade()
+            .getModel();
+        var imEvalData = EvaluationDataContainer.get()
+            .getImEvalResult();
+        var previousRepo = ModelUtil.readFromFile(propagation.getPreviousPcmRepositoryPath().toFile(), Repository.class);
+
+        evaluator.evaluateIMUpdate(repo, im, imEvalData, previousRepo);
+    }
+
     public boolean evaluate() {
-        // Evaluations that only write to the evaluation data: 
+        // Evaluations that only write to the evaluation data:
         evaluateChangeResolutionJaccard();
+        evaluateImUpdate();
 
         // save the evaluation data to the directory of the integration state copy
         state.persistEvaluationData();
-        
-        // Evaluations with binary result: 
+
+        // Evaluations with binary result:
         var valid = true;
         valid &= evaluateChangeResolution();
         valid &= evaluateVsumCodeModel();
@@ -246,7 +259,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         valid &= evaluateResultingImm(state.getImFacade()
             .getDirLayout()
             .getImFilePath());
-
+        
         if (valid) {
             LOGGER.info("Propagation passed evaluation");
         }

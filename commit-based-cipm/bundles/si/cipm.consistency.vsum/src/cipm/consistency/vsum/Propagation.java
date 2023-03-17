@@ -19,14 +19,17 @@ import tools.vitruv.change.composite.description.PropagatedChange;
  */
 public class Propagation {
 
-    private Path parsedCodeModelPreviousVersionPath;
+    private Path previousParsedCodeModelPath;
+    private Path previousPcmRepositoryPath;
 
     // target version parsed model and propagation result should be identical if the change
     // resolution and propagation worked correctly
-    private Path parsedCodeModelTargetVersionPath;
+    private Path parsedCodeModelPath;
     private Path vsumCodeModelPath;
-    private Path vsumRepositoryModelPath;
-    private Path vsumImmPath;
+
+    
+//    private Path vsumRepositoryModelPath;
+//    private Path vsumImmPath;
     private Path commitIntegrationStateCopyPath;
 
     private int originalChangeCount = 0;
@@ -69,19 +72,19 @@ public class Propagation {
     }
 
     public Path getParsedCodeModelPreviousVersionPath() {
-        return parsedCodeModelPreviousVersionPath;
+        return previousParsedCodeModelPath;
     }
 
-    public void setParsedCodeModelPreviousVersionPath(Path parsedCodeModelPreviousVersionPath) {
-        this.parsedCodeModelPreviousVersionPath = parsedCodeModelPreviousVersionPath;
+    public void setPreviousParsedCodeModelPath(Path parsedCodeModelPreviousVersionPath) {
+        this.previousParsedCodeModelPath = parsedCodeModelPreviousVersionPath;
     }
 
     public Path getParsedCodeModelTargetVersionPath() {
-        return parsedCodeModelTargetVersionPath;
+        return parsedCodeModelPath;
     }
 
-    public void setParsedCodeModelTargetVersionPath(Path parsedCodeModelTargetVersionPath) {
-        this.parsedCodeModelTargetVersionPath = parsedCodeModelTargetVersionPath;
+    public void setParsedCodeModelPath(Path parsedCodeModelTargetVersionPath) {
+        this.parsedCodeModelPath = parsedCodeModelTargetVersionPath;
     }
 
     public Path getPropagationResultCodeModelPath() {
@@ -92,21 +95,21 @@ public class Propagation {
         this.vsumCodeModelPath = propagationResultCodeModelPath;
     }
 
-    public Path getPropagationResultRepositoryModelPath() {
-        return vsumRepositoryModelPath;
-    }
-
-    public void setPropagationResultRepositoryModelPath(Path propagationResultRepositoryModelPath) {
-        this.vsumRepositoryModelPath = propagationResultRepositoryModelPath;
-    }
-
-    public void setPropagationResultIMMPath(Path propagationResultIMMPath) {
-        this.vsumImmPath = propagationResultIMMPath;
-    }
-
-    public Path getPropagationResultIMMPath() {
-        return vsumImmPath;
-    }
+//    public Path getPropagationResultRepositoryModelPath() {
+//        return vsumRepositoryModelPath;
+//    }
+//
+//    public void setPropagationResultRepositoryModelPath(Path propagationResultRepositoryModelPath) {
+//        this.vsumRepositoryModelPath = propagationResultRepositoryModelPath;
+//    }
+//
+//    public void setPropagationResultIMMPath(Path propagationResultIMMPath) {
+//        this.vsumImmPath = propagationResultIMMPath;
+//    }
+//
+//    public Path getPropagationResultIMMPath() {
+//        return vsumImmPath;
+//    }
 
     public Path getCommitIntegrationStateCopyPath() {
         return commitIntegrationStateCopyPath;
@@ -114,6 +117,14 @@ public class Propagation {
 
     public void setCommitIntegrationStateSnapshotPath(Path commitIntegrationStateCopyPath) {
         this.commitIntegrationStateCopyPath = commitIntegrationStateCopyPath;
+    }
+
+    public Path getPreviousPcmRepositoryPath() {
+        return previousPcmRepositoryPath;
+    }
+
+    public void setPreviousPcmRepositoryPath(Path previousPcmRepositoryPath) {
+        this.previousPcmRepositoryPath = previousPcmRepositoryPath;
     }
 
 }

@@ -1,11 +1,10 @@
 package cipm.consistency.models.pcm;
 
-import cipm.consistency.base.shared.ModelUtil;
-import cipm.consistency.base.shared.pcm.InMemoryPCM;
-import cipm.consistency.models.ModelFacade;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.palladiosimulator.pcm.allocation.Allocation;
@@ -18,6 +17,10 @@ import org.palladiosimulator.pcm.system.System;
 import org.palladiosimulator.pcm.system.SystemFactory;
 import org.palladiosimulator.pcm.usagemodel.UsageModel;
 import org.palladiosimulator.pcm.usagemodel.UsagemodelFactory;
+
+import cipm.consistency.base.shared.ModelUtil;
+import cipm.consistency.base.shared.pcm.InMemoryPCM;
+import cipm.consistency.models.ModelFacade;
 
 public class PcmFacade implements ModelFacade {
     private static final Logger LOGGER = Logger.getLogger(PcmFacade.class.getName());
@@ -32,6 +35,11 @@ public class PcmFacade implements ModelFacade {
     @Override
     public void initialize(Path rootPath) {
         fileLayout.initialize(rootPath);
+        loadOrCreateModelResources();
+    }
+    
+    @Override
+    public void reload() {
         loadOrCreateModelResources();
     }
 
@@ -131,5 +139,14 @@ public class PcmFacade implements ModelFacade {
 
     public InMemoryPCM getInMemoryPCM() {
         return pcm;
+    }
+
+    public Path createNamedCopyOfRepositoryModel(String name) throws IOException {
+        var path = getDirLayout().getPcmRepositoryPath();
+        var copyPath = path.resolveSibling("Repository-" + name + ".repository");
+
+        FileUtils.copyFile(path.toFile(), copyPath.toFile());
+
+        return copyPath;
     }
 }

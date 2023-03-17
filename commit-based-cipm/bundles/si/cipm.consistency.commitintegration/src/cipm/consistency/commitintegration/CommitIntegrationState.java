@@ -42,7 +42,8 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
     private CM codeModelFacade;
 
     private int snapshotCount = 0;
-    private int parsedCodeModelCount = 0;
+    private int parsedCodeModelSnapshotCount = 0;
+    private int pcmSnapshotCount = 0;
     private Path currentParsedModelPath = null;
 
     // was this state previously used to propagate something?
@@ -93,7 +94,7 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         codeModelFacade = commitIntegration.getCodeModelFacadeSupplier()
             .get();
         codeModelFacade.initialize(dirLayout.getCodeDirPath());
-        
+
         // load evaluation data from disk into the current singleton
         loadEvaluationData();
 
@@ -114,10 +115,21 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
 
     public Path createParsedCodeModelSnapshot() {
         var currentCommitHash = getGitRepositoryWrapper().getCurrentCommitHash();
-        parsedCodeModelCount += 1;
-        var name = String.valueOf(parsedCodeModelCount) + "-" + currentCommitHash;
+        var name = String.valueOf(++parsedCodeModelSnapshotCount) + "-" + currentCommitHash;
         try {
             return getCodeModelFacade().createNamedCopyOfParsedModel(name);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
+    public Path createRepositorySnapshot() {
+        var currentCommitHash = getGitRepositoryWrapper().getCurrentCommitHash();
+        var name = String.valueOf(++pcmSnapshotCount) + "-" + currentCommitHash;
+        try {
+            return pcmFacade.createNamedCopyOfRepositoryModel(name);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -174,12 +186,12 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
     private void loadEvaluationData() {
         var loadedContainer = EvaluationDataContainerReaderWriter.read(dirLayout.getEvaluationDataFilePath());
         if (loadedContainer != null) {
-            EvaluationDataContainer.setGlobalContainer(loadedContainer);
+            EvaluationDataContainer.set(loadedContainer);
         }
     }
 
     public void persistEvaluationData() {
-        var data = EvaluationDataContainer.getGlobalContainer();
+        var data = EvaluationDataContainer.get();
         EvaluationDataContainerReaderWriter.write(data, dirLayout.getEvaluationDataFilePath());
     }
 
@@ -199,10 +211,11 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
     }
 
     /**
-     * Creates a copy of this commit integration state in the same directory as
-     * the original with the given fileName
+     * Creates a copy of this commit integration state in the same directory as the original with
+     * the given fileName
      * 
-     * @param fileName the 
+     * @param fileName
+     *            the
      * @throws IOException
      */
     private Path createCopy(String fileName) throws IOException {

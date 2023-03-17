@@ -17,4 +17,5 @@ Require-Bundle: org.eclipse.emf.ecore,
  org.eclipse.xtext.xbase.lib,
  org.eclipse.xtend.lib,
  org.eclipse.xtend.lib.macro,
- org.apache.log4j;bundle-version="1.2.19"
+ org.apache.log4j;bundle-version="1.2.19",
+ org.apache.commons.io

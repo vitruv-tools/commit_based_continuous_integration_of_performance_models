@@ -1,14 +1,16 @@
 package cipm.consistency.models.im;
 
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelFactory;
-import cipm.consistency.base.shared.FileBackedModelUtil;
-import cipm.consistency.models.ModelFacade;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModelFactory;
+import cipm.consistency.base.shared.FileBackedModelUtil;
+import cipm.consistency.base.shared.ModelUtil;
+import cipm.consistency.models.ModelFacade;
 
 public class ImFacade implements ModelFacade {
 
@@ -24,6 +26,11 @@ public class ImFacade implements ModelFacade {
         dirLayout.initialize(rootPath);
         loadOrCreateModelResources();
     }
+    
+    @Override
+    public void reload() {
+        loadOrCreateModelResources();
+    }
 
     public void saveToDisk() {
         FileBackedModelUtil.synchronize(im, dirLayout.getImFilePath()
@@ -33,7 +40,6 @@ public class ImFacade implements ModelFacade {
                 .eResource()
                 .save(null);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -55,16 +61,8 @@ public class ImFacade implements ModelFacade {
     }
 
     private void loadModel() {
-        var rs = (new ResourceSetImpl());
-        var res = rs.getResource(dirLayout.getImFileUri(), true);
-        if (res.getContents()
-            .size() > 0) {
-            var eobj = res.getContents()
-                .get(0);
-            if (eobj instanceof InstrumentationModel) {
-                im = (InstrumentationModel) eobj;
-            }
-        }
+        im = ModelUtil.readFromFile(dirLayout.getImFilePath()
+            .toFile(), InstrumentationModel.class);
     }
 
     public void loadOrCreateModelResources() {

@@ -64,7 +64,7 @@ public class InstrumentationEvaluator<CM extends CodeModelFacade> extends Commit
             return;
         }
         // count statements in the
-        InstrumentationEvaluationData insEvalData = EvaluationDataContainer.getGlobalContainer()
+        InstrumentationEvaluationData insEvalData = EvaluationDataContainer.get()
             .getInstrumentationData();
         int codeModelStatements = countStatements(state.getCodeModelFacade()
             .getResource());

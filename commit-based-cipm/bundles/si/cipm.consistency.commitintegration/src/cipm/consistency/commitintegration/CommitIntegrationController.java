@@ -78,6 +78,9 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
      * @return The Propagation instance including the used model paths
      */
     private Optional<Propagation> propagateCurrentCheckout() {
+        // run possible hooks
+        prePropagationHook();
+
         LOGGER.info(String.format("\n\tPropagating commit #%d: %s", state.getSnapshotCount() + 1,
                 state.getGitRepositoryWrapper()
                     .getCurrentCommitHash()));
@@ -99,14 +102,21 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
         // mapped infos for
         ChangedResources.setResourcesWereChanged();
 
+        var previousRepositoryPath = state.createRepositorySnapshot();
         var parsedModelPath = state.createParsedCodeModelSnapshot();
         state.setCurrentParsedModelPath(parsedModelPath);
 
-        // do the actual propagation
-        var vsumCodeModelUri = state.getDirLayout()
-            .getVsumCodeModelURI();
+        long propagationTime = System.currentTimeMillis();
+
+        // the actual propagation is done here
         var propagation = state.getVsumFacade()
-            .propagateResource(resource, vsumCodeModelUri);
+            .propagateResource(resource, state.getDirLayout()
+                .getVsumCodeModelURI());
+
+        propagationTime = System.currentTimeMillis() - propagationTime;
+        EvaluationDataContainer.get()
+            .getExecutionTimes()
+            .setChangePropagationTime(propagationTime);
 
         addChangeNumbersToEvaluationData(propagation.getChanges());
 
@@ -114,8 +124,12 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
 
         // add some information needed for the evaluation to the propagation object
         propagation.setCommitIntegrationStateSnapshotPath(snapshotPath);
-        propagation.setParsedCodeModelPreviousVersionPath(previousParsedModelPath);
-        propagation.setParsedCodeModelTargetVersionPath(parsedModelPath);
+        propagation.setPreviousParsedCodeModelPath(previousParsedModelPath);
+        propagation.setParsedCodeModelPath(parsedModelPath);
+        propagation.setPreviousPcmRepositoryPath(previousRepositoryPath);
+
+        // trigger some post propagation hooks
+        postPropagationHook();
 
         return Optional.of(propagation);
     }
@@ -127,8 +141,8 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
             return Optional.empty();
         }
 
-        var cs = EvaluationDataContainer.getGlobalContainer()
-            .getChangeStatistic();
+        var cs = EvaluationDataContainer.get()
+            .resetChangeStatistic();
         cs.setOldCommit(firstCommitId);
         cs.setNewCommit(secondCommitId);
         cs.setNumberCommits(state.getGitRepositoryWrapper()
@@ -163,10 +177,9 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
      */
     public List<Optional<Propagation>> propagateChanges(String... commitIds) throws GitAPIException, IOException {
         if (commitIds.length == 0) {
-            return List.of(propagateCurrentCheckout());
+            return List.of();
         } else if (commitIds.length == 1 && commitIds[0] != null) {
-            checkout(commitIds[0]);
-            return List.of(propagateCurrentCheckout());
+            return List.of(propagateChanges(null, commitIds[0]));
         }
 
         // make sure the state is clean if the first id is null
@@ -175,13 +188,13 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
         }
 
         var numberOfPropagations = commitIds.length - 1;
-        List<Optional<Propagation>> allPropagatedChanges = new ArrayList<>(numberOfPropagations);
+        List<Optional<Propagation>> allPropagations = new ArrayList<>(numberOfPropagations);
 
         for (var i = 0; i < numberOfPropagations; i++) {
-            var propagatedChanges = propagateChanges(commitIds[i], commitIds[i + 1]);
-            allPropagatedChanges.add(propagatedChanges);
+            var propagation = propagateChanges(commitIds[i], commitIds[i + 1]);
+            allPropagations.add(propagation);
         }
-        return allPropagatedChanges;
+        return allPropagations;
     }
 
     protected boolean prePropagationChecks(String firstCommitId, String secondCommitId) {
@@ -194,7 +207,6 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
             diffs = state.getGitRepositoryWrapper()
                 .computeDiffsBetweenTwoCommits(firstCommitId, secondCommitId);
         } catch (RevisionSyntaxException | IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             return false;
         }
@@ -206,7 +218,7 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
     }
 
     private void addChangeNumbersToEvaluationData(List<PropagatedChange> changes) {
-        var cs = EvaluationDataContainer.getGlobalContainer()
+        var cs = EvaluationDataContainer.get()
             .getChangeStatistic();
         var totalChanges = 0;
 
@@ -232,6 +244,19 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
      */
     protected boolean preprocessCheckout() {
         return true;
+    }
+
+    protected void prePropagationHook() {
+        LOGGER.info("Running Pre Propagation Hook");
+
+    }
+
+    protected void postPropagationHook() {
+        LOGGER.info("Running Post Propagation Hook");
+        // reload models which may have changed
+//        state.getPcmFacade().reload();
+//        state.getImFacade().reload();
+//        state.getVsumFacade().forceReload();
     }
 
     protected boolean checkout(String commitId) {

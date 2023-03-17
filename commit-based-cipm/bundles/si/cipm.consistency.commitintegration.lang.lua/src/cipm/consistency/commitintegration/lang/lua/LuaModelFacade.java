@@ -341,4 +341,10 @@ public class LuaModelFacade implements CodeModelFacade {
 
         return copyPath;
     }
+
+    @Override
+    public void reload() {
+        // TODO Auto-generated method stub
+        
+    }
 }

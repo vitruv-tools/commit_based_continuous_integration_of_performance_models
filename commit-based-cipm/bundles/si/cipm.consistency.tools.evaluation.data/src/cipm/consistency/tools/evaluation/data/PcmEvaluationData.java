@@ -6,8 +6,12 @@ import cipm.consistency.commitintegration.diff.util.ComparisonBasedJaccardCoeffi
  * A data structure for the evaluation of the update of the Java models.
  * 
  * @author Martin Armbruster
+ * @author Lukas Burgey
  */
-public final class JavaEvaluationData {
+public final class PcmEvaluationData {
+    
+    private PcmEvalType evalType;
+    
     private int numberUnmatchedOldElements;
     private int numberUnmatchedNewElements;
     private int intersectionCardinality;
@@ -62,6 +66,14 @@ public final class JavaEvaluationData {
 
     public void setJc(double jc) {
         this.jaccardCoefficient = jc;
+    }
+
+    public PcmEvalType getEvalType() {
+        return evalType;
+    }
+
+    public void setEvalType(PcmEvalType evalType) {
+        this.evalType = evalType;
     }
 
 }

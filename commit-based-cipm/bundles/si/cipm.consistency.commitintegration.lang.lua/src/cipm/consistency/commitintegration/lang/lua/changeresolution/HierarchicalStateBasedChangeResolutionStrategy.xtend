@@ -1,5 +1,6 @@
 package cipm.consistency.commitintegration.lang.lua.changeresolution
 
+import cipm.consistency.commitintegration.lang.lua.changeresolution.lua.LuaHierarchicalMatchEngineFactory
 import cipm.consistency.commitintegration.lang.lua.changeresolution.temp.ResourceCopier
 import org.apache.log4j.Logger
 import org.eclipse.emf.common.notify.Notifier
@@ -39,9 +40,13 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 	val EMFCompare.Builder emfCompareBuilder
 
 	new() {
-		// Match engine factory for PCM / IMM
+		// Match engine factory for PCM
 		val defaultMatchEngineFactory = new MatchEngineFactoryImpl(UseIdentifiers.WHEN_AVAILABLE)
 		defaultMatchEngineFactory.ranking = 10
+
+		// Match engine factory for the IMM
+		val imMatchEngineFactory = new ImMatchEngineFactory()
+		imMatchEngineFactory.ranking = 15
 
 		// Lua match engine with higher ranking
 		val hierarchicalMatchEngineFactory = new LuaHierarchicalMatchEngineFactory();
@@ -50,6 +55,7 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 		emfCompareBuilder = (EMFCompare.builder => [
 			matchEngineFactoryRegistry = new MatchEngineFactoryRegistryImpl => [
 				add(defaultMatchEngineFactory)
+				add(imMatchEngineFactory)
 				add(hierarchicalMatchEngineFactory)
 			]
 		])

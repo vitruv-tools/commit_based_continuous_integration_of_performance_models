@@ -318,14 +318,14 @@ public class GitRepositoryWrapper {
         DiffFormatter df = new DiffFormatter(outputStream) {
             @Override
             protected void writeAddedLine(RawText text, int line) {
-                var cs = EvaluationDataContainer.getGlobalContainer()
+                var cs = EvaluationDataContainer.get()
                     .getChangeStatistic();
                 cs.setNumberAddedLines(cs.getNumberAddedLines() + 1);
             }
 
             @Override
             protected void writeRemovedLine(RawText text, int line) {
-                var cs = EvaluationDataContainer.getGlobalContainer()
+                var cs = EvaluationDataContainer.get()
                     .getChangeStatistic();
                 cs.setNumberRemovedLines(cs.getNumberRemovedLines() + 1);
             }
@@ -352,7 +352,7 @@ public class GitRepositoryWrapper {
         }
         df.close();
 
-        EvaluationDataContainer.getGlobalContainer()
+        EvaluationDataContainer.get()
             .getChangeStatistic()
             .setNumberChangedJavaFiles(diffs.size());
 

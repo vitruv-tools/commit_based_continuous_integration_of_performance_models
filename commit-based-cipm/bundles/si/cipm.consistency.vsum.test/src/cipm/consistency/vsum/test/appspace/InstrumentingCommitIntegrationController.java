@@ -93,7 +93,7 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
         var propagatedChanges = super.propagateChanges(oldCommit, newCommit);
 
         fineTimer = System.currentTimeMillis() - fineTimer;
-        EvaluationDataContainer.getGlobalContainer()
+        EvaluationDataContainer.get()
             .getExecutionTimes()
             .setChangePropagationTime(fineTimer);
 
@@ -110,7 +110,7 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
                 Resource insModel = instrumentCode(fullInstrumentation);
 
                 fineTimer = System.currentTimeMillis() - fineTimer;
-                EvaluationDataContainer.getGlobalContainer()
+                EvaluationDataContainer.get()
                     .getExecutionTimes()
                     .setInstrumentationTime(fineTimer);
 
@@ -121,7 +121,7 @@ public abstract class InstrumentingCommitIntegrationController<CM extends CodeMo
             }
         }
         overallTimer = System.currentTimeMillis() - overallTimer;
-        EvaluationDataContainer.getGlobalContainer()
+        EvaluationDataContainer.get()
             .getExecutionTimes()
             .setOverallTime(overallTimer);
 

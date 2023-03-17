@@ -13,17 +13,21 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
+import org.eclipse.xtext.EcoreUtil2;
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
+import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.commitintegration.CommitIntegrationState;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
 import cipm.consistency.vsum.Propagation;
 import cipm.consistency.vsum.test.evaluator.PropagationEvaluator;
+import cipm.consistency.vsum.test.evaluator.commitHistory.CommitHistoryEvaluator;
 
 public abstract class AppSpaceCITestController extends AppSpaceCommitIntegrationController {
 
@@ -133,7 +137,7 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
         return super.prePropagationChecks(firstCommitId, secondCommitId);
     }
 
-    protected boolean evaluatePropagation(Propagation propagation) {
+    protected EvaluationDataContainer evaluatePropagation(Propagation propagation) {
         if (propagation == null) {
             Assert.fail("PropagatedChanges may not be null");
         }
@@ -142,17 +146,14 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
 
         var result = evaluator.evaluate();
 
-        var evaluationDataContainer = EvaluationDataContainer.getGlobalContainer();
+        var evaluationDataContainer = EvaluationDataContainer.get();
+        evaluationDataContainer.setSuccessful(result);
         var evaluationFileName = "evaluationData.json";
         var evaluationPath = propagation.getCommitIntegrationStateCopyPath()
             .resolve(evaluationFileName);
         EvaluationDataContainerReaderWriter.write(evaluationDataContainer, evaluationPath);
 
-        return result;
-    }
-
-    private boolean getImmediateEvaluation() {
-        return false;
+        return evaluationDataContainer;
     }
 
     /**
@@ -163,6 +164,12 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
      * @return The list of all the propagations.
      */
     protected List<Propagation> propagateAndEvaluate(String... commitIds) {
+        var evaluateImmediately = false;
+
+        var historyEvalDir = this.state.getDirLayout()
+            .getRootDirPath()
+            .getParent();
+        var commitHistoryEvaluator = new CommitHistoryEvaluator();
 
         List<Propagation> allPropagations = new ArrayList<>();
         try {
@@ -181,26 +188,37 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
                 }
 
                 var propagation = propagations.get();
-                if (getImmediateEvaluation() && !evaluatePropagation(propagation)) {
-                    failTest("Propagation failed evaluation (immediate abort)");
+                if (evaluateImmediately) {
+                    var eval = evaluatePropagation(propagation);
+                    commitHistoryEvaluator.addEvaluationDataContainer(eval);
+                    if (!eval.isSuccessful()) {
+                        failTest("Propagation failed evaluation (immediate abort)");
+                    }
                 }
                 allPropagations.add(propagation);
             }
 
-            if (!getImmediateEvaluation()) {
+            var failures = 0;
+            if (!evaluateImmediately) {
                 LOGGER.info("\n\tEvaluating all propagations");
                 var i = 1;
-                var failures = 0;
                 for (var propagation : allPropagations) {
-                    if (!evaluatePropagation(propagation)) {
+                    var eval = evaluatePropagation(propagation);
+                    commitHistoryEvaluator.addEvaluationDataContainer(eval);
+                    if (!eval.isSuccessful()) {
                         failures++;
                         LOGGER.error(String.format("Propagation #%d failed evaluation", i));
                     }
                     i++;
                 }
-                if (failures > 0) {
-                    failTest(String.format("%d propagations where invalid", failures));
-                }
+            }
+
+            // Evaluate the complete commit history
+            commitHistoryEvaluator.evaluate();
+            commitHistoryEvaluator.write(historyEvalDir);
+
+            if (failures > 0) {
+                failTest(String.format("%d propagations where invalid", failures));
             }
 
             return allPropagations;
@@ -386,5 +404,80 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
     @BeforeEach
     public void setUpLogging() {
         LoggingSetup.setupLogging(Level.INFO);
+    }
+
+    // this approach to changing models within the VSUM does not work sadly
+    private void deactivateAIPsRecordingView() {
+        var view = state.getVsumFacade()
+            .getChangeRecordingView();
+        for (var rootEobj : view.getRootObjects()) {
+            if (rootEobj instanceof InstrumentationModel im) {
+
+                var aips = EcoreUtil2.getAllContentsOfType(rootEobj, ActionInstrumentationPoint.class);
+                aips.forEach(aip -> aip.setActive(false));
+
+                im.getPoints()
+                    .forEach(sip -> sip.getActionInstrumentationPoints()
+                        .forEach(aip -> aip.setActive(false)));
+            }
+        }
+
+        view.commitChangesAndUpdate();
+    }
+
+    /**
+     * We simulate doing an instrumentation here, because we didn't implement it
+     */
+    private void simulateInstrumentation() {
+        // deactivate all Action IPs
+        // TODO automatically reload the model facades if the model was changed by a propagation
+        // We just manually reload here
+//        state.getImFacade().reload();
+        var ims = state.getVsumFacade()
+            .getChangeRecordingView()
+            .getRootObjects(InstrumentationModel.class);
+
+        ims.forEach(im -> im.getPoints());
+
+        LOGGER.warn("foo");
+    }
+
+    @Override
+    protected void prePropagationHook() {
+
+        super.prePropagationHook();
+
+    }
+
+    @Override
+    protected void postPropagationHook() {
+        super.postPropagationHook();
+
+//        simulateInstrumentation();
+
+//        var imFacade = state.getImFacade();
+//        imFacade.loadOrCreateModelResources();
+//
+//        var ci = state.getCommitIntegration();
+//        state.dispose();
+//
+//        imFacade.loadOrCreateModelResources();
+//        imFacade.deactivateAllActionIPs();
+//        imFacade.saveToDisk();
+//
+//        try {
+//            state.initialize(ci);
+//            state.initialize(ci, ci.getRootPath(), false, false);
+//            var pcmFacade = state.getPcmFacade();
+//            state.getVsumFacade()
+//                .initialize(state.getDirLayout()
+//                    .getVsumDirPath(), List.of(pcmFacade), ci.getChangeSpecs(),
+//                        ci.getStateBasedChangeResolutionStrategy());
+//            state.getVsumFacade()
+//                .loadModels(List.of(imFacade), true);
+//        } catch (IOException | GitAPIException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
     }
 }

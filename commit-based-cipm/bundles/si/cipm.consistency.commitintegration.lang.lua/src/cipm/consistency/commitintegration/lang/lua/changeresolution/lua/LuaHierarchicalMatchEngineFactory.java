@@ -1,4 +1,4 @@
-package cipm.consistency.commitintegration.lang.lua.changeresolution;
+package cipm.consistency.commitintegration.lang.lua.changeresolution.lua;
 
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.URI;
@@ -19,9 +19,6 @@ import org.splevo.diffing.match.HierarchicalStrategyResourceMatcher;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
-
-import cipm.consistency.commitintegration.lang.lua.changeresolution.equality.LuaEqualityHelper;
-import cipm.consistency.commitintegration.lang.lua.changeresolution.equality.LuaEqualityStrategy;
 
 public class LuaHierarchicalMatchEngineFactory extends MatchEngineFactoryImpl {
 
