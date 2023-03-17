@@ -26,7 +26,7 @@ import cipm.consistency.vsum.Propagation;
 import cipm.consistency.vsum.test.evaluator.PropagationEvaluator;
 import cipm.consistency.vsum.test.evaluator.commitHistory.CommitHistoryEvaluator;
 
-public abstract class AppSpaceCITestController extends AppSpaceCommitIntegrationController {
+public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration {
 
     private static final Logger LOGGER = Logger.getLogger(AppSpaceCITestController.class);
 
@@ -42,9 +42,12 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
      */
     protected static final Path TESTDATA_PATH = Path.of("testData", "tests");
 
+    protected static final Path MODEL_DATA_PATH = Path.of("testData", "manualModels");
+
     protected boolean forceEmptyPropagation = true;
 
     private Path rootPath;
+    private Path manualModelsPath;
 
     /**
      * Returns the path to the settings file.
@@ -80,6 +83,9 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
 
         this.rootPath = TESTDATA_PATH.resolve(className)
             .resolve(methodName);
+
+        // also set the directory for the manual models
+        this.manualModelsPath = MODEL_DATA_PATH.resolve(className);
     }
 
     /**
@@ -259,13 +265,12 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
         return null;
     }
 
-
     protected EvaluationDataContainer evaluatePropagation(Propagation propagation) {
         if (propagation == null) {
             Assert.fail("PropagatedChanges may not be null");
         }
 
-        var evaluator = new PropagationEvaluator<>(propagation, this);
+        var evaluator = new PropagationEvaluator<>(propagation, this, this.manualModelsPath);
 
         var result = evaluator.evaluate();
 

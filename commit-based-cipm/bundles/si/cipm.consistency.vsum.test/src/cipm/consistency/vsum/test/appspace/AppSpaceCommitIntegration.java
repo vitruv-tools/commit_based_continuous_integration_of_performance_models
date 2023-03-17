@@ -25,7 +25,7 @@ import mir.reactions.pcmInit.PcmInitChangePropagationSpecification;
 import tools.vitruv.change.propagation.ChangePropagationSpecification;
 import tools.vitruv.framework.views.changederivation.StateBasedChangeResolutionStrategy;
 
-public abstract class AppSpaceCommitIntegrationController extends CommitIntegrationController<LuaModelFacade>
+public abstract class AppSpaceCommitIntegration extends CommitIntegrationController<LuaModelFacade>
         implements CommitIntegration<LuaModelFacade> {
 
     private static final String LUA_FILE_EXTENSION = "lua";

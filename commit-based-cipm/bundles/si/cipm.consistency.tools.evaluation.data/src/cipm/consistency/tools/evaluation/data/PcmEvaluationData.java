@@ -9,9 +9,19 @@ import cipm.consistency.commitintegration.diff.util.ComparisonBasedJaccardCoeffi
  * @author Lukas Burgey
  */
 public final class PcmEvaluationData {
-    
+
+    public enum PcmEvalType {
+        ComparisonWithAutomatic, ComparisonWithManuallyCreated;
+    }
+
     private PcmEvalType evalType;
-    
+
+    public enum ComparisonType {
+        LukasHierarchical, MartinDiffUtil;
+    }
+
+    private ComparisonType comparisonType;
+
     private int numberUnmatchedOldElements;
     private int numberUnmatchedNewElements;
     private int intersectionCardinality;
@@ -74,6 +84,14 @@ public final class PcmEvaluationData {
 
     public void setEvalType(PcmEvalType evalType) {
         this.evalType = evalType;
+    }
+
+    public ComparisonType getComparisonType() {
+        return comparisonType;
+    }
+
+    public void setComparisonType(ComparisonType comparisonType) {
+        this.comparisonType = comparisonType;
     }
 
 }

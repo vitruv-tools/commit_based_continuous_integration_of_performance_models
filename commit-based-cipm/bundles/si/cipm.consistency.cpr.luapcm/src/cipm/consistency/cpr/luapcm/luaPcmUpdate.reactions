@@ -79,6 +79,9 @@ reaction RemovedBlock {
 reaction AddedLuaComponent {
 	after element lua::Component inserted in lua::ComponentSet[components]
 	call {
+		if (newValue.name == "/stdlibAndCrowns.lua") {
+			return
+		}
 		createBasicComponentForLuaComponent(newValue)
 		createOperationInterfaceForLuaComponent(newValue)
 		createOperationProvidedRoleForLuaComponent(newValue)
