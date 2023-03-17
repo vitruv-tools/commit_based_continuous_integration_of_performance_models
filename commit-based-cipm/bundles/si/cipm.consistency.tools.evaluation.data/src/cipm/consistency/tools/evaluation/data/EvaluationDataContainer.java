@@ -1,9 +1,13 @@
 package cipm.consistency.tools.evaluation.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Container for the complete data.
  * 
  * @author Martin Armbruster
+ * @author Lukas Burgey
  */
 public class EvaluationDataContainer {
     private static EvaluationDataContainer globalContainer;
@@ -23,7 +27,7 @@ public class EvaluationDataContainer {
 //    private long evaluationTime = System.currentTimeMillis();
     private ChangeStatistic changeStatistic = new ChangeStatistic();
     private JavaEvaluationData codeModelUpdateEval = new JavaEvaluationData();
-    private PcmEvaluationData pcmUpdateEval = new PcmEvaluationData();
+    private List<PcmEvaluationData> pcmUpdateEvals = new ArrayList<>();
     private IMEvaluationData imUpdateEval = new IMEvaluationData();
 //    private InstrumentationEvaluationData instrumentationData = new InstrumentationEvaluationData();
     private InstrumentationEvaluationData instrumentationData = null;
@@ -66,7 +70,7 @@ public class EvaluationDataContainer {
         this.successful = success;
     }
 
-    public PcmEvaluationData getPcmUpdateEval() {
-        return pcmUpdateEval;
+    public List<PcmEvaluationData> getPcmUpdateEvals() {
+        return pcmUpdateEvals;
     }
 }

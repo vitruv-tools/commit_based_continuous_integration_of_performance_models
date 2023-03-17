@@ -26,11 +26,16 @@ public class Propagation {
     // resolution and propagation worked correctly
     private Path parsedCodeModelPath;
     private Path vsumCodeModelPath;
-
     
-//    private Path vsumRepositoryModelPath;
-//    private Path vsumImmPath;
+    // the commit that was propagated with this propagation;
+    private String commitId;
+
+    // the path to the snapshot of the commit integration state that was taken
+    // after the propagation was complete
     private Path commitIntegrationStateCopyPath;
+    
+    // the path to the commit integration state where the propagation was originally made
+    private Path commitIntegrationStateOriginalPath;
 
     private int originalChangeCount = 0;
     private int consequentialChangeCount = 0;
@@ -95,21 +100,6 @@ public class Propagation {
         this.vsumCodeModelPath = propagationResultCodeModelPath;
     }
 
-//    public Path getPropagationResultRepositoryModelPath() {
-//        return vsumRepositoryModelPath;
-//    }
-//
-//    public void setPropagationResultRepositoryModelPath(Path propagationResultRepositoryModelPath) {
-//        this.vsumRepositoryModelPath = propagationResultRepositoryModelPath;
-//    }
-//
-//    public void setPropagationResultIMMPath(Path propagationResultIMMPath) {
-//        this.vsumImmPath = propagationResultIMMPath;
-//    }
-//
-//    public Path getPropagationResultIMMPath() {
-//        return vsumImmPath;
-//    }
 
     public Path getCommitIntegrationStateCopyPath() {
         return commitIntegrationStateCopyPath;
@@ -125,6 +115,22 @@ public class Propagation {
 
     public void setPreviousPcmRepositoryPath(Path previousPcmRepositoryPath) {
         this.previousPcmRepositoryPath = previousPcmRepositoryPath;
+    }
+
+    public Path getCommitIntegrationStateOriginalPath() {
+        return commitIntegrationStateOriginalPath;
+    }
+
+    public void setCommitIntegrationStateOriginalPath(Path commitIntegrationStateOriginalPath) {
+        this.commitIntegrationStateOriginalPath = commitIntegrationStateOriginalPath;
+    }
+
+    public String getCommitId() {
+        return commitId;
+    }
+
+    public void setCommitId(String commitId) {
+        this.commitId = commitId;
     }
 
 }

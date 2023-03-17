@@ -124,6 +124,8 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
 
         // add some information needed for the evaluation to the propagation object
         propagation.setCommitIntegrationStateSnapshotPath(snapshotPath);
+        propagation.setCommitIntegrationStateOriginalPath(state.getDirLayout()
+            .getRootDirPath());
         propagation.setPreviousParsedCodeModelPath(previousParsedModelPath);
         propagation.setParsedCodeModelPath(parsedModelPath);
         propagation.setPreviousPcmRepositoryPath(previousRepositoryPath);
@@ -154,7 +156,12 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
             .computeDiffsBetweenTwoCommits(firstCommitId, secondCommitId);
 
         if (checkout(secondCommitId)) {
-            return propagateCurrentCheckout();
+            var propagation = propagateCurrentCheckout();
+            if (propagation.isPresent()) {
+                propagation.get()
+                    .setCommitId(secondCommitId);
+            }
+            return propagation;
         }
 
         return Optional.empty();

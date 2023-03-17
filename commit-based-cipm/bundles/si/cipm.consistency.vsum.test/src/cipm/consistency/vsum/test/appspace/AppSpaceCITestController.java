@@ -13,17 +13,13 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
-import org.eclipse.xtext.EcoreUtil2;
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
-import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.commitintegration.CommitIntegrationState;
-import cipm.consistency.commitintegration.lang.lua.LuaModelFacade;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
 import cipm.consistency.vsum.Propagation;
@@ -263,6 +259,34 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
         return null;
     }
 
+
+    protected EvaluationDataContainer evaluatePropagation(Propagation propagation) {
+        if (propagation == null) {
+            Assert.fail("PropagatedChanges may not be null");
+        }
+
+        var evaluator = new PropagationEvaluator<>(propagation, this);
+
+        var result = evaluator.evaluate();
+
+        var evaluationDataContainer = EvaluationDataContainer.get();
+        evaluationDataContainer.setSuccessful(result);
+        var evaluationFileName = "evaluationData.json";
+        var evaluationPath = propagation.getCommitIntegrationStateCopyPath()
+            .resolve(evaluationFileName);
+        EvaluationDataContainerReaderWriter.write(evaluationDataContainer, evaluationPath);
+
+        return evaluationDataContainer;
+    }
+
+    protected void propagateAndEvaluateIndividually(TestInfo testInfo, String... commits) {
+        for (var commit : commits) {
+            setup(testInfo);
+            propagateAndEvaluate(null, commit);
+            cleanupAfterTest();
+        }
+    }
+
     /**
      * Propagates changes between two commits and performs a partial evaluation on the result.
      * 
@@ -283,7 +307,6 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
 //        EvaluationDataContainer evalResult = new EvaluationDataContainer();
 //        EvaluationDataContainer.setGlobalContainer(evalResult);
 //
-//        // TODO this is currently not needed i think
 ////        String repoFile = getVsumFacade().getPCMWrapper()
 ////            .getRepository()
 ////            .eResource()
@@ -312,33 +335,6 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
 //        LOGGER.debug("Finished the evaluation.");
 //        return true;
 //    }
-
-    protected EvaluationDataContainer evaluatePropagation(Propagation propagation) {
-        if (propagation == null) {
-            Assert.fail("PropagatedChanges may not be null");
-        }
-
-        var evaluator = new PropagationEvaluator<>(propagation, this);
-
-        var result = evaluator.evaluate();
-
-        var evaluationDataContainer = EvaluationDataContainer.get();
-        evaluationDataContainer.setSuccessful(result);
-        var evaluationFileName = "evaluationData.json";
-        var evaluationPath = propagation.getCommitIntegrationStateCopyPath()
-            .resolve(evaluationFileName);
-        EvaluationDataContainerReaderWriter.write(evaluationDataContainer, evaluationPath);
-
-        return evaluationDataContainer;
-    }
-
-    protected void propagateAndEvaluateIndividually(TestInfo testInfo, String... commits) {
-        for (var commit : commits) {
-            setup(testInfo);
-            propagateAndEvaluate(null, commit);
-            cleanupAfterTest();
-        }
-    }
 
     // I don't think i need the next method
 //    protected void propagateMultipleCommits(String firstCommit, String lastCommit)

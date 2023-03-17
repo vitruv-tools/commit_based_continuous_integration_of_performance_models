@@ -31,9 +31,12 @@ import cipm.consistency.base.shared.ModelUtil;
 import cipm.consistency.commitintegration.CommitIntegration;
 import cipm.consistency.commitintegration.CommitIntegrationState;
 import cipm.consistency.commitintegration.diff.util.ComparisonBasedJaccardCoefficientCalculator;
+import cipm.consistency.commitintegration.diff.util.pcm.PCMModelComparator;
 import cipm.consistency.commitintegration.lang.lua.changeresolution.HierarchicalStateBasedChangeResolutionStrategy;
 import cipm.consistency.models.code.CodeModelFacade;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
+import cipm.consistency.tools.evaluation.data.PcmEvalType;
+import cipm.consistency.tools.evaluation.data.PcmEvaluationData;
 import cipm.consistency.vsum.Propagation;
 
 /**
@@ -53,9 +56,11 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
 
     private Propagation propagation;
     private CommitIntegrationState<CM> state;
+    private CommitIntegration<CM> commitIntegration;
 
     public PropagationEvaluator(Propagation propagation, CommitIntegration<CM> commitIntegration) {
         this.propagation = propagation;
+        this.commitIntegration = commitIntegration;
 
         state = new CommitIntegrationState<CM>();
         try {
@@ -170,31 +175,75 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             .setValuesUsingJaccardCoefficientResult(jaccardResult);
     }
 
+    private Path locateStateCopyForCommit(int commitCount, String commitId) {
+        var currentName = propagation.getCommitIntegrationStateOriginalPath()
+            .getFileName();
+        var lookupName = currentName + "-" + commitCount + "-" + commitId;
+        var pathOfPossibleCommitCopy = propagation.getCommitIntegrationStateCopyPath()
+            .resolveSibling(lookupName);
+        if (pathOfPossibleCommitCopy.toFile()
+            .exists()) {
+            return pathOfPossibleCommitCopy;
+        }
+        return null;
+    }
+
+    private CommitIntegrationState<CM> getCommitIntegrationStateForCommit(int commitCount, String commitId) {
+        var stateCopyPath = locateStateCopyForCommit(commitCount, commitId);
+        if (stateCopyPath == null) {
+            return null;
+        }
+        var stateCopy = new CommitIntegrationState<CM>();
+        try {
+            stateCopy.initialize(commitIntegration, propagation.getCommitIntegrationStateCopyPath(), false, false);
+        } catch (IOException | GitAPIException e) {
+            e.printStackTrace();
+        }
+        return stateCopy;
+    }
+
     private void evaluatePcmUpdateJaccard() {
+        // locate the state copy that was created from scratch for this commit
+        var stateCopyAutomatic = getCommitIntegrationStateForCommit(1, propagation.getCommitId());
+
+        var referenceRepository = ModelUtil.readFromFile(stateCopyAutomatic.getPcmFacade()
+            .getDirLayout()
+            .getPcmRepositoryPath()
+            .toFile(), Repository.class);
+
         var newRepository = ModelUtil.readFromFile(state.getPcmFacade()
             .getDirLayout()
             .getPcmRepositoryPath()
             .toFile(), Repository.class);
-        
-        
-        // either a manually created one or an automatic one
-        Repository referenceRepository;
-        
-//        if (state.)
-//        = ModelUtil.readFromFile(state.getPcmFacade()
-//            .getDirLayout()
-//            .getPcmRepositoryPath()
-//            .toFile(), Repository.class);
-//
-//
-//        var changeResolutionStrategy = new HierarchicalStateBasedChangeResolutionStrategy();
-//        var comparison = changeResolutionStrategy.compareStates(parsedCodeModel, vsumCodeModel);
-//
-//        var jaccardResult = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comparison);
-//
-//        EvaluationDataContainer.get()
-//            .getPcmUpdateEval()
-//            .setValuesUsingJaccardCoefficientResult(jaccardResult);
+
+        // my change resolution strat
+        var changeResolutionStrategy = new HierarchicalStateBasedChangeResolutionStrategy();
+        var comparison = changeResolutionStrategy.compareStates(newRepository.eResource(),
+                referenceRepository.eResource());
+        var jaccardResult = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comparison);
+
+
+        // martins comparison
+        var comparisonMartin = PCMModelComparator.compareRepositoryModels(newRepository.eResource(),
+                referenceRepository.eResource());
+        var jaccardResultMartin = ComparisonBasedJaccardCoefficientCalculator
+            .calculateJaccardCoefficient(comparisonMartin);
+
+        var pcmEvalData = new PcmEvaluationData();
+        pcmEvalData.setValuesUsingJaccardCoefficientResult(jaccardResult);
+        pcmEvalData.setEvalType(PcmEvalType.ComparisonWithAutomatic);
+
+        var pcmEvalDataMartin = new PcmEvaluationData();
+        pcmEvalDataMartin.setValuesUsingJaccardCoefficientResult(jaccardResultMartin);
+        pcmEvalDataMartin.setEvalType(PcmEvalType.ComparisonWithAutomaticMartin);
+
+        EvaluationDataContainer.get()
+            .getPcmUpdateEvals()
+            .add(pcmEvalData);
+
+        EvaluationDataContainer.get()
+            .getPcmUpdateEvals()
+            .add(pcmEvalDataMartin);
     }
 
     /**
@@ -272,6 +321,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
     public boolean evaluate() {
         // Evaluations that only write to the evaluation data:
         evaluateChangeResolutionJaccard();
+        evaluatePcmUpdateJaccard();
         evaluateImUpdate();
 
         // save the evaluation data to the directory of the integration state copy

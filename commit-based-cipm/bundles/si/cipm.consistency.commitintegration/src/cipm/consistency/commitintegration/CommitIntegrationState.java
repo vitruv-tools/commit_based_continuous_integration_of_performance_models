@@ -122,7 +122,6 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
             e.printStackTrace();
         }
         return null;
-
     }
 
     public Path createRepositorySnapshot() {
@@ -199,7 +198,7 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
         // save all the evaluation data that may have been produced
         persistEvaluationData();
 
-        var currentCommitHash = getGitRepositoryWrapper().getCurrentCommitHash();
+        var currentCommitHash = getGitRepositoryWrapper().getCurrentCommitHash().substring(0, 7);
         var name = getDirLayout().getRootDirPath()
             .getFileName() + "-" + String.valueOf(++snapshotCount) + "-" + currentCommitHash;
         try {
