@@ -98,7 +98,7 @@ public class CaseStudy1Test extends AppSpaceCITestController {
 
     @Test
     public void runEvaluation() {
-        propagateAndEvaluate(EVALUATION_HISTORY);
+        doCompleteEvaluation(EVALUATION_HISTORY);
     }
 
     @Test

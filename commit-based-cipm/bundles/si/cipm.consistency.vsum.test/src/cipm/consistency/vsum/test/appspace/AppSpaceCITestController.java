@@ -23,6 +23,7 @@ import org.junit.jupiter.api.TestInfo;
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.ActionInstrumentationPoint;
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.commitintegration.CommitIntegrationState;
+import cipm.consistency.commitintegration.lang.lua.LuaModelFacade;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
 import cipm.consistency.vsum.Propagation;
@@ -50,6 +51,20 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
     private Path rootPath;
 
     /**
+     * Returns the path to the settings file.
+     * 
+     * @return the path.
+     */
+    public Path getSettingsPath() {
+        return getRootPath().resolve("settings.settings");
+    };
+
+    @BeforeEach
+    public void setUpLogging() {
+        LoggingSetup.setupLogging(Level.INFO);
+    }
+
+    /**
      * Returns the path to the local directory in which the test data is stored. This directory is
      * created if it does not exist
      * 
@@ -61,7 +76,7 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
         return this.rootPath;
     };
 
-    private void setRootPath(TestInfo testInfo) {
+    protected void setRootPath(TestInfo testInfo) {
         var className = this.getClass()
             .getSimpleName();
         var methodName = testInfo.getDisplayName()
@@ -73,7 +88,6 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
 
     /**
      * 
-     * @param testInfo
      * @param overwrite
      *            Are existing files (models, etc.) to be deleted before initializing the commit
      *            integration state?
@@ -82,28 +96,45 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
      * @throws org.eclipse.jgit.api.errors.TransportException
      * @throws InvalidRemoteException
      */
-    protected void setup(TestInfo testInfo, boolean overwrite) throws InvalidRemoteException,
-            org.eclipse.jgit.api.errors.TransportException, IOException, GitAPIException {
-        // the root path of the integration data contains the current class and method name
-        // hence it is dynamically set using the test info
-        setRootPath(testInfo);
-
+    protected void setup(boolean overwrite) {
         // Create new empty state
         this.state = new CommitIntegrationState<>();
-//
-//        // overwrite existing files?
-        state.initialize(this, this.getRootPath(), overwrite);
+
+        // overwrite existing files?
+        try {
+            state.initialize(this, this.getRootPath(), overwrite);
+        } catch (IOException | GitAPIException e) {
+            e.printStackTrace();
+            failTest("Unable to setup commit integration state");
+        }
     }
 
     @BeforeEach
     public void setup(TestInfo testInfo) {
+        LoggingSetup.setMinLogLevel(Level.WARN);
+        // the root path of the integration data contains the current class and method name
+        // hence it is dynamically set using the test info
+        setRootPath(testInfo);
+        setup(true);
+        LoggingSetup.resetLogLevels();
+    }
+
+    /*
+     * Deletes all testdata before running a new batch of tests
+     */
+    @BeforeAll
+    public static void deleteDataBeforeRunningTests() {
         try {
-            LoggingSetup.setMinLogLevel(Level.WARN);
-            setup(testInfo, true);
-        } catch (IOException | GitAPIException e) {
+            Files.walk(TESTDATA_PATH)
+                .sorted(Comparator.reverseOrder())
+                .forEach(path -> {
+                    if (!path.equals(TESTDATA_PATH)) {
+                        path.toFile()
+                            .delete();
+                    }
+                });
+        } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            LoggingSetup.resetLogLevels();
         }
     }
 
@@ -112,21 +143,9 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
         state.dispose();
     }
 
-    /*
-     * Deletes all testdata before running a new batch of tests
-     */
-    @BeforeAll
-    public static void deleteDataBeforeRunningTests() {
-
-        try {
-            Files.walk(TESTDATA_PATH)
-                .sorted(Comparator.reverseOrder())
-                .forEach(path -> path.toFile()
-                    .delete());
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-//            e.printStackTrace();
-        }
+    protected void failTest(String msg) {
+        LOGGER.error(msg);
+        Assert.fail(msg);
     }
 
     @Override
@@ -137,23 +156,37 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
         return super.prePropagationChecks(firstCommitId, secondCommitId);
     }
 
-    protected EvaluationDataContainer evaluatePropagation(Propagation propagation) {
-        if (propagation == null) {
-            Assert.fail("PropagatedChanges may not be null");
+    protected List<Propagation> doCompleteEvaluation(String... commitIds) {
+        // propagate all commits individually to generate automatically created PCMs for each commit
+        propagateIndividually(commitIds);
+
+        // propagate the commit history and evaluate all the commits
+        return propagateAndEvaluate(commitIds);
+    }
+
+    protected List<Propagation> propagateIndividually(String... commitIds) {
+        List<Propagation> propagations = new ArrayList<>();
+        for (var commitId : commitIds) {
+            if (commitId == null) {
+                continue;
+            }
+
+            try {
+
+                var propagation = propagateChanges(null, commitId);
+                if (propagation.isEmpty()) {
+                    failTest("Individual propagation was empty");
+                }
+                propagations.add(propagation.get());
+
+                state.dispose();
+                setup(true);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
-        var evaluator = new PropagationEvaluator<>(propagation, this);
-
-        var result = evaluator.evaluate();
-
-        var evaluationDataContainer = EvaluationDataContainer.get();
-        evaluationDataContainer.setSuccessful(result);
-        var evaluationFileName = "evaluationData.json";
-        var evaluationPath = propagation.getCommitIntegrationStateCopyPath()
-            .resolve(evaluationFileName);
-        EvaluationDataContainerReaderWriter.write(evaluationDataContainer, evaluationPath);
-
-        return evaluationDataContainer;
+        return propagations;
     }
 
     /**
@@ -230,11 +263,6 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
         return null;
     }
 
-    private void failTest(String msg) {
-        LOGGER.error(msg);
-        Assert.fail(msg);
-    }
-
     /**
      * Propagates changes between two commits and performs a partial evaluation on the result.
      * 
@@ -285,6 +313,33 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
 //        return true;
 //    }
 
+    protected EvaluationDataContainer evaluatePropagation(Propagation propagation) {
+        if (propagation == null) {
+            Assert.fail("PropagatedChanges may not be null");
+        }
+
+        var evaluator = new PropagationEvaluator<>(propagation, this);
+
+        var result = evaluator.evaluate();
+
+        var evaluationDataContainer = EvaluationDataContainer.get();
+        evaluationDataContainer.setSuccessful(result);
+        var evaluationFileName = "evaluationData.json";
+        var evaluationPath = propagation.getCommitIntegrationStateCopyPath()
+            .resolve(evaluationFileName);
+        EvaluationDataContainerReaderWriter.write(evaluationDataContainer, evaluationPath);
+
+        return evaluationDataContainer;
+    }
+
+    protected void propagateAndEvaluateIndividually(TestInfo testInfo, String... commits) {
+        for (var commit : commits) {
+            setup(testInfo);
+            propagateAndEvaluate(null, commit);
+            cleanupAfterTest();
+        }
+    }
+
     // I don't think i need the next method
 //    protected void propagateMultipleCommits(String firstCommit, String lastCommit)
 //            throws IOException, InterruptedException, InvalidRemoteException, TransportException, GitAPIException {
@@ -316,30 +371,22 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
      *         the start commit (possibly null for the initial commit), and the second index
      *         contains the target commit.
      */
-    public String[] loadCommits() {
-        try {
-            var lines = Files.readAllLines(state.getDirLayout()
-                .getCommitsFilePath());
-            String[] result = new String[2];
-            if (lines.size() == 1) {
-                result[1] = lines.get(0);
-            } else {
-                result[0] = lines.get(0);
-                result[1] = lines.get(1);
-            }
-            return result;
-        } catch (IOException e) {
-            return new String[0];
-        }
-    }
-
-    protected void propagateAndEvaluateIndividually(TestInfo testInfo, String... commits) {
-        for (var commit : commits) {
-            setup(testInfo);
-            propagateAndEvaluate(null, commit);
-            cleanupAfterTest();
-        }
-    }
+//    public String[] loadCommits() {
+//        try {
+//            var lines = Files.readAllLines(state.getDirLayout()
+//                .getCommitsFilePath());
+//            String[] result = new String[2];
+//            if (lines.size() == 1) {
+//                result[1] = lines.get(0);
+//            } else {
+//                result[0] = lines.get(0);
+//                result[1] = lines.get(1);
+//            }
+//            return result;
+//        } catch (IOException e) {
+//            return new String[0];
+//        }
+//    
 
     /**
      * Performs an evaluation independent of the change propagation. It requires that changes
@@ -392,92 +439,4 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
 //        LOGGER.debug("Finished the evaluation.");
 //    }
 
-    /**
-     * Returns the path to the settings file.
-     * 
-     * @return the path.
-     */
-    public Path getSettingsPath() {
-        return getRootPath().resolve("settings.settings");
-    };
-
-    @BeforeEach
-    public void setUpLogging() {
-        LoggingSetup.setupLogging(Level.INFO);
-    }
-
-    // this approach to changing models within the VSUM does not work sadly
-    private void deactivateAIPsRecordingView() {
-        var view = state.getVsumFacade()
-            .getChangeRecordingView();
-        for (var rootEobj : view.getRootObjects()) {
-            if (rootEobj instanceof InstrumentationModel im) {
-
-                var aips = EcoreUtil2.getAllContentsOfType(rootEobj, ActionInstrumentationPoint.class);
-                aips.forEach(aip -> aip.setActive(false));
-
-                im.getPoints()
-                    .forEach(sip -> sip.getActionInstrumentationPoints()
-                        .forEach(aip -> aip.setActive(false)));
-            }
-        }
-
-        view.commitChangesAndUpdate();
-    }
-
-    /**
-     * We simulate doing an instrumentation here, because we didn't implement it
-     */
-    private void simulateInstrumentation() {
-        // deactivate all Action IPs
-        // TODO automatically reload the model facades if the model was changed by a propagation
-        // We just manually reload here
-//        state.getImFacade().reload();
-        var ims = state.getVsumFacade()
-            .getChangeRecordingView()
-            .getRootObjects(InstrumentationModel.class);
-
-        ims.forEach(im -> im.getPoints());
-
-        LOGGER.warn("foo");
-    }
-
-    @Override
-    protected void prePropagationHook() {
-
-        super.prePropagationHook();
-
-    }
-
-    @Override
-    protected void postPropagationHook() {
-        super.postPropagationHook();
-
-//        simulateInstrumentation();
-
-//        var imFacade = state.getImFacade();
-//        imFacade.loadOrCreateModelResources();
-//
-//        var ci = state.getCommitIntegration();
-//        state.dispose();
-//
-//        imFacade.loadOrCreateModelResources();
-//        imFacade.deactivateAllActionIPs();
-//        imFacade.saveToDisk();
-//
-//        try {
-//            state.initialize(ci);
-//            state.initialize(ci, ci.getRootPath(), false, false);
-//            var pcmFacade = state.getPcmFacade();
-//            state.getVsumFacade()
-//                .initialize(state.getDirLayout()
-//                    .getVsumDirPath(), List.of(pcmFacade), ci.getChangeSpecs(),
-//                        ci.getStateBasedChangeResolutionStrategy());
-//            state.getVsumFacade()
-//                .loadModels(List.of(imFacade), true);
-//        } catch (IOException | GitAPIException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-    }
 }

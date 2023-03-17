@@ -170,6 +170,33 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             .setValuesUsingJaccardCoefficientResult(jaccardResult);
     }
 
+    private void evaluatePcmUpdateJaccard() {
+        var newRepository = ModelUtil.readFromFile(state.getPcmFacade()
+            .getDirLayout()
+            .getPcmRepositoryPath()
+            .toFile(), Repository.class);
+        
+        
+        // either a manually created one or an automatic one
+        Repository referenceRepository;
+        
+//        if (state.)
+//        = ModelUtil.readFromFile(state.getPcmFacade()
+//            .getDirLayout()
+//            .getPcmRepositoryPath()
+//            .toFile(), Repository.class);
+//
+//
+//        var changeResolutionStrategy = new HierarchicalStateBasedChangeResolutionStrategy();
+//        var comparison = changeResolutionStrategy.compareStates(parsedCodeModel, vsumCodeModel);
+//
+//        var jaccardResult = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comparison);
+//
+//        EvaluationDataContainer.get()
+//            .getPcmUpdateEval()
+//            .setValuesUsingJaccardCoefficientResult(jaccardResult);
+    }
+
     /**
      * Evaluates if the change resolution that was used during the propagation is correct.
      * 
@@ -236,7 +263,8 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             .getModel();
         var imEvalData = EvaluationDataContainer.get()
             .getImEvalResult();
-        var previousRepo = ModelUtil.readFromFile(propagation.getPreviousPcmRepositoryPath().toFile(), Repository.class);
+        var previousRepo = ModelUtil.readFromFile(propagation.getPreviousPcmRepositoryPath()
+            .toFile(), Repository.class);
 
         evaluator.evaluateIMUpdate(repo, im, imEvalData, previousRepo);
     }
@@ -259,7 +287,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         valid &= evaluateResultingImm(state.getImFacade()
             .getDirLayout()
             .getImFilePath());
-        
+
         if (valid) {
             LOGGER.info("Propagation passed evaluation");
         }
