@@ -11,11 +11,18 @@ import java.util.Map;
 public class ChangeStatistic {
     private String oldCommit;
     private String newCommit;
+    
+    private int numberClocFiles;
+    private int numberClocLinesBlanks;
+    private int numberClocLinesComments;
+    private int numberClocLinesCode;
+
     private int numberCommits;
     private int numberChangedJavaFiles;
     private int numberAddedLines;
     private int numberRemovedLines;
     private int numberVitruvChanges;
+
     private Map<String, Integer> numberVitruvChangesPerModel = new HashMap<>();
 
     public String getOldCommit() {
@@ -76,5 +83,45 @@ public class ChangeStatistic {
 
     public void setNumberVitruvChangesPerModel(String uri, int changeCount) {
         this.numberVitruvChangesPerModel.put(uri, changeCount);
+    }
+
+    public int getNumberClocFiles() {
+        return numberClocFiles;
+    }
+
+    public void setNumberClocFiles(int numberClocFiles) {
+        this.numberClocFiles = numberClocFiles;
+    }
+
+    public int getNumberClocLinesBlanks() {
+        return numberClocLinesBlanks;
+    }
+
+    public void setNumberClocLinesBlanks(int numberClocLinesBlanks) {
+        this.numberClocLinesBlanks = numberClocLinesBlanks;
+    }
+
+    public int getNumberClocLinesComments() {
+        return numberClocLinesComments;
+    }
+
+    public void setNumberClocLinesComments(int numberClocLinesComments) {
+        this.numberClocLinesComments = numberClocLinesComments;
+    }
+
+    public int getNumberClocLinesCode() {
+        return numberClocLinesCode;
+    }
+
+    public void setNumberClocLinesCode(int numberClocLinesCode) {
+        this.numberClocLinesCode = numberClocLinesCode;
+    }
+
+    public Map<String, Integer> getNumberVitruvChangesPerModel() {
+        return numberVitruvChangesPerModel;
+    }
+
+    public void setNumberVitruvChangesPerModel(Map<String, Integer> numberVitruvChangesPerModel) {
+        this.numberVitruvChangesPerModel = numberVitruvChangesPerModel;
     }
 }

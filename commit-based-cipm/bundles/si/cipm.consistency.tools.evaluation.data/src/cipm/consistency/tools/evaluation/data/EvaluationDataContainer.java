@@ -26,7 +26,7 @@ public class EvaluationDataContainer {
     private boolean successful = false;
 //    private long evaluationTime = System.currentTimeMillis();
     private ChangeStatistic changeStatistic = new ChangeStatistic();
-    private JavaEvaluationData codeModelUpdateEval = new JavaEvaluationData();
+    private CodeModelEvaluationData codeModelUpdateEval = new CodeModelEvaluationData();
     private List<PcmEvaluationData> pcmUpdateEvals = new ArrayList<>();
     private IMEvaluationData imUpdateEval = new IMEvaluationData();
 //    private InstrumentationEvaluationData instrumentationData = new InstrumentationEvaluationData();
@@ -46,11 +46,11 @@ public class EvaluationDataContainer {
         return changeStatistic;
     }
 
-    public JavaEvaluationData getJavaComparisonResult() {
+    public CodeModelEvaluationData getCodeModelUpdateEvalData() {
         return codeModelUpdateEval;
     }
 
-    public IMEvaluationData getImEvalResult() {
+    public IMEvaluationData getImUpdateEvalData() {
         return imUpdateEval;
     }
 

@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.common.util.WrappedException;
+import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -166,16 +167,19 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             .getVsumCodeModelPath());
     }
 
-    private void evaluateChangeResolutionJaccard() {
+    private Comparison compareCodeModels(Resource parsedCodeModel, Resource vsumCodeModel) {
+        var changeResolutionStrategy = new HierarchicalStateBasedChangeResolutionStrategy();
+        return changeResolutionStrategy.compareStates(parsedCodeModel, vsumCodeModel);
+    }
+
+    private void evaluateCodeModelUpdate(EvaluationDataContainer eval) {
         var vsumCodeModel = getVsumCodeModel();
         Resource parsedCodeModel = state.getCodeModelFacade()
             .getResource();
 
-        var changeResolutionStrategy = new HierarchicalStateBasedChangeResolutionStrategy();
-        var comparison = changeResolutionStrategy.compareStates(parsedCodeModel, vsumCodeModel);
+        var comparison = compareCodeModels(parsedCodeModel, vsumCodeModel);
         var jaccardResult = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comparison);
-        EvaluationDataContainer.get()
-            .getJavaComparisonResult()
+        eval.getCodeModelUpdateEvalData()
             .setValuesUsingJaccardCoefficientResult(jaccardResult);
     }
 
@@ -206,7 +210,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         return stateCopy;
     }
 
-    private void evaluatePcmUpdateJaccardManual() {
+    private void evaluatePcmUpdateJaccardManual(EvaluationDataContainer eval) {
         // locate the state in which the manual copy was created
         var stateCopyAutomatic = getCommitIntegrationStateForCommit(this.manualModelDirPath, 1,
                 propagation.getCommitId());
@@ -246,17 +250,14 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         pcmEvalDataMartin.setEvalType(PcmEvalType.ComparisonWithManuallyCreated);
         pcmEvalDataMartin.setComparisonType(ComparisonType.PcmDiffUtil);
 
-
-        EvaluationDataContainer.get()
-            .getPcmUpdateEvals()
+        eval.getPcmUpdateEvals()
             .add(pcmEvalData);
 
-        EvaluationDataContainer.get()
-            .getPcmUpdateEvals()
+        eval.getPcmUpdateEvals()
             .add(pcmEvalDataMartin);
     }
 
-    private void evaluatePcmUpdateJaccard() {
+    private void evaluatePcmUpdateJaccard(EvaluationDataContainer eval) {
         // locate the state copy that was created from scratch for this commit
         var stateCopyAutomatic = getCommitIntegrationStateForCommit(propagation.getCommitIntegrationStateCopyPath()
             .getParent(), 1, propagation.getCommitId());
@@ -281,8 +282,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         pcmEvalData.setEvalType(PcmEvalType.ComparisonWithAutomatic);
         pcmEvalData.setComparisonType(ComparisonType.PcmDiffUtil);
 
-        EvaluationDataContainer.get()
-            .getPcmUpdateEvals()
+        eval.getPcmUpdateEvals()
             .add(pcmEvalData);
     }
 
@@ -351,7 +351,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         var im = state.getImFacade()
             .getModel();
         var imEvalData = EvaluationDataContainer.get()
-            .getImEvalResult();
+            .getImUpdateEvalData();
         var previousRepo = ModelUtil.readFromFile(propagation.getPreviousPcmRepositoryPath()
             .toFile(), Repository.class);
 
@@ -359,10 +359,20 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
     }
 
     public boolean evaluate() {
+        var eval = EvaluationDataContainer.get();
+
         // Evaluations that only write to the evaluation data:
-        evaluateChangeResolutionJaccard();
-        evaluatePcmUpdateJaccard();
-        evaluatePcmUpdateJaccardManual();
+        evaluateCodeModelUpdate(eval);
+
+        // these two evaluations accidentally overwrite parts of the data container
+        // so we manage the container manually during these evals and reset the
+        // global container afterwards
+        evaluatePcmUpdateJaccard(eval);
+        evaluatePcmUpdateJaccardManual(eval);
+        
+        EvaluationDataContainer.set(eval);
+        
+        
         evaluateImUpdate();
 
         // save the evaluation data to the directory of the integration state copy

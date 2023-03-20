@@ -5,7 +5,6 @@ import cipm.consistency.cpr.luapcm.seffreconstruction.ActionReconstruction
 import cipm.consistency.cpr.luapcm.seffreconstruction.ActionUtil
 import cipm.consistency.cpr.luapcm.seffreconstruction.BranchActionUtil
 import cipm.consistency.cpr.luapcm.seffreconstruction.ComponentSetInfoRegistry
-import cipm.consistency.cpr.luapcm.seffreconstruction.CorrespondenceUtil
 import cipm.consistency.cpr.luapcm.seffreconstruction.SeffHelper
 import org.eclipse.xtext.EcoreUtil2
 import org.palladiosimulator.pcm.repository.OperationRequiredRole

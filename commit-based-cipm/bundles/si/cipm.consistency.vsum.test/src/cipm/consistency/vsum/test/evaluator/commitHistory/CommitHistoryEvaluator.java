@@ -30,9 +30,9 @@ public class CommitHistoryEvaluator {
 
     private void evaluateImHistory(ImHistoryEvaluation imHistoryEval) {
         for (var eval : commitPropagationEvals) {
-            imHistoryEval.setNumberAIP(imHistoryEval.getNumberAIP() + eval.getImEvalResult()
+            imHistoryEval.setNumberAIP(imHistoryEval.getNumberAIP() + eval.getImUpdateEvalData()
                 .getNumberAIP());
-            imHistoryEval.setNumberActiveAIP(imHistoryEval.getNumberActiveAIP() + eval.getImEvalResult()
+            imHistoryEval.setNumberActiveAIP(imHistoryEval.getNumberActiveAIP() + eval.getImUpdateEvalData()
                 .getNumberActiveAIP());
         }
         imHistoryEval.calculateDerivedValue();

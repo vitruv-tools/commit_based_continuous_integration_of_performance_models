@@ -32,6 +32,7 @@ import cipm.consistency.commitintegration.lang.detection.ComponentDetectorImpl;
 import cipm.consistency.commitintegration.lang.detection.ComponentState;
 import cipm.consistency.commitintegration.lang.detection.strategy.ComponentDetectionStrategy;
 import cipm.consistency.models.code.CodeModelFacade;
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 
 public class LuaModelFacade implements CodeModelFacade {
     private static final Logger LOGGER = Logger.getLogger(LuaModelFacade.class.getName());
@@ -66,7 +67,7 @@ public class LuaModelFacade implements CodeModelFacade {
             this.componentDetector.addComponentDetectionStrategy(strat);
         }
     }
-    
+
     private XtextResourceSet getEmptyResourceSet() {
         var resourceSet = resourceSetProvider.get();
         resourceSet.addLoadOption(XtextResource.OPTION_RESOLVE_ALL, Boolean.TRUE);
@@ -99,10 +100,10 @@ public class LuaModelFacade implements CodeModelFacade {
             } else {
                 LOGGER.debug(String.format("Loaded resource: %s", uri));
             }
-            
+
             var warnings = res.getWarnings();
             if (warnings != null && warnings.size() > 0) {
-                for (var warning: warnings) {
+                for (var warning : warnings) {
                     LOGGER.warn(warning.getMessage());
                 }
             }
@@ -122,10 +123,24 @@ public class LuaModelFacade implements CodeModelFacade {
     private void printFileStats(Path sourceCodeDir) {
         var clocCommand = "cloc --hide-rate --quiet --include-lang=lua " + sourceCodeDir.toAbsolutePath()
             .toString();
-        var clocStats = executeShell("sh", "-c", clocCommand + " | grep -P 'Lua|Language'");
+        var clocStats = executeShell("sh", "-c", clocCommand + " | grep -P 'Lua'");
 //        var clocStats = executeShell("sh", "-c", clocCommand+ " | grep Lua");
 
-        LOGGER.info("Commits stats:\n" + clocStats);
+        var split = clocStats.split(" +");
+        // order: "Lua" <files> <blank> <comment> <code>
+        if (split.length == 5) {
+            var cs = EvaluationDataContainer.get()
+                .getChangeStatistic();
+            cs.setNumberClocFiles(Integer.valueOf(split[1].strip()));
+            cs.setNumberClocLinesBlanks(Integer.valueOf(split[2].strip()));
+            cs.setNumberClocLinesComments(Integer.valueOf(split[3].strip()));
+            cs.setNumberClocLinesCode(Integer.valueOf(split[4].strip()));
+
+        } else {
+            LOGGER.warn("Could not parse cloc output");
+        }
+
+        LOGGER.debug("Commits stats:\n" + clocStats);
     }
 
     private String executeShell(String... commands) {
@@ -307,9 +322,9 @@ public class LuaModelFacade implements CodeModelFacade {
             .toFile()
             .exists();
     }
-    
+
     private void loadParsedFile() {
-        var resourceSet =  getEmptyResourceSet();
+        var resourceSet = getEmptyResourceSet();
         currentResource = resourceSet.getResource(dirLayout.getParsedFileUri(), true);
     }
 
@@ -345,6 +360,6 @@ public class LuaModelFacade implements CodeModelFacade {
     @Override
     public void reload() {
         // TODO Auto-generated method stub
-        
+
     }
 }
