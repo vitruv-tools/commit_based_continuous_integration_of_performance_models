@@ -5,6 +5,7 @@ import cipm.consistency.cpr.luapcm.seffreconstruction.ActionReconstruction
 import cipm.consistency.cpr.luapcm.seffreconstruction.ActionUtil
 import cipm.consistency.cpr.luapcm.seffreconstruction.BranchActionUtil
 import cipm.consistency.cpr.luapcm.seffreconstruction.ComponentSetInfoRegistry
+import cipm.consistency.cpr.luapcm.seffreconstruction.CorrespondenceUtil
 import cipm.consistency.cpr.luapcm.seffreconstruction.SeffHelper
 import org.eclipse.xtext.EcoreUtil2
 import org.palladiosimulator.pcm.repository.OperationRequiredRole
@@ -262,17 +263,6 @@ routine createRDSeff(lua::Block block, lua::Statement_Function_Declaration decla
 		addCorrespondenceBetween(rdSeff, block)
 		addCorrespondenceBetween(rdSeff, declaration)
 		basicComponent.serviceEffectSpecifications__BasicComponent += rdSeff
-
-//		createOrFindServiceInstrumentationPoint(rdSeff)
-//		ComponentSetInfoRegistry.getInfosForComponentSet(declaration).declarationToCallingActions.get(declaration).
-//			forEach [
-//				if (it instanceof InternalCallAction) {
-//					logger.debug("InternalCallAction for newly created rd behaviour exists. Registering it.")
-//					var internalBehaviour = SeffFactory.eINSTANCE.createResourceDemandingInternalBehaviour
-//					internalBehaviour.resourceDemandingSEFF_ResourceDemandingInternalBehaviour = rdSeff
-//					it.calledResourceDemandingInternalBehaviour = internalBehaviour
-//				}
-//			]
 	}
 }
 
@@ -306,27 +296,22 @@ routine addRDBehaviourToParentAction(pcm::AbstractAction parentAction, pcm::Reso
 }
 
 routine createBranchTransitionForBranchAction(pcm::BranchAction branchAction, pcm::ResourceDemandingBehaviour rdBehaviour, lua::Block block) {
-//	match {
-//		val ifStatement = retrieve optional lua::Statement_If_Then_Else corresponding to branchAction
-//	}
 	create {
 		val branchTransition = new pcm::ProbabilisticBranchTransition
 	}
 	update {
-//		if (ifStatement.empty) {
-//			logger.error("Cannot add branch to parent branch action")
-//			return
-//		}
 		logger.debug("Adding Branch to parent branch action")
 		branchTransition.setBranchBehaviour_BranchTransition(rdBehaviour)
 
 		// the conditional branches are all block wrappers, so we can use this to determine
 		// if the added block is an else block
 		val isElseBranch = !block.eContainmentFeature.equals(LuaPackage.Literals.BLOCK_WRAPPER__BLOCK)
-		if (isElseBranch) {
-			branchTransition.entityName = "ELSE_BRANCH"
-		} else {
-			branchTransition.entityName = "CONDITIONAL_BRANCH"
+		if (Config.descriptiveNames) {
+			if (isElseBranch) {
+				branchTransition.entityName = "ELSE_BRANCH"
+			} else {
+				branchTransition.entityName = "CONDITIONAL_BRANCH"
+			}
 		}
 
 		// has this action a synthentic else branch
@@ -372,11 +357,7 @@ routine removeSyntheticElseBranch(pcm::BranchAction branchAction) {
 				var branchBehaviour = branch.branchBehaviour_BranchTransition
 				// these deletions don't propagate into the IM sadly
 				branchBehaviour.steps_Behaviour.retainAll(#[])
-//				for (action : stepBehaviour) {
-//					logger.error("Parent branch goes away. Removing from step behaviour: " + action)
-//					branch.branchBehaviour_BranchTransition.steps_Behaviour -= action
-//					logger.error("Parent branch goes away. deleting: " + action)
-//				}
+
 				logger.debug("Done deleting else branch")
 
 				branch.branchBehaviour_BranchTransition.removeObject
@@ -394,8 +375,10 @@ routine initializeRDBehaviour(pcm::ResourceDemandingBehaviour rdBehaviour, Strin
 		val stopAction = new pcm::StopAction
 	}
 	update {
-		startAction.entityName = name + "_START"
-		stopAction.entityName = name + "_STOP"
+		if (Config.descriptiveNames) {
+			startAction.entityName = name + "_START"
+			stopAction.entityName = name + "_STOP"
+		}
 
 		ActionUtil.chainActions(startAction, stopAction)
 
@@ -441,7 +424,11 @@ routine createOperationInterfaceForLuaComponent(lua::Component luaComponent) {
 		val operationInterface = new pcm::OperationInterface
 	}
 	update {
-		operationInterface.entityName = luaComponent.name + "_interface"
+		if (Config.descriptiveNames) {
+			operationInterface.entityName = luaComponent.name + "_interface"
+		} else {
+			operationInterface.entityName = luaComponent.name
+		}
 		pcmRepository.interfaces__Repository += operationInterface
 		addCorrespondenceBetween(luaComponent, operationInterface)
 		addCorrespondenceBetween(pcmComponent, operationInterface)
@@ -472,8 +459,11 @@ routine createOperationProvidedRoleForLuaComponent(lua::Component luaComponent) 
 	update {
 		operationProvidedRole.providedInterface__OperationProvidedRole = operationInterface
 		operationProvidedRole.providingEntity_ProvidedRole = basicComponent
-		operationProvidedRole.entityName = luaComponent.name + "_providing_role"
-
+		if (Config.descriptiveNames) {
+			operationProvidedRole.entityName = luaComponent.name + "_providing_role"
+		} else {
+			operationProvidedRole.entityName = luaComponent.name
+		}
 		basicComponent.providedRoles_InterfaceProvidingEntity += operationProvidedRole
 
 		addCorrespondenceBetween(operationProvidedRole, luaComponent)
@@ -519,15 +509,6 @@ routine createParameter(lua::Referenceable functionParameter, lua::Statement_Fun
 	}
 }
 
-//routine changeParameterName(String newName, lua::Referenceable functionParameter) {
-//	match {
-//		val pcmParameter = retrieve pcm::Parameter corresponding to functionParameter
-//	}
-//	update {
-//		// TODO this is broken for some reason
-//		pcmParameter.parameterName = newName
-//	}
-//}
 routine deleteParameter(lua::Referenceable functionParameter) {
 	match {
 		val pcmParameter = retrieve pcm::Parameter corresponding to functionParameter
@@ -572,7 +553,6 @@ routine createActionsForStatement(lua::Statement statement, lua::Block block) {
 		var actionToCheckForFusing = previousAction;
 
 		// insert the actions of the statement into the step behaviour
-		// TODO do internal action merging here
 		var insertionIndex = rdBehaviour.get.steps_Behaviour.indexOf(previousAction) + 1
 
 		for (action : statementActions) {
@@ -621,19 +601,20 @@ routine fuseTwoInternalActions(pcm::InternalAction a, pcm::InternalAction b) {
 			addCorrespondenceBetween(a, it)
 			b.removeCorrespondenceBetween(it)
 		]
-		// TODO do we need to change the predecessor / successors here?
 		b.removeObject
 
-		if (aip.present) {
-			logger.error("forcing aip active")
+		// we changed an action by fusing more statements into it
+		// -> These statements must be instrumented, so we enable the AIP
+		if (aip.present && !aip.get.active) {
+			logger.info("Actions were changed. Activating Instrumentation Point")
 			aip.get.active = true
 		}
 
-		//
-		var newStatementCount = CorrespondenceUtil.getCorrespondingEObjectsByType(correspondenceModel, a, Statement).
-			size()
-		a.entityName = String.format("Internal: %d statements", newStatementCount)
-
+		if (Config.descriptiveNames) {
+			var newStatementCount = CorrespondenceUtil.getCorrespondingEObjectsByType(correspondenceModel, a,
+				Statement).size()
+			a.entityName = String.format("Internal: %d statements", newStatementCount)
+		}
 	}
 }
 
@@ -678,11 +659,8 @@ routine removeAction(pcm::AbstractAction action, pcm::ResourceDemandingBehaviour
 		}
 
 		logger.debug(action.toString + ": Removing action from RD behaviour" + rdBehaviour.toString)
-		// trigger other clean up actions
-//		if (action instanceof ExternalCallAction) {
-//			deregisterExternalCallAction(action)
-//		}
-		// fix the chaining of the remaining actions
+
+		// fixing the chaining of the remaining actions
 		val pred = action.predecessor_AbstractAction
 		val succ = action.successor_AbstractAction
 		if (pred !== null) {
@@ -694,48 +672,17 @@ routine removeAction(pcm::AbstractAction action, pcm::ResourceDemandingBehaviour
 
 		rdBehaviour.steps_Behaviour -= action
 
-		// TODO i had to uncomment this:
-//		removeCorrespondenceBetween(action, block)
 		action.removeObject
 	}
 }
 
-//routine removeActionFromStepBehaviourForBlock(pcm::AbstractAction action, lua::Block block) {
-//	match {
-//		val rdBehaviour = retrieve optional pcm::ResourceDemandingBehaviour corresponding to block
-//	}
-//	update {
-//		if (!rdBehaviour.present) {
-//			logger.error(action + ": Parent block has no corresponding step behaviour")
-//			return
-//		}
-//
-//		logger.debug(action.toString + ": Removing action from step behaviour" + rdBehaviour.toString)
-//
-//		// trigger other clean up actions
-////		if (action instanceof ExternalCallAction) {
-////			deregisterExternalCallAction(action)
-////		}
-//
-//		// fix the chaining of the remaining actions
-//		val pred = action.getPredecessor_AbstractAction()
-//		val succ = action.getPredecessor_AbstractAction()
-//		pred.setSuccessor_AbstractAction(succ);
-//		succ.setPredecessor_AbstractAction(pred);
-//
-//		rdBehaviour.get.steps_Behaviour -= action
-//
-//		removeCorrespondenceBetween(action, block)
-//		action.removeObject
-//	}
-//}
 routine createRequiredRoleForExternalCallAction(pcm::ExternalCallAction action, pcm::ResourceDemandingBehaviour rdseff, lua::Component callingComponent) {
 	match {
 		val calledComponent = retrieve optional lua::Component corresponding to action
 	}
 	update {
 		if (calledComponent.empty) {
-			logger.error("ExternalCall action is missing component correspondences: " + action.toString)
+			logger.warn("ExternalCall action is missing component correspondences: " + action.toString)
 			return
 		}
 
@@ -794,8 +741,7 @@ routine createOperationRequiredRole(pcm::ExternalCallAction action, pcm::BasicCo
 		logger.debug("Creating OperationRequiredRole")
 		operationRequiredRole.requiringEntity_RequiredRole = pcmCallingComponent
 		operationRequiredRole.requiredInterface__OperationRequiredRole = requiredInterface
-		operationRequiredRole.entityName = calledComponent.entityName + "_requiring_role"
-
+		operationRequiredRole.entityName = calledComponent.entityName // + "_requiring_role"
 		// add the role to the calling component
 		pcmCallingComponent.requiredRoles_InterfaceRequiringEntity += operationRequiredRole
 
@@ -841,7 +787,7 @@ routine createOperationSignatureForStatementFunctionDeclaration(lua::Statement_F
 	update {
 		logger.info(functionDeclaration.name + ": Creating signature")
 
-		operationSignature.entityName = functionDeclaration.name + "_signature"
+		operationSignature.entityName = functionDeclaration.name
 		operationSignature.interface__OperationSignature = operationInterface
 		operationInterface.signatures__OperationInterface += operationSignature
 
@@ -867,14 +813,10 @@ routine removeOperationSignatureForStatementFunctionDeclaration(lua::Statement_F
 		logger.debug(functionDeclaration.name + ": Removing signature")
 		if (functionDeclaration.function !== null) {
 			for (param : functionDeclaration.function.arguments) {
-				// TODO i cannot import this, as it is already imported elsewhere :-(
-//					deleteParameter(param)
+				deleteParameter(param)
 			}
 		}
-		// TODO
-		// Should the corresponding SEFFs still exist?
-		// Should the references to the removed OperationSignature in all
-		// rdseff.describedService__SEFF also be removed?
+
 		removeCorrespondenceBetween(operationSignature, functionDeclaration)
 		removeObject(operationSignature)
 	}
@@ -886,10 +828,6 @@ routine createSeffForDeclaration(lua::Statement_Function_Declaration declaration
 		val operationSignature = retrieve optional pcm::OperationSignature corresponding to declaration
 	}
 	update {
-		if (!Config.isTrackServeCallsEnabled) {
-			return
-		}
-
 		if (rdSeff.present) {
 			logger.debug("SEFF for new serve call was already present for: " + declaration.name)
 			return
@@ -917,10 +855,6 @@ routine removeSeffForDeclaration(lua::Statement_Function_Declaration declaration
 		val rdSeff = retrieve optional pcm::ResourceDemandingSEFF corresponding to declaration
 	}
 	update {
-		if (!Config.isTrackServeCallsEnabled) {
-			return
-		}
-
 		if (!rdSeff.present) {
 			logger.warn("Unable to remove non-existent RDSEFF")
 			return
@@ -929,8 +863,7 @@ routine removeSeffForDeclaration(lua::Statement_Function_Declaration declaration
 
 		removeOperationSignatureForStatementFunctionDeclaration(declaration)
 
-		// TODO invert the iteration order
-		// create RD behaviours for all blocks
+		// remove all the RD behaviours and actions
 		for (block : EcoreUtil2.getAllContentsOfType(declaration, Block)) {
 			removeRDBehaviourForBlock(block)
 
@@ -938,14 +871,6 @@ routine removeSeffForDeclaration(lua::Statement_Function_Declaration declaration
 				removeActionsForStatement(statement, block)
 			}
 		}
-
-//		for (eObj : EcoreUtil2.getAllNonDerivedContents(declaration).toIterable) {
-//			if (eObj instanceof Block) {
-//				removeResourceDemandingBehaviourForBlock(eObj)
-//			} else if (eObj instanceof Statement) {
-//				removeActionsForStatement(eObj, EcoreUtil2.getContainerOfType(eObj, Block))
-//			}
-//		}
 	}
 }
 

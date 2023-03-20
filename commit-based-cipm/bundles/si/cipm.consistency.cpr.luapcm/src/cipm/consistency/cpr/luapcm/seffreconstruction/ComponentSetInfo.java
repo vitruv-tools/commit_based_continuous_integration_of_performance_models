@@ -57,12 +57,12 @@ public class ComponentSetInfo {
      */
     public ComponentSetInfo(ComponentSet componentSet) {
         LOGGER.debug("Initializing ComponentSetInfo for " + componentSet.toString());
-        functionNameToServeCall = generateServedFunctionNames(componentSet);
 
         declarationToCallingActions = ArrayListMultimap.create();
         componentToRequiredComponents = ArrayListMultimap.create();
-
         blocksRequiringActionReconstruction = new HashSet<>();
+
+        functionNameToServeCall = generateServedFunctionNames(componentSet);
         scanFunctionsForActionReconstruction(componentSet);
     }
 
@@ -73,9 +73,6 @@ public class ComponentSetInfo {
      * @return
      */
     private static Map<String, Expression_Functioncall_Direct> generateServedFunctionNames(EObject root) {
-        // TODO we can assume that functions that end with '.register' and have 2 / 3 arguments are
-        // registerring a function
-        // so we don't have to hardcode so much
         Map<String, Expression_Functioncall_Direct> servedNamesToServeCalls = new HashMap<>();
 
         var functionCalls = EcoreUtil2.getAllContentsOfType(root, Expression_Functioncall_Direct.class);
@@ -195,6 +192,9 @@ public class ComponentSetInfo {
             }
         }
 
+        /*
+         * Mark architecturally relevant calls and all the blocks from them to the top level of their containing declaration
+         */
         var statements = EcoreUtil2.getAllContentsOfType(decl, Statement.class);
         for (var statement : statements) {
             if (!needsActionReconstruction(statement)

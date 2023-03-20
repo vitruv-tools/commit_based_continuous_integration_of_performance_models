@@ -131,18 +131,3 @@ routine checkRemovalOfNonProxyActionInstrumentationPoint(pcm::AbstractAction abs
 		}
 	}
 }
-
-routine removeActionInstrumentationPointForActionBruteForce(pcm::AbstractAction absAction) {
-	match {
-		val im = retrieve im::InstrumentationModel corresponding to InstrumentationModelPackage.Literals.
-			INSTRUMENTATION_MODEL
-	}
-	update {
-		for (sip : im.points) {
-			var aips = sip.actionInstrumentationPoints.filter[it.action.equals(absAction)]
-			for (aip : aips) {
-				aip.removeObject
-			}
-		}
-	}
-}

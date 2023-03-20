@@ -16,7 +16,12 @@ public class Config {
 
     private static ReconstructionType reconstructionTypeInternalSeffCall = ReconstructionType.InternalAction;
     
-    private static boolean trackServeCalls = true;
+    /**
+     * If we set our our descriptive names in the CPRs, the resulting model
+     * Will not easily match a manually created model. Therefore we can
+     * disable the naming using this switch
+     */
+    private static boolean descriptiveNames = false;
 
     /**
      * How do we model calls from one component to SEFFs of its own?
@@ -29,14 +34,11 @@ public class Config {
         reconstructionTypeInternalSeffCall = type;
     }
 
-    /**
-     * Do we check if serve calls are added / deleted after a declaration is already present?
-     */
-    public static boolean isTrackServeCallsEnabled() {
-        return trackServeCalls;
+    public static boolean descriptiveNames() {
+        return descriptiveNames;
     }
-    
-    public static void setIsTrackServeCallsEnabled(boolean enable) {
-        trackServeCalls = enable;
+
+    public static void setSetEntityNames(boolean setEntityNames) {
+        Config.descriptiveNames = setEntityNames;
     }
 }
