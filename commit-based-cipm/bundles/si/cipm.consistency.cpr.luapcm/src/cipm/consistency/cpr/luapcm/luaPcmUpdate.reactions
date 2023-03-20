@@ -28,6 +28,7 @@ import "http://www.dmodel.com/InstrumentationMetamodel" as im
 reactions: luaPcmUpdate
 in reaction to changes in lua
 execute actions in pcm and im
+
 /**
  * 
  * TODO TODO TODO
@@ -61,7 +62,6 @@ routine deactiveAllAIPs() {
 	}
 }
 
-//import luaImUpdate
 reaction AddedBlock {
 	after element lua::Block created
 	call {
@@ -159,17 +159,25 @@ reaction AddedServeCall {
 }
 
 reaction RemovedServeCall {
-//	after element lua::Expression_Functioncall_Direct deleted
-	after element lua::Expression_Functioncall_Direct removed from lua::Block[statements]
+	after element lua::Expression_Functioncall_Direct deleted
+//	after element lua::Expression_Functioncall_Direct removed from lua::Block[statements]
 	call {
-		if (AppSpaceSemantics.isServingFunctionCall(oldValue)) {
-			var decl = AppSpaceSemantics.getFunctionDeclarationFromServingFunctionCall(oldValue)
-			if (decl !== null) {
-				logger.info("ServeCall for declaration was removed: " + decl.name)
+		tryRemoveSeffForServeCall(affectedEObject)
+	}
+}
 
-				removeSeffForDeclaration(decl)
-			}
+routine tryRemoveSeffForServeCall(lua::Expression_Functioncall_Direct potentialServeCall) {
+	match {
+		val servedDeclaration = retrieve optional lua::Statement_Function_Declaration corresponding to potentialServeCall
+	}
+	update {
+		if (servedDeclaration.empty) {
+			return
 		}
+
+		val decl = servedDeclaration.get
+		logger.info("ServeCall for declaration was removed: " + decl.name)
+		removeSeffForDeclaration(decl)
 	}
 }
 
@@ -205,6 +213,10 @@ routine createRDBehaviourForBlock(lua::Block block) {
 				logger.warn("Declaration of Block has no corresponding operation signature")
 				return
 			}
+
+			// add correspondence to the serve call
+			var serveCall = ActionReconstruction.getServeCallForDeclaration(parentStatement)
+			parentStatement.addCorrespondenceBetween(serveCall)
 
 			// create the RDSEFF for the block
 			createRDSeff(block, parentStatement, basicComponent.get, operationSignature.get)
@@ -612,7 +624,7 @@ routine fuseTwoInternalActions(pcm::InternalAction a, pcm::InternalAction b) {
 		]
 		// TODO do we need to change the predecessor / successors here?
 		b.removeObject
-		
+
 		if (aip.present) {
 			logger.error("forcing aip active")
 			aip.get.active = true

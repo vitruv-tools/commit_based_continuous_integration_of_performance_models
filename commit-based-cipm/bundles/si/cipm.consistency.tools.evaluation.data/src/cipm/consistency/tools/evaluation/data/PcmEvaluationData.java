@@ -17,7 +17,7 @@ public final class PcmEvaluationData {
     private PcmEvalType evalType;
 
     public enum ComparisonType {
-        LukasHierarchical, MartinDiffUtil;
+        LukasHierarchical, PcmDiffUtil;
     }
 
     private ComparisonType comparisonType;

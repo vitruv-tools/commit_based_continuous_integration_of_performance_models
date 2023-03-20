@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="ASCII"?>
+<repository:Repository xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:repository="http://palladiosimulator.org/PalladioComponentModel/Repository/5.2" xmlns:seff="http://palladiosimulator.org/PalladioComponentModel/SEFF/5.2" id="_8RpLIcTPEe2tt_5topbs1w" entityName="AppSpace Repository">
+  <components__Repository xsi:type="repository:BasicComponent" id="_xC5I0MTREe2iOPTxBKj8BA" entityName="BarcodeReader">
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_db2T8cTVEe2iOPTxBKj8BA" entityName="BarcodeReader" providedInterface__OperationProvidedRole="_FU2wt8TTEe2iOPTxBKj8BA"/>
+    <requiredRoles_InterfaceRequiringEntity xsi:type="repository:OperationRequiredRole" id="_3MmfxcTWEe2iOPTxBKj8BA" entityName="MyHTTPClient" requiredInterface__OperationRequiredRole="_HdjimMTTEe2iOPTxBKj8BA"/>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_kiXgJ8TUEe2iOPTxBKj8BA" describedService__SEFF="_ilEF8MTUEe2iOPTxBKj8BA">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_ScTdMsTVEe2iOPTxBKj8BA" successor_AbstractAction="_yjKE7sTVEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:InternalAction" id="_yjKE7sTVEe2iOPTxBKj8BA" predecessor_AbstractAction="_ScTdMsTVEe2iOPTxBKj8BA" successor_AbstractAction="_TSyZQMTVEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_TSyZQMTVEe2iOPTxBKj8BA" predecessor_AbstractAction="_yjKE7sTVEe2iOPTxBKj8BA"/>
+    </serviceEffectSpecifications__BasicComponent>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_gGLBp8TUEe2iOPTxBKj8BA" describedService__SEFF="_c5-ycMTUEe2iOPTxBKj8BA">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_T4ixssTVEe2iOPTxBKj8BA" successor_AbstractAction="_8S8j_sTVEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:InternalAction" id="_8S8j_sTVEe2iOPTxBKj8BA" predecessor_AbstractAction="_T4ixssTVEe2iOPTxBKj8BA" successor_AbstractAction="_A5IE4cTWEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:LoopAction" id="_A5IE4cTWEe2iOPTxBKj8BA" predecessor_AbstractAction="_8S8j_sTVEe2iOPTxBKj8BA" successor_AbstractAction="_K9nos8TWEe2iOPTxBKj8BA">
+        <bodyBehaviour_Loop id="_ESqMgsTWEe2iOPTxBKj8BA">
+          <steps_Behaviour xsi:type="seff:StartAction" id="_GNvZIsTWEe2iOPTxBKj8BA" successor_AbstractAction="_Un-OHsTWEe2iOPTxBKj8BA"/>
+          <steps_Behaviour xsi:type="seff:InternalAction" id="_Un-OHsTWEe2iOPTxBKj8BA" predecessor_AbstractAction="_GNvZIsTWEe2iOPTxBKj8BA" successor_AbstractAction="_VJV1yMTWEe2iOPTxBKj8BA"/>
+          <steps_Behaviour xsi:type="seff:ExternalCallAction" id="_VJV1yMTWEe2iOPTxBKj8BA" predecessor_AbstractAction="_Un-OHsTWEe2iOPTxBKj8BA" successor_AbstractAction="_WkOfYMTWEe2iOPTxBKj8BA" calledService_ExternalService="_Mqo2AMTUEe2iOPTxBKj8BA" role_ExternalService="_3MmfxcTWEe2iOPTxBKj8BA"/>
+          <steps_Behaviour xsi:type="seff:StopAction" id="_WkOfYMTWEe2iOPTxBKj8BA" predecessor_AbstractAction="_VJV1yMTWEe2iOPTxBKj8BA"/>
+        </bodyBehaviour_Loop>
+      </steps_Behaviour>
+      <steps_Behaviour xsi:type="seff:InternalAction" id="_K9nos8TWEe2iOPTxBKj8BA" predecessor_AbstractAction="_A5IE4cTWEe2iOPTxBKj8BA" successor_AbstractAction="_UOArYsTVEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_UOArYsTVEe2iOPTxBKj8BA" predecessor_AbstractAction="_K9nos8TWEe2iOPTxBKj8BA"/>
+    </serviceEffectSpecifications__BasicComponent>
+  </components__Repository>
+  <components__Repository xsi:type="repository:BasicComponent" id="_yy3RoMTREe2iOPTxBKj8BA" entityName="MyHTTPClient">
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_kG0XIcTVEe2iOPTxBKj8BA" entityName="MyHTTPClient" providedInterface__OperationProvidedRole="_HdjimMTTEe2iOPTxBKj8BA"/>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_lBBLB8TUEe2iOPTxBKj8BA" describedService__SEFF="_Mqo2AMTUEe2iOPTxBKj8BA">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_U_gZwsTVEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_VbdV8sTVEe2iOPTxBKj8BA"/>
+    </serviceEffectSpecifications__BasicComponent>
+  </components__Repository>
+  <components__Repository xsi:type="repository:BasicComponent" id="_yWLVoMTREe2iOPTxBKj8BA" entityName="HTTPServer">
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_muxQ0cTVEe2iOPTxBKj8BA" entityName="HTTPServer" providedInterface__OperationProvidedRole="_ITazmMTTEe2iOPTxBKj8BA"/>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_CgucN8TTEe2iOPTxBKj8BA" describedService__SEFF="_VqWjAMTUEe2iOPTxBKj8BA">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_WCzCwsTVEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_WmQVIsTVEe2iOPTxBKj8BA"/>
+    </serviceEffectSpecifications__BasicComponent>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_l62WB8TUEe2iOPTxBKj8BA" describedService__SEFF="_Wjjb4MTUEe2iOPTxBKj8BA">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_XC9fQsTVEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_YTJUwMTVEe2iOPTxBKj8BA"/>
+    </serviceEffectSpecifications__BasicComponent>
+  </components__Repository>
+  <interfaces__Repository xsi:type="repository:OperationInterface" id="_FU2wt8TTEe2iOPTxBKj8BA" entityName="BarcodeReader">
+    <signatures__OperationInterface id="_c5-ycMTUEe2iOPTxBKj8BA" entityName="handleNewImage"/>
+    <signatures__OperationInterface id="_ilEF8MTUEe2iOPTxBKj8BA" entityName="main"/>
+  </interfaces__Repository>
+  <interfaces__Repository xsi:type="repository:OperationInterface" id="_HdjimMTTEe2iOPTxBKj8BA" entityName="MyHTTPClient">
+    <signatures__OperationInterface id="_Mqo2AMTUEe2iOPTxBKj8BA" entityName="submitData"/>
+  </interfaces__Repository>
+  <interfaces__Repository xsi:type="repository:OperationInterface" id="_ITazmMTTEe2iOPTxBKj8BA" entityName="HTTPServer">
+    <signatures__OperationInterface id="_VqWjAMTUEe2iOPTxBKj8BA" entityName="httpReceive"/>
+    <signatures__OperationInterface id="_Wjjb4MTUEe2iOPTxBKj8BA" entityName="main"/>
+  </interfaces__Repository>
+  <dataTypes__Repository xsi:type="repository:CompositeDataType" id="_u9xvHcTUEe2iOPTxBKj8BA" entityName="LUA_ANY_TYPE"/>
+</repository:Repository>

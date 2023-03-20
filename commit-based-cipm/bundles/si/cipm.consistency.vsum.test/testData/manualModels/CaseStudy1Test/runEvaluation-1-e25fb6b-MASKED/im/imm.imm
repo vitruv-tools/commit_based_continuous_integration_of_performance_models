@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ASCII"?>
+<imm:InstrumentationModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:imm="http://www.dmodel.com/InstrumentationMetamodel" xmlns:seff="http://palladiosimulator.org/PalladioComponentModel/SEFF/5.2" id="_8RqZQMTPEe2tt_5topbs1w">
+  <points id="_8ZSEMMTPEe2tt_5topbs1w" active="true">
+    <service href="../pcm/Repository.repository#_8YkSgMTPEe2tt_5topbs1w"/>
+  </points>
+  <points id="_8ZSEMcTPEe2tt_5topbs1w" active="true">
+    <service href="../pcm/Repository.repository#_8YkShMTPEe2tt_5topbs1w"/>
+    <actionInstrumentationPoints id="_8ZSEMsTPEe2tt_5topbs1w" active="true">
+      <action xsi:type="seff:InternalAction" href="../pcm/Repository.repository#_8YkSh8TPEe2tt_5topbs1w"/>
+    </actionInstrumentationPoints>
+    <actionInstrumentationPoints id="_8ZSrQMTPEe2tt_5topbs1w" active="true" type="LOOP">
+      <action xsi:type="seff:LoopAction" href="../pcm/Repository.repository#_8YkSjMTPEe2tt_5topbs1w"/>
+    </actionInstrumentationPoints>
+    <actionInstrumentationPoints id="_8ZSrQcTPEe2tt_5topbs1w" active="true">
+      <action xsi:type="seff:InternalAction" href="../pcm/Repository.repository#_8Yk5k8TPEe2tt_5topbs1w"/>
+    </actionInstrumentationPoints>
+    <actionInstrumentationPoints id="_8ZSrQsTPEe2tt_5topbs1w" active="true" type="EXTERNAL_CALL">
+      <action xsi:type="seff:ExternalCallAction" href="../pcm/Repository.repository#_8Yk5m8TPEe2tt_5topbs1w"/>
+    </actionInstrumentationPoints>
+  </points>
+  <points id="_8ZSrQ8TPEe2tt_5topbs1w" active="true">
+    <service href="../pcm/Repository.repository#_8YrnQcTPEe2tt_5topbs1w"/>
+    <actionInstrumentationPoints id="_8ZSrRMTPEe2tt_5topbs1w" active="true">
+      <action xsi:type="seff:InternalAction" href="../pcm/Repository.repository#_8YrnRMTPEe2tt_5topbs1w"/>
+    </actionInstrumentationPoints>
+  </points>
+  <points id="_8ZSrRcTPEe2tt_5topbs1w" active="true">
+    <service href="../pcm/Repository.repository#_8YrnRsTPEe2tt_5topbs1w"/>
+    <actionInstrumentationPoints id="_8ZSrRsTPEe2tt_5topbs1w" active="true">
+      <action xsi:type="seff:InternalAction" href="../pcm/Repository.repository#_8YsOUMTPEe2tt_5topbs1w"/>
+    </actionInstrumentationPoints>
+  </points>
+  <points id="_8ZSrR8TPEe2tt_5topbs1w" active="true">
+    <service href="../pcm/Repository.repository#_8ZF28MTPEe2tt_5topbs1w"/>
+    <actionInstrumentationPoints id="_8ZSrSMTPEe2tt_5topbs1w" active="true">
+      <action xsi:type="seff:InternalAction" href="../pcm/Repository.repository#_8ZF288TPEe2tt_5topbs1w"/>
+    </actionInstrumentationPoints>
+  </points>
+</imm:InstrumentationModel>

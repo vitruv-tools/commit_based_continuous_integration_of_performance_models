@@ -64,6 +64,15 @@ public final class ActionReconstruction {
         return infos.needsActionReconstruction(eObj);
     }
 
+    public static Expression_Functioncall_Direct getServeCallForDeclaration(Statement_Function_Declaration eObj) {
+        if (eObj == null) {
+            return null;
+        }
+
+        var infos = ComponentSetInfoRegistry.getInfosForComponentSet(eObj);
+        return infos.getServeCallForDeclaration(eObj);
+    }
+
     private static boolean isControlFlowStatement(EObject eObj) {
         return (eObj instanceof Statement_If_Then_Else || eObj instanceof Statement_For
                 || eObj instanceof Statement_While || eObj instanceof Statement_Repeat);

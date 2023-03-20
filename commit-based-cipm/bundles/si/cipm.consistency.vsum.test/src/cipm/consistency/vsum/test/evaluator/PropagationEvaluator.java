@@ -244,7 +244,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         var pcmEvalDataMartin = new PcmEvaluationData();
         pcmEvalDataMartin.setValuesUsingJaccardCoefficientResult(jaccardResultMartin);
         pcmEvalDataMartin.setEvalType(PcmEvalType.ComparisonWithManuallyCreated);
-        pcmEvalDataMartin.setComparisonType(ComparisonType.MartinDiffUtil);
+        pcmEvalDataMartin.setComparisonType(ComparisonType.PcmDiffUtil);
 
 
         EvaluationDataContainer.get()
@@ -271,35 +271,19 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             .getPcmRepositoryPath()
             .toFile(), Repository.class);
 
-        // my change resolution strat
-        var changeResolutionStrategy = new HierarchicalStateBasedChangeResolutionStrategy();
-        var comparison = changeResolutionStrategy.compareStates(newRepository.eResource(),
-                referenceRepository.eResource());
-        var jaccardResult = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comparison);
-
-        // martins comparison
         var comparisonMartin = PCMModelComparator.compareRepositoryModels(newRepository.eResource(),
                 referenceRepository.eResource());
         var jaccardResultMartin = ComparisonBasedJaccardCoefficientCalculator
             .calculateJaccardCoefficient(comparisonMartin);
 
         var pcmEvalData = new PcmEvaluationData();
-        pcmEvalData.setValuesUsingJaccardCoefficientResult(jaccardResult);
+        pcmEvalData.setValuesUsingJaccardCoefficientResult(jaccardResultMartin);
         pcmEvalData.setEvalType(PcmEvalType.ComparisonWithAutomatic);
-        pcmEvalData.setComparisonType(ComparisonType.LukasHierarchical);
-
-        var pcmEvalDataMartin = new PcmEvaluationData();
-        pcmEvalDataMartin.setValuesUsingJaccardCoefficientResult(jaccardResultMartin);
-        pcmEvalDataMartin.setEvalType(PcmEvalType.ComparisonWithAutomatic);
-        pcmEvalDataMartin.setComparisonType(ComparisonType.MartinDiffUtil);
+        pcmEvalData.setComparisonType(ComparisonType.PcmDiffUtil);
 
         EvaluationDataContainer.get()
             .getPcmUpdateEvals()
             .add(pcmEvalData);
-
-        EvaluationDataContainer.get()
-            .getPcmUpdateEvals()
-            .add(pcmEvalDataMartin);
     }
 
     /**
