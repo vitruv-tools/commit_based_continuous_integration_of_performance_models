@@ -8,5 +8,6 @@ import cipm.consistency.models.ModelDirLayout;
 
 public interface CodeModelDirLayout extends ModelDirLayout {
     Path getParsedCodePath();
+
     URI getParsedCodeURI();
 }

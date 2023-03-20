@@ -21,21 +21,39 @@ public class CommitHistoryEvaluator {
     }
 
     public void evaluate() {
-        evaluateImHistory(historyEvalData.getImUpdateHistoryEval());
-
+        // iterate all the propagations and do accounting for each
+        for (var eval : commitPropagationEvals) {
+            perPropagationAccounting(eval);
+        }
+        
+        calculate();
 
         // also copy the per commit evals into the class
         historyEvalData.setCommitPropagationEvals(commitPropagationEvals);
     }
 
-    private void evaluateImHistory(ImHistoryEvaluation imHistoryEval) {
-        for (var eval : commitPropagationEvals) {
-            imHistoryEval.setNumberAIP(imHistoryEval.getNumberAIP() + eval.getImUpdateEvalData()
-                .getNumberAIP());
-            imHistoryEval.setNumberActiveAIP(imHistoryEval.getNumberActiveAIP() + eval.getImUpdateEvalData()
-                .getNumberActiveAIP());
+    private void perPropagationAccounting(EvaluationDataContainer eval) {
+        historyEvalData.summary.addCodeUpdateEvalJaccardCoefficient(eval.getCodeModelUpdateEvalData()
+            .getJc());
+        for (var pcmUpdateEval : eval.getPcmUpdateEvals()) {
+            historyEvalData.summary.addCodeUpdateEvalJaccardCoefficient(pcmUpdateEval.getJc());
         }
-        imHistoryEval.calculateDerivedValue();
+
+        historyEvalData.summary.setWorstImUpdateEvalFScoreActiveAIP(eval.getImUpdateEvalData()
+            .getfScoreActiveActionInstrumentationPoints());
+        historyEvalData.summary.setWorstImUpdateEvalFScoreAIP(eval.getImUpdateEvalData()
+            .getfScoreActionInstrumentation());
+
+        var imHistoryEval = historyEvalData.imUpdateHistoryEval;
+        historyEvalData.imUpdateHistoryEval.setNumberAIP(imHistoryEval.getNumberAIP() + eval.getImUpdateEvalData()
+            .getNumberAIP());
+        historyEvalData.imUpdateHistoryEval
+            .setNumberActiveAIP(imHistoryEval.getNumberActiveAIP() + eval.getImUpdateEvalData()
+                .getNumberActiveAIP());
+    }
+    
+    private void calculate() {
+        historyEvalData.imUpdateHistoryEval.calculateDerivedValue();
     }
 
     public void write(Path evalFileDir) {
@@ -50,6 +68,7 @@ public class CommitHistoryEvaluator {
     public class CommitHistoryEvaluationData {
         private List<EvaluationDataContainer> commitPropagationEvals = new ArrayList<>();
         private ImHistoryEvaluation imUpdateHistoryEval = new ImHistoryEvaluation();
+        private EvaluationSummary summary = new EvaluationSummary();
 
         public ImHistoryEvaluation getImUpdateHistoryEval() {
             return imUpdateHistoryEval;

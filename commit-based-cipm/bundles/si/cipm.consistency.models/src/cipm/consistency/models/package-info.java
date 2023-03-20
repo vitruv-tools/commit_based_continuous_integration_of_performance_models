@@ -1,4 +1,4 @@
 /**
- * Contains classes for the detection of components.
+ * Interfaces and implementations of common CIPM models
  */
 package cipm.consistency.models;

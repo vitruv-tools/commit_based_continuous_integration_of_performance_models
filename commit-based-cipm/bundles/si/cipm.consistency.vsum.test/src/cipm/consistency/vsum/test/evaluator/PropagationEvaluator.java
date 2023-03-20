@@ -228,33 +228,18 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             .getPcmRepositoryPath()
             .toFile(), Repository.class);
 
-        // my change resolution strat
-        var changeResolutionStrategy = new HierarchicalStateBasedChangeResolutionStrategy();
-        var comparison = changeResolutionStrategy.compareStates(newRepository.eResource(),
+        // martins comparison
+        var comparison = PCMModelComparator.compareRepositoryModels(newRepository.eResource(),
                 referenceRepository.eResource());
         var jaccardResult = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comparison);
-
-        // martins comparison
-        var comparisonMartin = PCMModelComparator.compareRepositoryModels(newRepository.eResource(),
-                referenceRepository.eResource());
-        var jaccardResultMartin = ComparisonBasedJaccardCoefficientCalculator
-            .calculateJaccardCoefficient(comparisonMartin);
 
         var pcmEvalData = new PcmEvaluationData();
         pcmEvalData.setValuesUsingJaccardCoefficientResult(jaccardResult);
         pcmEvalData.setEvalType(PcmEvalType.ComparisonWithManuallyCreated);
-        pcmEvalData.setComparisonType(ComparisonType.LukasHierarchical);
-
-        var pcmEvalDataMartin = new PcmEvaluationData();
-        pcmEvalDataMartin.setValuesUsingJaccardCoefficientResult(jaccardResultMartin);
-        pcmEvalDataMartin.setEvalType(PcmEvalType.ComparisonWithManuallyCreated);
-        pcmEvalDataMartin.setComparisonType(ComparisonType.PcmDiffUtil);
+        pcmEvalData.setComparisonType(ComparisonType.PcmDiffUtil);
 
         eval.getPcmUpdateEvals()
             .add(pcmEvalData);
-
-        eval.getPcmUpdateEvals()
-            .add(pcmEvalDataMartin);
     }
 
     private void evaluatePcmUpdateJaccard(EvaluationDataContainer eval) {
@@ -359,9 +344,8 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
     }
 
     public boolean evaluate() {
+        // 1. Evaluations that only write to the evaluation data:
         var eval = EvaluationDataContainer.get();
-
-        // Evaluations that only write to the evaluation data:
         evaluateCodeModelUpdate(eval);
 
         // these two evaluations accidentally overwrite parts of the data container
@@ -369,16 +353,14 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         // global container afterwards
         evaluatePcmUpdateJaccard(eval);
         evaluatePcmUpdateJaccardManual(eval);
-        
         EvaluationDataContainer.set(eval);
-        
-        
+
         evaluateImUpdate();
 
         // save the evaluation data to the directory of the integration state copy
         state.persistEvaluationData();
 
-        // Evaluations with binary result:
+        // 2. Evaluations with binary result:
         var valid = true;
         valid &= evaluateChangeResolution();
         valid &= evaluateVsumCodeModel();

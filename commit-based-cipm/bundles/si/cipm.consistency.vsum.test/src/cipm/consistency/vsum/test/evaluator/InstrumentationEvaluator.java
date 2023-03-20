@@ -2,7 +2,6 @@ package cipm.consistency.vsum.test.evaluator;
 
 import java.util.Set;
 
-import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.emftext.language.java.statements.Return;
@@ -12,8 +11,6 @@ import org.palladiosimulator.pcm.repository.OperationSignature;
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.commitintegration.CommitIntegrationController;
 import cipm.consistency.commitintegration.CommitIntegrationState;
-import cipm.consistency.commitintegration.diff.util.JavaChangedMethodDetectorDiffPostProcessor;
-import cipm.consistency.commitintegration.diff.util.JavaModelComparator;
 import cipm.consistency.models.code.CodeModelFacade;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.InstrumentationEvaluationData;
@@ -155,17 +152,17 @@ public class InstrumentationEvaluator<CM extends CodeModelFacade> extends Commit
 //        }
 //    }
 
-    private static void compareModels(Resource reloadedModel, Resource codeModel) {
-        // TODO lua case
-        if (reloadedModel instanceof Notifier) {
-            var javaReloadedModel = (Notifier) reloadedModel;
-            var javaCodeModel = (Notifier) codeModel;
-
-            var postProcessor = new JavaChangedMethodDetectorDiffPostProcessor();
-            JavaModelComparator.compareJavaModels(javaReloadedModel, javaCodeModel, null, null, postProcessor);
-        }
-
-    }
+//    private static void compareModels(Resource reloadedModel, Resource codeModel) {
+//        // TODO lua case
+//        if (reloadedModel instanceof Notifier) {
+//            var javaReloadedModel = (Notifier) reloadedModel;
+//            var javaCodeModel = (Notifier) codeModel;
+//
+//            var postProcessor = new JavaChangedMethodDetectorDiffPostProcessor();
+//            JavaModelComparator.compareJavaModels(javaReloadedModel, javaCodeModel, null, null, postProcessor);
+//        }
+//
+//    }
 
     private static int countStatements(Resource model) {
         int statements = 0;
