@@ -146,8 +146,8 @@ public final class ActionReconstruction {
     }
 
     private static List<Expression_Functioncall> getFunctionCallsFromStatement(Statement statement) {
-        if (statement instanceof Expression_Functioncall_Direct) {
-            return List.of((Expression_Functioncall_Direct) statement);
+        if (statement instanceof Expression_Functioncall functionCall) {
+            return List.of(functionCall);
         }
         return EcoreUtil2.getAllContentsOfType(statement, Expression_Functioncall.class);
     }
@@ -336,12 +336,11 @@ public final class ActionReconstruction {
         return reconstructExternalSeffCall(directCall);
     }
 
-    // TODO this is currently only implemented for direct functioncalls
     private AbstractAction reconstructFunctionCallToAction(Expression_Functioncall call) {
         if (call instanceof Expression_Functioncall_Direct directCall) {
             return reconstructDirectFunctionCallToAction(directCall);
         } else if (call instanceof Expression_Functioncall_Table tableCall) {
-            // TODO currently all table calls are mapped to internal actions
+            // currently all table calls are mapped to internal actions
             LOGGER.trace("Call classification: Internal table call");
             var action = SeffFactory.eINSTANCE.createInternalAction();
             return action;

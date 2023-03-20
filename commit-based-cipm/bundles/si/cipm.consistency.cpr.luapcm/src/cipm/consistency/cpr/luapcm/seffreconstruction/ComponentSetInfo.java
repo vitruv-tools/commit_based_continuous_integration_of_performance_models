@@ -114,6 +114,7 @@ public class ComponentSetInfo {
 
     /**
      * Returns the serve call that causes a function to be served
+     * 
      * @param declaration
      * @return
      */
@@ -144,14 +145,18 @@ public class ComponentSetInfo {
         }
 
         var parentBlock = EcoreUtil2.getContainerOfType(eObj, Block.class);
-        var needsReconstruction = blocksRequiringActionReconstruction.contains(parentBlock);
+        if (blocksRequiringActionReconstruction.contains(parentBlock)) {
+            return true;
+        }
 
         if (eObj instanceof Statement_If_Then_Else ifStatement) {
             for (var block : getBlocksFromIfStatement(ifStatement)) {
-                needsReconstruction |= blocksRequiringActionReconstruction.contains(block);
+                if (blocksRequiringActionReconstruction.contains(block)) {
+                    return true;
+                }
             }
         }
-        return needsReconstruction;
+        return false;
     }
 
     // TODO move this to a utility class
@@ -193,7 +198,8 @@ public class ComponentSetInfo {
         }
 
         /*
-         * Mark architecturally relevant calls and all the blocks from them to the top level of their containing declaration
+         * Mark architecturally relevant calls and all the blocks from them to the top level of
+         * their containing declaration
          */
         var statements = EcoreUtil2.getAllContentsOfType(decl, Statement.class);
         for (var statement : statements) {
