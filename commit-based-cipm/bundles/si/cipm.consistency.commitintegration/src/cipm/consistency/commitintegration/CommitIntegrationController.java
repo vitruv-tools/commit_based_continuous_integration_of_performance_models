@@ -254,12 +254,12 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
     }
 
     protected void prePropagationHook() {
-        LOGGER.info("Running Pre Propagation Hook");
+        LOGGER.debug("Running Pre Propagation Hook");
 
     }
 
     protected void postPropagationHook() {
-        LOGGER.info("Running Post Propagation Hook");
+        LOGGER.debug("Running Post Propagation Hook");
         // reload models which may have changed
 //        state.getPcmFacade().reload();
 //        state.getImFacade().reload();

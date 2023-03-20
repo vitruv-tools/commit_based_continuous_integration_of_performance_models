@@ -159,8 +159,14 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
     }
 
     protected List<Propagation> doCompleteEvaluation(String... commitIds) {
+        LOGGER.info("Propagating commits individually (muting logging) ...");
+        LoggingSetup.setMinLogLevel(Level.ERROR);
+
         // propagate all commits individually to generate automatically created PCMs for each commit
         propagateIndividually(commitIds);
+
+        LoggingSetup.resetLogLevels();
+        LOGGER.info("... done");
 
         // propagate the commit history and evaluate all the commits
         return propagateAndEvaluate(commitIds);

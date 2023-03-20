@@ -81,7 +81,7 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 
 	private def logChange(TransactionalChange change) {
 		if (change.EChanges.size > 0) {
-			LOGGER.info("Change recorder recorded changes: " + change.EChanges.size)
+			LOGGER.debug("Change recorder recorded changes: " + change.EChanges.size)
 		}
 	}
 
