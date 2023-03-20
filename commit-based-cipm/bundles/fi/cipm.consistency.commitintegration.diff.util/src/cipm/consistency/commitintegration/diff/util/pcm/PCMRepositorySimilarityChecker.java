@@ -2,6 +2,7 @@ package cipm.consistency.commitintegration.diff.util.pcm;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.ComposedSwitch;
+import org.palladiosimulator.pcm.core.PCMRandomVariable;
 import org.palladiosimulator.pcm.repository.BasicComponent;
 import org.palladiosimulator.pcm.repository.CollectionDataType;
 import org.palladiosimulator.pcm.repository.CompositeComponent;
@@ -255,11 +256,25 @@ public class PCMRepositorySimilarityChecker extends SimilarityChecker {
                 }
 
                 return checkPositionInContainer(action1, action2);
-            }
+            }            
+        }
+            
+
+        /*
+         * Because pcm random variables were never matching, I added it here.
+         * 
+         * Thereby random variables do now always match
+         */
+        public Boolean casePCMRandomVariable(PCMRandomVariable var1) {
+//                PCMRandomVariable var2 = (PCMRandomVariable) compareElement;
+            return true;
         }
 
         @Override
         public Boolean defaultCase(EObject obj) {
+            if (obj instanceof PCMRandomVariable) {
+                return casePCMRandomVariable((PCMRandomVariable) obj);
+            }
             return null;
         }
     }
