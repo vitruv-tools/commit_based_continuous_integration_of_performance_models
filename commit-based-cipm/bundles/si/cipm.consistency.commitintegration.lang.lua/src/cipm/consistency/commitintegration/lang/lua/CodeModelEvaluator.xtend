@@ -1,0 +1,136 @@
+package cipm.consistency.commitintegration.lang.lua
+
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainer
+import com.google.inject.Provider
+import java.io.ByteArrayOutputStream
+import java.nio.file.FileSystems
+import java.nio.file.Files
+import java.nio.file.Path
+import java.util.ArrayList
+import javax.inject.Inject
+import org.eclipse.emf.common.util.URI
+import org.eclipse.xtext.resource.XtextResourceSet
+import org.eclipse.xtext.testing.InjectWith
+import org.eclipse.xtext.testing.validation.ValidationTestHelper
+import org.xtext.lua.LuaStandaloneSetup
+import org.xtext.lua.tests.LuaInjectorProvider
+
+//@ExtendWith(InjectionExtension)
+@InjectWith(LuaInjectorProvider)
+class CodeModelEvaluator {
+	@Inject extension Provider<XtextResourceSet>
+	@Inject extension ValidationTestHelper
+
+	/**
+	 * This brings a string into a form where we can compare it to another of the same form
+	 * This prevents false positives from whitespace, comment which would otherwise create
+	 * differences between the two strings.
+	 */
+	def static String bringIntoCanonicalForm(String luaCode) {
+		// strip comments
+		var striped = luaCode.replaceAll("(?m)--[^\n]*\n?", "")
+
+		// to leading and trailingwhite space characters
+		striped = striped.replaceAll("(?m)^[\t ]*", "")
+		striped = striped.replaceAll("(?m)[\t ]*$", "")
+
+		// only one newline between lines
+		striped = striped.replaceAll("[\r\n]+", "\n")
+
+		// no newlines in first and last line 
+		striped.trim()
+	}
+
+	def static String bringIntoExtremelyCanonicalForm(String canonicalForm) {
+		// spaces my occur in the original file
+		// this breaks strings, but that doesn't matter here
+		var canonical = canonicalForm.replaceAll("[\t ]+", "")
+
+		// no newlines in first and last line 
+		canonical.replaceAll("\n", "")
+	}
+
+	def boolean checkCaseStudyFile(XtextResourceSet rs, Path srcFile, Path appPath) {
+		val uri = URI.createURI(srcFile.toString)
+		val res = rs.getResource(uri, true)
+		val origString = Files.readString(srcFile)
+
+		val outputStream = new ByteArrayOutputStream()
+		res.save(outputStream, #{})
+		val parsedAndPrinted = outputStream.toString()
+
+		if (origString.equals(parsedAndPrinted)) {
+			EvaluationDataContainer.get.codeModelCorrectness.identicalFiles = EvaluationDataContainer.get.
+				codeModelCorrectness.identicalFiles + 1
+		}
+
+		// strip things like unimportant whitespace, duplicate newlines, etc.
+		val origCanonical = bringIntoCanonicalForm(origString)
+		val parsedAndPrintedCanonical = bringIntoCanonicalForm(parsedAndPrinted)
+
+		// further also strip _all_ newlines and whitespace
+		// this definitely breaks the file, but that does not matter for the string comparision
+		val origExtremelyCanonical = bringIntoExtremelyCanonicalForm(origCanonical)
+		val parsedAndPrintedExtremelyCanonical = bringIntoExtremelyCanonicalForm(parsedAndPrintedCanonical)
+
+		assertNoIssues(res)
+		val equivalence = origExtremelyCanonical.equals(parsedAndPrintedExtremelyCanonical)
+		if (equivalence) {
+			EvaluationDataContainer.get.codeModelCorrectness.similarFiles = EvaluationDataContainer.get.
+				codeModelCorrectness.similarFiles + 1
+		}
+		// write strings to files if there are differences
+//		if (!equivalence) {
+//			val targetDir = Paths.get("./caseStudyEvaluation/").resolve(name).resolve(appPath.relativize(srcFile))
+//			val plainDir = targetDir.resolve("plain")
+//			val canonicalDir = targetDir.resolve("canonical")
+//			val extremelyCanonicalDir = targetDir.resolve("extremely-canonical")
+//			Files.createDirectories(plainDir)
+//			Files.createDirectories(canonicalDir)
+//			Files.createDirectories(extremelyCanonicalDir)
+//			Files.writeString(plainDir.resolve("orig.lua"), origString)
+//			Files.writeString(plainDir.resolve("parsedAndPrinted.lua"), parsedAndPrinted)
+//			Files.writeString(canonicalDir.resolve("orig.lua"), origCanonical)
+//			Files.writeString(canonicalDir.resolve("parsedAndPrinted.lua"), parsedAndPrintedCanonical)
+//			Files.writeString(extremelyCanonicalDir.resolve("orig.lua"), origExtremelyCanonical)
+//			Files.writeString(extremelyCanonicalDir.resolve("parsedAndPrinted.lua"), parsedAndPrintedExtremelyCanonical)
+//		}
+		return equivalence
+	}
+
+	def static resetEvalData() {
+		val cmEval = EvaluationDataContainer.get.codeModelCorrectness;
+		cmEval.dissimilarFiles = 0
+		cmEval.similarFiles = 0
+		cmEval.identicalFiles = 0
+		cmEval
+	}
+
+	private def void evaluateSourceCodeDir(Path appPath) {
+		val rs = get()
+		val matcher = FileSystems.^default.getPathMatcher("glob:**.lua")
+
+		val equalPaths = new ArrayList<Path>();
+		val unequalPaths = new ArrayList<Path>();
+
+		val cmEval = resetEvalData()
+
+		try (val paths = Files.walk(appPath))
+			paths.filter[p|matcher.matches(p)].forEach [ path |
+				val relPath = appPath.relativize(path)
+				if (checkCaseStudyFile(rs, path, appPath)) {
+					equalPaths.add(relPath)
+				} else {
+					unequalPaths.add(relPath)
+					cmEval.dissimilarFiles = cmEval.dissimilarFiles + 1
+				}
+			]
+	}
+
+	def static void evaluateCodeModelCorrectness(Path worktree) {
+		val evaluator = new CodeModelEvaluator()
+		val injector = new LuaStandaloneSetup().createInjectorAndDoEMFRegistration();
+		injector.injectMembers(evaluator);
+		evaluator.evaluateSourceCodeDir(worktree);
+	}
+}

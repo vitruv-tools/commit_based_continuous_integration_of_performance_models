@@ -1,0 +1,58 @@
+[
+  {
+    "commitIndex": 1,
+    "newCommit": "e25fb6b",
+    "prevCommits": 15,
+    "numberAddedLines": 575,
+    "numberRemovedLines": 0,
+    "numberChangedFiles": 4
+  },
+  {
+    "commitIndex": 2,
+    "newCommit": "7126aab",
+    "prevCommits": 1,
+    "numberAddedLines": 204,
+    "numberRemovedLines": 0,
+    "numberChangedFiles": 1
+  },
+  {
+    "commitIndex": 3,
+    "newCommit": "d92b459",
+    "prevCommits": 1,
+    "numberAddedLines": 76,
+    "numberRemovedLines": 81,
+    "numberChangedFiles": 3
+  },
+  {
+    "commitIndex": 4,
+    "newCommit": "e6d87e0",
+    "prevCommits": 1,
+    "numberAddedLines": 4,
+    "numberRemovedLines": 1,
+    "numberChangedFiles": 1
+  },
+  {
+    "commitIndex": 5,
+    "newCommit": "542d2e9",
+    "prevCommits": 1,
+    "numberAddedLines": 2,
+    "numberRemovedLines": 0,
+    "numberChangedFiles": 1
+  },
+  {
+    "commitIndex": 6,
+    "newCommit": "6b7b35f",
+    "prevCommits": 1,
+    "numberAddedLines": 1,
+    "numberRemovedLines": 21,
+    "numberChangedFiles": 2
+  },
+  {
+    "commitIndex": 7,
+    "newCommit": "1f2fb08",
+    "prevCommits": 1,
+    "numberAddedLines": 0,
+    "numberRemovedLines": 180,
+    "numberChangedFiles": 1
+  }
+]

@@ -8,7 +8,7 @@ import cipm.consistency.commitintegration.diff.util.ComparisonBasedJaccardCoeffi
  * @author Martin Armbruster
  * @author Lukas Burgey
  */
-public final class PcmEvaluationData {
+public final class PcmUpdateEvalData {
 
     public enum PcmEvalType {
         ComparisonWithAutomatic, ComparisonWithManuallyCreated;

@@ -52,6 +52,7 @@ public class CaseStudy1Test extends AppSpaceCITestController {
 
     private static final String[] COMMITS_DANGLING = { null, "4547cab", "fb7f8d2" };
 
+    // this is the history used for the evaluation:
     private static final String[] EVALUATION_HISTORY = { null, "e25fb6b", "7126aab", "d92b459", "e6d87e0", "542d2e9",
             "6b7b35f", "1f2fb08" };
 

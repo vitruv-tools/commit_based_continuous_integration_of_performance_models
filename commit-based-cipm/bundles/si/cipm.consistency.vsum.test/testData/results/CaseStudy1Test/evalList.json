@@ -1,0 +1,472 @@
+[
+  {
+    "successful": true,
+    "changeStatistic": {
+      "newCommit": "e25fb6b",
+      "numberClocFiles": 4,
+      "numberClocLinesBlanks": 98,
+      "numberClocLinesComments": 89,
+      "numberClocLinesCode": 388,
+      "numberCommits": 15,
+      "numberChangedJavaFiles": 4,
+      "numberAddedLines": 575,
+      "numberRemovedLines": 0,
+      "numberVitruvChanges": 4831,
+      "numberVitruvChangesPerModel": {
+        "http://www.xtext.org/lua/Lua": 4551,
+        "http://palladiosimulator.org/PalladioComponentModel/5.2": 208,
+        "http://www.dmodel.com/InstrumentationMetamodel": 72
+      }
+    },
+    "codeModelUpdateEval": {
+      "numberUnmatchedOldElements": 0,
+      "numberUnmatchedNewElements": 0,
+      "intersectionCardinality": 1746,
+      "unionCardinality": 1746,
+      "jaccardCoefficient": 1
+    },
+    "pcmUpdateEvals": [
+      {
+        "evalType": "ComparisonWithAutomatic",
+        "comparisonType": "PcmDiffUtil",
+        "numberUnmatchedOldElements": 0,
+        "numberUnmatchedNewElements": 0,
+        "intersectionCardinality": 50,
+        "unionCardinality": 50,
+        "jaccardCoefficient": 1
+      },
+      {
+        "evalType": "ComparisonWithManuallyCreated",
+        "comparisonType": "PcmDiffUtil",
+        "numberUnmatchedOldElements": 0,
+        "numberUnmatchedNewElements": 0,
+        "intersectionCardinality": 50,
+        "unionCardinality": 50,
+        "jaccardCoefficient": 1
+      }
+    ],
+    "imUpdateEval": {
+      "numberIP": 14,
+      "numberSIP": 5,
+      "numberMatchedSIP": 5,
+      "numberAIP": 9,
+      "numberMatchedAIP": 9,
+      "numberActiveAIP": 9,
+      "numberMatchedActiveAIP": 9,
+      "numberChangedActions": 9,
+      "ratioActiveAIPs": 1,
+      "ratioAipPerSip": 1.8,
+      "proportionalOverheadReduction": 0,
+      "fScoreServiceInstrumentationPoints": 1,
+      "fScoreActionInstrumentationPoints": 1,
+      "fScoreActiveActionInstrumentationPoints": 1,
+      "unmatchedSIPs": [],
+      "unmatchedAIPs": [],
+      "unmatchedActiveAIPs": [],
+      "unmatchedSEFFs": [],
+      "unmatchedActions": [],
+      "unmatchedChangedActions": []
+    },
+    "executionTimes": {
+      "changePropagationTime": 212,
+      "instrumentationTime": 0,
+      "overallTime": 0
+    }
+  },
+  {
+    "successful": true,
+    "changeStatistic": {
+      "oldCommit": "e25fb6b",
+      "newCommit": "7126aab",
+      "numberClocFiles": 5,
+      "numberClocLinesBlanks": 125,
+      "numberClocLinesComments": 124,
+      "numberClocLinesCode": 530,
+      "numberCommits": 1,
+      "numberChangedJavaFiles": 1,
+      "numberAddedLines": 204,
+      "numberRemovedLines": 0,
+      "numberVitruvChanges": 1289,
+      "numberVitruvChangesPerModel": {
+        "http://www.xtext.org/lua/Lua": 1161,
+        "http://palladiosimulator.org/PalladioComponentModel/5.2": 109,
+        "http://www.dmodel.com/InstrumentationMetamodel": 10
+      }
+    },
+    "codeModelUpdateEval": {
+      "numberUnmatchedOldElements": 0,
+      "numberUnmatchedNewElements": 0,
+      "intersectionCardinality": 2195,
+      "unionCardinality": 2195,
+      "jaccardCoefficient": 1
+    },
+    "pcmUpdateEvals": [
+      {
+        "evalType": "ComparisonWithAutomatic",
+        "comparisonType": "PcmDiffUtil",
+        "numberUnmatchedOldElements": 0,
+        "numberUnmatchedNewElements": 0,
+        "intersectionCardinality": 77,
+        "unionCardinality": 77,
+        "jaccardCoefficient": 1
+      }
+    ],
+    "imUpdateEval": {
+      "numberIP": 16,
+      "numberSIP": 6,
+      "numberMatchedSIP": 6,
+      "numberAIP": 10,
+      "numberMatchedAIP": 10,
+      "numberActiveAIP": 1,
+      "numberMatchedActiveAIP": 1,
+      "numberChangedActions": 1,
+      "ratioActiveAIPs": 0.1,
+      "ratioAipPerSip": 1.6666666666666667,
+      "proportionalOverheadReduction": 0.9,
+      "fScoreServiceInstrumentationPoints": 1,
+      "fScoreActionInstrumentationPoints": 1,
+      "fScoreActiveActionInstrumentationPoints": 1,
+      "unmatchedSIPs": [],
+      "unmatchedAIPs": [],
+      "unmatchedActiveAIPs": [],
+      "unmatchedSEFFs": [],
+      "unmatchedActions": [],
+      "unmatchedChangedActions": []
+    },
+    "executionTimes": {
+      "changePropagationTime": 835,
+      "instrumentationTime": 0,
+      "overallTime": 0
+    }
+  },
+  {
+    "successful": true,
+    "changeStatistic": {
+      "oldCommit": "7126aab",
+      "newCommit": "d92b459",
+      "numberClocFiles": 5,
+      "numberClocLinesBlanks": 128,
+      "numberClocLinesComments": 130,
+      "numberClocLinesCode": 516,
+      "numberCommits": 1,
+      "numberChangedJavaFiles": 3,
+      "numberAddedLines": 76,
+      "numberRemovedLines": 81,
+      "numberVitruvChanges": 1227,
+      "numberVitruvChangesPerModel": {
+        "http://www.xtext.org/lua/Lua": 901,
+        "http://palladiosimulator.org/PalladioComponentModel/5.2": 233,
+        "http://www.dmodel.com/InstrumentationMetamodel": 88
+      }
+    },
+    "codeModelUpdateEval": {
+      "numberUnmatchedOldElements": 0,
+      "numberUnmatchedNewElements": 0,
+      "intersectionCardinality": 2144,
+      "unionCardinality": 2144,
+      "jaccardCoefficient": 1
+    },
+    "pcmUpdateEvals": [
+      {
+        "evalType": "ComparisonWithAutomatic",
+        "comparisonType": "PcmDiffUtil",
+        "numberUnmatchedOldElements": 0,
+        "numberUnmatchedNewElements": 0,
+        "intersectionCardinality": 110,
+        "unionCardinality": 110,
+        "jaccardCoefficient": 1
+      }
+    ],
+    "imUpdateEval": {
+      "numberIP": 32,
+      "numberSIP": 16,
+      "numberMatchedSIP": 16,
+      "numberAIP": 16,
+      "numberMatchedAIP": 16,
+      "numberActiveAIP": 7,
+      "numberMatchedActiveAIP": 7,
+      "numberChangedActions": 7,
+      "ratioActiveAIPs": 0.4375,
+      "ratioAipPerSip": 1,
+      "proportionalOverheadReduction": 0.5625,
+      "fScoreServiceInstrumentationPoints": 1,
+      "fScoreActionInstrumentationPoints": 1,
+      "fScoreActiveActionInstrumentationPoints": 1,
+      "unmatchedSIPs": [],
+      "unmatchedAIPs": [],
+      "unmatchedActiveAIPs": [],
+      "unmatchedSEFFs": [],
+      "unmatchedActions": [],
+      "unmatchedChangedActions": []
+    },
+    "executionTimes": {
+      "changePropagationTime": 786,
+      "instrumentationTime": 0,
+      "overallTime": 0
+    }
+  },
+  {
+    "successful": true,
+    "changeStatistic": {
+      "oldCommit": "d92b459",
+      "newCommit": "e6d87e0",
+      "numberClocFiles": 5,
+      "numberClocLinesBlanks": 129,
+      "numberClocLinesComments": 130,
+      "numberClocLinesCode": 518,
+      "numberCommits": 1,
+      "numberChangedJavaFiles": 1,
+      "numberAddedLines": 4,
+      "numberRemovedLines": 1,
+      "numberVitruvChanges": 103,
+      "numberVitruvChangesPerModel": {
+        "http://www.xtext.org/lua/Lua": 32,
+        "http://palladiosimulator.org/PalladioComponentModel/5.2": 50,
+        "http://www.dmodel.com/InstrumentationMetamodel": 14
+      }
+    },
+    "codeModelUpdateEval": {
+      "numberUnmatchedOldElements": 0,
+      "numberUnmatchedNewElements": 0,
+      "intersectionCardinality": 2151,
+      "unionCardinality": 2151,
+      "jaccardCoefficient": 1
+    },
+    "pcmUpdateEvals": [
+      {
+        "evalType": "ComparisonWithAutomatic",
+        "comparisonType": "PcmDiffUtil",
+        "numberUnmatchedOldElements": 0,
+        "numberUnmatchedNewElements": 0,
+        "intersectionCardinality": 119,
+        "unionCardinality": 119,
+        "jaccardCoefficient": 1
+      }
+    ],
+    "imUpdateEval": {
+      "numberIP": 33,
+      "numberSIP": 16,
+      "numberMatchedSIP": 16,
+      "numberAIP": 17,
+      "numberMatchedAIP": 17,
+      "numberActiveAIP": 2,
+      "numberMatchedActiveAIP": 2,
+      "numberChangedActions": 2,
+      "ratioActiveAIPs": 0.11764705882352941,
+      "ratioAipPerSip": 1.0625,
+      "proportionalOverheadReduction": 0.8823529411764706,
+      "fScoreServiceInstrumentationPoints": 1,
+      "fScoreActionInstrumentationPoints": 1,
+      "fScoreActiveActionInstrumentationPoints": 1,
+      "unmatchedSIPs": [],
+      "unmatchedAIPs": [],
+      "unmatchedActiveAIPs": [],
+      "unmatchedSEFFs": [],
+      "unmatchedActions": [],
+      "unmatchedChangedActions": []
+    },
+    "executionTimes": {
+      "changePropagationTime": 185,
+      "instrumentationTime": 0,
+      "overallTime": 0
+    }
+  },
+  {
+    "successful": true,
+    "changeStatistic": {
+      "oldCommit": "e6d87e0",
+      "newCommit": "542d2e9",
+      "numberClocFiles": 5,
+      "numberClocLinesBlanks": 129,
+      "numberClocLinesComments": 130,
+      "numberClocLinesCode": 520,
+      "numberCommits": 1,
+      "numberChangedJavaFiles": 1,
+      "numberAddedLines": 2,
+      "numberRemovedLines": 0,
+      "numberVitruvChanges": 51,
+      "numberVitruvChangesPerModel": {
+        "http://www.xtext.org/lua/Lua": 10,
+        "http://palladiosimulator.org/PalladioComponentModel/5.2": 34,
+        "http://www.dmodel.com/InstrumentationMetamodel": 5
+      }
+    },
+    "codeModelUpdateEval": {
+      "numberUnmatchedOldElements": 0,
+      "numberUnmatchedNewElements": 0,
+      "intersectionCardinality": 2155,
+      "unionCardinality": 2155,
+      "jaccardCoefficient": 1
+    },
+    "pcmUpdateEvals": [
+      {
+        "evalType": "ComparisonWithAutomatic",
+        "comparisonType": "PcmDiffUtil",
+        "numberUnmatchedOldElements": 0,
+        "numberUnmatchedNewElements": 0,
+        "intersectionCardinality": 120,
+        "unionCardinality": 120,
+        "jaccardCoefficient": 1
+      }
+    ],
+    "imUpdateEval": {
+      "numberIP": 34,
+      "numberSIP": 16,
+      "numberMatchedSIP": 16,
+      "numberAIP": 18,
+      "numberMatchedAIP": 18,
+      "numberActiveAIP": 1,
+      "numberMatchedActiveAIP": 1,
+      "numberChangedActions": 1,
+      "ratioActiveAIPs": 0.05555555555555555,
+      "ratioAipPerSip": 1.125,
+      "proportionalOverheadReduction": 0.9444444444444444,
+      "fScoreServiceInstrumentationPoints": 1,
+      "fScoreActionInstrumentationPoints": 1,
+      "fScoreActiveActionInstrumentationPoints": 1,
+      "unmatchedSIPs": [],
+      "unmatchedAIPs": [],
+      "unmatchedActiveAIPs": [],
+      "unmatchedSEFFs": [],
+      "unmatchedActions": [],
+      "unmatchedChangedActions": []
+    },
+    "executionTimes": {
+      "changePropagationTime": 137,
+      "instrumentationTime": 0,
+      "overallTime": 0
+    }
+  },
+  {
+    "successful": true,
+    "changeStatistic": {
+      "oldCommit": "542d2e9",
+      "newCommit": "6b7b35f",
+      "numberClocFiles": 5,
+      "numberClocLinesBlanks": 126,
+      "numberClocLinesComments": 127,
+      "numberClocLinesCode": 506,
+      "numberCommits": 1,
+      "numberChangedJavaFiles": 2,
+      "numberAddedLines": 1,
+      "numberRemovedLines": 21,
+      "numberVitruvChanges": 251,
+      "numberVitruvChangesPerModel": {
+        "http://www.xtext.org/lua/Lua": 145,
+        "http://palladiosimulator.org/PalladioComponentModel/5.2": 83,
+        "http://www.dmodel.com/InstrumentationMetamodel": 22
+      }
+    },
+    "codeModelUpdateEval": {
+      "numberUnmatchedOldElements": 0,
+      "numberUnmatchedNewElements": 0,
+      "intersectionCardinality": 2097,
+      "unionCardinality": 2097,
+      "jaccardCoefficient": 1
+    },
+    "pcmUpdateEvals": [
+      {
+        "evalType": "ComparisonWithAutomatic",
+        "comparisonType": "PcmDiffUtil",
+        "numberUnmatchedOldElements": 0,
+        "numberUnmatchedNewElements": 0,
+        "intersectionCardinality": 68,
+        "unionCardinality": 68,
+        "jaccardCoefficient": 1
+      }
+    ],
+    "imUpdateEval": {
+      "numberIP": 18,
+      "numberSIP": 6,
+      "numberMatchedSIP": 6,
+      "numberAIP": 12,
+      "numberMatchedAIP": 12,
+      "numberActiveAIP": 0,
+      "numberMatchedActiveAIP": 0,
+      "numberChangedActions": 0,
+      "ratioActiveAIPs": 0,
+      "ratioAipPerSip": 2,
+      "proportionalOverheadReduction": 1,
+      "fScoreServiceInstrumentationPoints": 1,
+      "fScoreActionInstrumentationPoints": 1,
+      "fScoreActiveActionInstrumentationPoints": -1,
+      "unmatchedSIPs": [],
+      "unmatchedAIPs": [],
+      "unmatchedActiveAIPs": [],
+      "unmatchedSEFFs": [],
+      "unmatchedActions": [],
+      "unmatchedChangedActions": []
+    },
+    "executionTimes": {
+      "changePropagationTime": 194,
+      "instrumentationTime": 0,
+      "overallTime": 0
+    }
+  },
+  {
+    "successful": true,
+    "changeStatistic": {
+      "oldCommit": "6b7b35f",
+      "newCommit": "1f2fb08",
+      "numberClocFiles": 4,
+      "numberClocLinesBlanks": 99,
+      "numberClocLinesComments": 94,
+      "numberClocLinesCode": 386,
+      "numberCommits": 1,
+      "numberChangedJavaFiles": 1,
+      "numberAddedLines": 0,
+      "numberRemovedLines": 180,
+      "numberVitruvChanges": 855,
+      "numberVitruvChangesPerModel": {
+        "http://www.xtext.org/lua/Lua": 833,
+        "http://palladiosimulator.org/PalladioComponentModel/5.2": 18,
+        "http://www.dmodel.com/InstrumentationMetamodel": 4
+      }
+    },
+    "codeModelUpdateEval": {
+      "numberUnmatchedOldElements": 0,
+      "numberUnmatchedNewElements": 0,
+      "intersectionCardinality": 1726,
+      "unionCardinality": 1726,
+      "jaccardCoefficient": 1
+    },
+    "pcmUpdateEvals": [
+      {
+        "evalType": "ComparisonWithAutomatic",
+        "comparisonType": "PcmDiffUtil",
+        "numberUnmatchedOldElements": 0,
+        "numberUnmatchedNewElements": 0,
+        "intersectionCardinality": 60,
+        "unionCardinality": 60,
+        "jaccardCoefficient": 1
+      }
+    ],
+    "imUpdateEval": {
+      "numberIP": 16,
+      "numberSIP": 5,
+      "numberMatchedSIP": 5,
+      "numberAIP": 11,
+      "numberMatchedAIP": 11,
+      "numberActiveAIP": 0,
+      "numberMatchedActiveAIP": 0,
+      "numberChangedActions": 0,
+      "ratioActiveAIPs": 0,
+      "ratioAipPerSip": 2.2,
+      "proportionalOverheadReduction": 1,
+      "fScoreServiceInstrumentationPoints": 1,
+      "fScoreActionInstrumentationPoints": 1,
+      "fScoreActiveActionInstrumentationPoints": -1,
+      "unmatchedSIPs": [],
+      "unmatchedAIPs": [],
+      "unmatchedActiveAIPs": [],
+      "unmatchedSEFFs": [],
+      "unmatchedActions": [],
+      "unmatchedChangedActions": []
+    },
+    "executionTimes": {
+      "changePropagationTime": 171,
+      "instrumentationTime": 0,
+      "overallTime": 0
+    }
+  }
+]

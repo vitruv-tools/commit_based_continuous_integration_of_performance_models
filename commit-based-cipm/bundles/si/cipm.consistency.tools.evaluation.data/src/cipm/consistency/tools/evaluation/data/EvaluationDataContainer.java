@@ -26,9 +26,10 @@ public class EvaluationDataContainer {
     private boolean successful = false;
 //    private long evaluationTime = System.currentTimeMillis();
     private ChangeStatistic changeStatistic = new ChangeStatistic();
-    private CodeModelEvaluationData codeModelUpdateEval = new CodeModelEvaluationData();
-    private List<PcmEvaluationData> pcmUpdateEvals = new ArrayList<>();
-    private IMEvaluationData imUpdateEval = new IMEvaluationData();
+    private CodeModelCorrectnessEval codeModelCorrectness = new CodeModelCorrectnessEval();
+    private CodeModelUpdateEvalData codeModelUpdateEval = new CodeModelUpdateEvalData();
+    private List<PcmUpdateEvalData> pcmUpdateEvals = new ArrayList<>();
+    private ImUpdateEvalData imUpdateEval = new ImUpdateEvalData();
 //    private InstrumentationEvaluationData instrumentationData = new InstrumentationEvaluationData();
     private InstrumentationEvaluationData instrumentationData = null;
     private ExecutionTimeData executionTimes = new ExecutionTimeData();
@@ -46,11 +47,11 @@ public class EvaluationDataContainer {
         return changeStatistic;
     }
 
-    public CodeModelEvaluationData getCodeModelUpdateEvalData() {
+    public CodeModelUpdateEvalData getCodeModelUpdateEvalData() {
         return codeModelUpdateEval;
     }
 
-    public IMEvaluationData getImUpdateEvalData() {
+    public ImUpdateEvalData getImUpdateEvalData() {
         return imUpdateEval;
     }
 
@@ -70,7 +71,15 @@ public class EvaluationDataContainer {
         this.successful = success;
     }
 
-    public List<PcmEvaluationData> getPcmUpdateEvals() {
+    public List<PcmUpdateEvalData> getPcmUpdateEvals() {
         return pcmUpdateEvals;
+    }
+
+    public CodeModelCorrectnessEval getCodeModelCorrectness() {
+        return codeModelCorrectness;
+    }
+
+    public void setCodeModelCorrectness(CodeModelCorrectnessEval codeModelCorrectness) {
+        this.codeModelCorrectness = codeModelCorrectness;
     }
 }

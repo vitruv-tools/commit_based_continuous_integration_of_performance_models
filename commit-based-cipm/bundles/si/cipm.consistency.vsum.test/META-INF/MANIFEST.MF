@@ -32,6 +32,8 @@ Require-Bundle: cipm.consistency.commitintegration,
  cipm.consistency.cpr.pcminit,
  org.eclipse.xtext,
  org.palladiosimulator.pcm,
- com.google.gson
+ com.google.gson,
+ org.eclipse.xtext.testing;bundle-version="2.28.0",
+ org.xtext.lua.tests;bundle-version="1.0.0"
 Export-Package: cipm.consistency.vsum.test
 Bundle-RequiredExecutionEnvironment: JavaSE-17

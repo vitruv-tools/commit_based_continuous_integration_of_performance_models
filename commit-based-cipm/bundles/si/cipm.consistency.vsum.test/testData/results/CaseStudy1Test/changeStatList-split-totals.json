@@ -1,0 +1,51 @@
+[
+  {
+    "commitIndex": 1,
+    "totalFiles": 4,
+    "numberClocLinesBlanks": 98,
+    "numberClocLinesComments": 89,
+    "numberClocLinesCode": 388
+  },
+  {
+    "commitIndex": 2,
+    "totalFiles": 5,
+    "numberClocLinesBlanks": 125,
+    "numberClocLinesComments": 124,
+    "numberClocLinesCode": 530
+  },
+  {
+    "commitIndex": 3,
+    "totalFiles": 5,
+    "numberClocLinesBlanks": 128,
+    "numberClocLinesComments": 130,
+    "numberClocLinesCode": 516
+  },
+  {
+    "commitIndex": 4,
+    "totalFiles": 5,
+    "numberClocLinesBlanks": 129,
+    "numberClocLinesComments": 130,
+    "numberClocLinesCode": 518
+  },
+  {
+    "commitIndex": 5,
+    "totalFiles": 5,
+    "numberClocLinesBlanks": 129,
+    "numberClocLinesComments": 130,
+    "numberClocLinesCode": 520
+  },
+  {
+    "commitIndex": 6,
+    "totalFiles": 5,
+    "numberClocLinesBlanks": 126,
+    "numberClocLinesComments": 127,
+    "numberClocLinesCode": 506
+  },
+  {
+    "commitIndex": 7,
+    "totalFiles": 4,
+    "numberClocLinesBlanks": 99,
+    "numberClocLinesComments": 94,
+    "numberClocLinesCode": 386
+  }
+]

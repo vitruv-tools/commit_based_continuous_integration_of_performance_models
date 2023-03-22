@@ -79,8 +79,6 @@ public class LuaModelFacade implements CodeModelFacade {
         // get a resource from the provider
         var resourceSet = getEmptyResourceSet();
 
-        printFileStats(sourceCodeDirPath);
-
         var iterator = FileUtils.iterateFiles(sourceCodeDirPath.toFile(), null, true);
         while (iterator.hasNext()) {
             var file = iterator.next();
@@ -116,11 +114,15 @@ public class LuaModelFacade implements CodeModelFacade {
                 return null;
             }
         }
+        
+        // do a few tasks for the evaluation:
+        getFileStats(sourceCodeDirPath);
+        CodeModelEvaluator.evaluateCodeModelCorrectness(sourceCodeDirPath);
 
         return resourceSet;
     }
 
-    private void printFileStats(Path sourceCodeDir) {
+    private void getFileStats(Path sourceCodeDir) {
         var clocCommand = "cloc --hide-rate --quiet --include-lang=lua " + sourceCodeDir.toAbsolutePath()
             .toString();
         var clocStats = executeShell("sh", "-c", clocCommand + " | grep -P 'Lua'");

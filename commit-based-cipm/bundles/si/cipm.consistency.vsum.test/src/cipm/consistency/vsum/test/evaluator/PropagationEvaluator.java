@@ -36,9 +36,9 @@ import cipm.consistency.commitintegration.diff.util.pcm.PCMModelComparator;
 import cipm.consistency.commitintegration.lang.lua.changeresolution.HierarchicalStateBasedChangeResolutionStrategy;
 import cipm.consistency.models.code.CodeModelFacade;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
-import cipm.consistency.tools.evaluation.data.PcmEvaluationData;
-import cipm.consistency.tools.evaluation.data.PcmEvaluationData.ComparisonType;
-import cipm.consistency.tools.evaluation.data.PcmEvaluationData.PcmEvalType;
+import cipm.consistency.tools.evaluation.data.PcmUpdateEvalData;
+import cipm.consistency.tools.evaluation.data.PcmUpdateEvalData.ComparisonType;
+import cipm.consistency.tools.evaluation.data.PcmUpdateEvalData.PcmEvalType;
 import cipm.consistency.vsum.Propagation;
 
 /**
@@ -233,7 +233,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
                 referenceRepository.eResource());
         var jaccardResult = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comparison);
 
-        var pcmEvalData = new PcmEvaluationData();
+        var pcmEvalData = new PcmUpdateEvalData();
         pcmEvalData.setValuesUsingJaccardCoefficientResult(jaccardResult);
         pcmEvalData.setEvalType(PcmEvalType.ComparisonWithManuallyCreated);
         pcmEvalData.setComparisonType(ComparisonType.PcmDiffUtil);
@@ -262,7 +262,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         var jaccardResultMartin = ComparisonBasedJaccardCoefficientCalculator
             .calculateJaccardCoefficient(comparisonMartin);
 
-        var pcmEvalData = new PcmEvaluationData();
+        var pcmEvalData = new PcmUpdateEvalData();
         pcmEvalData.setValuesUsingJaccardCoefficientResult(jaccardResultMartin);
         pcmEvalData.setEvalType(PcmEvalType.ComparisonWithAutomatic);
         pcmEvalData.setComparisonType(ComparisonType.PcmDiffUtil);

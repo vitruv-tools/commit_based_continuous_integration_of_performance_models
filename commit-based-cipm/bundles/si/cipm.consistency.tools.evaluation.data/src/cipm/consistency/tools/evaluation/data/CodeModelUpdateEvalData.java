@@ -7,7 +7,7 @@ import cipm.consistency.commitintegration.diff.util.ComparisonBasedJaccardCoeffi
  * 
  * @author Martin Armbruster
  */
-public final class CodeModelEvaluationData {
+public final class CodeModelUpdateEvalData {
     private int numberUnmatchedOldElements;
     private int numberUnmatchedNewElements;
     private int intersectionCardinality;

@@ -8,7 +8,7 @@ import java.util.List;
  * 
  * @author Martin Armbruster
  */
-public class IMEvaluationData {
+public class ImUpdateEvalData {
     private int numberIP;
 
     private int numberSIP;

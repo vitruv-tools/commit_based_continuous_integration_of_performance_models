@@ -25,7 +25,7 @@ import cipm.consistency.base.models.instrumentation.InstrumentationModel.Instrum
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationPoint;
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.ServiceInstrumentationPoint;
 import cipm.consistency.commitintegration.diff.util.pcm.PCMModelComparator;
-import cipm.consistency.tools.evaluation.data.IMEvaluationData;
+import cipm.consistency.tools.evaluation.data.ImUpdateEvalData;
 
 /**
  * Evaluated the update of the extended IM.
@@ -33,9 +33,9 @@ import cipm.consistency.tools.evaluation.data.IMEvaluationData;
  * @author Martin Armbruster
  */
 public class IMUpdateEvaluator {
-    private IMEvaluationData currentEvalResult;
+    private ImUpdateEvalData currentEvalResult;
 
-    public void evaluateIMUpdate(Repository repo, InstrumentationModel im, IMEvaluationData evalData,
+    public void evaluateIMUpdate(Repository repo, InstrumentationModel im, ImUpdateEvalData evalData,
             Repository previousRepository) {
         currentEvalResult = evalData;
 

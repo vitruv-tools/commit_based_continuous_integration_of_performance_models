@@ -22,4 +22,5 @@ Require-Bundle: tools.vitruv.change.composite,
  edu.kit.ipd.sdq.activextendannotations,
  org.eclipse.emf.edit;bundle-version="2.17.0",
  cipm.consistency.commitintegration;bundle-version="1.0.0",
- cipm.consistency.tools.evaluation.data
+ cipm.consistency.tools.evaluation.data,
+ org.xtext.lua.tests;bundle-version="1.0.0"
