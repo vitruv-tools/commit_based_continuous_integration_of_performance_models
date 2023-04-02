@@ -145,7 +145,7 @@ public final class ActionReconstruction {
         return null;
     }
 
-    private static List<Expression_Functioncall> getFunctionCallsFromStatement(Statement statement) {
+    private static List<Expression_Functioncall> getFunctionCallsFromStatement(EObject statement) {
         if (statement instanceof Expression_Functioncall functionCall) {
             return List.of(functionCall);
         }
@@ -350,7 +350,7 @@ public final class ActionReconstruction {
         return null;
     }
 
-    private List<AbstractAction> reconstructFunctionCallStatementToActions(Statement statement) {
+    private List<AbstractAction> reconstructFunctionCallStatementToActions(EObject statement) {
         List<AbstractAction> actions = new ArrayList<>();
 
         // all function calls in this statement (or the statement may be a call itself)
@@ -371,9 +371,9 @@ public final class ActionReconstruction {
         return actions;
     }
 
-    private List<AbstractAction> reconstructActionsForStatement(Statement statement) {
+    private List<AbstractAction> reconstructActionsForStatement(EObject statement) {
         if (isControlFlowStatement(statement)) {
-            var cfAction = reconstructControlFlowStatementToAction(statement);
+            var cfAction = reconstructControlFlowStatementToAction((Statement) statement);
             if (cfAction != null) {
                 return List.of(cfAction);
             }
@@ -387,7 +387,7 @@ public final class ActionReconstruction {
         return List.of();
     }
 
-    public static List<AbstractAction> getActionsForStatement(Statement statement,
+    public static List<AbstractAction> getActionsForStatement(EObject statement,
             EditableCorrespondenceModelView<ReactionsCorrespondence> cmv) {
         var instance = new ActionReconstruction(cmv);
         return instance.reconstructActionsForStatement(statement);

@@ -1,12 +1,14 @@
 package cipm.consistency.cpr.luapcm.seffreconstruction;
 
 import org.apache.log4j.Logger;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.EcoreUtil2;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 import org.palladiosimulator.pcm.seff.StartAction;
 import org.palladiosimulator.pcm.seff.StopAction;
 import org.xtext.lua.lua.Block;
+import org.xtext.lua.lua.LastStatement;
 import org.xtext.lua.lua.Refble;
 import org.xtext.lua.lua.Statement;
 
@@ -54,10 +56,15 @@ public class ActionUtil {
         succ.setPredecessor_AbstractAction(pred);
     }
 
-    public static AbstractAction getPreviousActionOfStatement(Statement statement, Block block,
+    public static AbstractAction getPreviousActionOfStatement(EObject statement, Block block,
             ResourceDemandingBehaviour rdBehaviour, EditableCorrespondenceModelView<ReactionsCorrespondence> cmv) {
         var blockStatements = block.getStatements();
         var statementIndex = blockStatements.indexOf(statement);
+
+        if (statement instanceof LastStatement) {
+            // return statements start with the last statement
+            statementIndex = blockStatements.size() - 1;
+        }
 
         if (statementIndex > 0) {
             for (var i = statementIndex - 1; i >= 0; i--) {
@@ -82,10 +89,20 @@ public class ActionUtil {
         return null;
     }
 
-    public static AbstractAction getSubsequentActionOfStatement(Statement statement, Block block,
+    public static AbstractAction getSubsequentActionOfStatement(EObject statement, Block block,
             ResourceDemandingBehaviour rdBehaviour, CorrespondenceModelView<ReactionsCorrespondence> cmv) {
         var blockStatements = block.getStatements();
         var statementIndex = blockStatements.indexOf(statement);
+        
+        if (statement instanceof LastStatement) {
+            // return statements have the stop action as successor
+            for (var action : rdBehaviour.getSteps_Behaviour()) {
+                if (action instanceof StopAction) {
+                    return action;
+                }
+            }
+            return null;
+        }
 
         if (statementIndex < blockStatements.size() - 1) {
             for (var i = statementIndex + 1; i < blockStatements.size(); i++) {
