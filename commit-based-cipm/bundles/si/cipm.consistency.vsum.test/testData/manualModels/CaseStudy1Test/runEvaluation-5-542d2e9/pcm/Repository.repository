@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="ASCII"?>
+<repository:Repository xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:repository="http://palladiosimulator.org/PalladioComponentModel/Repository/5.2" xmlns:seff="http://palladiosimulator.org/PalladioComponentModel/SEFF/5.2" id="_8RpLIcTPEe2tt_5topbs1w">
+  <components__Repository xsi:type="repository:BasicComponent" id="_xC5I0MTREe2iOPTxBKj8BA" entityName="BarcodeReader">
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_db2T8cTVEe2iOPTxBKj8BA" entityName="BarcodeReader" providedInterface__OperationProvidedRole="_FU2wt8TTEe2iOPTxBKj8BA"/>
+    <requiredRoles_InterfaceRequiringEntity xsi:type="repository:OperationRequiredRole" id="_3MmfxcTWEe2iOPTxBKj8BA" entityName="MyHTTPClient" requiredInterface__OperationRequiredRole="_HdjimMTTEe2iOPTxBKj8BA"/>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_kiXgJ8TUEe2iOPTxBKj8BA" describedService__SEFF="_ilEF8MTUEe2iOPTxBKj8BA">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_ScTdMsTVEe2iOPTxBKj8BA" successor_AbstractAction="_yjKE7sTVEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:InternalAction" id="_yjKE7sTVEe2iOPTxBKj8BA" predecessor_AbstractAction="_ScTdMsTVEe2iOPTxBKj8BA" successor_AbstractAction="_TSyZQMTVEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_TSyZQMTVEe2iOPTxBKj8BA" predecessor_AbstractAction="_yjKE7sTVEe2iOPTxBKj8BA"/>
+    </serviceEffectSpecifications__BasicComponent>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_gGLBp8TUEe2iOPTxBKj8BA" describedService__SEFF="_c5-ycMTUEe2iOPTxBKj8BA">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_T4ixssTVEe2iOPTxBKj8BA" successor_AbstractAction="_8S8j_sTVEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:InternalAction" id="_8S8j_sTVEe2iOPTxBKj8BA" predecessor_AbstractAction="_T4ixssTVEe2iOPTxBKj8BA" successor_AbstractAction="_A5IE4cTWEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:LoopAction" id="_A5IE4cTWEe2iOPTxBKj8BA" predecessor_AbstractAction="_8S8j_sTVEe2iOPTxBKj8BA" successor_AbstractAction="_K9nos8TWEe2iOPTxBKj8BA">
+        <bodyBehaviour_Loop id="_ESqMgsTWEe2iOPTxBKj8BA">
+          <steps_Behaviour xsi:type="seff:StartAction" id="_GNvZIsTWEe2iOPTxBKj8BA" successor_AbstractAction="_Un-OHsTWEe2iOPTxBKj8BA"/>
+          <steps_Behaviour xsi:type="seff:InternalAction" id="_Un-OHsTWEe2iOPTxBKj8BA" predecessor_AbstractAction="_GNvZIsTWEe2iOPTxBKj8BA" successor_AbstractAction="_jxvwMNB0Ee2zaYe3j13yvg"/>
+          <steps_Behaviour xsi:type="seff:BranchAction" id="_jxvwMNB0Ee2zaYe3j13yvg" predecessor_AbstractAction="_Un-OHsTWEe2iOPTxBKj8BA" successor_AbstractAction="_WkOfYMTWEe2iOPTxBKj8BA">
+            <branches_Branch xsi:type="seff:ProbabilisticBranchTransition" id="_ktY5ENB0Ee2zaYe3j13yvg" branchProbability="0.5">
+              <branchBehaviour_BranchTransition id="_uKHSMNB0Ee2zaYe3j13yvg">
+                <steps_Behaviour xsi:type="seff:StartAction" id="_ww_04dB0Ee2zaYe3j13yvg" successor_AbstractAction="_VJV1yMTWEe2iOPTxBKj8BA"/>
+                <steps_Behaviour xsi:type="seff:ExternalCallAction" id="_VJV1yMTWEe2iOPTxBKj8BA" predecessor_AbstractAction="_ww_04dB0Ee2zaYe3j13yvg" successor_AbstractAction="_xx7GYNB0Ee2zaYe3j13yvg" calledService_ExternalService="_Mqo2AMTUEe2iOPTxBKj8BA" role_ExternalService="_3MmfxcTWEe2iOPTxBKj8BA"/>
+                <steps_Behaviour xsi:type="seff:StopAction" id="_xx7GYNB0Ee2zaYe3j13yvg" predecessor_AbstractAction="_VJV1yMTWEe2iOPTxBKj8BA"/>
+              </branchBehaviour_BranchTransition>
+            </branches_Branch>
+            <branches_Branch xsi:type="seff:ProbabilisticBranchTransition" id="_oOav0tB0Ee2zaYe3j13yvg" branchProbability="0.5">
+              <branchBehaviour_BranchTransition id="_qEp4sNB0Ee2zaYe3j13yvg">
+                <steps_Behaviour xsi:type="seff:StartAction" id="_8gtkUtB0Ee2zaYe3j13yvg" successor_AbstractAction="__0VRPNB0Ee2zaYe3j13yvg"/>
+                <steps_Behaviour xsi:type="seff:InternalAction" id="__0VRPNB0Ee2zaYe3j13yvg" predecessor_AbstractAction="_8gtkUtB0Ee2zaYe3j13yvg" successor_AbstractAction="_Bma54tB1Ee2zaYe3j13yvg"/>
+                <steps_Behaviour xsi:type="seff:StopAction" id="_Bma54tB1Ee2zaYe3j13yvg" predecessor_AbstractAction="__0VRPNB0Ee2zaYe3j13yvg"/>
+              </branchBehaviour_BranchTransition>
+            </branches_Branch>
+          </steps_Behaviour>
+          <steps_Behaviour xsi:type="seff:StopAction" id="_WkOfYMTWEe2iOPTxBKj8BA" predecessor_AbstractAction="_jxvwMNB0Ee2zaYe3j13yvg"/>
+        </bodyBehaviour_Loop>
+        <iterationCount_LoopAction specification="1"/>
+      </steps_Behaviour>
+      <steps_Behaviour xsi:type="seff:InternalAction" id="_K9nos8TWEe2iOPTxBKj8BA" predecessor_AbstractAction="_A5IE4cTWEe2iOPTxBKj8BA" successor_AbstractAction="_UOArYsTVEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_UOArYsTVEe2iOPTxBKj8BA" predecessor_AbstractAction="_K9nos8TWEe2iOPTxBKj8BA"/>
+    </serviceEffectSpecifications__BasicComponent>
+  </components__Repository>
+  <components__Repository xsi:type="repository:BasicComponent" id="_yy3RoMTREe2iOPTxBKj8BA" entityName="MyHTTPClient">
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_kG0XIcTVEe2iOPTxBKj8BA" entityName="MyHTTPClient" providedInterface__OperationProvidedRole="_HdjimMTTEe2iOPTxBKj8BA"/>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_lBBLB8TUEe2iOPTxBKj8BA" describedService__SEFF="_Mqo2AMTUEe2iOPTxBKj8BA">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_U_gZwsTVEe2iOPTxBKj8BA" successor_AbstractAction="_8peObscWEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:InternalAction" id="_8peObscWEe2iOPTxBKj8BA" predecessor_AbstractAction="_U_gZwsTVEe2iOPTxBKj8BA" successor_AbstractAction="_VbdV8sTVEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_VbdV8sTVEe2iOPTxBKj8BA" predecessor_AbstractAction="_8peObscWEe2iOPTxBKj8BA"/>
+    </serviceEffectSpecifications__BasicComponent>
+  </components__Repository>
+  <components__Repository xsi:type="repository:BasicComponent" id="_yWLVoMTREe2iOPTxBKj8BA" entityName="HTTPServer">
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_muxQ0cTVEe2iOPTxBKj8BA" entityName="HTTPServer" providedInterface__OperationProvidedRole="_ITazmMTTEe2iOPTxBKj8BA"/>
+    <requiredRoles_InterfaceRequiringEntity xsi:type="repository:OperationRequiredRole" id="_2D-gtdCQEe2zaYe3j13yvg" entityName="DatabaseAPI" requiredInterface__OperationRequiredRole="_inGFh9B1Ee2zaYe3j1eouvg"/>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_CgucN8TTEe2iOPTxBKj8BA" describedService__SEFF="_VqWjAMTUEe2iOPTxBKj8BA">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_WCzCwsTVEe2iOPTxBKj8BA" successor_AbstractAction="_wVf7XscWEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:InternalAction" id="_wVf7XscWEe2iOPTxBKj8BA" predecessor_AbstractAction="_WCzCwsTVEe2iOPTxBKj8BA" successor_AbstractAction="_rqSwGNCQEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:ExternalCallAction" id="_rqSwGNCQEe2zaYe3j13yvg" predecessor_AbstractAction="_wVf7XscWEe2iOPTxBKj8BA" successor_AbstractAction="_WmQVIsTVEe2iOPTxBKj8BA" calledService_ExternalService="_tEhGoNB1Ee2aeuaoeuuzaYe3j13yvg" role_ExternalService="_2D-gtdCQEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_WmQVIsTVEe2iOPTxBKj8BA" predecessor_AbstractAction="_rqSwGNCQEe2zaYe3j13yvg"/>
+    </serviceEffectSpecifications__BasicComponent>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_l62WB8TUEe2iOPTxBKj8BA" describedService__SEFF="_Wjjb4MTUEe2iOPTxBKj8BA">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_XC9fQsTVEe2iOPTxBKj8BA" successor_AbstractAction="_p8PTPscWEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:InternalAction" id="_p8PTPscWEe2iOPTxBKj8BA" predecessor_AbstractAction="_XC9fQsTVEe2iOPTxBKj8BA" successor_AbstractAction="_YTJUwMTVEe2iOPTxBKj8BA"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_YTJUwMTVEe2iOPTxBKj8BA" predecessor_AbstractAction="_p8PTPscWEe2iOPTxBKj8BA"/>
+    </serviceEffectSpecifications__BasicComponent>
+  </components__Repository>
+  <components__Repository xsi:type="repository:BasicComponent" id="_gVczANB1Ee2zaYe3j13yvg" entityName="DatabaseAPI">
+    <providedRoles_InterfaceProvidingEntity xsi:type="repository:OperationProvidedRole" id="_TGk_IdCPEe2zaYe3j13yvg" entityName="DatabaseAPI" providedInterface__OperationProvidedRole="_inGFh9B1Ee2zaYe3j1eouvg"/>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_pYTxR9COEe2zaYe3j13yvg" describedService__SEFF="_TfaCwNB3Ee2zaYe3j13yvg">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_dbMCgtCPEe2zaYe3j13yvg" successor_AbstractAction="_TyfNftCQEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:InternalAction" id="_TyfNftCQEe2zaYe3j13yvg" predecessor_AbstractAction="_dbMCgtCPEe2zaYe3j13yvg" successor_AbstractAction="_l47D0NCPEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_l47D0NCPEe2zaYe3j13yvg" predecessor_AbstractAction="_TyfNftCQEe2zaYe3j13yvg"/>
+    </serviceEffectSpecifications__BasicComponent>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_t19BVtCOEe2zaYe3j13yvg" describedService__SEFF="_tEhGoNB1Ee2zaYe3j1oeueg">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_eZO_ItCPEe2zaYe3j13yvg" successor_AbstractAction="_o9dL0NCPEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_o9dL0NCPEe2zaYe3j13yvg" predecessor_AbstractAction="_eZO_ItCPEe2zaYe3j13yvg"/>
+    </serviceEffectSpecifications__BasicComponent>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_wW8XZtCOEe2zaYe3j13yvg" describedService__SEFF="_tEhGoNB1aoeuoaeueouyvg">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_e5S_QtCPEe2zaYe3j13yvg" successor_AbstractAction="_pkNp0NCPEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_pkNp0NCPEe2zaYe3j13yvg" predecessor_AbstractAction="_e5S_QtCPEe2zaYe3j13yvg"/>
+    </serviceEffectSpecifications__BasicComponent>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_wvZTptCOEe2zaYe3j13yvg" describedService__SEFF="_24XJ0NB2Ee2zaYe3j13yvg">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_gYaBktCPEe2zaYe3j13yvg" successor_AbstractAction="_p_2c8NCPEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_p_2c8NCPEe2zaYe3j13yvg" predecessor_AbstractAction="_gYaBktCPEe2zaYe3j13yvg"/>
+    </serviceEffectSpecifications__BasicComponent>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_xJkuNtCOEe2zaYe3j13yvg" describedService__SEFF="_tEhGoNB1oeuoeuaEe2zaYe3j13yvg">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_ha8cotCPEe2zaYe3j13yvg" successor_AbstractAction="_qXyb0NCPEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_qXyb0NCPEe2zaYe3j13yvg" predecessor_AbstractAction="_ha8cotCPEe2zaYe3j13yvg"/>
+    </serviceEffectSpecifications__BasicComponent>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_xjAh5tCOEe2zaYe3j13yvg" describedService__SEFF="_tEhGoNB1Ee2zaYoeusnthoauntauhauthsae3j13yvg">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_hxsvwtCPEe2zaYe3j13yvg" successor_AbstractAction="_Iw5ITtCQEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:InternalAction" id="_Iw5ITtCQEe2zaYe3j13yvg" predecessor_AbstractAction="_hxsvwtCPEe2zaYe3j13yvg" successor_AbstractAction="_qviNcNCPEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_qviNcNCPEe2zaYe3j13yvg" predecessor_AbstractAction="_Iw5ITtCQEe2zaYe3j13yvg"/>
+    </serviceEffectSpecifications__BasicComponent>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_x66rltCOEe2zaYe3j13yvg" describedService__SEFF="_tEhGoNB1Eoaeuaousate2zaYe3j13yvg">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_iM428tCPEe2zaYe3j13yvg" successor_AbstractAction="_NKbUXtCQEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:InternalAction" id="_NKbUXtCQEe2zaYe3j13yvg" predecessor_AbstractAction="_iM428tCPEe2zaYe3j13yvg" successor_AbstractAction="_rT1NUNCPEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_rT1NUNCPEe2zaYe3j13yvg" predecessor_AbstractAction="_NKbUXtCQEe2zaYe3j13yvg"/>
+    </serviceEffectSpecifications__BasicComponent>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_yYMddtCOEe2zaYe3j13yvg" describedService__SEFF="_tEhGooeuoauaNB1Ee2zaYe3j13yvg">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_ioYgItCPEe2zaYe3j13yvg" successor_AbstractAction="_NsxzftCQEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:InternalAction" id="_NsxzftCQEe2zaYe3j13yvg" predecessor_AbstractAction="_ioYgItCPEe2zaYe3j13yvg" successor_AbstractAction="_rxEi8NCPEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_rxEi8NCPEe2zaYe3j13yvg" predecessor_AbstractAction="_NsxzftCQEe2zaYe3j13yvg"/>
+    </serviceEffectSpecifications__BasicComponent>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_0RKxRtCOEe2zaYe3j13yvg" describedService__SEFF="_tEhGoNB1Ee2aeuaoeuuzaYe3j13yvg">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_jDP3MtCPEe2zaYe3j13yvg" successor_AbstractAction="__cgy3tCPEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:InternalAction" id="__cgy3tCPEe2zaYe3j13yvg" predecessor_AbstractAction="_jDP3MtCPEe2zaYe3j13yvg" successor_AbstractAction="_sN3MoNCPEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_sN3MoNCPEe2zaYe3j13yvg" predecessor_AbstractAction="__cgy3tCPEe2zaYe3j13yvg"/>
+    </serviceEffectSpecifications__BasicComponent>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_OPi-1tCPEe2zaYe3j13yvg" describedService__SEFF="_tEhGoNB1Ee2zaoeuaouuaYe3j13yvg">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_kZTEItCPEe2zaYe3j13yvg" successor_AbstractAction="_P1w5PtCQEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:InternalAction" id="_P1w5PtCQEe2zaYe3j13yvg" predecessor_AbstractAction="_kZTEItCPEe2zaYe3j13yvg" successor_AbstractAction="_siFJINCPEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_siFJINCPEe2zaYe3j13yvg" predecessor_AbstractAction="_P1w5PtCQEe2zaYe3j13yvg"/>
+    </serviceEffectSpecifications__BasicComponent>
+    <serviceEffectSpecifications__BasicComponent xsi:type="seff:ResourceDemandingSEFF" id="_PV8mNtCPEe2zaYe3j13yvg" describedService__SEFF="_tEhGoNB1Ee2zoaeuaoaYe3j13yvg">
+      <steps_Behaviour xsi:type="seff:StartAction" id="_kx_4AtCPEe2zaYe3j13yvg" successor_AbstractAction="_YkMo_tCQEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:InternalAction" id="_YkMo_tCQEe2zaYe3j13yvg" predecessor_AbstractAction="_kx_4AtCPEe2zaYe3j13yvg" successor_AbstractAction="_s9AxoNCPEe2zaYe3j13yvg"/>
+      <steps_Behaviour xsi:type="seff:StopAction" id="_s9AxoNCPEe2zaYe3j13yvg" predecessor_AbstractAction="_YkMo_tCQEe2zaYe3j13yvg"/>
+    </serviceEffectSpecifications__BasicComponent>
+  </components__Repository>
+  <interfaces__Repository xsi:type="repository:OperationInterface" id="_FU2wt8TTEe2iOPTxBKj8BA" entityName="BarcodeReader">
+    <signatures__OperationInterface id="_c5-ycMTUEe2iOPTxBKj8BA" entityName="handleNewImage">
+      <parameters__OperationSignature dataType__Parameter="_u9xvHcTUEe2iOPTxBKj8BA" parameterName="img"/>
+      <parameters__OperationSignature dataType__Parameter="_u9xvHcTUEe2iOPTxBKj8BA" parameterName="supplements"/>
+    </signatures__OperationInterface>
+    <signatures__OperationInterface id="_ilEF8MTUEe2iOPTxBKj8BA" entityName="main"/>
+  </interfaces__Repository>
+  <interfaces__Repository xsi:type="repository:OperationInterface" id="_HdjimMTTEe2iOPTxBKj8BA" entityName="MyHTTPClient">
+    <signatures__OperationInterface id="_Mqo2AMTUEe2iOPTxBKj8BA" entityName="submitData">
+      <parameters__OperationSignature dataType__Parameter="_u9xvHcTUEe2iOPTxBKj8BA" parameterName="obj"/>
+    </signatures__OperationInterface>
+  </interfaces__Repository>
+  <interfaces__Repository xsi:type="repository:OperationInterface" id="_ITazmMTTEe2iOPTxBKj8BA" entityName="HTTPServer">
+    <signatures__OperationInterface id="_VqWjAMTUEe2iOPTxBKj8BA" entityName="httpReceive" returnType__OperationSignature="_u9xvHcTUEe2iOPTxBKj8BA">
+      <parameters__OperationSignature dataType__Parameter="_u9xvHcTUEe2iOPTxBKj8BA" parameterName="content"/>
+      <parameters__OperationSignature dataType__Parameter="_u9xvHcTUEe2iOPTxBKj8BA" parameterName="type"/>
+    </signatures__OperationInterface>
+    <signatures__OperationInterface id="_Wjjb4MTUEe2iOPTxBKj8BA" entityName="main"/>
+  </interfaces__Repository>
+  <interfaces__Repository xsi:type="repository:OperationInterface" id="_inGFh9B1Ee2zaYe3j1eouvg" entityName="DatabaseAPI">
+    <signatures__OperationInterface id="_TfaCwNB3Ee2zaYe3j13yvg" entityName="main"/>
+    <signatures__OperationInterface id="_tEhGoNB1Ee2zaYe3j1oeueg" entityName="setCodeContent">
+      <parameters__OperationSignature dataType__Parameter="_u9xvHcTUEe2iOPTxBKj8BA" parameterName="content"/>
+    </signatures__OperationInterface>
+    <signatures__OperationInterface id="_tEhGoNB1aoeuoaeueouyvg" entityName="setCodeType">
+      <parameters__OperationSignature dataType__Parameter="_u9xvHcTUEe2iOPTxBKj8BA" parameterName="cType"/>
+    </signatures__OperationInterface>
+    <signatures__OperationInterface id="_24XJ0NB2Ee2zaYe3j13yvg" entityName="setSqlQuery">
+      <parameters__OperationSignature dataType__Parameter="_u9xvHcTUEe2iOPTxBKj8BA" parameterName="query"/>
+    </signatures__OperationInterface>
+    <signatures__OperationInterface id="_tEhGoNB1oeuoeuaEe2zaYe3j13yvg" entityName="getSqlQuery" returnType__OperationSignature="_u9xvHcTUEe2iOPTxBKj8BA"/>
+    <signatures__OperationInterface id="_tEhGoNB1Ee2zaYoeusnthoauntauhauthsae3j13yvg" entityName="exec"/>
+    <signatures__OperationInterface id="_tEhGoNB1Eoaeuaousate2zaYe3j13yvg" entityName="execAllCodes"/>
+    <signatures__OperationInterface id="_tEhGooeuoauaNB1Ee2zaYe3j13yvg" entityName="execClearTableCodes"/>
+    <signatures__OperationInterface id="_tEhGoNB1Ee2aeuaoeuuzaYe3j13yvg" entityName="doInsert" returnType__OperationSignature="_u9xvHcTUEe2iOPTxBKj8BA">
+      <parameters__OperationSignature dataType__Parameter="_u9xvHcTUEe2iOPTxBKj8BA" parameterName="content"/>
+      <parameters__OperationSignature dataType__Parameter="_u9xvHcTUEe2iOPTxBKj8BA" parameterName="cType"/>
+    </signatures__OperationInterface>
+    <signatures__OperationInterface id="_tEhGoNB1Ee2zaoeuaouuaYe3j13yvg" entityName="execCountCodeTypes"/>
+    <signatures__OperationInterface id="_tEhGoNB1Ee2zoaeuaoaYe3j13yvg" entityName="insert" returnType__OperationSignature="_u9xvHcTUEe2iOPTxBKj8BA"/>
+  </interfaces__Repository>
+  <dataTypes__Repository xsi:type="repository:CompositeDataType" id="_u9xvHcTUEe2iOPTxBKj8BA"/>
+</repository:Repository>

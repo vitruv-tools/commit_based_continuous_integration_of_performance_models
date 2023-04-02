@@ -2,18 +2,18 @@ package cipm.consistency.vsum.test.evaluator.commitHistory;
 
 public class EvaluationSummary {
 
-    private double worstCodeUpdateEvalJaccardCoefficient = 1;
+    private double worstCodeModelUpdateEvalJaccardCoefficient = 1;
     private double worstPcmUpdateEvalJaccardCoefficient = 1;
     private double worstImUpdateEvalFScoreAIP = 1;
     private double worstImUpdateEvalFScoreActiveAIP = 1;
 
     public double getWorstCodeUpdateEvalJaccardCoefficient() {
-        return worstCodeUpdateEvalJaccardCoefficient;
+        return worstCodeModelUpdateEvalJaccardCoefficient;
     }
 
-    public void addCodeUpdateEvalJaccardCoefficient(double worstCodeUpdateEvalJaccardCoefficient) {
-        if (worstCodeUpdateEvalJaccardCoefficient < this.worstCodeUpdateEvalJaccardCoefficient) {
-            this.worstCodeUpdateEvalJaccardCoefficient = worstCodeUpdateEvalJaccardCoefficient;
+    public void addCodeModelUpdateEvalJaccardCoefficient(double worstCodeUpdateEvalJaccardCoefficient) {
+        if (worstCodeUpdateEvalJaccardCoefficient < this.worstCodeModelUpdateEvalJaccardCoefficient) {
+            this.worstCodeModelUpdateEvalJaccardCoefficient = worstCodeUpdateEvalJaccardCoefficient;
         }
     }
 

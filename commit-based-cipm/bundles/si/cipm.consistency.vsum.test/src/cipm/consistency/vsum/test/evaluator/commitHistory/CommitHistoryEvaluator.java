@@ -33,10 +33,10 @@ public class CommitHistoryEvaluator {
     }
 
     private void perPropagationAccounting(EvaluationDataContainer eval) {
-        historyEvalData.summary.addCodeUpdateEvalJaccardCoefficient(eval.getCodeModelUpdateEvalData()
+        historyEvalData.summary.addCodeModelUpdateEvalJaccardCoefficient(eval.getCodeModelUpdateEvalData()
             .getJc());
         for (var pcmUpdateEval : eval.getPcmUpdateEvals()) {
-            historyEvalData.summary.addCodeUpdateEvalJaccardCoefficient(pcmUpdateEval.getJc());
+            historyEvalData.summary.addWorstPcmUpdateEvalJaccardCoefficient(pcmUpdateEval.getJc());
         }
 
         historyEvalData.summary.setWorstImUpdateEvalFScoreActiveAIP(eval.getImUpdateEvalData()

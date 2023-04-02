@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.common.util.WrappedException;
+import org.eclipse.emf.compare.AttributeChange;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -193,6 +194,18 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             return pathOfPossibleCommitCopy;
         }
         return null;
+    }    
+    
+    private Path locateStateCopyForCommit(Path directory, Propagation propagation) {
+//        var currentName = propagation.getCommitIntegrationStateOriginalPath()
+//            .getFileName();
+        var lookupName = propagation.getCommitIntegrationStateCopyPath().getFileName();
+        var pathOfPossibleCommitCopy = directory.resolve(lookupName);
+        if (pathOfPossibleCommitCopy.toFile()
+            .exists()) {
+            return pathOfPossibleCommitCopy;
+        }
+        return null;
     }
 
     private CommitIntegrationState<CM> getCommitIntegrationStateForCommit(Path directory, int commitCount,
@@ -208,12 +221,25 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             e.printStackTrace();
         }
         return stateCopy;
+    }    
+    
+    private CommitIntegrationState<CM> getCommitIntegrationStateForCommit(Path directory, Propagation propagation) {
+        var stateCopyPath = locateStateCopyForCommit(directory, propagation);
+        if (stateCopyPath == null) {
+            return null;
+        }
+        var stateCopy = new CommitIntegrationState<CM>();
+        try {
+            stateCopy.initialize(commitIntegration, stateCopyPath, false, false);
+        } catch (IOException | GitAPIException e) {
+            e.printStackTrace();
+        }
+        return stateCopy;
     }
 
     private void evaluatePcmUpdateJaccardManual(EvaluationDataContainer eval) {
         // locate the state in which the manual copy was created
-        var stateCopyAutomatic = getCommitIntegrationStateForCommit(this.manualModelDirPath, 1,
-                propagation.getCommitId());
+        var stateCopyAutomatic = getCommitIntegrationStateForCommit(this.manualModelDirPath, propagation);
         if (stateCopyAutomatic == null) {
             return;
         }
@@ -228,9 +254,11 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             .getPcmRepositoryPath()
             .toFile(), Repository.class);
 
-        // martins comparison
         var comparison = PCMModelComparator.compareRepositoryModels(newRepository.eResource(),
                 referenceRepository.eResource());
+        var diffs = comparison.getDifferences();
+        var noIdDiffs = diffs.stream().filter(i -> !(i instanceof AttributeChange)).toList();
+
         var jaccardResult = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comparison);
 
         var pcmEvalData = new PcmUpdateEvalData();

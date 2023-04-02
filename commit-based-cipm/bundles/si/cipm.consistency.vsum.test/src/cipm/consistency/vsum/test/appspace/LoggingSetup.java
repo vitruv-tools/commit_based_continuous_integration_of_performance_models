@@ -68,18 +68,24 @@ public class LoggingSetup {
         levels.put("cipm.consistency", Level.INFO);
         levels.put("cipm.consistency.cpr.luapcm.seffreconstruction", Level.WARN);
         levels.put("cipm.consistency.commitintegration.lang.lua.LuaPostProcessor", Level.ERROR);
-        levels.put("mir.reactions", Level.WARN);
 //        levels.put("mir.reactions.luaPcmUpdate", Level.INFO);
 //        levels.put("mir.routines.luaPcmUpdate", Level.INFO);
-        levels.put("mir.routines", Level.WARN);
 //        levels.put("mir.routines.statementFunctionDeclaration_operationSignature", Level.WARN);
 //        levels.put("mir.routines.statement_actions", Level.INFO);
         levels.put("tools.vitruv", Level.INFO);
         levels.put("tools.vitruv.change.atomic.id.IdResolverImpl", Level.WARN);
-//        levels.put("tools.vitruv.change.propagation.impl.ChangePropagator", Level.TRACE);
         levels.put("tools.vitruv.framework.vsum.internal.VirtualModelImpl", Level.WARN);
         levels.put("org.xtext.lua", Level.INFO);
         levels.put("jamopp", Level.ALL);
+        
+        levels.put("mir.reactions", Level.WARN);
+        levels.put("mir.routines", Level.WARN);
+
+        // this is for only for coverage:
+//        levels.put("tools.vitruv.change.propagation.impl.ChangePropagator", Level.TRACE);
+//        levels.put("mir.reactions", Level.TRACE);
+//        levels.put("mir.routines", Level.TRACE);
+
         return levels;
     }
 

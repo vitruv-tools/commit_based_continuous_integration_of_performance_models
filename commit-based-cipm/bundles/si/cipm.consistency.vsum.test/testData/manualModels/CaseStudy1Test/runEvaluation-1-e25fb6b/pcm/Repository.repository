@@ -58,7 +58,7 @@
     </signatures__OperationInterface>
   </interfaces__Repository>
   <interfaces__Repository xsi:type="repository:OperationInterface" id="_ITazmMTTEe2iOPTxBKj8BA" entityName="HTTPServer">
-    <signatures__OperationInterface id="_VqWjAMTUEe2iOPTxBKj8BA" entityName="httpReceive">
+    <signatures__OperationInterface id="_VqWjAMTUEe2iOPTxBKj8BA" entityName="httpReceive" returnType__OperationSignature="_u9xvHcTUEe2iOPTxBKj8BA">
       <parameters__OperationSignature dataType__Parameter="_u9xvHcTUEe2iOPTxBKj8BA" parameterName="content"/>
       <parameters__OperationSignature dataType__Parameter="_u9xvHcTUEe2iOPTxBKj8BA" parameterName="type"/>
     </signatures__OperationInterface>

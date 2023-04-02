@@ -20,6 +20,7 @@ import org.xtext.lua.lua.Block
 import org.xtext.lua.lua.LuaPackage
 import org.xtext.lua.lua.Statement
 import org.xtext.lua.lua.Statement_Function_Declaration
+import org.xtext.lua.lua.LastStatement_Return_WithValue
 
 import "http://www.xtext.org/lua/Lua" as lua
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
@@ -73,6 +74,38 @@ reaction RemovedBlock {
 	after element lua::Block deleted
 	call {
 		removeRDBehaviourForBlock(affectedEObject)
+	}
+}
+
+
+// TODO this was added last minute and could probably use a look over
+reaction ChangedBlockReturn {
+	after element replaced at lua::Block[returnValue]
+	call {
+		val parentDeclaration = EcoreUtil2.getContainerOfType(affectedEObject, Statement_Function_Declaration)
+		if (parentDeclaration !== null) {
+			updateOperationSignature(parentDeclaration, newValue)
+		}
+	}
+}
+
+// TODO move this to the other routines
+routine updateOperationSignature(lua::Statement_Function_Declaration declaration, lua::LastStatement returnValue) {
+	match {
+		val signature = retrieve optional pcm::OperationSignature corresponding to declaration
+		val luaAnyType = retrieve pcm::DataType corresponding to RepositoryPackage.Literals.REPOSITORY
+	}
+	update {
+		if (signature.empty) {
+			return
+		}
+		if (returnValue instanceof LastStatement_Return_WithValue) {
+			if (returnValue.returnValues.size > 0) {
+				signature.get.returnType__OperationSignature = luaAnyType
+				return
+			}
+		}
+		signature.get.returnType__OperationSignature = null
 	}
 }
 
@@ -780,6 +813,7 @@ routine createOperationSignatureForStatementFunctionDeclaration(lua::Statement_F
 		val operationInterface = retrieve pcm::OperationInterface corresponding to LuaUtil.getComponent(
 			functionDeclaration)
 		require absence of pcm::OperationSignature corresponding to functionDeclaration
+		val luaAnyType = retrieve pcm::DataType corresponding to RepositoryPackage.Literals.REPOSITORY
 	}
 	create {
 		val operationSignature = new pcm::OperationSignature
@@ -790,6 +824,17 @@ routine createOperationSignatureForStatementFunctionDeclaration(lua::Statement_F
 		operationSignature.entityName = functionDeclaration.name
 		operationSignature.interface__OperationSignature = operationInterface
 		operationInterface.signatures__OperationInterface += operationSignature
+		
+		val rootBlock = functionDeclaration.function.block
+		if (rootBlock !== null) {
+			val returnValue = rootBlock.returnValue
+			if (returnValue !== null) {
+				operationSignature.returnType__OperationSignature = luaAnyType
+			}
+		} else {
+			logger.warn("no root block")
+		}
+
 
 		addCorrespondenceBetween(functionDeclaration, operationSignature)
 
