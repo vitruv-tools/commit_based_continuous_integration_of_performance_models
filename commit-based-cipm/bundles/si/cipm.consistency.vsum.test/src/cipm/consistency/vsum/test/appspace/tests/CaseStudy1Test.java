@@ -28,9 +28,11 @@ public class CaseStudy1Test extends AppSpaceCITestController {
 
     // this is the history used for the evaluation:
 //    private static final String[] EVALUATION_HISTORY = { null, "e25fb6b", "7126aab", "d92b459", "e6d87e0", "542d2e9",
-//            "6b7b35f", "1f2fb08", "716bf52"};
+//            "6b7b35f", "1f2fb08"};
+    
+    // with two synthetic commits to evaluate some nasty CPR edge cases:
     private static final String[] EVALUATION_HISTORY = { null, "e25fb6b", "7126aab", "d92b459", "e6d87e0", "542d2e9",
-            "6b7b35f", "1f2fb08"};
+            "6b7b35f", "1f2fb08", "616f65a", "de68b25"};
 
     public GitRepositoryWrapper getGitRepositoryWrapper()
             throws InvalidRemoteException, TransportException, GitAPIException, IOException {

@@ -9,6 +9,7 @@ import cipm.consistency.cpr.luapcm.seffreconstruction.CorrespondenceUtil
 import cipm.consistency.cpr.luapcm.seffreconstruction.SeffHelper
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer
 import org.eclipse.xtext.EcoreUtil2
+import org.palladiosimulator.pcm.repository.BasicComponent
 import org.palladiosimulator.pcm.repository.OperationRequiredRole
 import org.palladiosimulator.pcm.repository.RepositoryPackage
 import org.palladiosimulator.pcm.seff.BranchAction
@@ -16,6 +17,7 @@ import org.palladiosimulator.pcm.seff.ExternalCallAction
 import org.palladiosimulator.pcm.seff.InternalAction
 import org.palladiosimulator.pcm.seff.LoopAction
 import org.palladiosimulator.pcm.seff.ProbabilisticBranchTransition
+import org.palladiosimulator.pcm.seff.SeffFactory
 import org.xtext.lua.LuaUtil
 import org.xtext.lua.lua.Block
 import org.xtext.lua.lua.LastStatement_Return_WithValue
@@ -598,12 +600,21 @@ routine createActionsForStatement(EObject statement, lua::Block block) {
 		}
 
 		if (existingActions.size > 0) {
-			logger.trace("Action(s) already present for statement " + statement + ": " + existingActions)
+			logger.warn("Action(s) already present for statement " + statement + ": " + existingActions)
 			return
 		}
+
 		val statementActions = ActionReconstruction.getActionsForStatement(statement, correspondenceModel)
 		if (statementActions.size < 1) {
 			return
+		}
+
+		// does this statement only contain internal calls?
+		var internalStatement = true
+		for (action : statementActions) {
+			if (!(action instanceof InternalAction)) {
+				internalStatement = false
+			}
 		}
 
 		logger.debug(String.format("%s: %d action(s) reconstructed", statement, statementActions.size()))
@@ -612,6 +623,28 @@ routine createActionsForStatement(EObject statement, lua::Block block) {
 			correspondenceModel);
 		var subsequentAction = ActionUtil.getSubsequentActionOfStatement(statement, block, rdBehaviour.get,
 			correspondenceModel);
+			
+		// are we surrounded by a fused action?
+		if (previousAction.equals(subsequentAction)) {
+			if (internalStatement) {
+				logger.info("Fusing internal statement into surrounding fused action")
+				addCorrespondenceBetween(previousAction, statement)
+				actionStatementRelationChanged(previousAction)
+				
+				for (action : statementActions) {
+					action.removeObject
+				}
+				return
+			} else {
+				splitFusedActionAtStatement(previousAction, statement, block)		
+				
+				// recalculate previous and subsequent because the changed because of the split
+				previousAction = ActionUtil.getPreviousActionOfStatement(statement, block, rdBehaviour.get,
+					correspondenceModel);
+				subsequentAction = ActionUtil.getSubsequentActionOfStatement(statement, block, rdBehaviour.get,
+					correspondenceModel);
+			}
+		}
 
 		// every new action is possibly fused with this action
 		var actionToCheckForFusing = previousAction;
@@ -655,10 +688,46 @@ routine createActionsForStatement(EObject statement, lua::Block block) {
 	}
 }
 
+routine splitFusedActionAtStatement(pcm::AbstractAction actionToSplit, EObject statement, lua::Block block) {
+	match {
+		val rdBehaviour = retrieve pcm::ResourceDemandingBehaviour corresponding to block
+		val actionStatements = retrieve many lua::Statement corresponding to actionToSplit
+		val lastStatements = retrieve many lua::LastStatement corresponding to actionToSplit
+	}
+	update {
+		logger.info("Splitting a fused action")
+		
+		// split the action using the index of the given statement
+		var splitIndex = block.statements.indexOf(statement)
+		
+		var secondAction = SeffFactory.eINSTANCE.createInternalAction()
+
+		// transfer correspondences to the second action where needed
+		for (actionStatement  : actionStatements) {
+			var statementIndex = block.statements.indexOf(actionStatement)
+			if (statementIndex > splitIndex) {
+				logger.debug("Moving statement to second action of split")
+				removeCorrespondenceBetween(actionToSplit, actionStatement)
+				addCorrespondenceBetween(secondAction, actionStatement)
+			}
+		}
+		actionStatementRelationChanged(actionToSplit)
+
+		val newSuccessor = actionToSplit.successor_AbstractAction
+		secondAction.predecessor_AbstractAction = actionToSplit
+		secondAction.successor_AbstractAction = newSuccessor
+		
+		val actionInsertIndex = rdBehaviour.steps_Behaviour.indexOf(actionToSplit)
+		rdBehaviour.steps_Behaviour.add(actionInsertIndex+1, secondAction)
+
+		
+		// TODO this does not handle last statements at all
+	}
+}
+
 routine fuseTwoInternalActions(pcm::InternalAction a, pcm::InternalAction b) {
 	match {
 		val statementsCorrespondingToB = retrieve many lua::Statement corresponding to b
-		val aip = retrieve optional im::ActionInstrumentationPoint corresponding to a
 	}
 	update {
 		logger.debug("Fusing two internal actions")
@@ -669,6 +738,21 @@ routine fuseTwoInternalActions(pcm::InternalAction a, pcm::InternalAction b) {
 		]
 		b.removeObject
 
+		actionStatementRelationChanged(a)
+
+		if (Config.descriptiveNames) {
+			var newStatementCount = CorrespondenceUtil.getCorrespondingEObjectsByType(correspondenceModel, a,
+				Statement).size()
+			a.entityName = String.format("Internal: %d statements", newStatementCount)
+		}
+	}
+}
+
+routine actionStatementRelationChanged(pcm::AbstractAction action) {
+	match {
+		val aip = retrieve optional im::ActionInstrumentationPoint corresponding to action
+	}
+	update {
 		// we changed an action by fusing more statements into it
 		// -> These statements must be instrumented, so we enable the AIP
 		if (aip.present && !aip.get.active) {
@@ -677,13 +761,7 @@ routine fuseTwoInternalActions(pcm::InternalAction a, pcm::InternalAction b) {
 		}
 		
 		// track the changed action for the evaluation
-		EvaluationDataContainer.get.imUpdateEvalData.getFusedActions.add(a.id);
-
-		if (Config.descriptiveNames) {
-			var newStatementCount = CorrespondenceUtil.getCorrespondingEObjectsByType(correspondenceModel, a,
-				Statement).size()
-			a.entityName = String.format("Internal: %d statements", newStatementCount)
-		}
+		EvaluationDataContainer.get.imUpdateEvalData.getFusedActions.add(action.id);
 	}
 }
 
@@ -729,14 +807,23 @@ routine removeAction(pcm::AbstractAction action, pcm::ResourceDemandingBehaviour
 
 		logger.debug(action.toString + ": Removing action from RD behaviour" + rdBehaviour.toString)
 
-		// fixing the chaining of the remaining actions
+		// fixing the chaining of the remaining actions or fuse them
 		val pred = action.predecessor_AbstractAction
 		val succ = action.successor_AbstractAction
-		if (pred !== null) {
-			pred.setSuccessor_AbstractAction(succ);
-		}
-		if (succ !== null) {
-			succ.setPredecessor_AbstractAction(pred);
+
+		if (pred instanceof InternalAction && succ instanceof InternalAction) {
+			logger.info("Fusing two now adjacent internal actions")
+			var newSuccessor = succ.successor_AbstractAction
+			fuseTwoInternalActions(pred as InternalAction, succ as InternalAction)
+			pred.successor_AbstractAction = newSuccessor
+
+		} else {
+			if (pred !== null) {
+				pred.successor_AbstractAction = succ
+			}
+			if (succ !== null) {
+				succ.predecessor_AbstractAction = pred
+			}
 		}
 
 		rdBehaviour.steps_Behaviour -= action
@@ -881,6 +968,13 @@ routine createOperationSignatureForStatementFunctionDeclaration(lua::Statement_F
 			if (it instanceof ExternalCallAction) {
 				logger.warn(functionDeclaration.name + ": ExternalCallAction for newly created signature exists")
 				it.calledService_ExternalService = operationSignature
+				
+				val callingComponent = EcoreUtil2.getContainerOfType(it, BasicComponent)
+				if (it.role_ExternalService === null) {
+					// our parent interface did not exist when this external action was created
+					// we need to create it now
+					createOperationRequiredRole(it, callingComponent, operationInterface)
+				}
 			}
 		]
 	}

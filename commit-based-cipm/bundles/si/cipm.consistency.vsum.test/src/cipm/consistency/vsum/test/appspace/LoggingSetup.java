@@ -88,7 +88,7 @@ public class LoggingSetup {
             levels.put("mir.routines", Level.TRACE);
         } else {
             levels.put("mir.reactions", Level.WARN);
-            levels.put("mir.routines", Level.WARN);
+            levels.put("mir.routines", Level.INFO);
         }
 
         return levels;

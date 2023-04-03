@@ -337,7 +337,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
     private static boolean evaluateVsumRepositoryModel(Path path) {
         var valid = evaluateModel(path, Repository.class);
         if (!valid) {
-            LOGGER.debug("VSUM Repository model is invalid");
+            LOGGER.error("VSUM Repository model is invalid");
         }
         return valid;
     }
