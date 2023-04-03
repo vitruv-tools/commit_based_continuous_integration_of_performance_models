@@ -1,0 +1,37 @@
+[
+  {
+    "commitIndex": 1,
+    "evalType": "ComparisonWithManuallyCreated",
+    "comparisonType": "PcmDiffUtil",
+    "numberUnmatchedOldElements": 0,
+    "numberUnmatchedNewElements": 0,
+    "intersectionCardinality": 50,
+    "unionCardinality": 50,
+    "jaccardCoefficient": 1
+  },
+  {
+    "commitIndex": 2
+  },
+  {
+    "commitIndex": 3
+  },
+  {
+    "commitIndex": 4
+  },
+  {
+    "commitIndex": 5,
+    "evalType": "ComparisonWithManuallyCreated",
+    "comparisonType": "PcmDiffUtil",
+    "numberUnmatchedOldElements": 0,
+    "numberUnmatchedNewElements": 0,
+    "intersectionCardinality": 121,
+    "unionCardinality": 121,
+    "jaccardCoefficient": 1
+  },
+  {
+    "commitIndex": 6
+  },
+  {
+    "commitIndex": 7
+  }
+]

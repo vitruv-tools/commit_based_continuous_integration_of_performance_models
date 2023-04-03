@@ -101,6 +101,9 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
         // had
         // mapped infos for
         ChangedResources.setResourcesWereChanged();
+        
+        // reset evaluation data regarding the im update
+        EvaluationDataContainer.get().resetImUpdateEval();
 
         var previousRepositoryPath = state.createRepositorySnapshot();
         var parsedModelPath = state.createParsedCodeModelSnapshot();

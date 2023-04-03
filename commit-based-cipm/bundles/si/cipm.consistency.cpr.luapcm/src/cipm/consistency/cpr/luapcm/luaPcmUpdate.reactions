@@ -7,6 +7,7 @@ import cipm.consistency.cpr.luapcm.seffreconstruction.BranchActionUtil
 import cipm.consistency.cpr.luapcm.seffreconstruction.ComponentSetInfoRegistry
 import cipm.consistency.cpr.luapcm.seffreconstruction.CorrespondenceUtil
 import cipm.consistency.cpr.luapcm.seffreconstruction.SeffHelper
+import cipm.consistency.tools.evaluation.data.EvaluationDataContainer
 import org.eclipse.xtext.EcoreUtil2
 import org.palladiosimulator.pcm.repository.OperationRequiredRole
 import org.palladiosimulator.pcm.repository.RepositoryPackage
@@ -17,11 +18,11 @@ import org.palladiosimulator.pcm.seff.LoopAction
 import org.palladiosimulator.pcm.seff.ProbabilisticBranchTransition
 import org.xtext.lua.LuaUtil
 import org.xtext.lua.lua.Block
+import org.xtext.lua.lua.LastStatement_Return_WithValue
 import org.xtext.lua.lua.LuaPackage
 import org.xtext.lua.lua.Statement
 import org.xtext.lua.lua.Statement_Function_Declaration
-import org.xtext.lua.lua.LastStatement_Return_WithValue
-import java.util.Collections.EmptyList
+import tools.vitruv.change.atomic.feature.FeatureEChange
 
 import "http://www.xtext.org/lua/Lua" as lua
 import "http://palladiosimulator.org/PalladioComponentModel/5.2" as pcm
@@ -46,7 +47,14 @@ execute actions in pcm and im
 reaction DeactivateAllIPs {
 	after anychange
 	call {
-		deactiveAllAIPs()
+		if (change instanceof FeatureEChange) {
+			var info = ComponentSetInfoRegistry.getInfosForComponentSet(change.affectedEObject)
+			if (info !== null && !info.emulatedInstrumentationRan) {
+				logger.warn("Deactivating all AIPs to emulate a complete instrumentation")
+				deactiveAllAIPs()
+				info.emulatedInstrumentationRan = true
+			}
+		}
 	}
 }
 
@@ -629,6 +637,8 @@ routine createActionsForStatement(EObject statement, lua::Block block) {
 				rdBehaviour.get.steps_Behaviour.add(insertionIndex, action)
 				insertionIndex += 1
 				actionToCheckForFusing = action
+
+				EvaluationDataContainer.get.imUpdateEvalData.createdActions.add(action.id);
 			}
 		}
 
@@ -662,9 +672,12 @@ routine fuseTwoInternalActions(pcm::InternalAction a, pcm::InternalAction b) {
 		// we changed an action by fusing more statements into it
 		// -> These statements must be instrumented, so we enable the AIP
 		if (aip.present && !aip.get.active) {
-			logger.info("Actions were changed. Activating Instrumentation Point")
+			logger.warn("Actions were changed. Activating Instrumentation Point")
 			aip.get.active = true
 		}
+		
+		// track the changed action for the evaluation
+		EvaluationDataContainer.get.imUpdateEvalData.getFusedActions.add(a.id);
 
 		if (Config.descriptiveNames) {
 			var newStatementCount = CorrespondenceUtil.getCorrespondingEObjectsByType(correspondenceModel, a,

@@ -46,6 +46,8 @@ public class ComponentSetInfo {
     private ListMultimap<Component, Component> componentToRequiredComponents;
 
     private Set<Block> blocksRequiringActionReconstruction;
+    
+    private boolean emulatedInstrumentationRan = false;
 
     /**
      * Initialize the component set info.
@@ -239,5 +241,13 @@ public class ComponentSetInfo {
     private void markBlockForActionReconstruction(Block block) {
         LOGGER.trace("Block marked for action reconstruction: " + block.toString());
         blocksRequiringActionReconstruction.add(block);
+    }
+
+    public boolean isEmulatedInstrumentationRan() {
+        return emulatedInstrumentationRan;
+    }
+
+    public void setEmulatedInstrumentationRan(boolean emulatedInstrumentationRan) {
+        this.emulatedInstrumentationRan = emulatedInstrumentationRan;
     }
 }

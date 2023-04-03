@@ -36,6 +36,9 @@ public final class ComponentSetInfoRegistry {
 
     public static ComponentSetInfo getInfosForComponentSet(EObject eObj) {
         var componentSet = EcoreUtil2.getContainerOfType(eObj, ComponentSet.class);
+        if (componentSet == null) {
+            return null;
+        }
         return getInfosForComponentSet(componentSet);
     }
 }

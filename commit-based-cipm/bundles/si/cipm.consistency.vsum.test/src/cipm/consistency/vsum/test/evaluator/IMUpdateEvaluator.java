@@ -202,7 +202,11 @@ public class IMUpdateEvaluator {
 
     private void checkChangedActions(Repository repo, Repository previousRepo, InstrumentationModel im) {
         var comparison = PCMModelComparator.compareRepositoryModelsIDBased(repo, previousRepo);
-        ArrayList<String> unmatchedNewActions = new ArrayList<>();
+        
+        
+        ArrayList<String> addedActions = new ArrayList<>();
+        
+        // add the added actions to the changed actions
         comparison.getMatches()
             .forEach(m -> {
                 m.getAllSubmatches()
@@ -210,37 +214,40 @@ public class IMUpdateEvaluator {
                         if (sm.getLeft() != null && sm.getRight() == null && sm.getLeft() instanceof AbstractAction) {
                             AbstractAction leftElement = (AbstractAction) sm.getLeft();
                             if (actionIsRelevant(leftElement) && this.hasResourceDemandingSEFFAsParent(leftElement)) {
-                                unmatchedNewActions.add(leftElement.getId());
+                                addedActions.add(leftElement.getId());
                             }
                         }
                     });
             });
 
-        currentEvalResult.setNumberChangedActions(unmatchedNewActions.size());
+        currentEvalResult.setNumberAddedActions(addedActions.size());
+
+        ArrayList<String> unmatchedChangedActions = new ArrayList<>();
+
+        // changed actions are created actions _and_ changed actions
+        unmatchedChangedActions.addAll(currentEvalResult.getChangedActions());
+        unmatchedChangedActions.addAll(addedActions);
 
         List<String> unmatchedActiveAIPs = new ArrayList<>();
+        
 
-        // this was used for an old metric which is not that useful i think
-//        int difference = 0;
         for (var sip : im.getPoints()) {
             for (var aip : sip.getActionInstrumentationPoints()) {
                 if (aip.isActive()) {
                     var actionId = aip.getAction()
                         .getId();
-                    if (unmatchedNewActions.contains(actionId)) {
-                        unmatchedNewActions.remove(actionId);
+                    if (unmatchedChangedActions.contains(actionId)) {
+                        unmatchedChangedActions.remove(actionId);
                         currentEvalResult.setNumberMatchedActiveAIP(currentEvalResult.getNumberMatchedActiveAIP() + 1);
                     } else {
                         unmatchedActiveAIPs.add(aip.getId());
-//                        difference++;
                     }
                 }
             }
         }
-//        difference += unmatchedNewActions.size();
 //        currentEvalResult.setDifferenceChangedActionsActivatedAIP(difference);
         currentEvalResult.getUnmatchedChangedActions()
-            .addAll(unmatchedNewActions);
+            .addAll(unmatchedChangedActions);
         currentEvalResult.getUnmatchedActiveAIPs()
             .addAll(unmatchedActiveAIPs);
     }

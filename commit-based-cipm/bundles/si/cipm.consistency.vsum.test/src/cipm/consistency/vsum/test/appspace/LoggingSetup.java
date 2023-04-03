@@ -78,13 +78,18 @@ public class LoggingSetup {
         levels.put("org.xtext.lua", Level.INFO);
         levels.put("jamopp", Level.ALL);
         
-        levels.put("mir.reactions", Level.WARN);
-        levels.put("mir.routines", Level.WARN);
-
-        // this is for only for coverage:
-//        levels.put("tools.vitruv.change.propagation.impl.ChangePropagator", Level.TRACE);
-//        levels.put("mir.reactions", Level.TRACE);
-//        levels.put("mir.routines", Level.TRACE);
+        
+        // if we do not enable trace level logging, we artificially lower the
+        // the coverage of the reactions
+        var coverage = false;
+        if (coverage) {
+            levels.put("tools.vitruv.change.propagation.impl.ChangePropagator", Level.TRACE);
+            levels.put("mir.reactions", Level.TRACE);
+            levels.put("mir.routines", Level.TRACE);
+        } else {
+            levels.put("mir.reactions", Level.WARN);
+            levels.put("mir.routines", Level.WARN);
+        }
 
         return levels;
     }

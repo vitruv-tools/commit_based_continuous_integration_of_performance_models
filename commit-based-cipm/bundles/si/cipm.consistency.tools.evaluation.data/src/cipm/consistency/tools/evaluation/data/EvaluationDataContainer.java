@@ -41,6 +41,11 @@ public class EvaluationDataContainer {
     public ChangeStatistic resetChangeStatistic() {
         changeStatistic = new ChangeStatistic();
         return changeStatistic;
+    }    
+    
+    public ImUpdateEvalData resetImUpdateEval() {
+        imUpdateEval = new ImUpdateEvalData();
+        return imUpdateEval;
     }
 
     public ChangeStatistic getChangeStatistic() {

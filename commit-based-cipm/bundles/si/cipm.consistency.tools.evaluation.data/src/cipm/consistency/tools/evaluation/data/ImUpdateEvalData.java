@@ -19,6 +19,7 @@ public class ImUpdateEvalData {
 
     private int numberActiveAIP;
     private int numberMatchedActiveAIP;
+    private int numberAddedActions;
     private int numberChangedActions;
 
     private double ratioActiveAIPs;
@@ -39,6 +40,9 @@ public class ImUpdateEvalData {
     private List<String> unmatchedActions = new ArrayList<>();
     private List<String> unmatchedChangedActions = new ArrayList<>();
 
+    private List<String> createdActions = new ArrayList<>();
+    private List<String> fusedActions = new ArrayList<>();
+    
     public void calculateDerivedValues() {        
         numberAIP = numberIP - numberSIP;
         ratioActiveAIPs = (double) numberActiveAIP / numberAIP;
@@ -48,8 +52,11 @@ public class ImUpdateEvalData {
 
         fScoreServiceInstrumentationPoints = calcFScore(numberMatchedSIP, unmatchedSIPs.size(), unmatchedSEFFs.size());
         fScoreActionInstrumentationPoints = calcFScore(numberMatchedAIP, unmatchedAIPs.size(), unmatchedActions.size());
+        
+
         fScoreActiveActionInstrumentationPoints = calcFScore(numberMatchedActiveAIP, unmatchedChangedActions.size(),
                 unmatchedActiveAIPs.size());
+        
     }
 
     private double calcFScore(int truePos, int falsePos, int falseNeg) {
@@ -180,8 +187,8 @@ public class ImUpdateEvalData {
         return numberChangedActions;
     }
 
-    public void setNumberChangedActions(int numberChangedActions) {
-        this.numberChangedActions = numberChangedActions;
+    public void setNumberAddedActions(int numberChangedActions) {
+        this.numberAddedActions = numberChangedActions;
     }
 
     public double getProportionalOverheadReduction() {
@@ -191,4 +198,30 @@ public class ImUpdateEvalData {
     public double getRatioAipPerSip() {
         return ratioAipPerSip;
     }
+
+    public List<String> getCreatedActions() {
+        return createdActions;
+    }
+
+    public List<String> getFusedActions() {
+        return fusedActions;
+    }
+
+    public int getNumberAddedActions() {
+        return numberAddedActions;
+    }
+
+    public List<String> getChangedActions() {
+        List<String> changedActions = new ArrayList<>();
+
+        // added / changed action instrumentation activation
+        for (var fused : fusedActions) {
+            if (!createdActions.contains(fused) && !changedActions.contains(fused)) {
+                numberChangedActions++;
+                changedActions.add(fused);
+            }
+        }
+        return changedActions;
+    }
+
 }
