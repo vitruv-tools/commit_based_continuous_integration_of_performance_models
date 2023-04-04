@@ -1,14 +1,12 @@
 package cipm.consistency.cpr.luapcm.seffreconstruction;
 
 import org.apache.log4j.Logger;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.EcoreUtil2;
 import org.palladiosimulator.pcm.seff.AbstractAction;
 import org.palladiosimulator.pcm.seff.ResourceDemandingBehaviour;
 import org.palladiosimulator.pcm.seff.StartAction;
 import org.palladiosimulator.pcm.seff.StopAction;
 import org.xtext.lua.lua.Block;
-import org.xtext.lua.lua.LastStatement;
 import org.xtext.lua.lua.Refble;
 import org.xtext.lua.lua.Statement;
 
@@ -54,6 +52,42 @@ public class ActionUtil {
         var succ = action.getPredecessor_AbstractAction();
         pred.setSuccessor_AbstractAction(succ);
         succ.setPredecessor_AbstractAction(pred);
+    }
+
+    public static int getMinStatementIndexOfCorrespondingAction(Statement statement, Block block,
+            EditableCorrespondenceModelView<ReactionsCorrespondence> cmv) {
+        var index = Integer.MAX_VALUE;
+        var actionsOfStatement = CorrespondenceUtil.getCorrespondingEObjectsByType(cmv, statement,
+                AbstractAction.class);
+        for (var action : actionsOfStatement) {
+            var statementsOfAction = CorrespondenceUtil.getCorrespondingEObjectsByType(cmv, action, Statement.class);
+            for (var statementOfAction : statementsOfAction) {
+                var statementIndex = block.getStatements().indexOf(statementOfAction);
+                if (statementIndex < index) {
+                    index = statementIndex;
+                }
+            }
+        }
+
+        return index;
+    }
+
+    public static int getMaxStatementIndexOfCorrespondingAction(Statement statement, Block block,
+            EditableCorrespondenceModelView<ReactionsCorrespondence> cmv) {
+        var index = -1;
+        var actionsOfStatement = CorrespondenceUtil.getCorrespondingEObjectsByType(cmv, statement,
+                AbstractAction.class);
+        for (var action : actionsOfStatement) {
+            var statementsOfAction = CorrespondenceUtil.getCorrespondingEObjectsByType(cmv, action, Statement.class);
+            for (var statementOfAction : statementsOfAction) {
+                var statementIndex = block.getStatements().indexOf(statementOfAction);
+                if (statementIndex > index) {
+                    index = statementIndex;
+                }
+            }
+        }
+
+        return index;
     }
 
     public static AbstractAction getPreviousActionOfStatement(EObject statement, Block block,

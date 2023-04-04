@@ -44,9 +44,10 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 		val defaultMatchEngineFactory = new MatchEngineFactoryImpl(UseIdentifiers.WHEN_AVAILABLE)
 		defaultMatchEngineFactory.ranking = 10
 
+		// this was not needed in the end:
 		// Match engine factory for the IMM
-		val imMatchEngineFactory = new ImMatchEngineFactory()
-		imMatchEngineFactory.ranking = 15
+//		val imMatchEngineFactory = new ImMatchEngineFactory()
+//		imMatchEngineFactory.ranking = 15
 
 		// Lua match engine with higher ranking
 		val hierarchicalMatchEngineFactory = new LuaHierarchicalMatchEngineFactory();
@@ -55,7 +56,7 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 		emfCompareBuilder = (EMFCompare.builder => [
 			matchEngineFactoryRegistry = new MatchEngineFactoryRegistryImpl => [
 				add(defaultMatchEngineFactory)
-				add(imMatchEngineFactory)
+//				add(imMatchEngineFactory)
 				add(hierarchicalMatchEngineFactory)
 			]
 		])

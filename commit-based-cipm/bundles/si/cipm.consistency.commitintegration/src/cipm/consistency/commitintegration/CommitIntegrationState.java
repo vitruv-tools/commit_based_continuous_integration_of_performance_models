@@ -17,6 +17,7 @@ import cipm.consistency.models.im.ImFacade;
 import cipm.consistency.models.pcm.PcmFacade;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
+import cipm.consistency.vsum.Propagation;
 import cipm.consistency.vsum.VsumFacade;
 import cipm.consistency.vsum.VsumFacadeImpl;
 
@@ -45,6 +46,8 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
     private int parsedCodeModelSnapshotCount = 0;
     private int pcmSnapshotCount = 0;
     private Path currentParsedModelPath = null;
+    
+    private Propagation lastSuccessfulPropagation = null;
 
     // was this state previously used to propagate something?
     private boolean isFresh = false;
@@ -278,5 +281,13 @@ public class CommitIntegrationState<CM extends CodeModelFacade> {
 
     public int getSnapshotCount() {
         return snapshotCount;
+    }
+
+    public Propagation getLastSuccessfulPropagation() {
+        return lastSuccessfulPropagation;
+    }
+
+    public void setLastSuccessfulPropagation(Propagation lastSuccessfulPropagation) {
+        this.lastSuccessfulPropagation = lastSuccessfulPropagation;
     }
 }

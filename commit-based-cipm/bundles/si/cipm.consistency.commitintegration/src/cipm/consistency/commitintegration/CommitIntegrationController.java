@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
@@ -66,10 +67,15 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
      * @throws TransportException
      * @throws InvalidRemoteException
      */
-    protected void reload() throws InvalidRemoteException, TransportException, IOException, GitAPIException {
+    protected void reload() {
         var ci = state.getCommitIntegration();
         state.dispose();
-        state.initialize(ci);
+        try {
+            state.initialize(ci);
+        } catch (IOException | GitAPIException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -98,8 +104,7 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
         }
 
         // this informs the ComponentSetInfoRegistry singleton that we changed resources which it
-        // had
-        // mapped infos for
+        // had mapped infos for
         ChangedResources.setResourcesWereChanged();
         
         // reset evaluation data regarding the im update
@@ -121,6 +126,16 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
             .getExecutionTimes()
             .setChangePropagationTime(propagationTime);
 
+        var exception = propagation.getException();
+        if (exception != null) {
+            if (getFailureMode() == CommitIntegrationFailureMode.ABORT) {
+                throw exception;
+            }
+        } else {
+            // successful propagation
+            state.setLastSuccessfulPropagation(propagation);
+        }
+
         addChangeNumbersToEvaluationData(propagation.getChanges());
 
         var snapshotPath = state.createSnapshot();
@@ -135,6 +150,44 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
 
         // trigger some post propagation hooks
         postPropagationHook();
+
+        if (exception != null) {
+            switch (getFailureMode()) {
+            case BACKUP:
+                var lastSuccessfulPropagation = state.getLastSuccessfulPropagation();
+                if (lastSuccessfulPropagation != null) {
+                    // overwrite the current state with a backup, as models may have been corrupted
+                    // by the broken propagation
+                    var backupPath = lastSuccessfulPropagation.getCommitIntegrationStateCopyPath();
+                    var currentPath = state.getDirLayout()
+                        .getRootDirPath();
+                    LOGGER.info("Loading snapshot from last successful propagation: " + backupPath);
+                    try {
+                        FileUtils.copyDirectory(backupPath.toFile(), currentPath.toFile());
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                } // intentional fall through
+            case RELOAD:
+                LOGGER.info("Reloading commit integration state");
+                reload();
+                break;
+            case CLEAN:
+                try {
+                    LOGGER.info("Resetting commit integration state");
+                    var ci = state.getCommitIntegration();
+                    state.getDirLayout()
+                        .delete();
+                    state.dispose();
+                    state.initialize(ci, ci.getRootPath(), true);
+                } catch (IOException | GitAPIException e) {
+                    e.printStackTrace();
+                }
+                break;
+            default:
+            }
+        }
 
         return Optional.of(propagation);
     }
@@ -285,4 +338,8 @@ public abstract class CommitIntegrationController<CM extends CodeModelFacade> {
         return false;
     }
 
+    private CommitIntegrationFailureMode getFailureMode() {
+        return state.getCommitIntegration()
+            .getFailureMode();
+    }
 }

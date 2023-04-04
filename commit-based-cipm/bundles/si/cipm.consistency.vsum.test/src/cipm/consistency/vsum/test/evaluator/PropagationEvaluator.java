@@ -61,6 +61,8 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
     private CommitIntegrationState<CM> state;
     private CommitIntegration<CM> commitIntegration;
     private Path manualModelDirPath;
+    
+    private boolean loaded = false;
 
     public PropagationEvaluator(Propagation propagation, CommitIntegration<CM> commitIntegration,
             Path manualModelPath) {
@@ -69,14 +71,17 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         this.manualModelDirPath = manualModelPath;
 
         state = new CommitIntegrationState<CM>();
+
         try {
             // load the CIS without overwriting and loading the vsum
             // (Loading a moved VSUM is currently not possible, because the paths in its
             // models.models file
             // are absolute and not relative)
             state.initialize(commitIntegration, propagation.getCommitIntegrationStateCopyPath(), false, false);
-        } catch (IOException | GitAPIException e) {
+            loaded = true;
+        } catch (Exception e) {
             e.printStackTrace();
+            LOGGER.error("Unable to load commit integration state located at " + propagation.getCommitIntegrationStateCopyPath() + ": " + e.getMessage());
         }
     }
 
@@ -180,6 +185,10 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
 
         var comparison = compareCodeModels(parsedCodeModel, vsumCodeModel);
         var jaccardResult = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comparison);
+        
+        if (jaccardResult.getJC() < 1) {
+            LOGGER.warn("Code model update has suboptimal JC");
+        }
         eval.getCodeModelUpdateEvalData()
             .setValuesUsingJaccardCoefficientResult(jaccardResult);
     }
@@ -274,6 +283,10 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         // locate the state copy that was created from scratch for this commit
         var stateCopyAutomatic = getCommitIntegrationStateForCommit(propagation.getCommitIntegrationStateCopyPath()
             .getParent(), 1, propagation.getCommitId());
+        
+        if (stateCopyAutomatic == null) {
+            return;
+        }
 
         var referenceRepository = ModelUtil.readFromFile(stateCopyAutomatic.getPcmFacade()
             .getDirLayout()
@@ -311,12 +324,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
      * @return True if the vsum code model was updated correctly during the propagation
      */
     private boolean evaluateChangeResolution() {
-
-        var valid = evaluateChangeResolutionTextFileSimilarity();
-        if (!valid) {
-            LOGGER.warn("Change resolution did not pass evaluation");
-        }
-        return valid;
+        return evaluateChangeResolutionTextFileSimilarity();
     }
 
     private boolean evaluateVsumCodeModel() {
@@ -365,15 +373,27 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             .getModel();
         var imEvalData = EvaluationDataContainer.get()
             .getImUpdateEvalData();
-        var previousRepo = ModelUtil.readFromFile(propagation.getPreviousPcmRepositoryPath()
-            .toFile(), Repository.class);
-
+        
+        var repoFile = propagation.getPreviousPcmRepositoryPath()
+            .toFile();
+        if (!repoFile.exists()) {
+            return;
+        }
+        
+        var previousRepo = ModelUtil.readFromFile(repoFile, Repository.class);
         evaluator.evaluateIMUpdate(repo, im, imEvalData, previousRepo);
     }
 
     public boolean evaluate() {
+        if (!loaded) {
+            return false;
+        }
+        
         // 1. Evaluations that only write to the evaluation data:
         var eval = EvaluationDataContainer.get();
+        if (propagation.getException() != null) {
+            eval.setErrorMessage(propagation.getException().getMessage());
+        }
         evaluateCodeModelUpdate(eval);
 
         // these two evaluations accidentally overwrite parts of the data container
@@ -385,8 +405,6 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
 
         evaluateImUpdate();
 
-        // save the evaluation data to the directory of the integration state copy
-        state.persistEvaluationData();
 
         // 2. Evaluations with binary result:
         var valid = true;
@@ -402,6 +420,10 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         if (valid) {
             LOGGER.info("Propagation passed evaluation");
         }
+
+        // save the evaluation data to the directory of the integration state copy
+        state.persistEvaluationData();
+
         return valid;
     }
 

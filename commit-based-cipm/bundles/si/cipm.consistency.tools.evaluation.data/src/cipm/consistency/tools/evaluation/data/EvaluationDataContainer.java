@@ -23,13 +23,18 @@ public class EvaluationDataContainer {
         globalContainer = newContainer;
     }
 
-    private boolean successful = false;
+    /**
+     * the result of the binary evaluations
+     */
+    private boolean validated = false;
+    private String errorMessage = null;
+
 //    private long evaluationTime = System.currentTimeMillis();
     private ChangeStatistic changeStatistic = new ChangeStatistic();
     private CodeModelCorrectnessEval codeModelCorrectness = new CodeModelCorrectnessEval();
-    private CodeModelUpdateEvalData codeModelUpdateEval = new CodeModelUpdateEvalData();
+    private CodeModelUpdateEvalData codeModelUpdateEval = null;
     private List<PcmUpdateEvalData> pcmUpdateEvals = new ArrayList<>();
-    private ImUpdateEvalData imUpdateEval = new ImUpdateEvalData();
+    private ImUpdateEvalData imUpdateEval = null;
 //    private InstrumentationEvaluationData instrumentationData = new InstrumentationEvaluationData();
     private InstrumentationEvaluationData instrumentationData = null;
     private ExecutionTimeData executionTimes = new ExecutionTimeData();
@@ -53,10 +58,16 @@ public class EvaluationDataContainer {
     }
 
     public CodeModelUpdateEvalData getCodeModelUpdateEvalData() {
+        if (codeModelUpdateEval == null) {
+            codeModelUpdateEval = new CodeModelUpdateEvalData();
+        }
         return codeModelUpdateEval;
     }
 
     public ImUpdateEvalData getImUpdateEvalData() {
+        if (imUpdateEval == null) {
+            imUpdateEval = new ImUpdateEvalData();
+        }
         return imUpdateEval;
     }
 
@@ -68,12 +79,12 @@ public class EvaluationDataContainer {
         return executionTimes;
     }
 
-    public boolean isSuccessful() {
-        return successful;
+    public boolean valid() {
+        return validated;
     }
 
     public void setSuccessful(boolean success) {
-        this.successful = success;
+        this.validated = success;
     }
 
     public List<PcmUpdateEvalData> getPcmUpdateEvals() {
@@ -86,5 +97,13 @@ public class EvaluationDataContainer {
 
     public void setCodeModelCorrectness(CodeModelCorrectnessEval codeModelCorrectness) {
         this.codeModelCorrectness = codeModelCorrectness;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 }

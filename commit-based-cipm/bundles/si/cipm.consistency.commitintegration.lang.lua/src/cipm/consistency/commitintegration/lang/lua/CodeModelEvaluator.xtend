@@ -3,17 +3,20 @@ package cipm.consistency.commitintegration.lang.lua
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer
 import com.google.inject.Provider
 import java.io.ByteArrayOutputStream
+import java.io.IOException
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.ArrayList
 import javax.inject.Inject
 import org.eclipse.emf.common.util.URI
+import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import org.xtext.lua.LuaStandaloneSetup
 import org.xtext.lua.tests.LuaInjectorProvider
+import org.eclipse.emf.common.util.WrappedException
 
 //@ExtendWith(InjectionExtension)
 @InjectWith(LuaInjectorProvider)
@@ -51,8 +54,18 @@ class CodeModelEvaluator {
 	}
 
 	def boolean checkCaseStudyFile(XtextResourceSet rs, Path srcFile, Path appPath) {
+		if (!srcFile.toFile.exists) {
+			return false;
+		}
+
 		val uri = URI.createURI(srcFile.toString)
-		val res = rs.getResource(uri, true)
+		var Resource res = null
+		try {
+			res = rs.getResource(uri, true)
+		} catch (WrappedException | IOException e) {
+//			e.printStackTrace;
+			return false;
+		}
 		val origString = Files.readString(srcFile)
 
 		val outputStream = new ByteArrayOutputStream()

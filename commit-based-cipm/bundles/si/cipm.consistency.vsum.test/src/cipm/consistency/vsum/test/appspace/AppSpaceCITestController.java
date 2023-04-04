@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInfo;
 
+import cipm.consistency.commitintegration.CommitIntegrationFailureMode;
 import cipm.consistency.commitintegration.CommitIntegrationState;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
@@ -48,6 +49,9 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
 
     private Path rootPath;
     private Path manualModelsPath;
+    
+    // default failure mode 
+    private CommitIntegrationFailureMode failureMode = CommitIntegrationFailureMode.ABORT;
 
     /**
      * Returns the path to the settings file.
@@ -232,7 +236,7 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
                 if (evaluateImmediately) {
                     var eval = evaluatePropagation(propagation);
                     commitHistoryEvaluator.addEvaluationDataContainer(eval);
-                    if (!eval.isSuccessful()) {
+                    if (!eval.valid()) {
                         failTest("Propagation failed evaluation (immediate abort)");
                     }
                 }
@@ -246,7 +250,7 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
                 for (var propagation : allPropagations) {
                     var eval = evaluatePropagation(propagation);
                     commitHistoryEvaluator.addEvaluationDataContainer(eval);
-                    if (!eval.isSuccessful()) {
+                    if (!eval.valid()) {
                         failures++;
                         LOGGER.error(String.format("Propagation #%d failed evaluation", i));
                     }
@@ -296,6 +300,16 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
             propagateAndEvaluate(null, commit);
             cleanupAfterTest();
         }
+    }
+
+    @Override
+    public CommitIntegrationFailureMode getFailureMode() {
+        return failureMode;
+    }
+
+    @Override
+    public void setFailureMode(CommitIntegrationFailureMode failureMode) {
+        this.failureMode = failureMode;
     }
 
     /**

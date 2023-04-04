@@ -12,6 +12,7 @@ import com.google.common.base.Supplier;
 
 import cipm.consistency.commitintegration.CommitIntegration;
 import cipm.consistency.commitintegration.CommitIntegrationController;
+import cipm.consistency.commitintegration.CommitIntegrationFailureMode;
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import cipm.consistency.commitintegration.lang.detection.strategy.ComponentDetectionStrategy;
 import cipm.consistency.commitintegration.lang.lua.LuaModelFacade;

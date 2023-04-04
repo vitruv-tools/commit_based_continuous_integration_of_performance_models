@@ -157,8 +157,12 @@ public final class ActionReconstruction {
             var calledFunction = directCall.getCalledFunction();
             var callingComponent = LuaUtil.getComponent(directCall);
             var calledComponent = LuaUtil.getComponent(calledFunction);
+            
+            if (calledFunction == null || calledComponent == null) {
+                return false;
+            }
 
-            var isCallToFunction = calledFunction != null && calledFunction instanceof Statement_Function_Declaration;
+            var isCallToFunction = calledFunction instanceof Statement_Function_Declaration;
             var isCallToMockedFunction = calledComponent.getName()
                 .equals(LuaLinkingService.MOCK_URI.path());
             var isInternalCall = calledComponent.equals(callingComponent);

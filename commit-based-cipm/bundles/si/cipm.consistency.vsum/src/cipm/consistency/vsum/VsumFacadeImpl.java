@@ -12,6 +12,7 @@ import org.xtext.lua.lua.ComponentSet;
 
 import cipm.consistency.base.models.instrumentation.InstrumentationModel.InstrumentationModel;
 import cipm.consistency.models.ModelFacade;
+import tools.vitruv.change.composite.description.PropagatedChange;
 import tools.vitruv.change.correspondence.Correspondence;
 import tools.vitruv.change.correspondence.view.EditableCorrespondenceModelView;
 import tools.vitruv.change.interaction.UserInteractionFactory;
@@ -313,8 +314,18 @@ public class VsumFacadeImpl implements VsumFacade {
             view.registerRoot(newRootEobject, targetUri);
         }
 
-        var changeList = view.commitChangesAndUpdate();
+        List<PropagatedChange> changeList = List.of();
+        IllegalStateException exception = null;
+
+        try {
+            changeList = view.commitChangesAndUpdate();
+        } catch (IllegalStateException e) {
+            LOGGER.error(e.getMessage());
+            exception = e;
+        }
+
         var propagation = new Propagation(changeList);
+        propagation.setException(exception);
 
         logPropagatedChanges(resource, propagation);
 

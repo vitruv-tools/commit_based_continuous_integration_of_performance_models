@@ -33,6 +33,14 @@ public class CommitHistoryEvaluator {
     }
 
     private void perPropagationAccounting(EvaluationDataContainer eval) {
+        historyEvalData.summary.incrementTotal();
+        if (!eval.valid()) {
+            historyEvalData.summary.incrementInvalids();
+        }
+        if (eval.getErrorMessage() != null) {
+            historyEvalData.summary.incrementFailures();
+        }
+
         historyEvalData.summary.addCodeModelUpdateEvalJaccardCoefficient(eval.getCodeModelUpdateEvalData()
             .getJc());
         for (var pcmUpdateEval : eval.getPcmUpdateEvals()) {

@@ -3,12 +3,17 @@ package cipm.consistency.commitintegration.lang.lua.changeresolution.lua;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.compare.utils.EqualityHelper;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.xtext.EcoreUtil2;
+import org.xtext.lua.lua.Block;
 import org.xtext.lua.lua.Expression_Functioncall_Direct;
 import org.xtext.lua.lua.Expression_Length;
+import org.xtext.lua.lua.Expression_Number;
+import org.xtext.lua.lua.Expression_TableAccess;
 import org.xtext.lua.lua.Expression_TableConstructor;
 import org.xtext.lua.lua.Expression_VariableName;
 import org.xtext.lua.lua.Field_AppendEntryToTable;
 import org.xtext.lua.lua.Refble;
+import org.xtext.lua.lua.Statement;
 import org.xtext.lua.lua.Statement_Assignment;
 
 import com.google.common.cache.LoadingCache;
@@ -58,9 +63,30 @@ public class LuaEqualityHelper extends EqualityHelper {
         return left.getName()
             .equals(right.getName());
     }
+    
+    private boolean refblesMatchPositionally(Refble left, Refble right) {
+        if (left == null || right == null) {
+            return false;
+        }
+        
+        if (!left.getName().equals(right.getName())) {
+            return false;
+        }
+
+        var leftBlock = EcoreUtil2.getContainerOfType(left, Block.class);
+        var rightBlock = EcoreUtil2.getContainerOfType(right, Block.class);
+        var leftStatement = EcoreUtil2.getContainerOfType(left, Statement.class);
+        var rightStatement = EcoreUtil2.getContainerOfType(right, Statement.class);
+        var leftIndex = leftBlock.getStatements().indexOf(leftStatement);
+        var rightIndex = rightBlock.getStatements().indexOf(rightStatement);
+        return leftIndex == rightIndex;
+    }
 
     private boolean match(Expression_VariableName left, Expression_VariableName right) {
-        return match(left.getRef(), right.getRef());
+        if (left == null || right == null) {
+            return false;
+        }
+        return refblesMatchPositionally(left.getRef(), right.getRef());
     }
 
     private boolean match(Expression_Functioncall_Direct left, Expression_Functioncall_Direct right) {
@@ -85,10 +111,32 @@ public class LuaEqualityHelper extends EqualityHelper {
     private boolean match(Expression_Length left, Expression_Length right) {
         return match(left.getExp(), right.getExp());
     }
+
     private boolean match(Statement_Assignment left, Statement_Assignment right) {
-        var destsMatch = matchEList(left.getDests(), right.getDests());
-        var valsMatch = matchEList(left.getValues(), right.getValues());
-        return destsMatch && valsMatch;
+        var match = true;
+        match &= matchEList(left.getDests(), right.getDests());
+        // TODO ununcomment!
+//        match &= matchEList(left.getValues(), right.getValues());
+        return match;
+    }    
+
+    private boolean match(Expression_Number left, Expression_Number right) {
+        return left.getValue() == right.getValue();
+    }
+
+    private boolean match(Expression_TableAccess left, Expression_TableAccess right) {
+        var matches = true;
+        if (left.getIndexableExpression() != null) {
+            matches &= match(left.getIndexableExpression(), right.getIndexableExpression());
+        }
+        
+        matches &= matchEList(left.getIndexExpression(), right.getIndexExpression());
+        
+        if (left.getFunctionName() != null && right.getFunctionName() != null) {
+            matches &= left.getFunctionName().equals(right.getFunctionName());
+        }
+        
+        return matches;
     }
 
     /**
@@ -121,6 +169,10 @@ public class LuaEqualityHelper extends EqualityHelper {
         } else if (left instanceof Expression_Length l && right instanceof Expression_Length r) {
             return match(l, r);
         } else if (left instanceof Refble l && right instanceof Refble r) {
+            return match(l, r);
+        } else if (left instanceof Expression_Number l && right instanceof Expression_Number r) {
+            return match(l, r);
+        } else if (left instanceof Expression_TableAccess l && right instanceof Expression_TableAccess r) {
             return match(l, r);
         }
 

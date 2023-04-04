@@ -1,6 +1,10 @@
 package cipm.consistency.vsum.test.evaluator.commitHistory;
 
 public class EvaluationSummary {
+    
+    private int total = 0;
+    private int failures = 0;
+    private int invalids = 0;
 
     private double worstCodeModelUpdateEvalJaccardCoefficient = 1;
     private double worstPcmUpdateEvalJaccardCoefficient = 1;
@@ -46,5 +50,29 @@ public class EvaluationSummary {
                 && worstImUpdateEvalFScoreActiveAIP >= 0) {
             this.worstImUpdateEvalFScoreActiveAIP = worstImUpdateEvalFScoreActiveAIP;
         }
+    }
+
+    public int getInvalids() {
+        return invalids;
+    }
+
+    public void setInvalids(int invalids) {
+        this.invalids = invalids;
+    }
+
+    public int getFailures() {
+        return failures;
+    }
+
+    public void incrementFailures() {
+        this.failures++;
+    }
+
+    public void incrementTotal() {
+        this.total++;
+    }
+
+    public void incrementInvalids() {
+        this.invalids++;
     }
 }

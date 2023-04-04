@@ -41,9 +41,11 @@ public class Propagation {
     private int consequentialChangeCount = 0;
 
     private List<PropagatedChange> changes = null;
+    
+    private IllegalStateException exception;
 
 
-    Propagation(List<PropagatedChange> changes) {
+    public Propagation(List<PropagatedChange> changes) {
         if (changes == null) {
             return;
         }
@@ -131,6 +133,14 @@ public class Propagation {
 
     public void setCommitId(String commitId) {
         this.commitId = commitId;
+    }
+
+    public IllegalStateException getException() {
+        return exception;
+    }
+
+    public void setException(IllegalStateException exception) {
+        this.exception = exception;
     }
 
 }

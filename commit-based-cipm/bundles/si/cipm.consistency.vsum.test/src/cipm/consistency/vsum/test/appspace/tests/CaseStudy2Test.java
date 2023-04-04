@@ -9,6 +9,7 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
+import cipm.consistency.commitintegration.CommitIntegrationFailureMode;
 import cipm.consistency.commitintegration.git.GitRepositoryWrapper;
 import cipm.consistency.vsum.test.appspace.AppSpaceCITestController;
 
@@ -24,13 +25,13 @@ public class CaseStudy2Test extends AppSpaceCITestController {
     private static final String[] VERSIONS_MASTER = { null, "f713180", "1466c57", "f57823c", "40bf36e", "473c9d9",
             "995ecc0", "956aeb9", "0da3169", "00b44f8", "88d005a", "92cb3bc", COMMIT_TAG_MASTER };
 
-    private static final String[] VERSIONS_MASTER_WITHOUT_FIRST_TWO = { null, "f57823c", "40bf36e", "473c9d9",
-            "995ecc0", "956aeb9", "0da3169", "00b44f8", "88d005a", "92cb3bc", COMMIT_TAG_MASTER };
-
-    private static final String[] VERSIONS_MASTER_WITHOUT_FIRST_THREE = { null, "40bf36e", "473c9d9", "995ecc0",
-            "956aeb9", "0da3169", "00b44f8", "88d005a", "92cb3bc", COMMIT_TAG_MASTER };
-    private static final String[] VERSIONS_MASTER_WITHOUT_FIRST_FOUR = { null, "473c9d9", "995ecc0", "956aeb9",
-            "0da3169", "00b44f8", "88d005a", "92cb3bc", COMMIT_TAG_MASTER };
+//    private static final String[] VERSIONS_MASTER_WITHOUT_FIRST_TWO = { null, "f57823c", "40bf36e", "473c9d9",
+//            "995ecc0", "956aeb9", "0da3169", "00b44f8", "88d005a", "92cb3bc", COMMIT_TAG_MASTER };
+//
+//    private static final String[] VERSIONS_MASTER_WITHOUT_FIRST_THREE = { null, "40bf36e", "473c9d9", "995ecc0",
+//            "956aeb9", "0da3169", "00b44f8", "88d005a", "92cb3bc", COMMIT_TAG_MASTER };
+//    private static final String[] VERSIONS_MASTER_WITHOUT_FIRST_FOUR = { null, "473c9d9", "995ecc0", "956aeb9",
+//            "0da3169", "00b44f8", "88d005a", "92cb3bc", COMMIT_TAG_MASTER };
 
     public GitRepositoryWrapper getGitRepositoryWrapper()
             throws InvalidRemoteException, TransportException, GitAPIException, IOException {
@@ -44,31 +45,18 @@ public class CaseStudy2Test extends AppSpaceCITestController {
         propagateAndEvaluateIndividually(testInfo, VERSIONS_MASTER);
     }
 
+    @Test
+    public void testPropagation() {
+        setFailureMode(CommitIntegrationFailureMode.CLEAN);
+        propagateAndEvaluate(VERSIONS_MASTER);
+    }
+
     /**
      * This test propagates all versions to the scripts directory of the current master branch
      */
     @Test
-    public void testPropagationComplete() {
-        propagateAndEvaluate(VERSIONS_MASTER);
-    }
-
-    @Test
-    public void testIntegratingCompleteWithoutFirstTwo() {
-        propagateAndEvaluate(VERSIONS_MASTER_WITHOUT_FIRST_TWO);
-    }
-
-    @Test
-    public void testIntegratingCompleteWithoutFirstThree() {
-        propagateAndEvaluate(VERSIONS_MASTER_WITHOUT_FIRST_THREE);
-    }
-
-    @Test
-    public void testIntegratingCompleteWithout() {
-        // this works until
-        String[] drop5 = { null, "995ecc0", "956aeb9", "0da3169", "00b44f8", "88d005a", "92cb3bc", COMMIT_TAG_MASTER };
-        String[] drop5take5drop1takeRemaining = { null, "995ecc0", "956aeb9", "0da3169", "00b44f8", "88d005a",
-                COMMIT_TAG_MASTER };
-        String[] drop5take5drop2 = { null, "995ecc0", "956aeb9", "0da3169", "00b44f8", "88d005a" };
-        propagateAndEvaluate(drop5take5drop2);
+    public void testCompleteEvaluation() {
+        setFailureMode(CommitIntegrationFailureMode.CLEAN);
+        doCompleteEvaluation(VERSIONS_MASTER);
     }
 }

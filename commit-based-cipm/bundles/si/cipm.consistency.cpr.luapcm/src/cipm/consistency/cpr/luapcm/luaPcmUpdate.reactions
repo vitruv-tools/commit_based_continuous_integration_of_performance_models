@@ -211,6 +211,28 @@ reaction RemovedStatement {
 	}
 }
 
+//reaction ChangedStatement {
+//	after anychange 
+//	call {
+//		if (change instanceof FeatureEChange) {
+//			val affected = change.affectedEObject
+//
+//			val parentBlock = EcoreUtil2.getContainerOfType(affected, Block)
+//			if (parentBlock === null) {
+//				return
+//			}
+//
+//			val parentStatement = EcoreUtil2.getContainerOfType(affected, Statement)
+//			if (parentStatement === null) {
+//				return
+//			}
+//			
+//			replaceActionsForStatement(parentStatement, parentBlock, change)
+//		}
+//		
+//	}
+//}
+
 reaction AddedServeCall {
 	after element lua::Expression_Functioncall_Direct created
 	call {
@@ -776,6 +798,44 @@ routine removeActionsForStatement(EObject statement, lua::Block block) {
 			action.removeCorrespondenceBetween(statement)
 			// delete if the action has no other corresponding statements
 			tryDeleteAction(action, rdBehaviour)
+		}
+	}
+}
+
+routine replaceActionsForStatement(lua::Statement statement, lua::Block block, EObject change) {
+	match {
+		val statementActions = retrieve many pcm::AbstractAction corresponding to statement
+		val rdBehaviour = retrieve optional pcm::ResourceDemandingBehaviour corresponding to block
+	}
+	update {
+		if (!ActionReconstruction.needsActionReconstruction(statement)) {
+			return
+		}
+
+		if (!rdBehaviour.present) {
+			logger.warn("Unable to replace actions for statements: no RD Behaviour")
+			return
+		}
+		
+		logger.info("Recreating actions of a changed statement")
+		for (action : statementActions) {
+			recreateActionsForCorrespondingStatements(action)
+		}
+	}
+}
+
+routine recreateActionsForCorrespondingStatements(pcm::AbstractAction action) {
+	match {
+		val statements = retrieve many lua::Statement corresponding to action
+	}
+	update {
+		for (statement : statements) {
+			val block = EcoreUtil2.getContainerOfType(statement, Block)
+			removeActionsForStatement(statement, block)
+		}
+		for (statement : statements) {
+			val block = EcoreUtil2.getContainerOfType(statement, Block)
+			createActionsForStatement(statement, block)
 		}
 	}
 }

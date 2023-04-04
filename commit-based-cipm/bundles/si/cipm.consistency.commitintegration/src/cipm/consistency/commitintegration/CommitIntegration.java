@@ -52,4 +52,18 @@ public interface CommitIntegration<CM extends CodeModelFacade> {
      * @return A supplier to instantiate the generic code model
      */
     public Supplier<CM> getCodeModelFacadeSupplier();
+    
+    /**
+     * Returns the failure mode for failing propagations.
+     * 
+     * @return
+     */
+    public CommitIntegrationFailureMode getFailureMode();
+
+    /**
+     * Set the failure mode for failing propagations.
+     * 
+     * @return
+     */
+    public void setFailureMode(CommitIntegrationFailureMode failureMode);
 }
