@@ -3,8 +3,6 @@ package cipm.consistency.commitintegration.lang.lua.changeresolution.lua;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.compare.utils.EqualityHelper;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.xtext.EcoreUtil2;
-import org.xtext.lua.lua.Block;
 import org.xtext.lua.lua.Expression_Functioncall;
 import org.xtext.lua.lua.Expression_Functioncall_Direct;
 import org.xtext.lua.lua.Expression_Functioncall_Table;
@@ -17,7 +15,6 @@ import org.xtext.lua.lua.Expression_TableConstructor;
 import org.xtext.lua.lua.Expression_VariableName;
 import org.xtext.lua.lua.Field_AppendEntryToTable;
 import org.xtext.lua.lua.Refble;
-import org.xtext.lua.lua.Statement;
 import org.xtext.lua.lua.Statement_Assignment;
 
 import com.google.common.cache.LoadingCache;

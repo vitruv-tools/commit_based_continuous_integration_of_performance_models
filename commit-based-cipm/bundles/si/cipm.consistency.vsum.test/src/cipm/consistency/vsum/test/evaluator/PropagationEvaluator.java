@@ -146,10 +146,11 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         }
 
         var modelsSimilar = diffModelFiles(targetModelPath, actualModelPath);
-        if (!modelsSimilar) {
-//            printDiffBetween(targetModelPath, actualModelPath);
-//            LOGGER.warn(
-//                    "Parsed target version and actual propagation result are not similar! Something is wrong with the change resolution!");
+        var printDiff = false;
+        if (!modelsSimilar && printDiff) {
+            LOGGER.warn(
+                    "Parsed target version and actual propagation result are not similar:");
+            printDiffBetween(targetModelPath, actualModelPath);
         }
 
         return modelsSimilar;
