@@ -147,9 +147,9 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
 
         var modelsSimilar = diffModelFiles(targetModelPath, actualModelPath);
         if (!modelsSimilar) {
-            printDiffBetween(targetModelPath, actualModelPath);
-            LOGGER.warn(
-                    "Parsed target version and actual propagation result are not similar! Something is wrong with the change resolution!");
+//            printDiffBetween(targetModelPath, actualModelPath);
+//            LOGGER.warn(
+//                    "Parsed target version and actual propagation result are not similar! Something is wrong with the change resolution!");
         }
 
         return modelsSimilar;
@@ -420,6 +420,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         if (valid) {
             LOGGER.info("Propagation passed evaluation");
         }
+        EvaluationDataContainer.get().setEvaluationRan(true);
 
         // save the evaluation data to the directory of the integration state copy
         state.persistEvaluationData();

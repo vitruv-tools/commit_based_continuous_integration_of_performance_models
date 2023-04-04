@@ -57,6 +57,8 @@ public class ImUpdateEvalData {
         fScoreActiveActionInstrumentationPoints = calcFScore(numberMatchedActiveAIP, unmatchedChangedActions.size(),
                 unmatchedActiveAIPs.size());
         
+        createdActions = null;
+        fusedActions = null;
     }
 
     private double calcFScore(int truePos, int falsePos, int falseNeg) {

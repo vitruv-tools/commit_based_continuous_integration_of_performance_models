@@ -5,9 +5,13 @@ import org.eclipse.emf.compare.utils.EqualityHelper;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.xtext.EcoreUtil2;
 import org.xtext.lua.lua.Block;
+import org.xtext.lua.lua.Expression_Functioncall;
 import org.xtext.lua.lua.Expression_Functioncall_Direct;
+import org.xtext.lua.lua.Expression_Functioncall_Table;
 import org.xtext.lua.lua.Expression_Length;
+import org.xtext.lua.lua.Expression_Nil;
 import org.xtext.lua.lua.Expression_Number;
+import org.xtext.lua.lua.Expression_String;
 import org.xtext.lua.lua.Expression_TableAccess;
 import org.xtext.lua.lua.Expression_TableConstructor;
 import org.xtext.lua.lua.Expression_VariableName;
@@ -63,36 +67,82 @@ public class LuaEqualityHelper extends EqualityHelper {
         return left.getName()
             .equals(right.getName());
     }
-    
-    private boolean refblesMatchPositionally(Refble left, Refble right) {
+
+//    private boolean refblesMatchPositionally(Refble left, Refble right) {
+//        if (left == null || right == null) {
+//            return false;
+//        }
+//
+//        if (!left.getName()
+//            .equals(right.getName())) {
+//            return false;
+//        }
+//
+//        var leftBlock = EcoreUtil2.getContainerOfType(left, Block.class);
+//        var rightBlock = EcoreUtil2.getContainerOfType(right, Block.class);
+//        var leftStatement = EcoreUtil2.getContainerOfType(left, Statement.class);
+//        var rightStatement = EcoreUtil2.getContainerOfType(right, Statement.class);
+//        var leftIndex = leftBlock.getStatements()
+//            .indexOf(leftStatement);
+//        var rightIndex = rightBlock.getStatements()
+//            .indexOf(rightStatement);
+//        return leftIndex == rightIndex;
+//    }
+
+    private boolean refblesMatchByScope(Refble left, Refble right) {
         if (left == null || right == null) {
             return false;
         }
-        
-        if (!left.getName().equals(right.getName())) {
+
+        if (!left.getName()
+            .equals(right.getName())) {
             return false;
         }
 
-        var leftBlock = EcoreUtil2.getContainerOfType(left, Block.class);
-        var rightBlock = EcoreUtil2.getContainerOfType(right, Block.class);
-        var leftStatement = EcoreUtil2.getContainerOfType(left, Statement.class);
-        var rightStatement = EcoreUtil2.getContainerOfType(right, Statement.class);
-        var leftIndex = leftBlock.getStatements().indexOf(leftStatement);
-        var rightIndex = rightBlock.getStatements().indexOf(rightStatement);
-        return leftIndex == rightIndex;
+        var lParent = left.eContainer();
+        var rParent = right.eContainer();
+        while (lParent != null && rParent != null) {
+            if (!eClassMatch(lParent, rParent)) {
+                return false;
+            }
+            if (lParent instanceof Statement_Assignment && rParent instanceof Statement_Assignment) {
+                var lAss = (Statement_Assignment) lParent;
+                var rAss = (Statement_Assignment) rParent;
+                if (lAss.getDests()
+                    .size() != rAss.getDests()
+                        .size()) {
+                    return false;
+                }
+            }
+            lParent = lParent.eContainer();
+            rParent = rParent.eContainer();
+        }
+
+        // if both are now null both scopes have the same depth
+        return lParent == null && rParent == null;
     }
 
     private boolean match(Expression_VariableName left, Expression_VariableName right) {
         if (left == null || right == null) {
             return false;
         }
-        return refblesMatchPositionally(left.getRef(), right.getRef());
+//        return refblesMatchPositionally(left.getRef(), right.getRef());
+        return refblesMatchByScope(left.getRef(), right.getRef());
     }
 
-    private boolean match(Expression_Functioncall_Direct left, Expression_Functioncall_Direct right) {
-        if (left.getCalledFunction() == null || right.getCalledFunction() == null
-                || !match(left.getCalledFunction(), right.getCalledFunction())) {
-            return false;
+    private boolean match(Expression_Functioncall left, Expression_Functioncall right) {
+        if (left instanceof Expression_Functioncall_Direct leftCall
+                && right instanceof Expression_Functioncall_Direct rightCall) {
+            if (leftCall.getCalledFunction() == null || rightCall.getCalledFunction() == null
+                    || !refblesMatchByScope(leftCall.getCalledFunction(), rightCall.getCalledFunction())) {
+                return false;
+            }
+        } else if (left instanceof Expression_Functioncall_Table leftCall
+                && right instanceof Expression_Functioncall_Table rightCall) {
+            if (leftCall.getCalledTable() == null || rightCall.getCalledTable() == null
+                    || !refblesMatchByScope(leftCall.getCalledTable(), rightCall.getCalledTable())) {
+                return false;
+            }
         }
         return matchEList(left.getCalledFunctionArgs()
             .getArguments(),
@@ -102,6 +152,10 @@ public class LuaEqualityHelper extends EqualityHelper {
 
     private boolean match(Expression_TableConstructor left, Expression_TableConstructor right) {
         return matchEList(left.getFields(), right.getFields());
+    }
+    
+    private boolean match(Expression_Nil left, Expression_Nil right) {
+        return true;
     }
 
     private boolean match(Field_AppendEntryToTable left, Field_AppendEntryToTable right) {
@@ -118,10 +172,15 @@ public class LuaEqualityHelper extends EqualityHelper {
         // TODO ununcomment!
 //        match &= matchEList(left.getValues(), right.getValues());
         return match;
-    }    
+    }
 
     private boolean match(Expression_Number left, Expression_Number right) {
         return left.getValue() == right.getValue();
+    }
+
+    private boolean match(Expression_String left, Expression_String right) {
+        return left.getValue()
+            .equals(right.getValue());
     }
 
     private boolean match(Expression_TableAccess left, Expression_TableAccess right) {
@@ -129,13 +188,14 @@ public class LuaEqualityHelper extends EqualityHelper {
         if (left.getIndexableExpression() != null) {
             matches &= match(left.getIndexableExpression(), right.getIndexableExpression());
         }
-        
+
         matches &= matchEList(left.getIndexExpression(), right.getIndexExpression());
-        
+
         if (left.getFunctionName() != null && right.getFunctionName() != null) {
-            matches &= left.getFunctionName().equals(right.getFunctionName());
+            matches &= left.getFunctionName()
+                .equals(right.getFunctionName());
         }
-        
+
         return matches;
     }
 
@@ -168,11 +228,15 @@ public class LuaEqualityHelper extends EqualityHelper {
             return match(l, r);
         } else if (left instanceof Expression_Length l && right instanceof Expression_Length r) {
             return match(l, r);
-        } else if (left instanceof Refble l && right instanceof Refble r) {
-            return match(l, r);
         } else if (left instanceof Expression_Number l && right instanceof Expression_Number r) {
             return match(l, r);
+        } else if (left instanceof Expression_String l && right instanceof Expression_String r) {
+            return match(l, r);
+        } else if (left instanceof Expression_Nil l && right instanceof Expression_Nil r) {
+            return match(l, r);
         } else if (left instanceof Expression_TableAccess l && right instanceof Expression_TableAccess r) {
+            return match(l, r);
+        } else if (left instanceof Refble l && right instanceof Refble r) {
             return match(l, r);
         }
 

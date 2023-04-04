@@ -27,6 +27,7 @@ public class EvaluationDataContainer {
      * the result of the binary evaluations
      */
     private boolean validated = false;
+    private boolean evaluationRan = false;
     private String errorMessage = null;
 
 //    private long evaluationTime = System.currentTimeMillis();
@@ -105,5 +106,13 @@ public class EvaluationDataContainer {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public boolean isEvaluationRan() {
+        return evaluationRan;
+    }
+
+    public void setEvaluationRan(boolean evaluationRan) {
+        this.evaluationRan = evaluationRan;
     }
 }

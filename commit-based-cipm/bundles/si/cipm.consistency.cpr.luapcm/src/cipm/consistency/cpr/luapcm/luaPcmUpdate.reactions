@@ -326,11 +326,8 @@ routine removeRDBehaviourForBlock(lua::Block block) {
 		val rdBehaviour = retrieve pcm::ResourceDemandingBehaviour corresponding to block
 	}
 	update {
-		logger.debug(block.toString + ": Block deleted -> Removing RD Behaviour")
+		logger.info(block.toString + ": Block deleted -> Removing RD Behaviour")
 		removeCorrespondenceBetween(rdBehaviour, block)
-//		if (rdBehaviour instanceof ResourceDemandingSEFF) {
-//			checkRemovalOfServiceInstrumentationPoint(rdBehaviour)
-//		}
 		rdBehaviour.removeObject
 	}
 }
@@ -622,7 +619,7 @@ routine createActionsForStatement(EObject statement, lua::Block block) {
 		}
 
 		if (existingActions.size > 0) {
-			logger.warn("Action(s) already present for statement " + statement + ": " + existingActions)
+			logger.debug("Action(s) already present for statement " + statement + ": " + existingActions)
 			return
 		}
 
@@ -649,7 +646,7 @@ routine createActionsForStatement(EObject statement, lua::Block block) {
 		// are we surrounded by a fused action?
 		if (previousAction.equals(subsequentAction)) {
 			if (internalStatement) {
-				logger.info("Fusing internal statement into surrounding fused action")
+				logger.debug("Fusing internal statement into surrounding fused action")
 				addCorrespondenceBetween(previousAction, statement)
 				actionStatementRelationChanged(previousAction)
 				
@@ -991,6 +988,7 @@ routine removeRequiredRoleForExternalCallAction(pcm::ExternalCallAction action) 
 	}
 }
 
+
 routine createOperationSignatureForStatementFunctionDeclaration(lua::Statement_Function_Declaration functionDeclaration) {
 	match {
 		val operationInterface = retrieve pcm::OperationInterface corresponding to LuaUtil.getComponent(
@@ -1002,7 +1000,7 @@ routine createOperationSignatureForStatementFunctionDeclaration(lua::Statement_F
 		val operationSignature = new pcm::OperationSignature
 	}
 	update {
-		logger.info(functionDeclaration.name + ": Creating signature")
+		logger.debug(functionDeclaration.name + ": Creating signature")
 
 		operationSignature.entityName = functionDeclaration.name
 		operationSignature.interface__OperationSignature = operationInterface
@@ -1014,6 +1012,8 @@ routine createOperationSignatureForStatementFunctionDeclaration(lua::Statement_F
 			if (returnValue !== null) {
 				operationSignature.returnType__OperationSignature = luaAnyType
 			}
+
+			makeSureRootBlockUsesSig(rootBlock, operationSignature)
 		} else {
 			logger.warn("no root block")
 		}
@@ -1037,6 +1037,17 @@ routine createOperationSignatureForStatementFunctionDeclaration(lua::Statement_F
 				}
 			}
 		]
+	}
+}
+
+routine makeSureRootBlockUsesSig(lua::Block block, pcm::OperationSignature sig) {
+	match {
+		val rdSeff = retrieve pcm::ResourceDemandingSEFF corresponding to block
+	}
+	update {
+		if (!rdSeff.describedService__SEFF.equals(sig)) {
+			rdSeff.describedService__SEFF = sig
+		}
 	}
 }
 
