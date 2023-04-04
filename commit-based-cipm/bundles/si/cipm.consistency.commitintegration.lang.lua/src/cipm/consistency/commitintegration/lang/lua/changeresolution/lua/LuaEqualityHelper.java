@@ -150,7 +150,7 @@ public class LuaEqualityHelper extends EqualityHelper {
     private boolean match(Expression_TableConstructor left, Expression_TableConstructor right) {
         return matchEList(left.getFields(), right.getFields());
     }
-    
+
     private boolean match(Expression_Nil left, Expression_Nil right) {
         return true;
     }
@@ -212,18 +212,7 @@ public class LuaEqualityHelper extends EqualityHelper {
             return false;
         }
 
-        if (left instanceof Statement_Assignment l && right instanceof Statement_Assignment r) {
-            return match(l, r);
-        } else if (left instanceof Expression_Functioncall_Direct l
-                && right instanceof Expression_Functioncall_Direct r) {
-            return match(l, r);
-        } else if (left instanceof Expression_VariableName l && right instanceof Expression_VariableName r) {
-            return match(l, r);
-        } else if (left instanceof Field_AppendEntryToTable l && right instanceof Field_AppendEntryToTable r) {
-            return match(l, r);
-        } else if (left instanceof Expression_TableConstructor l && right instanceof Expression_TableConstructor r) {
-            return match(l, r);
-        } else if (left instanceof Expression_Length l && right instanceof Expression_Length r) {
+        if (left instanceof Expression_Length l && right instanceof Expression_Length r) {
             return match(l, r);
         } else if (left instanceof Expression_Number l && right instanceof Expression_Number r) {
             return match(l, r);
@@ -231,7 +220,17 @@ public class LuaEqualityHelper extends EqualityHelper {
             return match(l, r);
         } else if (left instanceof Expression_Nil l && right instanceof Expression_Nil r) {
             return match(l, r);
+        } else if (left instanceof Expression_TableConstructor l && right instanceof Expression_TableConstructor r) {
+            return match(l, r);
         } else if (left instanceof Expression_TableAccess l && right instanceof Expression_TableAccess r) {
+            return match(l, r);
+        } else if (left instanceof Statement_Assignment l && right instanceof Statement_Assignment r) {
+            return match(l, r);
+        } else if (left instanceof Expression_Functioncall l && right instanceof Expression_Functioncall r) {
+            return match(l, r);
+        } else if (left instanceof Expression_VariableName l && right instanceof Expression_VariableName r) {
+            return match(l, r);
+        } else if (left instanceof Field_AppendEntryToTable l && right instanceof Field_AppendEntryToTable r) {
             return match(l, r);
         } else if (left instanceof Refble l && right instanceof Refble r) {
             return match(l, r);
