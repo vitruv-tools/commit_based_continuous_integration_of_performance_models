@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-
-fd --glob --full-path '**/runEvaluation-*/*.json' testData
