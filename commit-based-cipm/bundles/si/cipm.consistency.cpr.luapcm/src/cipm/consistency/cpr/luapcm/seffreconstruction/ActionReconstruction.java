@@ -66,12 +66,14 @@ public final class ActionReconstruction {
     }
 
     public static Expression_Functioncall_Direct getServeCallForDeclaration(Statement_Function_Declaration eObj) {
-        if (eObj == null) {
-            return null;
+        if (eObj != null) {
+            var infos = ComponentSetInfoRegistry.getInfosForComponentSet(eObj);
+            if (infos != null) {
+                return infos.getServeCallForDeclaration(eObj);
+            }
         }
 
-        var infos = ComponentSetInfoRegistry.getInfosForComponentSet(eObj);
-        return infos.getServeCallForDeclaration(eObj);
+        return null;
     }
 
     private static boolean isControlFlowStatement(EObject eObj) {

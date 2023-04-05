@@ -24,6 +24,7 @@ routine createOrFindServiceInstrumentationPoint(pcm::ResourceDemandingSEFF seff)
 		val sip = new im::ServiceInstrumentationPoint
 	}
 	update {
+		logger.debug("Adding SIP for: " + seff.describedService__SEFF.entityName + " " + seff.id)
 		sip.active = true
 		sip.service = seff
 		addCorrespondenceBetween(sip, seff)
@@ -42,6 +43,7 @@ routine checkRemovalOfServiceInstrumentationPoint(pcm::ResourceDemandingSEFF sef
 			INSTRUMENTATION_MODEL
 	}
 	update {
+		logger.debug("Removing SIP for: " + seff.describedService__SEFF.entityName + " " + seff.id)
 		val sips = im.points.filter[it.service === null || it.service.eIsProxy].toSet
 		if (sips !== null && !sips.empty) {
 			for (si : sips) {
@@ -56,7 +58,12 @@ routine checkRemovalOfNonProxyServiceInstrumentationPoint(pcm::ResourceDemanding
 	match {
 		val sip = retrieve im::ServiceInstrumentationPoint corresponding to seff
 	}
-	update sip.removeObject
+	update {
+//		for (aip : sip.actionInstrumentationPoints) {
+//			aip.removeObject
+//		}
+		sip.removeObject
+	}
 }
 
 reaction ActionAdded {
@@ -79,6 +86,7 @@ routine createOrFindActionInstrumentationPoint(pcm::ResourceDemandingSEFF seff, 
 		val aip = new im::ActionInstrumentationPoint
 	}
 	update {
+		logger.info("Added AIP for action: " + absAction.id)
 		aip.active = true
 		aip.^action = absAction
 		addCorrespondenceBetween(aip, absAction)
@@ -90,29 +98,34 @@ routine createOrFindActionInstrumentationPoint(pcm::ResourceDemandingSEFF seff, 
 
 reaction ActionRemoved {
 	after element pcm::AbstractAction removed from pcm::ResourceDemandingBehaviour[steps_Behaviour]
+//	after element pcm::AbstractAction deleted
 	call {
 		var seff = InternalUtils.getParentSEFFNotForInternalBehaviour(affectedEObject)
 		if (seff !== null) {
 			checkRemovalOfActionInstrumentationPoint(oldValue, seff)
-			return
+//			return
 		}
 
 		if (!checkRemovalOfNonProxyActionInstrumentationPoint(oldValue)) {
-			logger.error("Unable to remove action instrumentation point for " + oldValue + " (cannot determine SEFF)")
+			logger.error("Unable to remove action instrumentation point for " + affectedEObject + " (cannot determine SEFF)")
 		}
 	}
 }
 
 routine checkRemovalOfActionInstrumentationPoint(pcm::AbstractAction absAction, pcm::ResourceDemandingSEFF seff) {
 	match {
-		val sip = retrieve im::ServiceInstrumentationPoint corresponding to seff
+		val sip = retrieve optional im::ServiceInstrumentationPoint corresponding to seff
 	}
 	update {
-		val aips = sip.actionInstrumentationPoints.filter[it.^action === null || it.^action.eIsProxy].toSet
-		if (aips !== null && !aips.empty) {
-			for (ai : aips) {
-				ai.removeObject
+		if (sip.present) {
+			val aips = sip.get.actionInstrumentationPoints.filter[it.^action === null || it.^action.eIsProxy].toSet
+			if (aips !== null && !aips.empty) {
+				for (ai : aips) {
+					ai.removeObject
+				}
 			}
+		} else {
+			logger.warn("Cannot find SIP for SEFF")
 		}
 		checkRemovalOfNonProxyActionInstrumentationPoint(absAction)
 	}
@@ -124,7 +137,8 @@ routine checkRemovalOfNonProxyActionInstrumentationPoint(pcm::AbstractAction abs
 	}
 	update {
 		if (aip.present) {
-			logger.debug("Removing aip for " + absAction)
+			logger.info("Removing AIP for: " + absAction + " " + absAction.id)
+			removeCorrespondenceBetween(aip.get, absAction)
 			aip.get.removeObject
 		} else {
 			logger.warn("Cannot delete action without correspondence")

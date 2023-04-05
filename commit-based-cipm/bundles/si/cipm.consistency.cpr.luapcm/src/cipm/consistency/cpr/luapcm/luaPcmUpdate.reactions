@@ -183,7 +183,6 @@ reaction AddedDeclaration {
 	after element lua::Statement_Function_Declaration inserted in lua::Block[statements]
 	call {
 		if (SeffHelper.needsSeffReconstruction(newValue)) {
-			logger.info(newValue.name + ": New function needs Seff reconstruction")
 			createOperationSignatureForStatementFunctionDeclaration(newValue)
 		}
 	}
@@ -192,7 +191,7 @@ reaction AddedDeclaration {
 reaction RemovedDeclaration {
 	after element lua::Statement_Function_Declaration removed from lua::Block[statements]
 	call {
-		logger.info(oldValue.name + ": Function with SEFF removed")
+		logger.debug(oldValue.name + ": Function with SEFF removed")
 		removeOperationSignatureForStatementFunctionDeclaration(oldValue)
 	}
 }
@@ -241,6 +240,8 @@ reaction AddedServeCall {
 			if (decl !== null) {
 				logger.info("ServeCall for declaration was added: " + decl.name)
 				createSeffForDeclaration(decl)
+			} else {
+				logger.info("Cannot locate declaration for new serve call")
 			}
 		}
 	}
@@ -264,6 +265,13 @@ routine tryRemoveSeffForServeCall(lua::Expression_Functioncall_Direct potentialS
 		}
 
 		val decl = servedDeclaration.get
+		var otherServeCall = ActionReconstruction.getServeCallForDeclaration(decl)
+		if (otherServeCall !== null) {
+			logger.info("Serve call moved / changed, not deleting SEFF for: " + decl.name)
+			return
+		}
+		
+		
 		logger.info("ServeCall for declaration was removed: " + decl.name)
 		removeSeffForDeclaration(decl)
 	}
@@ -326,7 +334,7 @@ routine removeRDBehaviourForBlock(lua::Block block) {
 		val rdBehaviour = retrieve pcm::ResourceDemandingBehaviour corresponding to block
 	}
 	update {
-		logger.info(block.toString + ": Block deleted -> Removing RD Behaviour")
+		logger.info("Block deleted: Removing RD Behaviour " + rdBehaviour.id)
 		removeCorrespondenceBetween(rdBehaviour, block)
 		rdBehaviour.removeObject
 	}
@@ -340,7 +348,7 @@ routine createRDSeff(lua::Block block, lua::Statement_Function_Declaration decla
 		val rdSeff = new pcm::ResourceDemandingSEFF
 	}
 	update {
-		logger.debug(block.toString + ": Creating RDSeff")
+		logger.debug("Creating RDSeff " + rdSeff.id)
 		rdSeff.basicComponent_ServiceEffectSpecification = basicComponent
 		rdSeff.describedService__SEFF = operationSignature
 
@@ -578,19 +586,20 @@ routine createParameter(lua::Referenceable functionParameter, lua::Statement_Fun
 		val pcmParameter = new pcm::Parameter
 	}
 	update {
-
-//		checkCollectionDataTypeCreation(functionParameter.typeReference)
-		pcmParameter.operationSignature__Parameter = operationSignature
-//		pcmParameter.dataType__Parameter = TypeReferenceCorrespondenceHelper.
-//			getDataTypeFromTypeReference(javaParameter.typeReference, correspondenceModel, userInteractor,
-//				operationSignature.interface__OperationSignature.repository__Interface)
 		pcmParameter.parameterName = functionParameter.name
 		pcmParameter.dataType__Parameter = luaAnyType
 
-		operationSignature.parameters__OperationSignature += pcmParameter
-
 		addCorrespondenceBetween(functionParameter, pcmParameter)
-//		checkInnerDeclarationsCreation(pcmParameter.dataType__Parameter, javaParameter.typeReference)
+		
+		var argIndex = functionDeclaration.function.arguments.indexOf(functionParameter)
+		if (argIndex < operationSignature.parameters__OperationSignature.size) {
+			operationSignature.parameters__OperationSignature.add(argIndex, pcmParameter)
+		} else {
+			operationSignature.parameters__OperationSignature.add(pcmParameter)
+		}
+		
+		// this has no be after the parameter is inserted into the signature
+		pcmParameter.operationSignature__Parameter = operationSignature
 	}
 }
 

@@ -3,15 +3,33 @@ package cipm.consistency.commitintegration.lang.lua.changeresolution.lua;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.compare.utils.EqualityHelper;
 import org.eclipse.emf.ecore.EObject;
+import org.xtext.lua.lua.Expression_And;
+import org.xtext.lua.lua.Expression_Concatenation;
+import org.xtext.lua.lua.Expression_Division;
+import org.xtext.lua.lua.Expression_Equal;
+import org.xtext.lua.lua.Expression_Exponentiation;
+import org.xtext.lua.lua.Expression_False;
 import org.xtext.lua.lua.Expression_Functioncall;
 import org.xtext.lua.lua.Expression_Functioncall_Direct;
 import org.xtext.lua.lua.Expression_Functioncall_Table;
+import org.xtext.lua.lua.Expression_Invert;
+import org.xtext.lua.lua.Expression_Larger;
+import org.xtext.lua.lua.Expression_Larger_Equal;
 import org.xtext.lua.lua.Expression_Length;
+import org.xtext.lua.lua.Expression_Minus;
+import org.xtext.lua.lua.Expression_Multiplication;
+import org.xtext.lua.lua.Expression_Negate;
 import org.xtext.lua.lua.Expression_Nil;
+import org.xtext.lua.lua.Expression_Not_Equal;
 import org.xtext.lua.lua.Expression_Number;
+import org.xtext.lua.lua.Expression_Or;
+import org.xtext.lua.lua.Expression_Plus;
+import org.xtext.lua.lua.Expression_Smaller;
+import org.xtext.lua.lua.Expression_Smaller_Equal;
 import org.xtext.lua.lua.Expression_String;
 import org.xtext.lua.lua.Expression_TableAccess;
 import org.xtext.lua.lua.Expression_TableConstructor;
+import org.xtext.lua.lua.Expression_True;
 import org.xtext.lua.lua.Expression_VariableName;
 import org.xtext.lua.lua.Field_AppendEntryToTable;
 import org.xtext.lua.lua.Refble;
@@ -151,33 +169,16 @@ public class LuaEqualityHelper extends EqualityHelper {
         return matchEList(left.getFields(), right.getFields());
     }
 
-    private boolean match(Expression_Nil left, Expression_Nil right) {
-        return true;
-    }
-
     private boolean match(Field_AppendEntryToTable left, Field_AppendEntryToTable right) {
         return match(left.getValue(), right.getValue());
-    }
-
-    private boolean match(Expression_Length left, Expression_Length right) {
-        return match(left.getExp(), right.getExp());
     }
 
     private boolean match(Statement_Assignment left, Statement_Assignment right) {
         var match = true;
         match &= matchEList(left.getDests(), right.getDests());
-        // TODO ununcomment!
+        // not using this for comparison as it causes issues in the matching
 //        match &= matchEList(left.getValues(), right.getValues());
         return match;
-    }
-
-    private boolean match(Expression_Number left, Expression_Number right) {
-        return left.getValue() == right.getValue();
-    }
-
-    private boolean match(Expression_String left, Expression_String right) {
-        return left.getValue()
-            .equals(right.getValue());
     }
 
     private boolean match(Expression_TableAccess left, Expression_TableAccess right) {
@@ -212,23 +213,71 @@ public class LuaEqualityHelper extends EqualityHelper {
             return false;
         }
 
-        if (left instanceof Expression_Length l && right instanceof Expression_Length r) {
-            return match(l, r);
+        // terminals
+        if (left instanceof Expression_Nil l && right instanceof Expression_Nil r) {
+            return true;
+        } else if (left instanceof Expression_True l && right instanceof Expression_True r) {
+            return true;
+        } else if (left instanceof Expression_False l && right instanceof Expression_False r) {
+            return true;
+
+            // unary expressions
+        } else if (left instanceof Expression_Length l && right instanceof Expression_Length r) {
+            return match(l.getExp(), r.getExp());
+        } else if (left instanceof Expression_Invert l && right instanceof Expression_Invert r) {
+            return match(l.getExp(), r.getExp());
+        } else if (left instanceof Expression_Negate l && right instanceof Expression_Negate r) {
+            return match(l.getExp(), r.getExp());
         } else if (left instanceof Expression_Number l && right instanceof Expression_Number r) {
-            return match(l, r);
+            return l.getValue() == r.getValue();
         } else if (left instanceof Expression_String l && right instanceof Expression_String r) {
-            return match(l, r);
-        } else if (left instanceof Expression_Nil l && right instanceof Expression_Nil r) {
-            return match(l, r);
-        } else if (left instanceof Expression_TableConstructor l && right instanceof Expression_TableConstructor r) {
-            return match(l, r);
+            return l.getValue()
+                .equals(r.getValue());
+
+            // binary expressions
+        } else if (left instanceof Expression_Or l && right instanceof Expression_Or r) {
+            return match(l.getLeft(), r.getLeft()) && match(l.getRight(), r.getRight());
+        } else if (left instanceof Expression_And l && right instanceof Expression_And r) {
+            return match(l.getLeft(), r.getLeft()) && match(l.getRight(), r.getRight());
+        } else if (left instanceof Expression_Larger l && right instanceof Expression_Larger r) {
+            return match(l.getLeft(), r.getLeft()) && match(l.getRight(), r.getRight());
+        } else if (left instanceof Expression_Larger_Equal l && right instanceof Expression_Larger_Equal r) {
+            return match(l.getLeft(), r.getLeft()) && match(l.getRight(), r.getRight());
+        } else if (left instanceof Expression_Smaller l && right instanceof Expression_Smaller r) {
+            return match(l.getLeft(), r.getLeft()) && match(l.getRight(), r.getRight());
+        } else if (left instanceof Expression_Smaller_Equal l && right instanceof Expression_Smaller_Equal r) {
+            return match(l.getLeft(), r.getLeft()) && match(l.getRight(), r.getRight());
+        } else if (left instanceof Expression_Equal l && right instanceof Expression_Equal r) {
+            return match(l.getLeft(), r.getLeft()) && match(l.getRight(), r.getRight());
+        } else if (left instanceof Expression_Not_Equal l && right instanceof Expression_Not_Equal r) {
+            return match(l.getLeft(), r.getLeft()) && match(l.getRight(), r.getRight());
+        } else if (left instanceof Expression_Concatenation l && right instanceof Expression_Concatenation r) {
+            return match(l.getLeft(), r.getLeft()) && match(l.getRight(), r.getRight());
+        } else if (left instanceof Expression_Plus l && right instanceof Expression_Plus r) {
+            return match(l.getLeft(), r.getLeft()) && match(l.getRight(), r.getRight());
+        } else if (left instanceof Expression_Minus l && right instanceof Expression_Minus r) {
+            return match(l.getLeft(), r.getLeft()) && match(l.getRight(), r.getRight());
+        } else if (left instanceof Expression_Multiplication l && right instanceof Expression_Multiplication r) {
+            return match(l.getLeft(), r.getLeft()) && match(l.getRight(), r.getRight());
+        } else if (left instanceof Expression_Division l && right instanceof Expression_Division r) {
+            return match(l.getLeft(), r.getLeft()) && match(l.getRight(), r.getRight());
+        } else if (left instanceof Expression_Exponentiation l && right instanceof Expression_Exponentiation r) {
+            return match(l.getLeft(), r.getLeft()) && match(l.getRight(), r.getRight());
+
+            // other expressions
         } else if (left instanceof Expression_TableAccess l && right instanceof Expression_TableAccess r) {
             return match(l, r);
-        } else if (left instanceof Statement_Assignment l && right instanceof Statement_Assignment r) {
+        } else if (left instanceof Expression_TableConstructor l && right instanceof Expression_TableConstructor r) {
             return match(l, r);
         } else if (left instanceof Expression_Functioncall l && right instanceof Expression_Functioncall r) {
             return match(l, r);
         } else if (left instanceof Expression_VariableName l && right instanceof Expression_VariableName r) {
+            return match(l, r);
+
+            // remaining statements etc.
+        } else if (left instanceof Statement_Assignment l && right instanceof Statement_Assignment r) {
+            return match(l, r);
+        } else if (left instanceof Statement_Assignment l && right instanceof Statement_Assignment r) {
             return match(l, r);
         } else if (left instanceof Field_AppendEntryToTable l && right instanceof Field_AppendEntryToTable r) {
             return match(l, r);

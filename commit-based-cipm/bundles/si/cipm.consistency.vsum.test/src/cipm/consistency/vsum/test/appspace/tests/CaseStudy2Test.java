@@ -25,8 +25,9 @@ public class CaseStudy2Test extends AppSpaceCITestController {
     private static final String[] VERSIONS_MASTER = { null, "f713180", "1466c57", "f57823c", "40bf36e", "473c9d9",
             "995ecc0", "956aeb9", "0da3169", "00b44f8", "88d005a", "92cb3bc", COMMIT_TAG_MASTER };
 
-    private static final String[] VERSIONS_MASTER_WITHOUT_FAILING = { null, "f713180", "1466c57", "f57823c",
-            "40bf36e" };
+    
+    private static final String[] VERSIONS_MASTER_WITHOUT_FAILING = { null, "f713180", "1466c57", "f57823c", "40bf36e", "473c9d9",
+            "995ecc0", "956aeb9", "0da3169", "00b44f8", "88d005a" };
 
 //    private static final String[] VERSIONS_MASTER_WITHOUT_FIRST_TWO = { null, "f57823c", "40bf36e", "473c9d9",
 //            "995ecc0", "956aeb9", "0da3169", "00b44f8", "88d005a", "92cb3bc", COMMIT_TAG_MASTER };

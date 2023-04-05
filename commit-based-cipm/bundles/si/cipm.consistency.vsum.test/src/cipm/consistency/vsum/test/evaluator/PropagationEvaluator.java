@@ -61,7 +61,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
     private CommitIntegrationState<CM> state;
     private CommitIntegration<CM> commitIntegration;
     private Path manualModelDirPath;
-    
+
     private boolean loaded = false;
 
     public PropagationEvaluator(Propagation propagation, CommitIntegration<CM> commitIntegration,
@@ -81,7 +81,8 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             loaded = true;
         } catch (Exception e) {
             e.printStackTrace();
-            LOGGER.error("Unable to load commit integration state located at " + propagation.getCommitIntegrationStateCopyPath() + ": " + e.getMessage());
+            LOGGER.error("Unable to load commit integration state located at "
+                    + propagation.getCommitIntegrationStateCopyPath() + ": " + e.getMessage());
         }
     }
 
@@ -148,8 +149,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         var modelsSimilar = diffModelFiles(targetModelPath, actualModelPath);
         var printDiff = false;
         if (!modelsSimilar && printDiff) {
-            LOGGER.warn(
-                    "Parsed target version and actual propagation result are not similar:");
+            LOGGER.warn("Parsed target version and actual propagation result are not similar:");
             printDiffBetween(targetModelPath, actualModelPath);
         }
 
@@ -186,7 +186,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
 
         var comparison = compareCodeModels(parsedCodeModel, vsumCodeModel);
         var jaccardResult = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comparison);
-        
+
         if (jaccardResult.getJC() < 1) {
             LOGGER.warn("Code model update has suboptimal JC");
         }
@@ -204,12 +204,13 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             return pathOfPossibleCommitCopy;
         }
         return null;
-    }    
-    
+    }
+
     private Path locateStateCopyForCommit(Path directory, Propagation propagation) {
 //        var currentName = propagation.getCommitIntegrationStateOriginalPath()
 //            .getFileName();
-        var lookupName = propagation.getCommitIntegrationStateCopyPath().getFileName();
+        var lookupName = propagation.getCommitIntegrationStateCopyPath()
+            .getFileName();
         var pathOfPossibleCommitCopy = directory.resolve(lookupName);
         if (pathOfPossibleCommitCopy.toFile()
             .exists()) {
@@ -231,8 +232,8 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             e.printStackTrace();
         }
         return stateCopy;
-    }    
-    
+    }
+
     private CommitIntegrationState<CM> getCommitIntegrationStateForCommit(Path directory, Propagation propagation) {
         var stateCopyPath = locateStateCopyForCommit(directory, propagation);
         if (stateCopyPath == null) {
@@ -266,8 +267,6 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
 
         var comparison = PCMModelComparator.compareRepositoryModels(newRepository.eResource(),
                 referenceRepository.eResource());
-        var diffs = comparison.getDifferences();
-        var noIdDiffs = diffs.stream().filter(i -> !(i instanceof AttributeChange)).toList();
 
         var jaccardResult = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comparison);
 
@@ -280,11 +279,11 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             .add(pcmEvalData);
     }
 
-    private void evaluatePcmUpdateJaccard(EvaluationDataContainer eval) {
+    private void evaluatePcmUpdateJaccardAutomatic(EvaluationDataContainer eval) {
         // locate the state copy that was created from scratch for this commit
         var stateCopyAutomatic = getCommitIntegrationStateForCommit(propagation.getCommitIntegrationStateCopyPath()
             .getParent(), 1, propagation.getCommitId());
-        
+
         if (stateCopyAutomatic == null) {
             return;
         }
@@ -299,13 +298,21 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             .getPcmRepositoryPath()
             .toFile(), Repository.class);
 
-        var comparisonMartin = PCMModelComparator.compareRepositoryModels(newRepository.eResource(),
+        var comparison = PCMModelComparator.compareRepositoryModels(newRepository.eResource(),
                 referenceRepository.eResource());
-        var jaccardResultMartin = ComparisonBasedJaccardCoefficientCalculator
-            .calculateJaccardCoefficient(comparisonMartin);
+        var diffs = comparison.getDifferences();
+        var noIdDiffs = diffs.stream()
+            .filter(i -> !(i instanceof AttributeChange))
+            .toList();
+
+        var jaccardResult = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comparison);
+
+        if (jaccardResult.getJC() < 1) {
+            LOGGER.warn("PCM repo model update has suboptimal JC");
+        }
 
         var pcmEvalData = new PcmUpdateEvalData();
-        pcmEvalData.setValuesUsingJaccardCoefficientResult(jaccardResultMartin);
+        pcmEvalData.setValuesUsingJaccardCoefficientResult(jaccardResult);
         pcmEvalData.setEvalType(PcmEvalType.ComparisonWithAutomatic);
         pcmEvalData.setComparisonType(ComparisonType.PcmDiffUtil);
 
@@ -374,13 +381,13 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             .getModel();
         var imEvalData = EvaluationDataContainer.get()
             .getImUpdateEvalData();
-        
+
         var repoFile = propagation.getPreviousPcmRepositoryPath()
             .toFile();
         if (!repoFile.exists()) {
             return;
         }
-        
+
         var previousRepo = ModelUtil.readFromFile(repoFile, Repository.class);
         evaluator.evaluateIMUpdate(repo, im, imEvalData, previousRepo);
     }
@@ -389,23 +396,23 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         if (!loaded) {
             return false;
         }
-        
+
         // 1. Evaluations that only write to the evaluation data:
         var eval = EvaluationDataContainer.get();
         if (propagation.getException() != null) {
-            eval.setErrorMessage(propagation.getException().getMessage());
+            eval.setErrorMessage(propagation.getException()
+                .getMessage());
         }
         evaluateCodeModelUpdate(eval);
 
         // these two evaluations accidentally overwrite parts of the data container
         // so we manage the container manually during these evals and reset the
         // global container afterwards
-        evaluatePcmUpdateJaccard(eval);
+        evaluatePcmUpdateJaccardAutomatic(eval);
         evaluatePcmUpdateJaccardManual(eval);
         EvaluationDataContainer.set(eval);
 
         evaluateImUpdate();
-
 
         // 2. Evaluations with binary result:
         var valid = true;
@@ -421,7 +428,8 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         if (valid) {
             LOGGER.info("Propagation passed evaluation");
         }
-        EvaluationDataContainer.get().setEvaluationRan(true);
+        EvaluationDataContainer.get()
+            .setEvaluationRan(true);
 
         // save the evaluation data to the directory of the integration state copy
         state.persistEvaluationData();
