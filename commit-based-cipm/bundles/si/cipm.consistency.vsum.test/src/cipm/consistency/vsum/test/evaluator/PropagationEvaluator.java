@@ -80,9 +80,16 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             state.initialize(commitIntegration, propagation.getCommitIntegrationStateCopyPath(), false, false);
             loaded = true;
         } catch (Exception e) {
-            e.printStackTrace();
-            LOGGER.error("Unable to load commit integration state located at "
-                    + propagation.getCommitIntegrationStateCopyPath() + ": " + e.getMessage());
+//            e.printStackTrace();
+            var msg = "Unable to load commit integration state located at "
+                    + propagation.getCommitIntegrationStateCopyPath() + ": " + e.getMessage();
+            LOGGER.error(msg);
+
+            var errorEval = new EvaluationDataContainer();
+            errorEval.setErrorMessage(msg);
+            errorEval.setEvaluationRan(false);
+            errorEval.setSuccessful(false);
+            EvaluationDataContainer.set(errorEval);
         }
     }
 
@@ -147,10 +154,12 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         }
 
         var modelsSimilar = diffModelFiles(targetModelPath, actualModelPath);
-        var printDiff = false;
-        if (!modelsSimilar && printDiff) {
-            LOGGER.warn("Parsed target version and actual propagation result are not similar:");
-            printDiffBetween(targetModelPath, actualModelPath);
+        if (!modelsSimilar) {
+            LOGGER.warn("Code model update: parsed.code.xmi != vsum.code.xmi");
+            var printDiff = false;
+            if (printDiff) {
+                printDiffBetween(targetModelPath, actualModelPath);
+            }
         }
 
         return modelsSimilar;
@@ -188,7 +197,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         var jaccardResult = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comparison);
 
         if (jaccardResult.getJC() < 1) {
-            LOGGER.warn("Code model update has suboptimal JC");
+            LOGGER.warn("Code model update has suboptimal JC: " + jaccardResult.getJC());
         }
         eval.getCodeModelUpdateEvalData()
             .setValuesUsingJaccardCoefficientResult(jaccardResult);
@@ -308,7 +317,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
         var jaccardResult = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comparison);
 
         if (jaccardResult.getJC() < 1) {
-            LOGGER.warn("PCM repo model update has suboptimal JC");
+            LOGGER.warn("PCM repo model update has suboptimal JC: " + jaccardResult.getJC());
         }
 
         var pcmEvalData = new PcmUpdateEvalData();
@@ -388,8 +397,12 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             return;
         }
 
-        var previousRepo = ModelUtil.readFromFile(repoFile, Repository.class);
-        evaluator.evaluateIMUpdate(repo, im, imEvalData, previousRepo);
+        try {
+            var previousRepo = ModelUtil.readFromFile(repoFile, Repository.class);
+            evaluator.evaluateIMUpdate(repo, im, imEvalData, previousRepo);
+        } catch (Exception e) {
+            LOGGER.error("Error loading previous repositor: " + e.getMessage());
+        }
     }
 
     public boolean evaluate() {
@@ -426,7 +439,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             .getImFilePath());
 
         if (valid) {
-            LOGGER.info("Propagation passed evaluation");
+            LOGGER.info("Propagation passed evaluation\n");
         }
         EvaluationDataContainer.get()
             .setEvaluationRan(true);

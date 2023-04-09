@@ -1,0 +1,98 @@
+[
+  {
+    "commitIndex": 1,
+    "newCommit": "f713180",
+    "prevCommits": 2,
+    "numberAddedLines": 1855,
+    "numberRemovedLines": 0,
+    "numberChangedFiles": 7
+  },
+  {
+    "commitIndex": 2,
+    "newCommit": "1466c57",
+    "prevCommits": 1,
+    "numberAddedLines": 3,
+    "numberRemovedLines": 1,
+    "numberChangedFiles": 2
+  },
+  {
+    "commitIndex": 3,
+    "newCommit": "f57823c",
+    "prevCommits": 1,
+    "numberAddedLines": 10,
+    "numberRemovedLines": 4,
+    "numberChangedFiles": 3
+  },
+  {
+    "commitIndex": 4,
+    "newCommit": "40bf36e",
+    "prevCommits": 1,
+    "numberAddedLines": 451,
+    "numberRemovedLines": 122,
+    "numberChangedFiles": 7
+  },
+  {
+    "commitIndex": 5,
+    "newCommit": "473c9d9",
+    "prevCommits": 1,
+    "numberAddedLines": 1,
+    "numberRemovedLines": 1,
+    "numberChangedFiles": 1
+  },
+  {
+    "commitIndex": 6,
+    "newCommit": "995ecc0",
+    "prevCommits": 2,
+    "numberAddedLines": 505,
+    "numberRemovedLines": 187,
+    "numberChangedFiles": 7
+  },
+  {
+    "commitIndex": 7,
+    "newCommit": "956aeb9",
+    "prevCommits": 1,
+    "numberAddedLines": 448,
+    "numberRemovedLines": 234,
+    "numberChangedFiles": 7
+  },
+  {
+    "commitIndex": 8,
+    "newCommit": "0da3169",
+    "prevCommits": 1,
+    "numberAddedLines": 88,
+    "numberRemovedLines": 19,
+    "numberChangedFiles": 3
+  },
+  {
+    "commitIndex": 9,
+    "newCommit": "00b44f8",
+    "prevCommits": 1,
+    "numberAddedLines": 60,
+    "numberRemovedLines": 44,
+    "numberChangedFiles": 3
+  },
+  {
+    "commitIndex": 10,
+    "newCommit": "88d005a",
+    "prevCommits": 1,
+    "numberAddedLines": 41,
+    "numberRemovedLines": 14,
+    "numberChangedFiles": 1
+  },
+  {
+    "commitIndex": 11,
+    "newCommit": "92cb3bc",
+    "prevCommits": 1,
+    "numberAddedLines": 3188,
+    "numberRemovedLines": 2036,
+    "numberChangedFiles": 13
+  },
+  {
+    "commitIndex": 12,
+    "newCommit": "916fc52",
+    "prevCommits": 34,
+    "numberAddedLines": 1,
+    "numberRemovedLines": 1,
+    "numberChangedFiles": 1
+  }
+]

@@ -784,7 +784,7 @@ routine actionStatementRelationChanged(pcm::AbstractAction action) {
 		// we changed an action by fusing more statements into it
 		// -> These statements must be instrumented, so we enable the AIP
 		if (aip.present && !aip.get.active) {
-			logger.warn("Actions were changed. Activating Instrumentation Point")
+			logger.info("Action was changed. Activating its Instrumentation Point")
 			aip.get.active = true
 		}
 		

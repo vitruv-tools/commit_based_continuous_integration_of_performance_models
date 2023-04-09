@@ -86,7 +86,7 @@ routine createOrFindActionInstrumentationPoint(pcm::ResourceDemandingSEFF seff, 
 		val aip = new im::ActionInstrumentationPoint
 	}
 	update {
-		logger.info("Added AIP for action: " + absAction.id)
+		logger.debug("Added AIP for action: " + absAction.id)
 		aip.active = true
 		aip.^action = absAction
 		addCorrespondenceBetween(aip, absAction)
@@ -137,11 +137,11 @@ routine checkRemovalOfNonProxyActionInstrumentationPoint(pcm::AbstractAction abs
 	}
 	update {
 		if (aip.present) {
-			logger.info("Removing AIP for: " + absAction + " " + absAction.id)
+			logger.debug("Removing AIP for: " + absAction + " " + absAction.id)
 			removeCorrespondenceBetween(aip.get, absAction)
 			aip.get.removeObject
 		} else {
-			logger.warn("Cannot delete action without correspondence")
+			logger.debug("Cannot delete action without correspondence")
 		}
 	}
 }

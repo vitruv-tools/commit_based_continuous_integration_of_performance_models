@@ -7,16 +7,20 @@ import java.io.IOException
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.ArrayList
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 import javax.inject.Inject
 import org.eclipse.emf.common.util.URI
+import org.eclipse.emf.common.util.WrappedException
 import org.eclipse.emf.ecore.resource.Resource
 import org.eclipse.xtext.resource.XtextResourceSet
 import org.eclipse.xtext.testing.InjectWith
 import org.eclipse.xtext.testing.validation.ValidationTestHelper
 import org.xtext.lua.LuaStandaloneSetup
 import org.xtext.lua.tests.LuaInjectorProvider
-import org.eclipse.emf.common.util.WrappedException
+import org.apache.commons.io.FileUtils
 
 //@ExtendWith(InjectionExtension)
 @InjectWith(LuaInjectorProvider)
@@ -30,24 +34,34 @@ class CodeModelEvaluator {
 	 * differences between the two strings.
 	 */
 	def static String bringIntoCanonicalForm(String luaCode) {
+		var stripped = luaCode;
+
+		// strip multiline comments
+		val Pattern pattern = Pattern.compile("\\[\\[.*\\]\\]", Pattern.DOTALL);
+		val Matcher matcher = pattern.matcher(stripped);
+		stripped = matcher.replaceAll("");
+
 		// strip comments
-		var striped = luaCode.replaceAll("(?m)--[^\n]*\n?", "")
+		stripped = stripped.replaceAll("(?m)--[^\n]*\n?", "")
 
 		// to leading and trailingwhite space characters
-		striped = striped.replaceAll("(?m)^[\t ]*", "")
-		striped = striped.replaceAll("(?m)[\t ]*$", "")
+		stripped = stripped.replaceAll("(?m)^[\t ]*", "")
+		stripped = stripped.replaceAll("(?m)[\t ]*$", "")
 
 		// only one newline between lines
-		striped = striped.replaceAll("[\r\n]+", "\n")
+		stripped = stripped.replaceAll("[\r\n]+", "\n")
 
 		// no newlines in first and last line 
-		striped.trim()
+		stripped.trim()
 	}
 
 	def static String bringIntoExtremelyCanonicalForm(String canonicalForm) {
 		// spaces my occur in the original file
 		// this breaks strings, but that doesn't matter here
 		var canonical = canonicalForm.replaceAll("[\t ]+", "")
+
+		// printing of some table elements introduces unwanted commas
+		canonical = canonical.replaceAll(",", "")
 
 		// no newlines in first and last line 
 		canonical.replaceAll("\n", "")
@@ -58,12 +72,12 @@ class CodeModelEvaluator {
 			return false;
 		}
 
-		val uri = URI.createURI(srcFile.toString)
+		val uri = URI.createFileURI(srcFile.toAbsolutePath.toString)
 		var Resource res = null
 		try {
 			res = rs.getResource(uri, true)
 		} catch (WrappedException | IOException e) {
-//			e.printStackTrace;
+			e.printStackTrace;
 			return false;
 		}
 		val origString = Files.readString(srcFile)
@@ -91,23 +105,23 @@ class CodeModelEvaluator {
 		if (equivalence) {
 			EvaluationDataContainer.get.codeModelCorrectness.similarFiles = EvaluationDataContainer.get.
 				codeModelCorrectness.similarFiles + 1
+		} else {
+			println("dissimilar file: " + srcFile)
+			// write strings to files if there are differences
+			val targetDir = Paths.get("./caseStudyEvaluation/").resolve(appPath.relativize(srcFile))
+			val plainDir = targetDir.resolve("plain")
+			val canonicalDir = targetDir.resolve("canonical")
+			val extremelyCanonicalDir = targetDir.resolve("extremely-canonical")
+			Files.createDirectories(plainDir)
+			Files.createDirectories(canonicalDir)
+			Files.createDirectories(extremelyCanonicalDir)
+			Files.writeString(plainDir.resolve("orig.lua"), origString)
+			Files.writeString(plainDir.resolve("parsedAndPrinted.lua"), parsedAndPrinted)
+			Files.writeString(canonicalDir.resolve("orig.lua"), origCanonical)
+			Files.writeString(canonicalDir.resolve("parsedAndPrinted.lua"), parsedAndPrintedCanonical)
+			Files.writeString(extremelyCanonicalDir.resolve("orig.lua"), origExtremelyCanonical)
+			Files.writeString(extremelyCanonicalDir.resolve("parsedAndPrinted.lua"), parsedAndPrintedExtremelyCanonical)
 		}
-		// write strings to files if there are differences
-//		if (!equivalence) {
-//			val targetDir = Paths.get("./caseStudyEvaluation/").resolve(name).resolve(appPath.relativize(srcFile))
-//			val plainDir = targetDir.resolve("plain")
-//			val canonicalDir = targetDir.resolve("canonical")
-//			val extremelyCanonicalDir = targetDir.resolve("extremely-canonical")
-//			Files.createDirectories(plainDir)
-//			Files.createDirectories(canonicalDir)
-//			Files.createDirectories(extremelyCanonicalDir)
-//			Files.writeString(plainDir.resolve("orig.lua"), origString)
-//			Files.writeString(plainDir.resolve("parsedAndPrinted.lua"), parsedAndPrinted)
-//			Files.writeString(canonicalDir.resolve("orig.lua"), origCanonical)
-//			Files.writeString(canonicalDir.resolve("parsedAndPrinted.lua"), parsedAndPrintedCanonical)
-//			Files.writeString(extremelyCanonicalDir.resolve("orig.lua"), origExtremelyCanonical)
-//			Files.writeString(extremelyCanonicalDir.resolve("parsedAndPrinted.lua"), parsedAndPrintedExtremelyCanonical)
-//		}
 		return equivalence
 	}
 
@@ -127,6 +141,8 @@ class CodeModelEvaluator {
 		val unequalPaths = new ArrayList<Path>();
 
 		val cmEval = resetEvalData()
+		val targetDir = Paths.get("./caseStudyEvaluation/")
+		FileUtils.deleteDirectory(targetDir.toFile)
 
 		try (val paths = Files.walk(appPath))
 			paths.filter[p|matcher.matches(p)].forEach [ path |

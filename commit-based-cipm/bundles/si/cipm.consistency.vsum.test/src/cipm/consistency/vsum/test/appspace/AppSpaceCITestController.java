@@ -252,7 +252,7 @@ public abstract class AppSpaceCITestController extends AppSpaceCommitIntegration
                     commitHistoryEvaluator.addEvaluationDataContainer(eval);
                     if (!eval.valid()) {
                         failures++;
-                        LOGGER.error(String.format("Propagation #%d failed evaluation", i));
+                        LOGGER.error(String.format("Propagation #%d failed evaluation\n", i));
                     }
                     i++;
                 }

@@ -32,8 +32,11 @@ public class LuaHierarchicalMatchEngineFactory extends MatchEngineFactoryImpl {
      * @return The ready to use cache.
      */
     private LoadingCache<EObject, URI> initEqualityCache() {
+//        CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder()
+//            .maximumSize(DefaultMatchEngine.DEFAULT_EOBJECT_URI_CACHE_MAX_SIZE);
+        // TODO Im deactivating the cache to check something
         CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder()
-            .maximumSize(DefaultMatchEngine.DEFAULT_EOBJECT_URI_CACHE_MAX_SIZE);
+            .maximumSize(0);
         final LoadingCache<EObject, URI> cache = EqualityHelper.createDefaultCache(cacheBuilder);
         return cache;
     }
