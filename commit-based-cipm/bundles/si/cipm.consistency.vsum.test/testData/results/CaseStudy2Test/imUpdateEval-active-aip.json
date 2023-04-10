@@ -1,0 +1,122 @@
+[
+  {
+    "commitIndex": 1,
+    "numberAIP": 69,
+    "numberActiveAIP": 69,
+    "numberMatchedActiveAIP": 69,
+    "numberAddedActions": 69,
+    "numberChangedActions": 0,
+    "ratioActiveAIPs": 1,
+    "fScoreActiveActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 2,
+    "numberAIP": 69,
+    "numberActiveAIP": 1,
+    "numberMatchedActiveAIP": 1,
+    "numberAddedActions": 1,
+    "numberChangedActions": 0,
+    "ratioActiveAIPs": 0.0145,
+    "fScoreActiveActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 3,
+    "numberAIP": 69,
+    "numberActiveAIP": 2,
+    "numberMatchedActiveAIP": 2,
+    "numberAddedActions": 2,
+    "numberChangedActions": 0,
+    "ratioActiveAIPs": 0.029,
+    "fScoreActiveActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 4,
+    "numberAIP": 78,
+    "numberActiveAIP": 29,
+    "numberMatchedActiveAIP": 29,
+    "numberAddedActions": 29,
+    "numberChangedActions": 0,
+    "ratioActiveAIPs": 0.3718,
+    "fScoreActiveActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 5,
+    "numberAIP": 78,
+    "numberActiveAIP": 0,
+    "numberMatchedActiveAIP": 0,
+    "numberAddedActions": 0,
+    "numberChangedActions": 0,
+    "ratioActiveAIPs": 0,
+    "fScoreActiveActionInstrumentationPoints": -1
+  },
+  {
+    "commitIndex": 6,
+    "numberAIP": 86,
+    "numberActiveAIP": 37,
+    "numberMatchedActiveAIP": 37,
+    "numberAddedActions": 37,
+    "numberChangedActions": 0,
+    "ratioActiveAIPs": 0.4302,
+    "fScoreActiveActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 7,
+    "numberAIP": 90,
+    "numberActiveAIP": 36,
+    "numberMatchedActiveAIP": 36,
+    "numberAddedActions": 35,
+    "numberChangedActions": 1,
+    "ratioActiveAIPs": 0.4,
+    "fScoreActiveActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 8,
+    "numberAIP": 93,
+    "numberActiveAIP": 11,
+    "numberMatchedActiveAIP": 11,
+    "numberAddedActions": 11,
+    "numberChangedActions": 0,
+    "ratioActiveAIPs": 0.1183,
+    "fScoreActiveActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 9,
+    "numberAIP": 94,
+    "numberActiveAIP": 7,
+    "numberMatchedActiveAIP": 7,
+    "numberAddedActions": 7,
+    "numberChangedActions": 0,
+    "ratioActiveAIPs": 0.0745,
+    "fScoreActiveActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 10,
+    "numberAIP": 91,
+    "numberActiveAIP": 5,
+    "numberMatchedActiveAIP": 5,
+    "numberAddedActions": 5,
+    "numberChangedActions": 0,
+    "ratioActiveAIPs": 0.0549,
+    "fScoreActiveActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 11,
+    "numberAIP": 103,
+    "numberActiveAIP": 76,
+    "numberMatchedActiveAIP": 76,
+    "numberAddedActions": 76,
+    "numberChangedActions": 1,
+    "ratioActiveAIPs": 0.7379,
+    "fScoreActiveActionInstrumentationPoints": 0.9935
+  },
+  {
+    "commitIndex": 12,
+    "numberAIP": 103,
+    "numberActiveAIP": 5,
+    "numberMatchedActiveAIP": 5,
+    "numberAddedActions": 5,
+    "numberChangedActions": 0,
+    "ratioActiveAIPs": 0.0485,
+    "fScoreActiveActionInstrumentationPoints": 1
+  }
+]

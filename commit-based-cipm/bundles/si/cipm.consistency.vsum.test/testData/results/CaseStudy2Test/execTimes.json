@@ -1,0 +1,109 @@
+[
+  {
+    "commitIndex": 1,
+    "execTime": 2053,
+    "msPerChange": 0.079,
+    "vitruvChanges": 25992,
+    "http://www.xtext.org/lua/Lua": 15759,
+    "http://palladiosimulator.org/PalladioComponentModel/5.2": 6414,
+    "http://www.dmodel.com/InstrumentationMetamodel": 3819
+  },
+  {
+    "commitIndex": 2,
+    "execTime": 525,
+    "msPerChange": 3.201,
+    "vitruvChanges": 164,
+    "http://www.xtext.org/lua/Lua": 47,
+    "http://palladiosimulator.org/PalladioComponentModel/5.2": 27,
+    "http://www.dmodel.com/InstrumentationMetamodel": 21
+  },
+  {
+    "commitIndex": 3,
+    "execTime": 526,
+    "msPerChange": 0.564,
+    "vitruvChanges": 932,
+    "http://www.xtext.org/lua/Lua": 859,
+    "http://palladiosimulator.org/PalladioComponentModel/5.2": 44,
+    "http://www.dmodel.com/InstrumentationMetamodel": 28
+  },
+  {
+    "commitIndex": 4,
+    "execTime": 3444,
+    "msPerChange": 0.231,
+    "vitruvChanges": 14877,
+    "http://www.xtext.org/lua/Lua": 12501,
+    "http://palladiosimulator.org/PalladioComponentModel/5.2": 1473,
+    "http://www.dmodel.com/InstrumentationMetamodel": 898
+  },
+  {
+    "commitIndex": 5,
+    "execTime": 237,
+    "msPerChange": 0.611,
+    "vitruvChanges": 388,
+    "http://www.xtext.org/lua/Lua": 359,
+    "http://www.dmodel.com/InstrumentationMetamodel": 29
+  },
+  {
+    "commitIndex": 6,
+    "execTime": 4134,
+    "msPerChange": 0.235,
+    "vitruvChanges": 17576,
+    "http://www.xtext.org/lua/Lua": 12069,
+    "http://palladiosimulator.org/PalladioComponentModel/5.2": 3392,
+    "http://www.dmodel.com/InstrumentationMetamodel": 2113
+  },
+  {
+    "commitIndex": 7,
+    "execTime": 7554,
+    "msPerChange": 0.342,
+    "vitruvChanges": 22058,
+    "http://www.xtext.org/lua/Lua": 17212,
+    "http://palladiosimulator.org/PalladioComponentModel/5.2": 3058,
+    "http://www.dmodel.com/InstrumentationMetamodel": 1747
+  },
+  {
+    "commitIndex": 8,
+    "execTime": 1504,
+    "msPerChange": 0.182,
+    "vitruvChanges": 8281,
+    "http://www.xtext.org/lua/Lua": 7104,
+    "http://palladiosimulator.org/PalladioComponentModel/5.2": 680,
+    "http://www.dmodel.com/InstrumentationMetamodel": 455
+  },
+  {
+    "commitIndex": 9,
+    "execTime": 863,
+    "msPerChange": 0.384,
+    "vitruvChanges": 2248,
+    "http://www.xtext.org/lua/Lua": 1758,
+    "http://palladiosimulator.org/PalladioComponentModel/5.2": 302,
+    "http://www.dmodel.com/InstrumentationMetamodel": 176
+  },
+  {
+    "commitIndex": 10,
+    "execTime": 642,
+    "msPerChange": 0.626,
+    "vitruvChanges": 1026,
+    "http://www.xtext.org/lua/Lua": 707,
+    "http://palladiosimulator.org/PalladioComponentModel/5.2": 189,
+    "http://www.dmodel.com/InstrumentationMetamodel": 121
+  },
+  {
+    "commitIndex": 11,
+    "execTime": 20578,
+    "msPerChange": 0.463,
+    "vitruvChanges": 44457,
+    "http://www.xtext.org/lua/Lua": 37638,
+    "http://palladiosimulator.org/PalladioComponentModel/5.2": 4268,
+    "http://www.dmodel.com/InstrumentationMetamodel": 2535
+  },
+  {
+    "commitIndex": 12,
+    "execTime": 555,
+    "msPerChange": 0.29,
+    "vitruvChanges": 1911,
+    "http://www.xtext.org/lua/Lua": 1702,
+    "http://palladiosimulator.org/PalladioComponentModel/5.2": 80,
+    "http://www.dmodel.com/InstrumentationMetamodel": 51
+  }
+]

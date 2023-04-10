@@ -18,7 +18,6 @@ import cipm.consistency.vsum.test.appspace.AppSpaceCITestController;
 /**
  * A test class for the AppSpace Case Study
  * 
- * @author Martin Armbruster
  * @author Lukas Burgey
  */
 public class CaseStudy2Test extends AppSpaceCITestController {
@@ -26,23 +25,6 @@ public class CaseStudy2Test extends AppSpaceCITestController {
     private static final String COMMIT_TAG_MASTER = "916fc52";
     private static final String[] VERSIONS_MASTER = { null, "f713180", "1466c57", "f57823c", "40bf36e", "473c9d9",
             "995ecc0", "956aeb9", "0da3169", "00b44f8", "88d005a", "92cb3bc", COMMIT_TAG_MASTER };
-
-    
-    private static final String[] VERSIONS_MASTER_WITHOUT_FAILING = { null, "f713180", "1466c57", "f57823c", "40bf36e", "473c9d9",
-            "995ecc0", "956aeb9", "0da3169", "00b44f8", "88d005a" };
-
-    private static final String[] VERSIONS_MASTER_STARTING_WITH_7 = { null, "956aeb9", "0da3169", "00b44f8", "88d005a", "92cb3bc", COMMIT_TAG_MASTER };
-    private static final String[] VERSIONS_MASTER_WITHOUT_7 = { null, "f713180", "1466c57", "f57823c", "40bf36e", "473c9d9",
-            "995ecc0", "0da3169", "00b44f8", "88d005a", "92cb3bc", COMMIT_TAG_MASTER };
-    private static final String[] VERSIONS_MASTER_FIRST_6 = { null, "f713180", "1466c57", "f57823c", "40bf36e", "473c9d9", "995ecc0"};
-
-//    private static final String[] VERSIONS_MASTER_WITHOUT_FIRST_TWO = { null, "f57823c", "40bf36e", "473c9d9",
-//            "995ecc0", "956aeb9", "0da3169", "00b44f8", "88d005a", "92cb3bc", COMMIT_TAG_MASTER };
-//
-//    private static final String[] VERSIONS_MASTER_WITHOUT_FIRST_THREE = { null, "40bf36e", "473c9d9", "995ecc0",
-//            "956aeb9", "0da3169", "00b44f8", "88d005a", "92cb3bc", COMMIT_TAG_MASTER };
-//    private static final String[] VERSIONS_MASTER_WITHOUT_FIRST_FOUR = { null, "473c9d9", "995ecc0", "956aeb9",
-//            "0da3169", "00b44f8", "88d005a", "92cb3bc", COMMIT_TAG_MASTER };
 
     public GitRepositoryWrapper getGitRepositoryWrapper()
             throws InvalidRemoteException, TransportException, GitAPIException, IOException {
@@ -74,13 +56,8 @@ public class CaseStudy2Test extends AppSpaceCITestController {
 
     @Test
     public void testCompleteExperimenting() {
-        // currently broken after 6
-        String[] commits = { null, "f713180", "1466c57", "f57823c", "40bf36e", "473c9d9",
-            "995ecc0", "956aeb9", "0da3169", "00b44f8", "88d005a", "92cb3bc", COMMIT_TAG_MASTER };
-//        String[] commits = { null, "f713180", "1466c57", "f57823c", "40bf36e", "473c9d9",
-//            "995ecc0"};
         setFailureMode(CommitIntegrationFailureMode.ABORT);
         Config.setInternalSeffCallReconstructionType(ReconstructionType.InternalAction);
-        doCompleteEvaluation(commits);
+        doCompleteEvaluation(VERSIONS_MASTER);
     }
 }

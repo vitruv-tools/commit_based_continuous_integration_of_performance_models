@@ -25,7 +25,7 @@ public class ImUpdateEvalData {
     private double ratioActiveAIPs;
 
     private double ratioAipPerSip;
-    
+
     private double proportionalOverheadReduction;
 
     private double fScoreServiceInstrumentationPoints;
@@ -39,26 +39,33 @@ public class ImUpdateEvalData {
     private List<String> unmatchedSEFFs = new ArrayList<>();
     private List<String> unmatchedActions = new ArrayList<>();
     private List<String> unmatchedChangedActions = new ArrayList<>();
+    private List<String> unmatchedAddedActions = new ArrayList<>();
 
+    // these are populated in the CPRs
     private List<String> createdActions = new ArrayList<>();
     private List<String> fusedActions = new ArrayList<>();
-    
-    public void calculateDerivedValues() {        
+    private List<String> removedActions = new ArrayList<>();
+
+    public void calculateDerivedValues() {
         numberAIP = numberIP - numberSIP;
         ratioActiveAIPs = (double) numberActiveAIP / numberAIP;
         ratioAipPerSip = (double) numberAIP / numberSIP;
-        
+
         proportionalOverheadReduction = 1 - ratioActiveAIPs;
 
         fScoreServiceInstrumentationPoints = calcFScore(numberMatchedSIP, unmatchedSIPs.size(), unmatchedSEFFs.size());
         fScoreActionInstrumentationPoints = calcFScore(numberMatchedAIP, unmatchedAIPs.size(), unmatchedActions.size());
-        
 
-        fScoreActiveActionInstrumentationPoints = calcFScore(numberMatchedActiveAIP, unmatchedChangedActions.size(),
-                unmatchedActiveAIPs.size());
-        
+        fScoreActiveActionInstrumentationPoints = calcFScore(numberMatchedActiveAIP,
+                unmatchedChangedActions.size() + unmatchedAddedActions.size(), unmatchedActiveAIPs.size());
+
+        numberChangedActions = generateChangedActions().size();
+    }
+    
+    public void cleanUp() {
         createdActions = null;
         fusedActions = null;
+        removedActions = null;
     }
 
     private double calcFScore(int truePos, int falsePos, int falseNeg) {
@@ -116,18 +123,6 @@ public class ImUpdateEvalData {
     public void setNumberActiveAIP(int numberActivatedAIP) {
         this.numberActiveAIP = numberActivatedAIP;
     }
-
-//    public double getDeactivatedIPRatio() {
-//        return deactivatedIPRatio;
-//    }
-
-//    public void setDeactivatedIPRatio(double deactivatedIPAllIPRatio) {
-//        if (deactivatedIPAllIPRatio == Double.NaN) {
-//            this.deactivatedAIPRatio = -1;
-//        } else {
-//            this.deactivatedIPRatio = deactivatedIPAllIPRatio;
-//        }
-//    }
 
     public double getRatioActiveAIPs() {
         return ratioActiveAIPs;
@@ -213,17 +208,29 @@ public class ImUpdateEvalData {
         return numberAddedActions;
     }
 
-    public List<String> getChangedActions() {
+    public List<String> generateChangedActions() {
         List<String> changedActions = new ArrayList<>();
 
         // added / changed action instrumentation activation
         for (var fused : fusedActions) {
-            if (!createdActions.contains(fused) && !changedActions.contains(fused)) {
-                numberChangedActions++;
+            if (!createdActions.contains(fused) && !removedActions.contains(fused) && !changedActions.contains(fused)) {
                 changedActions.add(fused);
             }
         }
         return changedActions;
     }
 
+    public List<String> getUnmatchedAddedActions() {
+        return unmatchedAddedActions;
+    }
+
+    public List<String> getRemovedActions() {
+        return removedActions;
+    }
+
+    public void addActionRemoved(String id) {
+        if (!removedActions.contains(id)) {
+            removedActions.add(id);
+        }
+    }
 }

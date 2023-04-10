@@ -215,14 +215,13 @@ reaction ChangedStatement {
 	call {
 		if (change instanceof FeatureEChange) {
 			val affected = change.affectedEObject
-
-			val parentBlock = EcoreUtil2.getContainerOfType(affected, Block)
-			if (parentBlock === null) {
+			val parentStatement = EcoreUtil2.getContainerOfType(affected, Statement)
+			if (parentStatement === null) {
 				return
 			}
 
-			val parentStatement = EcoreUtil2.getContainerOfType(affected, Statement)
-			if (parentStatement === null) {
+			val parentBlock = EcoreUtil2.getContainerOfType(parentStatement, Block)
+			if (parentBlock === null) {
 				return
 			}
 			
@@ -344,6 +343,9 @@ routine removeRDBehaviourForBlock(lua::Block block) {
 	update {
 		logger.info("Block deleted: Removing RD Behaviour " + rdBehaviour.id)
 		removeCorrespondenceBetween(rdBehaviour, block)
+		for (action : rdBehaviour.steps_Behaviour) {
+			EvaluationDataContainer.get.imUpdateEvalData.addActionRemoved(action.id)
+		}
 		rdBehaviour.removeObject
 	}
 }
@@ -668,6 +670,7 @@ routine createActionsForStatement(EObject statement, lua::Block block) {
 				actionStatementRelationChanged(previousAction)
 				
 				for (action : statementActions) {
+					EvaluationDataContainer.get.imUpdateEvalData.addActionRemoved(action.id)
 					action.removeObject
 				}
 				return
@@ -772,7 +775,12 @@ routine fuseTwoInternalActions(pcm::InternalAction a, pcm::InternalAction b) {
 			addCorrespondenceBetween(a, it)
 			b.removeCorrespondenceBetween(it)
 		]
+
+
+		// if we added this action this propagation we also need to remove it from the eval data
+		EvaluationDataContainer.get.imUpdateEvalData.addActionRemoved(b.id)
 		b.removeObject
+		
 
 		actionStatementRelationChanged(a)
 
@@ -902,6 +910,7 @@ routine removeAction(pcm::AbstractAction action, pcm::ResourceDemandingBehaviour
 
 		rdBehaviour.steps_Behaviour -= action
 
+		EvaluationDataContainer.get.imUpdateEvalData.addActionRemoved(action.id)
 		action.removeObject
 	}
 }

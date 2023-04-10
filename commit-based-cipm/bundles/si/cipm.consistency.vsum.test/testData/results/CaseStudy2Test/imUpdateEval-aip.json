@@ -1,0 +1,74 @@
+[
+  {
+    "commitIndex": 1,
+    "numberAIP": 69,
+    "numberMatchedAIP": 69,
+    "fScoreActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 2,
+    "numberAIP": 69,
+    "numberMatchedAIP": 69,
+    "fScoreActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 3,
+    "numberAIP": 69,
+    "numberMatchedAIP": 69,
+    "fScoreActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 4,
+    "numberAIP": 78,
+    "numberMatchedAIP": 78,
+    "fScoreActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 5,
+    "numberAIP": 78,
+    "numberMatchedAIP": 78,
+    "fScoreActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 6,
+    "numberAIP": 86,
+    "numberMatchedAIP": 86,
+    "fScoreActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 7,
+    "numberAIP": 90,
+    "numberMatchedAIP": 90,
+    "fScoreActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 8,
+    "numberAIP": 93,
+    "numberMatchedAIP": 93,
+    "fScoreActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 9,
+    "numberAIP": 94,
+    "numberMatchedAIP": 94,
+    "fScoreActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 10,
+    "numberAIP": 91,
+    "numberMatchedAIP": 91,
+    "fScoreActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 11,
+    "numberAIP": 103,
+    "numberMatchedAIP": 103,
+    "fScoreActionInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 12,
+    "numberAIP": 103,
+    "numberMatchedAIP": 103,
+    "fScoreActionInstrumentationPoints": 1
+  }
+]

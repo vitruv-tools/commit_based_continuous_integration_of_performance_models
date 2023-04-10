@@ -400,7 +400,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
             var previousRepo = ModelUtil.readFromFile(repoFile, Repository.class);
             evaluator.evaluateIMUpdate(repo, im, imEvalData, previousRepo);
         } catch (Exception e) {
-            LOGGER.error("Error loading previous repositor: " + e.getMessage());
+            LOGGER.error("Error loading previous repository: " + e.getMessage());
         }
     }
 

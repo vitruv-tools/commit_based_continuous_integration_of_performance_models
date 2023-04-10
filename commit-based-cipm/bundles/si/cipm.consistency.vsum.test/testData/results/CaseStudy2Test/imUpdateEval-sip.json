@@ -1,0 +1,74 @@
+[
+  {
+    "commitIndex": 1,
+    "numberSIP": 119,
+    "numberMatchedSIP": 119,
+    "fScoreServiceInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 2,
+    "numberSIP": 119,
+    "numberMatchedSIP": 119,
+    "fScoreServiceInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 3,
+    "numberSIP": 119,
+    "numberMatchedSIP": 119,
+    "fScoreServiceInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 4,
+    "numberSIP": 137,
+    "numberMatchedSIP": 137,
+    "fScoreServiceInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 5,
+    "numberSIP": 137,
+    "numberMatchedSIP": 137,
+    "fScoreServiceInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 6,
+    "numberSIP": 148,
+    "numberMatchedSIP": 148,
+    "fScoreServiceInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 7,
+    "numberSIP": 162,
+    "numberMatchedSIP": 162,
+    "fScoreServiceInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 8,
+    "numberSIP": 166,
+    "numberMatchedSIP": 166,
+    "fScoreServiceInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 9,
+    "numberSIP": 168,
+    "numberMatchedSIP": 168,
+    "fScoreServiceInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 10,
+    "numberSIP": 170,
+    "numberMatchedSIP": 170,
+    "fScoreServiceInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 11,
+    "numberSIP": 111,
+    "numberMatchedSIP": 111,
+    "fScoreServiceInstrumentationPoints": 1
+  },
+  {
+    "commitIndex": 12,
+    "numberSIP": 111,
+    "numberMatchedSIP": 111,
+    "fScoreServiceInstrumentationPoints": 1
+  }
+]

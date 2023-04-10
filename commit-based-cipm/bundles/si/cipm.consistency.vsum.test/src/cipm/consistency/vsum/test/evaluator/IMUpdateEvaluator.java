@@ -56,6 +56,9 @@ public class IMUpdateEvaluator {
 
         // we have all the values for the fscore
         currentEvalResult.calculateDerivedValues();
+        
+        // clean temporary values so the dont end up in the eval file
+        currentEvalResult.cleanUp();
     }
 
     private void checkSeffExistenceForServiceInstrumentationPoint(Repository repo, InstrumentationModel im) {
@@ -219,24 +222,28 @@ public class IMUpdateEvaluator {
                         }
                     });
             });
-
         currentEvalResult.setNumberAddedActions(addedActions.size());
 
-        ArrayList<String> unmatchedChangedActions = new ArrayList<>();
+        ArrayList<String> unmatchedAddedActions = new ArrayList<>();
+        unmatchedAddedActions.addAll(addedActions);
 
-        // changed actions are created actions _and_ changed actions
-        unmatchedChangedActions.addAll(currentEvalResult.getChangedActions());
-        unmatchedChangedActions.addAll(addedActions);
+        ArrayList<String> unmatchedChangedActions = new ArrayList<>();
+        unmatchedChangedActions.addAll(currentEvalResult.generateChangedActions());
 
         List<String> unmatchedActiveAIPs = new ArrayList<>();
-        
 
         for (var sip : im.getPoints()) {
             for (var aip : sip.getActionInstrumentationPoints()) {
                 if (aip.isActive()) {
                     var actionId = aip.getAction()
                         .getId();
-                    if (unmatchedChangedActions.contains(actionId)) {
+
+                    // added actions
+                    if (unmatchedAddedActions.contains(actionId)) {
+                        unmatchedAddedActions.remove(actionId);
+                        currentEvalResult.setNumberMatchedActiveAIP(currentEvalResult.getNumberMatchedActiveAIP() + 1);
+                    // changed actions
+                    } else if (unmatchedChangedActions.contains(actionId)) {
                         unmatchedChangedActions.remove(actionId);
                         currentEvalResult.setNumberMatchedActiveAIP(currentEvalResult.getNumberMatchedActiveAIP() + 1);
                     } else {
@@ -245,9 +252,11 @@ public class IMUpdateEvaluator {
                 }
             }
         }
-//        currentEvalResult.setDifferenceChangedActionsActivatedAIP(difference);
+
         currentEvalResult.getUnmatchedChangedActions()
             .addAll(unmatchedChangedActions);
+        currentEvalResult.getUnmatchedAddedActions()
+            .addAll(unmatchedAddedActions);
         currentEvalResult.getUnmatchedActiveAIPs()
             .addAll(unmatchedActiveAIPs);
     }
