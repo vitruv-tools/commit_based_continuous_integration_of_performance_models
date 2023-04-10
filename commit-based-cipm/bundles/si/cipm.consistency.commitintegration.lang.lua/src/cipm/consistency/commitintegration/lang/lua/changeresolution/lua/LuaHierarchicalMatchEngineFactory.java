@@ -2,7 +2,6 @@ package cipm.consistency.commitintegration.lang.lua.changeresolution.lua;
 
 import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.compare.match.DefaultMatchEngine;
 import org.eclipse.emf.compare.match.IMatchEngine;
 import org.eclipse.emf.compare.match.impl.MatchEngineFactoryImpl;
 import org.eclipse.emf.compare.match.resource.StrategyResourceMatcher;
@@ -22,8 +21,13 @@ import com.google.common.cache.LoadingCache;
 
 public class LuaHierarchicalMatchEngineFactory extends MatchEngineFactoryImpl {
 
-    public LuaHierarchicalMatchEngineFactory() {
+    // stringent matching is not for change resolution but for
+    // the matching during the evaluation
+    private boolean useStringentMatching;
+
+    public LuaHierarchicalMatchEngineFactory(boolean useStringentMatching) {
         super(UseIdentifiers.NEVER);
+        this.useStringentMatching = useStringentMatching;
     }
 
     /**
@@ -50,8 +54,10 @@ public class LuaHierarchicalMatchEngineFactory extends MatchEngineFactoryImpl {
      */
     private IEqualityHelper initEqualityHelper() {
         final LoadingCache<EObject, org.eclipse.emf.common.util.URI> cache = initEqualityCache();
-        IEqualityHelper equalityHelper = new LuaEqualityHelper(cache);
-        return equalityHelper;
+        if (useStringentMatching) {
+            return new LuaStringentEqualityHelper(cache);
+        }
+        return new LuaEqualityHelper(cache);
     }
 
     @Override

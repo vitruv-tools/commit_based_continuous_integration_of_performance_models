@@ -46,8 +46,11 @@ public class ComponentSetInfo {
     private ListMultimap<Component, Component> componentToRequiredComponents;
 
     private Set<Block> blocksRequiringActionReconstruction;
+
+    private Set<Statement> refreshedStatements;
     
     private boolean emulatedInstrumentationRan = false;
+    
 
     /**
      * Initialize the component set info.
@@ -63,6 +66,7 @@ public class ComponentSetInfo {
         declarationToCallingActions = ArrayListMultimap.create();
         componentToRequiredComponents = ArrayListMultimap.create();
         blocksRequiringActionReconstruction = new HashSet<>();
+        refreshedStatements = new HashSet<>();
 
         functionNameToServeCall = generateServedFunctionNames(componentSet);
         scanFunctionsForActionReconstruction(componentSet);
@@ -249,5 +253,9 @@ public class ComponentSetInfo {
 
     public void setEmulatedInstrumentationRan(boolean emulatedInstrumentationRan) {
         this.emulatedInstrumentationRan = emulatedInstrumentationRan;
+    }
+
+    public Set<Statement> getRefreshedStatements() {
+        return refreshedStatements;
     }
 }

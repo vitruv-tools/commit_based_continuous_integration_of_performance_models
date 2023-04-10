@@ -15,7 +15,6 @@ import org.apache.log4j.Logger;
 import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.common.util.WrappedException;
-import org.eclipse.emf.compare.AttributeChange;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -184,7 +183,7 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
     }
 
     private Comparison compareCodeModels(Resource parsedCodeModel, Resource vsumCodeModel) {
-        var changeResolutionStrategy = new HierarchicalStateBasedChangeResolutionStrategy();
+        var changeResolutionStrategy = new HierarchicalStateBasedChangeResolutionStrategy(true);
         return changeResolutionStrategy.compareStates(parsedCodeModel, vsumCodeModel);
     }
 
@@ -309,10 +308,10 @@ public class PropagationEvaluator<CM extends CodeModelFacade> {
 
         var comparison = PCMModelComparator.compareRepositoryModels(newRepository.eResource(),
                 referenceRepository.eResource());
-        var diffs = comparison.getDifferences();
-        var noIdDiffs = diffs.stream()
-            .filter(i -> !(i instanceof AttributeChange))
-            .toList();
+//        var diffs = comparison.getDifferences();
+//        var noIdDiffs = diffs.stream()
+//            .filter(i -> !(i instanceof AttributeChange))
+//            .toList();
 
         var jaccardResult = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comparison);
 

@@ -66,6 +66,6 @@ public abstract class AppSpaceCommitIntegration extends CommitIntegrationControl
 
     @Override
     public StateBasedChangeResolutionStrategy getStateBasedChangeResolutionStrategy() {
-        return new HierarchicalStateBasedChangeResolutionStrategy();
+        return new HierarchicalStateBasedChangeResolutionStrategy(false);
     }
 }

@@ -39,18 +39,16 @@ class HierarchicalStateBasedChangeResolutionStrategy implements StateBasedChange
 
 	val EMFCompare.Builder emfCompareBuilder
 
-	new() {
+	/**
+	 * @param stringentMatching should not be used for change resolution, but only during the evaluation
+	 */
+	new(boolean stringentMatching) {
 		// Match engine factory for PCM
 		val defaultMatchEngineFactory = new MatchEngineFactoryImpl(UseIdentifiers.WHEN_AVAILABLE)
 		defaultMatchEngineFactory.ranking = 10
 
-		// this was not needed in the end:
-		// Match engine factory for the IMM
-//		val imMatchEngineFactory = new ImMatchEngineFactory()
-//		imMatchEngineFactory.ranking = 15
-
 		// Lua match engine with higher ranking
-		val hierarchicalMatchEngineFactory = new LuaHierarchicalMatchEngineFactory();
+		val hierarchicalMatchEngineFactory = new LuaHierarchicalMatchEngineFactory(stringentMatching);
 		hierarchicalMatchEngineFactory.ranking = 20
 
 		emfCompareBuilder = (EMFCompare.builder => [

@@ -69,10 +69,18 @@ public class EvaluationSummary {
     }
 
     public void incrementTotal() {
-        this.total++;
+        this.setTotal(this.getTotal() + 1);
     }
 
     public void incrementInvalids() {
         this.invalids++;
+    }
+
+    public int getTotal() {
+        return total;
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
     }
 }

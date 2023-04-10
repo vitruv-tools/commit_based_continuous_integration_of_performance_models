@@ -56,10 +56,6 @@ import com.google.common.cache.LoadingCache;
 
 public class LuaEqualityHelper extends EqualityHelper {
 
-//    private static final Logger LOGGER = Logger.getLogger(LuaEqualityHelper.class);
-
-    private EditionDistanceEqualityChecker editionDistanceEqualityChecker;
-
     /**
      * Constructor to initialize the required cache.
      *
@@ -68,11 +64,9 @@ public class LuaEqualityHelper extends EqualityHelper {
      */
     public LuaEqualityHelper(LoadingCache<EObject, org.eclipse.emf.common.util.URI> uriCache) {
         super(uriCache);
-
-        editionDistanceEqualityChecker = new EditionDistanceEqualityChecker();
     }
 
-    private boolean matchEList(EList<? extends EObject> left, EList<? extends EObject> right) {
+    protected boolean matchEList(EList<? extends EObject> left, EList<? extends EObject> right) {
         if (left == null || right == null) {
             return false;
         }
@@ -87,7 +81,7 @@ public class LuaEqualityHelper extends EqualityHelper {
         return true;
     }
 
-    private boolean matchEListByClass(EList<? extends EObject> left, EList<? extends EObject> right) {
+    protected boolean matchEListByClass(EList<? extends EObject> left, EList<? extends EObject> right) {
         if (left == null || right == null) {
             return false;
         }
@@ -102,7 +96,7 @@ public class LuaEqualityHelper extends EqualityHelper {
         return true;
     }
 
-    private static boolean eClassMatch(EObject left, EObject right) {
+    protected static boolean eClassMatch(EObject left, EObject right) {
         var leftClass = left.eClass()
             .getName();
         var rightClass = right.eClass()
@@ -110,7 +104,7 @@ public class LuaEqualityHelper extends EqualityHelper {
         return leftClass.equals(rightClass);
     }
 
-    private static boolean match(Refble left, Refble right) {
+    protected static boolean match(Refble left, Refble right) {
         // both null
 //        if (left == null && right == null) {
 //            return true;
@@ -124,7 +118,7 @@ public class LuaEqualityHelper extends EqualityHelper {
             .equals(right.getName());
     }
 
-//    private boolean refblesMatchPositionally(Refble left, Refble right) {
+//    protected boolean refblesMatchPositionally(Refble left, Refble right) {
 //        if (left == null || right == null) {
 //            return false;
 //        }
@@ -145,7 +139,7 @@ public class LuaEqualityHelper extends EqualityHelper {
 //        return leftIndex == rightIndex;
 //    }
 
-    private boolean refblesMatchByScope(Refble left, Refble right) {
+    protected boolean refblesMatchByScope(Refble left, Refble right) {
         if (left == null || right == null) {
             return false;
         }
@@ -178,7 +172,7 @@ public class LuaEqualityHelper extends EqualityHelper {
         return lParent == null && rParent == null;
     }
 
-    private boolean match(Expression_VariableName left, Expression_VariableName right) {
+    protected boolean match(Expression_VariableName left, Expression_VariableName right) {
         // both null
 //        if (left == null && right == null) {
 //            return true;
@@ -191,7 +185,7 @@ public class LuaEqualityHelper extends EqualityHelper {
         return refblesMatchByScope(left.getRef(), right.getRef());
     }
 
-    private boolean match(Expression_Functioncall left, Expression_Functioncall right) {
+    protected boolean match(Expression_Functioncall left, Expression_Functioncall right) {
         if (left instanceof Expression_Functioncall_Direct leftCall
                 && right instanceof Expression_Functioncall_Direct rightCall) {
             if (leftCall.getCalledFunction() == null || rightCall.getCalledFunction() == null
@@ -213,15 +207,15 @@ public class LuaEqualityHelper extends EqualityHelper {
                     .getArguments());
     }
 
-    private boolean match(Expression_TableConstructor left, Expression_TableConstructor right) {
+    protected boolean match(Expression_TableConstructor left, Expression_TableConstructor right) {
         return matchEList(left.getFields(), right.getFields());
     }
 
-    private boolean match(Field_AppendEntryToTable left, Field_AppendEntryToTable right) {
+    protected boolean match(Field_AppendEntryToTable left, Field_AppendEntryToTable right) {
         return match(left.getValue(), right.getValue());
     }
 
-    private boolean match(Statement_If_Then_Else left, Statement_If_Then_Else right) {
+    protected boolean match(Statement_If_Then_Else left, Statement_If_Then_Else right) {
         if (!match(left.getIfExpression(), right.getIfExpression())) {
             return false;
         }
@@ -243,12 +237,12 @@ public class LuaEqualityHelper extends EqualityHelper {
         return true;
     }
 
-    private boolean match(Statement_If_Then_Else_ElseIfPart left, Statement_If_Then_Else_ElseIfPart right) {
+    protected boolean match(Statement_If_Then_Else_ElseIfPart left, Statement_If_Then_Else_ElseIfPart right) {
         // TODO is this enough?
         return match(left.getElseifExpression(), right.getElseifExpression());
     }
 
-    private boolean match(Statement_For left, Statement_For right) {
+    protected boolean match(Statement_For left, Statement_For right) {
         if ((left.isGeneric() != right.isGeneric()) || (left.isNumeric() != right.isNumeric())) {
             return false;
         }
@@ -261,7 +255,7 @@ public class LuaEqualityHelper extends EqualityHelper {
         return true;
     }
 
-    private boolean match(Statement_Assignment left, Statement_Assignment right) {
+    protected boolean match(Statement_Assignment left, Statement_Assignment right) {
         var leftDests = left.getDests();
         var rightDests = right.getDests();
         
@@ -294,7 +288,7 @@ public class LuaEqualityHelper extends EqualityHelper {
         return true;
     }
 
-    private boolean match(Expression_TableAccess left, Expression_TableAccess right) {
+    protected boolean match(Expression_TableAccess left, Expression_TableAccess right) {
         if ((left.getIndexableExpression() != null || right.getIndexableExpression() != null)
                 && !match(left.getIndexableExpression(), right.getIndexableExpression())) {
             return false;
