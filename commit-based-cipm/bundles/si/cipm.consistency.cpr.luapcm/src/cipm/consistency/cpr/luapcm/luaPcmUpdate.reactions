@@ -808,27 +808,27 @@ routine removeActionsForStatement(EObject statement, lua::Block block) {
 	}
 }
 
-routine replaceActionsForStatement(lua::Statement statement, lua::Block block, EObject change) {
-	match {
-		val statementActions = retrieve many pcm::AbstractAction corresponding to statement
-		val rdBehaviour = retrieve optional pcm::ResourceDemandingBehaviour corresponding to block
-	}
-	update {
-		if (!ActionReconstruction.needsActionReconstruction(statement)) {
-			return
-		}
-
-		if (!rdBehaviour.present) {
-			logger.warn("Unable to replace actions for statements: no RD Behaviour")
-			return
-		}
-		
-		logger.info("Recreating actions of a changed statement")
-		for (action : statementActions) {
-			recreateActionsForCorrespondingStatements(action)
-		}
-	}
-}
+//routine replaceActionsForStatement(lua::Statement statement, lua::Block block, EObject change) {
+//	match {
+//		val statementActions = retrieve many pcm::AbstractAction corresponding to statement
+//		val rdBehaviour = retrieve optional pcm::ResourceDemandingBehaviour corresponding to EcoreUtil2.getContainerOfType(statement, Block)
+//	}
+//	update {
+//		if (!ActionReconstruction.needsActionReconstruction(statement)) {
+//			return
+//		}
+//
+//		if (!rdBehaviour.present) {
+//			logger.warn("Unable to replace actions for statements: no RD Behaviour")
+//			return
+//		}
+//		
+//		logger.info("Recreating actions of a changed statement")
+//		for (action : statementActions) {
+//			recreateActionsForCorrespondingStatements(action)
+//		}
+//	}
+//}
 
 routine recreateActionsForCorrespondingStatements(pcm::AbstractAction action) {
 	match {
@@ -1009,7 +1009,7 @@ routine createOperationSignatureForStatementFunctionDeclaration(lua::Statement_F
 		val operationSignature = new pcm::OperationSignature
 	}
 	update {
-		logger.debug(functionDeclaration.name + ": Creating signature")
+		logger.warn(functionDeclaration.name + ": Creating signature")
 
 		operationSignature.entityName = functionDeclaration.name
 		operationSignature.interface__OperationSignature = operationInterface
@@ -1037,6 +1037,7 @@ routine createOperationSignatureForStatementFunctionDeclaration(lua::Statement_F
 			if (it instanceof ExternalCallAction) {
 				logger.warn(functionDeclaration.name + ": ExternalCallAction for newly created signature exists")
 				it.calledService_ExternalService = operationSignature
+				addCorrespondenceBetween(it, operationSignature)
 				
 				val callingComponent = EcoreUtil2.getContainerOfType(it, BasicComponent)
 				if (it.role_ExternalService === null) {
@@ -1065,15 +1066,29 @@ routine removeOperationSignatureForStatementFunctionDeclaration(lua::Statement_F
 		val operationSignature = retrieve pcm::OperationSignature corresponding to functionDeclaration
 	}
 	update {
-		logger.debug(functionDeclaration.name + ": Removing signature")
+		logger.warn(functionDeclaration.name + ": Removing signature")
 		if (functionDeclaration.function !== null) {
 			for (param : functionDeclaration.function.arguments) {
 				deleteParameter(param)
 			}
 		}
+		
+		fixExternalCallsOfSoonToBeDeletedSignature(operationSignature)								
 
 		removeCorrespondenceBetween(operationSignature, functionDeclaration)
 		removeObject(operationSignature)
+	}
+}
+
+routine fixExternalCallsOfSoonToBeDeletedSignature(pcm::OperationSignature sig) {
+	match {
+		val extCalls = retrieve many pcm::ExternalCallAction corresponding to sig
+	}
+	update {
+		for (extCall : extCalls) {
+			logger.warn("Recreating actions for statement corresponding to external call: " + extCall.id)
+			recreateActionsForCorrespondingStatements(extCall)
+		}
 	}
 }
 

@@ -62,6 +62,10 @@ public final class ActionReconstruction {
         }
 
         var infos = ComponentSetInfoRegistry.getInfosForComponentSet(eObj);
+        if (infos == null) {
+            // TODO is falling back to more reconstruction a good idea?
+            return true;
+        }
         return infos.needsActionReconstruction(eObj);
     }
 
@@ -254,8 +258,9 @@ public final class ActionReconstruction {
                 OperationSignature.class);
         if (calledSignature != null) {
             externalCallAction.setCalledService_ExternalService(calledSignature);
+            correspondenceModelView.addCorrespondenceBetween(externalCallAction, calledSignature, null);
         } else {
-            LOGGER.debug(calledFunction.getName() + ": Signature does not exist");
+            LOGGER.warn(calledFunction.getName() + ": Signature does not (yet) exist");
         }
 
         ComponentSetInfoRegistry.getInfosForComponentSet(directCall)

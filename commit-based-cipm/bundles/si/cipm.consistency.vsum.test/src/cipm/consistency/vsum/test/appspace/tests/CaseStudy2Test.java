@@ -68,7 +68,7 @@ public class CaseStudy2Test extends AppSpaceCITestController {
     @Test
     public void testCompleteEvaluation() {
         setFailureMode(CommitIntegrationFailureMode.ABORT);
-        Config.setInternalSeffCallReconstructionType(ReconstructionType.InternalAction);
+        Config.setInternalSeffCallReconstructionType(ReconstructionType.ExternalCallAction);
         doCompleteEvaluation(VERSIONS_MASTER);
     }
 
