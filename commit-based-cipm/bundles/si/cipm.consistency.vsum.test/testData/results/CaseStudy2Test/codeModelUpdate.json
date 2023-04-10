@@ -1,0 +1,98 @@
+[
+  {
+    "commitIndex": 1,
+    "numberUnmatchedOldElements": 0,
+    "numberUnmatchedNewElements": 0,
+    "intersectionCardinality": 6017,
+    "unionCardinality": 6017,
+    "jaccardCoefficient": 1
+  },
+  {
+    "commitIndex": 2,
+    "numberUnmatchedOldElements": 0,
+    "numberUnmatchedNewElements": 0,
+    "intersectionCardinality": 6025,
+    "unionCardinality": 6025,
+    "jaccardCoefficient": 1
+  },
+  {
+    "commitIndex": 3,
+    "numberUnmatchedOldElements": 0,
+    "numberUnmatchedNewElements": 0,
+    "intersectionCardinality": 6054,
+    "unionCardinality": 6054,
+    "jaccardCoefficient": 1
+  },
+  {
+    "commitIndex": 4,
+    "numberUnmatchedOldElements": 0,
+    "numberUnmatchedNewElements": 0,
+    "intersectionCardinality": 7219,
+    "unionCardinality": 7219,
+    "jaccardCoefficient": 1
+  },
+  {
+    "commitIndex": 5,
+    "numberUnmatchedOldElements": 0,
+    "numberUnmatchedNewElements": 0,
+    "intersectionCardinality": 7219,
+    "unionCardinality": 7219,
+    "jaccardCoefficient": 1
+  },
+  {
+    "commitIndex": 6,
+    "numberUnmatchedOldElements": 0,
+    "numberUnmatchedNewElements": 0,
+    "intersectionCardinality": 7892,
+    "unionCardinality": 7892,
+    "jaccardCoefficient": 1
+  },
+  {
+    "commitIndex": 7,
+    "numberUnmatchedOldElements": 37,
+    "numberUnmatchedNewElements": 37,
+    "intersectionCardinality": 8756,
+    "unionCardinality": 8830,
+    "jaccardCoefficient": 0.9916194790486976
+  },
+  {
+    "commitIndex": 8,
+    "numberUnmatchedOldElements": 37,
+    "numberUnmatchedNewElements": 37,
+    "intersectionCardinality": 9074,
+    "unionCardinality": 9148,
+    "jaccardCoefficient": 0.9919108001749016
+  },
+  {
+    "commitIndex": 9,
+    "numberUnmatchedOldElements": 37,
+    "numberUnmatchedNewElements": 37,
+    "intersectionCardinality": 9108,
+    "unionCardinality": 9182,
+    "jaccardCoefficient": 0.9919407536484426
+  },
+  {
+    "commitIndex": 10,
+    "numberUnmatchedOldElements": 37,
+    "numberUnmatchedNewElements": 37,
+    "intersectionCardinality": 9160,
+    "unionCardinality": 9234,
+    "jaccardCoefficient": 0.9919861381849686
+  },
+  {
+    "commitIndex": 11,
+    "numberUnmatchedOldElements": 354,
+    "numberUnmatchedNewElements": 354,
+    "intersectionCardinality": 12712,
+    "unionCardinality": 13420,
+    "jaccardCoefficient": 0.9472429210134128
+  },
+  {
+    "commitIndex": 12,
+    "numberUnmatchedOldElements": 354,
+    "numberUnmatchedNewElements": 354,
+    "intersectionCardinality": 12712,
+    "unionCardinality": 13420,
+    "jaccardCoefficient": 0.9472429210134128
+  }
+]

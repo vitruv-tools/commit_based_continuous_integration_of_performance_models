@@ -1,0 +1,122 @@
+[
+  {
+    "commitIndex": 1,
+    "evalType": "ComparisonWithAutomatic",
+    "comparisonType": "PcmDiffUtil",
+    "numberUnmatchedOldElements": 0,
+    "numberUnmatchedNewElements": 0,
+    "intersectionCardinality": 600,
+    "unionCardinality": 600,
+    "jaccardCoefficient": 1
+  },
+  {
+    "commitIndex": 2,
+    "evalType": "ComparisonWithAutomatic",
+    "comparisonType": "PcmDiffUtil",
+    "numberUnmatchedOldElements": 0,
+    "numberUnmatchedNewElements": 0,
+    "intersectionCardinality": 600,
+    "unionCardinality": 600,
+    "jaccardCoefficient": 1
+  },
+  {
+    "commitIndex": 3,
+    "evalType": "ComparisonWithAutomatic",
+    "comparisonType": "PcmDiffUtil",
+    "numberUnmatchedOldElements": 0,
+    "numberUnmatchedNewElements": 0,
+    "intersectionCardinality": 600,
+    "unionCardinality": 600,
+    "jaccardCoefficient": 1
+  },
+  {
+    "commitIndex": 4,
+    "evalType": "ComparisonWithAutomatic",
+    "comparisonType": "PcmDiffUtil",
+    "numberUnmatchedOldElements": 0,
+    "numberUnmatchedNewElements": 0,
+    "intersectionCardinality": 693,
+    "unionCardinality": 693,
+    "jaccardCoefficient": 1
+  },
+  {
+    "commitIndex": 5,
+    "evalType": "ComparisonWithAutomatic",
+    "comparisonType": "PcmDiffUtil",
+    "numberUnmatchedOldElements": 0,
+    "numberUnmatchedNewElements": 0,
+    "intersectionCardinality": 693,
+    "unionCardinality": 693,
+    "jaccardCoefficient": 1
+  },
+  {
+    "commitIndex": 6,
+    "evalType": "ComparisonWithAutomatic",
+    "comparisonType": "PcmDiffUtil",
+    "numberUnmatchedOldElements": 0,
+    "numberUnmatchedNewElements": 0,
+    "intersectionCardinality": 745,
+    "unionCardinality": 745,
+    "jaccardCoefficient": 1
+  },
+  {
+    "commitIndex": 7,
+    "evalType": "ComparisonWithAutomatic",
+    "comparisonType": "PcmDiffUtil",
+    "numberUnmatchedOldElements": 2,
+    "numberUnmatchedNewElements": 1,
+    "intersectionCardinality": 810,
+    "unionCardinality": 813,
+    "jaccardCoefficient": 0.996309963099631
+  },
+  {
+    "commitIndex": 8,
+    "evalType": "ComparisonWithAutomatic",
+    "comparisonType": "PcmDiffUtil",
+    "numberUnmatchedOldElements": 2,
+    "numberUnmatchedNewElements": 1,
+    "intersectionCardinality": 831,
+    "unionCardinality": 834,
+    "jaccardCoefficient": 0.9964028776978417
+  },
+  {
+    "commitIndex": 9,
+    "evalType": "ComparisonWithAutomatic",
+    "comparisonType": "PcmDiffUtil",
+    "numberUnmatchedOldElements": 2,
+    "numberUnmatchedNewElements": 1,
+    "intersectionCardinality": 841,
+    "unionCardinality": 844,
+    "jaccardCoefficient": 0.9964454976303317
+  },
+  {
+    "commitIndex": 10,
+    "evalType": "ComparisonWithAutomatic",
+    "comparisonType": "PcmDiffUtil",
+    "numberUnmatchedOldElements": 2,
+    "numberUnmatchedNewElements": 1,
+    "intersectionCardinality": 847,
+    "unionCardinality": 850,
+    "jaccardCoefficient": 0.9964705882352941
+  },
+  {
+    "commitIndex": 11,
+    "evalType": "ComparisonWithAutomatic",
+    "comparisonType": "PcmDiffUtil",
+    "numberUnmatchedOldElements": 11,
+    "numberUnmatchedNewElements": 9,
+    "intersectionCardinality": 632,
+    "unionCardinality": 652,
+    "jaccardCoefficient": 0.9693251533742331
+  },
+  {
+    "commitIndex": 12,
+    "evalType": "ComparisonWithAutomatic",
+    "comparisonType": "PcmDiffUtil",
+    "numberUnmatchedOldElements": 11,
+    "numberUnmatchedNewElements": 9,
+    "intersectionCardinality": 632,
+    "unionCardinality": 652,
+    "jaccardCoefficient": 0.9693251533742331
+  }
+]
