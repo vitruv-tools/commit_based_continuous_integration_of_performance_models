@@ -19,3 +19,12 @@ jobs:
           cache: 'maven'
       - name: Build
         run: scripts\build.bat
+      - name: Store P2 Repositories
+        uses: actions/upload-artifact@v3
+        with:
+          name: p2-cipm
+          path: |
+            commit-based-cipm/releng/cipm.consistency.updatesite.fi/target/cipm.*.zip
+            commit-based-cipm/releng/cipm.consistency.updatesite.si/target/cipm.*.zip
+            Palladio-Supporting-EclipseJavaDevelopmentTools/releng/org.palladiosimulator.jdt.updatesite/target/org.*.zip
+            Palladio-ReverseEngineering-SoMoX-JaMoPP/releng/org.somox.updatesite/target/org.somox.*.zip
