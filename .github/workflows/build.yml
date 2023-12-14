@@ -28,3 +28,4 @@ jobs:
             commit-based-cipm/releng/cipm.consistency.updatesite.si/target/cipm.*.zip
             Palladio-Supporting-EclipseJavaDevelopmentTools/releng/org.palladiosimulator.jdt.updatesite/target/org.*.zip
             Palladio-ReverseEngineering-SoMoX-JaMoPP/releng/org.somox.updatesite/target/org.somox.*.zip
+            Vitruv/releng/cipm.consistency.vitruv.updatesite/target/cipm.*.zip

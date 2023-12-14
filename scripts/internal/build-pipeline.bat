@@ -11,3 +11,4 @@ cd commit-based-cipm
 call ..\mvnw.cmd clean verify -P run-two
 cd ..
 call scripts\internal\stop-update-site-server.bat
+exit /b 0
