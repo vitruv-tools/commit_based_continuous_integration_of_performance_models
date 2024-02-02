@@ -18,6 +18,7 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
+import cipm.consistency.commitintegration.settings.CommitIntegrationSettingsContainer;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainer;
 import cipm.consistency.tools.evaluation.data.EvaluationDataContainerReaderWriter;
 import cipm.consistency.vsum.CommitIntegrationController;
@@ -43,6 +44,14 @@ public abstract class AbstractCITest {
 		ConsoleAppender ap = new ConsoleAppender(new PatternLayout("[%d{DATE}] %-5p: %c - %m%n"),
 				ConsoleAppender.SYSTEM_OUT);
 		logger.addAppender(ap);
+		
+		// Needed to instantiate the singleton CommitIntegrationSettingsContainer for the first time,
+		// so that CommitIntegrationController can be instantiated, since getJavaPCMSpecification() requires it
+		if (CommitIntegrationSettingsContainer.getSettingsContainer() == null) {
+			Path settingsPath = Paths.get(getSettingsPath());
+			CommitIntegrationSettingsContainer.initialize(settingsPath);
+		}
+		
 		controller = new CommitIntegrationController(Paths.get(getTestPath()), getRepositoryPath(),
 				Paths.get(getSettingsPath()), getJavaPCMSpecification());
 	}
