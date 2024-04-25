@@ -4,6 +4,7 @@ import org.emftext.language.java.classifiers.AnonymousClass;
 import org.emftext.language.java.classifiers.ConcreteClassifier;
 import org.emftext.language.java.classifiers.util.ClassifiersSwitch;
 import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
+import org.splevo.jamopp.diffing.similarity.ILoggableJavaSwitch;
 import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
 
 import com.google.common.base.Strings;
@@ -11,7 +12,7 @@ import com.google.common.base.Strings;
 /**
  * Similarity decisions for classifier elements.
  */
-public class ClassifiersSimilaritySwitch extends ClassifiersSwitch<Boolean> implements IJavaSimilarityPositionInnerSwitch {
+public class ClassifiersSimilaritySwitch extends ClassifiersSwitch<Boolean> implements ILoggableJavaSwitch, IJavaSimilarityPositionInnerSwitch {
 	private IJavaSimilaritySwitch similaritySwitch;
 	private boolean checkStatementPosition;
 
@@ -45,7 +46,8 @@ public class ClassifiersSimilaritySwitch extends ClassifiersSwitch<Boolean> impl
      */
     @Override
     public Boolean caseConcreteClassifier(ConcreteClassifier classifier1) {
-
+    	this.logMessage("caseConcreteClassifier");
+    	
         ConcreteClassifier classifier2 = (ConcreteClassifier) this.getCompareElement();
 
         String name1 = this.normalizeClassifier(classifier1.getQualifiedName());
@@ -62,6 +64,8 @@ public class ClassifiersSimilaritySwitch extends ClassifiersSwitch<Boolean> impl
      */
     @Override
     public Boolean caseAnonymousClass(AnonymousClass anon) {
+    	this.logMessage("caseAnonymousClass");
+    	
     	return Boolean.TRUE;
     }
 

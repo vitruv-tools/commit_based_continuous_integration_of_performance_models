@@ -5,6 +5,7 @@ import org.emftext.language.java.imports.StaticMemberImport;
 import org.emftext.language.java.imports.util.ImportsSwitch;
 import org.emftext.language.java.references.ReferenceableElement;
 import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
+import org.splevo.jamopp.diffing.similarity.ILoggableJavaSwitch;
 import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
 
 import com.google.common.base.Strings;
@@ -12,7 +13,7 @@ import com.google.common.base.Strings;
 /**
  * Similarity decisions for the import elements.
  */
-public class ImportsSimilaritySwitch extends ImportsSwitch<Boolean> implements IJavaSimilarityPositionInnerSwitch {
+public class ImportsSimilaritySwitch extends ImportsSwitch<Boolean> implements ILoggableJavaSwitch, IJavaSimilarityPositionInnerSwitch {
 	private IJavaSimilaritySwitch similaritySwitch;
 	private boolean checkStatementPosition;
 
@@ -38,6 +39,7 @@ public class ImportsSimilaritySwitch extends ImportsSwitch<Boolean> implements I
 
 	@Override
     public Boolean caseClassifierImport(ClassifierImport import1) {
+		this.logMessage("caseClassifierImport");
 
         ClassifierImport import2 = (ClassifierImport) this.getCompareElement();
 
@@ -53,6 +55,7 @@ public class ImportsSimilaritySwitch extends ImportsSwitch<Boolean> implements I
 
     @Override
     public Boolean caseStaticMemberImport(StaticMemberImport import1) {
+    	this.logMessage("caseStaticMemberImport");
 
         StaticMemberImport import2 = (StaticMemberImport) this.getCompareElement();
 

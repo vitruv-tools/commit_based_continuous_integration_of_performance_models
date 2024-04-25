@@ -2,6 +2,7 @@ package org.splevo.jamopp.diffing.similarity.switches;
 
 import org.eclipse.emf.ecore.EObject;
 import org.emftext.language.java.modifiers.util.ModifiersSwitch;
+import org.splevo.jamopp.diffing.similarity.ILoggableJavaSwitch;
 
 /**
  * Similarity decisions for modifier elements.
@@ -11,9 +12,11 @@ import org.emftext.language.java.modifiers.util.ModifiersSwitch;
  * called.
  * </p>
  */
-public class ModifiersSimilaritySwitch extends ModifiersSwitch<Boolean> {
+public class ModifiersSimilaritySwitch extends ModifiersSwitch<Boolean> implements ILoggableJavaSwitch {
     @Override
     public Boolean defaultCase(EObject object) {
+    	this.logMessage("defaultCase for Modifier");
+    	
         return Boolean.TRUE;
     }
 }

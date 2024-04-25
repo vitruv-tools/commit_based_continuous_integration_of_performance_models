@@ -8,12 +8,13 @@ import org.emftext.language.java.instantiations.NewConstructorCall;
 import org.emftext.language.java.instantiations.util.InstantiationsSwitch;
 import org.emftext.language.java.types.Type;
 import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
+import org.splevo.jamopp.diffing.similarity.ILoggableJavaSwitch;
 import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
 
 /**
  * Similarity decisions for object instantiation elements.
  */
-public class InstantiationsSimilaritySwitch extends InstantiationsSwitch<Boolean> implements IJavaSimilarityPositionInnerSwitch {
+public class InstantiationsSimilaritySwitch extends InstantiationsSwitch<Boolean> implements ILoggableJavaSwitch, IJavaSimilarityPositionInnerSwitch {
 	private IJavaSimilaritySwitch similaritySwitch;
 	private boolean checkStatementPosition;
 
@@ -52,6 +53,7 @@ public class InstantiationsSimilaritySwitch extends InstantiationsSwitch<Boolean
      */
     @Override
     public Boolean caseExplicitConstructorCall(ExplicitConstructorCall call1) {
+    	this.logMessage("caseExplicitConstructorCall");
 
         ExplicitConstructorCall call2 = (ExplicitConstructorCall) this.getCompareElement();
 
@@ -81,6 +83,8 @@ public class InstantiationsSimilaritySwitch extends InstantiationsSwitch<Boolean
 
     @Override
     public Boolean caseNewConstructorCall(NewConstructorCall call1) {
+    	this.logMessage("caseNewConstructorCall");
+    	
         NewConstructorCall call2 = (NewConstructorCall) this.getCompareElement();
 
         Type type1 = call1.getTypeReference().getTarget();
@@ -109,6 +113,8 @@ public class InstantiationsSimilaritySwitch extends InstantiationsSwitch<Boolean
 
     @Override
     public Boolean defaultCase(EObject object) {
+    	this.logMessage("defaultCase for Instantiation");
+    	
         return Boolean.TRUE;
     }
 }

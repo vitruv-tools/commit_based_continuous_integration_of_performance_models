@@ -2,6 +2,7 @@ package org.splevo.jamopp.diffing.similarity.switches;
 
 import org.eclipse.emf.ecore.EObject;
 import org.emftext.language.java.operators.util.OperatorsSwitch;
+import org.splevo.jamopp.diffing.similarity.ILoggableJavaSwitch;
 
 /**
  * Similarity decisions for operator elements.
@@ -11,9 +12,11 @@ import org.emftext.language.java.operators.util.OperatorsSwitch;
  * called.
  * </p>
  */
-public class OperatorsSimilaritySwitch extends OperatorsSwitch<Boolean> {
+public class OperatorsSimilaritySwitch extends OperatorsSwitch<Boolean> implements ILoggableJavaSwitch {
     @Override
     public Boolean defaultCase(EObject object) {
+    	this.logMessage("defaultCase for Operator");
+    	
         return Boolean.TRUE;
     }
 }

@@ -69,6 +69,7 @@ public class MembersSimilaritySwitch extends MembersSwitch<Boolean> implements I
      */
     @Override
     public Boolean caseMethod(Method method1) {
+    	this.logMessage("caseMethod");
 
         Method method2 = (Method) this.getCompareElement();
 
@@ -146,6 +147,7 @@ public class MembersSimilaritySwitch extends MembersSwitch<Boolean> implements I
      */
     @Override
     public Boolean caseConstructor(Constructor constructor1) {
+    	this.logMessage("caseConstructor");
 
         Constructor constructor2 = (Constructor) this.getCompareElement();
 
@@ -183,12 +185,14 @@ public class MembersSimilaritySwitch extends MembersSwitch<Boolean> implements I
         }
 
         this.logMessage("ConstructorDeclaration in unknown container: " + constructor1.getName() + " : "
-                + constructor1.eContainer().getClass().getSimpleName(), Level.WARN);
+                + constructor1.eContainer(), Level.WARN);
         return super.caseConstructor(constructor1);
     }
 
     @Override
     public Boolean caseEnumConstant(EnumConstant const1) {
+    	this.logMessage("caseEnumConstant");
+    	
         EnumConstant const2 = (EnumConstant) this.getCompareElement();
         String name1 = Strings.nullToEmpty(const1.getName());
         String name2 = Strings.nullToEmpty(const2.getName());
@@ -197,6 +201,8 @@ public class MembersSimilaritySwitch extends MembersSwitch<Boolean> implements I
 
     @Override
     public Boolean caseMember(Member member1) {
+    	this.logMessage("caseMember");
+    	
         Member member2 = (Member) this.getCompareElement();
         String name1 = Strings.nullToEmpty(member1.getName());
         String name2 = Strings.nullToEmpty(member2.getName());

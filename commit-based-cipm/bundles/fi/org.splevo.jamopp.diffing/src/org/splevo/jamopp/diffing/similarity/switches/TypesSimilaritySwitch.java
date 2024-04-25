@@ -9,6 +9,7 @@ import org.emftext.language.java.types.TypeReference;
 import org.emftext.language.java.types.util.TypesSwitch;
 import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
 import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
+import org.splevo.jamopp.diffing.similarity.ILoggableJavaSwitch;
 import org.splevo.jamopp.diffing.similarity.JavaSimilarityChecker;
 
 import com.google.common.base.Strings;
@@ -16,7 +17,7 @@ import com.google.common.base.Strings;
 /**
  * Similarity decisions for elements of the types package.
  */
-public class TypesSimilaritySwitch extends TypesSwitch<Boolean> implements IJavaSimilarityPositionInnerSwitch {
+public class TypesSimilaritySwitch extends TypesSwitch<Boolean> implements ILoggableJavaSwitch, IJavaSimilarityPositionInnerSwitch {
 	private IJavaSimilaritySwitch similaritySwitch;
 	private boolean checkStatementPosition;
 
@@ -52,6 +53,8 @@ public class TypesSimilaritySwitch extends TypesSwitch<Boolean> implements IJava
      */
     @Override
     public Boolean caseClassifierReference(ClassifierReference ref1) {
+    	this.logMessage("caseClassifierReference");
+    	
         ClassifierReference ref2 = (ClassifierReference) this.getCompareElement();
 
         Boolean targetSimilarity = this.isSimilar(ref1.getTarget(), ref2.getTarget());
@@ -64,6 +67,7 @@ public class TypesSimilaritySwitch extends TypesSwitch<Boolean> implements IJava
 
     @Override
     public Boolean caseTypeReference(TypeReference ref1) {
+    	this.logMessage("caseTypeReference");
 
         TypeReference ref2 = (TypeReference) this.getCompareElement();
 
@@ -77,6 +81,7 @@ public class TypesSimilaritySwitch extends TypesSwitch<Boolean> implements IJava
 
     @Override
     public Boolean caseNamespaceClassifierReference(NamespaceClassifierReference ref1) {
+    	this.logMessage("caseNamespaceClassifierReference");
 
         NamespaceClassifierReference ref2 = (NamespaceClassifierReference) this.getCompareElement();
 
@@ -105,6 +110,8 @@ public class TypesSimilaritySwitch extends TypesSwitch<Boolean> implements IJava
      */
     @Override
     public Boolean casePrimitiveType(PrimitiveType type) {
+    	this.logMessage("casePrimitiveType");
+    	
         return Boolean.TRUE;
     }
     
@@ -116,6 +123,8 @@ public class TypesSimilaritySwitch extends TypesSwitch<Boolean> implements IJava
      */
     @Override
     public Boolean caseInferableType(InferableType type) {
+    	this.logMessage("caseInferableType");
+    	
     	return Boolean.TRUE;
     }
 
@@ -126,6 +135,8 @@ public class TypesSimilaritySwitch extends TypesSwitch<Boolean> implements IJava
      */
     @Override
     public Boolean defaultCase(EObject object) {
+    	this.logMessage("defaultCase for Type");
+    	
         return Boolean.TRUE;
     }
 }

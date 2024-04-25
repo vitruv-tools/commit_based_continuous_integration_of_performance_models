@@ -28,6 +28,7 @@ import org.emftext.language.java.operators.RelationOperator;
 import org.emftext.language.java.operators.UnaryOperator;
 import org.emftext.language.java.types.TypeReference;
 import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
+import org.splevo.jamopp.diffing.similarity.ILoggableJavaSwitch;
 import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
 
 /**
@@ -38,7 +39,7 @@ import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
  * called.
  * </p>
  */
-public class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> implements IJavaSimilarityPositionInnerSwitch {
+public class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> implements ILoggableJavaSwitch, IJavaSimilarityPositionInnerSwitch {
 	private IJavaSimilaritySwitch similaritySwitch;
 	private boolean checkStatementPosition;
 
@@ -64,6 +65,7 @@ public class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> impl
 
 	@Override
     public Boolean caseAssignmentExpression(AssignmentExpression exp1) {
+		this.logMessage("caseAssignmentExpression");
 
         AssignmentExpression exp2 = (AssignmentExpression) this.getCompareElement();
 
@@ -93,6 +95,8 @@ public class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> impl
 
     @Override
     public Boolean caseEqualityExpression(EqualityExpression exp1) {
+    	this.logMessage("caseEqualityExpression");
+    	
         EqualityExpression exp2 = (EqualityExpression) this.getCompareElement();
 
         // check operator equality
@@ -116,6 +120,7 @@ public class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> impl
 
     @Override
     public Boolean caseRelationExpression(RelationExpression exp1) {
+    	this.logMessage("caseRelationExpression");
 
         RelationExpression exp2 = (RelationExpression) this.getCompareElement();
 
@@ -140,6 +145,7 @@ public class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> impl
 
     @Override
     public Boolean caseAndExpression(AndExpression exp1) {
+    	this.logMessage("caseAndExpression");
 
         AndExpression exp2 = (AndExpression) this.getCompareElement();
 
@@ -156,6 +162,7 @@ public class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> impl
 
     @Override
     public Boolean caseUnaryExpression(UnaryExpression exp1) {
+    	this.logMessage("caseUnaryExpression");
 
         UnaryExpression exp2 = (UnaryExpression) this.getCompareElement();
 
@@ -175,6 +182,7 @@ public class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> impl
     
     @Override
     public Boolean caseAdditiveExpression(AdditiveExpression exp1) {
+    	this.logMessage("caseAdditiveExpression");
     	
     	AdditiveExpression exp2 = (AdditiveExpression) this.getCompareElement();
     	
@@ -188,6 +196,7 @@ public class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> impl
 
     @Override
     public Boolean caseInstanceOfExpression(InstanceOfExpression exp1) {
+    	this.logMessage("caseInstanceOfExpression");
 
         InstanceOfExpression exp2 = (InstanceOfExpression) this.getCompareElement();
 
@@ -207,6 +216,7 @@ public class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> impl
 
     @Override
     public Boolean caseConditionalOrExpression(ConditionalOrExpression exp1) {
+    	this.logMessage("caseConditionalOrExpression");
 
         ConditionalOrExpression exp2 = (ConditionalOrExpression) this.getCompareElement();
 
@@ -218,6 +228,7 @@ public class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> impl
 
     @Override
     public Boolean caseConditionalAndExpression(ConditionalAndExpression exp1) {
+    	this.logMessage("caseConditionalAndExpression");
 
         ConditionalAndExpression exp2 = (ConditionalAndExpression) this.getCompareElement();
 
@@ -229,6 +240,7 @@ public class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> impl
 
     @Override
     public Boolean caseNestedExpression(NestedExpression exp1) {
+    	this.logMessage("caseNestedExpression");
 
         NestedExpression exp2 = (NestedExpression) this.getCompareElement();
 
@@ -240,6 +252,8 @@ public class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> impl
 
     @Override
     public Boolean defaultCase(EObject object) {
+    	this.logMessage("defaultCase for Expression");
+    	
         return Boolean.TRUE;
     }
 }

@@ -11,13 +11,14 @@ import org.emftext.language.java.references.ReferenceableElement;
 import org.emftext.language.java.references.StringReference;
 import org.emftext.language.java.references.util.ReferencesSwitch;
 import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
+import org.splevo.jamopp.diffing.similarity.ILoggableJavaSwitch;
 import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
 import org.splevo.jamopp.util.JaMoPPElementUtil;
 
 /**
  * Similarity decisions for reference elements.
  */
-public class ReferencesSimilaritySwitch extends ReferencesSwitch<Boolean> implements IJavaSimilarityPositionInnerSwitch {
+public class ReferencesSimilaritySwitch extends ReferencesSwitch<Boolean> implements ILoggableJavaSwitch, IJavaSimilarityPositionInnerSwitch {
 	private IJavaSimilaritySwitch similaritySwitch;
 	private boolean checkStatementPosition;
 
@@ -43,6 +44,7 @@ public class ReferencesSimilaritySwitch extends ReferencesSwitch<Boolean> implem
 
 	@Override
     public Boolean caseStringReference(StringReference ref1) {
+		this.logMessage("caseStringReference");
 
         StringReference ref2 = (StringReference) this.getCompareElement();
         if (ref1.getValue() == null) {
@@ -54,6 +56,7 @@ public class ReferencesSimilaritySwitch extends ReferencesSwitch<Boolean> implem
 
     @Override
     public Boolean caseIdentifierReference(IdentifierReference ref1) {
+    	this.logMessage("caseIdentifierReference");
 
         IdentifierReference ref2 = (IdentifierReference) this.getCompareElement();
         ReferenceableElement target1 = ref1.getTarget();
@@ -122,6 +125,8 @@ public class ReferencesSimilaritySwitch extends ReferencesSwitch<Boolean> implem
      */
     @Override
     public Boolean caseElementReference(ElementReference ref1) {
+    	this.logMessage("caseElementReference");
+    	
         ElementReference ref2 = (ElementReference) this.getCompareElement();
 
         Boolean targetSimilarity = this.isSimilar(ref1.getTarget(), ref2.getTarget());
@@ -143,6 +148,8 @@ public class ReferencesSimilaritySwitch extends ReferencesSwitch<Boolean> implem
      */
     @Override
     public Boolean caseMethodCall(MethodCall call1) {
+    	this.logMessage("caseMethodCall");
+    	
         MethodCall call2 = (MethodCall) this.getCompareElement();
 
         Boolean targetSimilarity = this.isSimilar(call1.getTarget(), call2.getTarget());
@@ -173,6 +180,8 @@ public class ReferencesSimilaritySwitch extends ReferencesSwitch<Boolean> implem
 
     @Override
     public Boolean defaultCase(EObject object) {
+    	this.logMessage("defaultCase for Reference");
+    	
         return Boolean.TRUE;
     }
 }

@@ -4,6 +4,7 @@ import org.emftext.language.java.variables.AdditionalLocalVariable;
 import org.emftext.language.java.variables.Variable;
 import org.emftext.language.java.variables.util.VariablesSwitch;
 import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
+import org.splevo.jamopp.diffing.similarity.ILoggableJavaSwitch;
 import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
 
 import com.google.common.base.Strings;
@@ -11,7 +12,7 @@ import com.google.common.base.Strings;
 /**
  * Similarity decisions for the variable elements.
  */
-public class VariablesSimilaritySwitch extends VariablesSwitch<Boolean> implements IJavaSimilarityInnerSwitch {
+public class VariablesSimilaritySwitch extends VariablesSwitch<Boolean> implements ILoggableJavaSwitch, IJavaSimilarityInnerSwitch {
 	private IJavaSimilaritySwitch similaritySwitch;
 
 	@Override
@@ -42,6 +43,7 @@ public class VariablesSimilaritySwitch extends VariablesSwitch<Boolean> implemen
      */
     @Override
     public Boolean caseVariable(Variable var1) {
+    	this.logMessage("caseVariable");
 
         Variable var2 = (Variable) this.getCompareElement();
 
@@ -55,6 +57,8 @@ public class VariablesSimilaritySwitch extends VariablesSwitch<Boolean> implemen
 
     @Override
     public Boolean caseAdditionalLocalVariable(AdditionalLocalVariable var1) {
+    	this.logMessage("caseAdditionalLocalVariable");
+    	
         AdditionalLocalVariable var2 = (AdditionalLocalVariable) this.getCompareElement();
 
         // check the variables name equality

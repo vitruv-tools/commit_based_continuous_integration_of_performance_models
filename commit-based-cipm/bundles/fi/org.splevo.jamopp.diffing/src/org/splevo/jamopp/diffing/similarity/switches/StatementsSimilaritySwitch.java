@@ -18,6 +18,7 @@ import org.emftext.language.java.statements.Throw;
 import org.emftext.language.java.statements.util.StatementsSwitch;
 import org.emftext.language.java.variables.Variable;
 import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
+import org.splevo.jamopp.diffing.similarity.ILoggableJavaSwitch;
 import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
 import org.splevo.jamopp.util.JaMoPPElementUtil;
 
@@ -26,7 +27,7 @@ import com.google.common.base.Strings;
 /**
  * Similarity decisions for the statement elements.
  */
-public class StatementsSimilaritySwitch extends StatementsSwitch<Boolean> implements IJavaSimilarityPositionInnerSwitch {
+public class StatementsSimilaritySwitch extends StatementsSwitch<Boolean> implements ILoggableJavaSwitch, IJavaSimilarityPositionInnerSwitch {
 	private IJavaSimilaritySwitch similaritySwitch;
 	private boolean checkStatementPosition;
 
@@ -63,6 +64,7 @@ public class StatementsSimilaritySwitch extends StatementsSwitch<Boolean> implem
      */
     @Override
     public Boolean caseExpressionStatement(ExpressionStatement statement1) {
+    	this.logMessage("caseExpressionStatement");
 
         ExpressionStatement statement2 = (ExpressionStatement) this.getCompareElement();
 
@@ -96,6 +98,8 @@ public class StatementsSimilaritySwitch extends StatementsSwitch<Boolean> implem
      */
     @Override
     public Boolean caseLocalVariableStatement(LocalVariableStatement varStmt1) {
+    	this.logMessage("caseLocalVariableStatement");
+    	
         LocalVariableStatement varStmt2 = (LocalVariableStatement) this.getCompareElement();
 
         Variable var1 = varStmt1.getVariable();
@@ -131,6 +135,7 @@ public class StatementsSimilaritySwitch extends StatementsSwitch<Boolean> implem
      */
     @Override
     public Boolean caseReturn(Return returnStatement1) {
+    	this.logMessage("caseReturn");
 
         Return returnStatement2 = (Return) this.getCompareElement();
 
@@ -153,6 +158,7 @@ public class StatementsSimilaritySwitch extends StatementsSwitch<Boolean> implem
      */
     @Override
     public Boolean caseSynchronizedBlock(SynchronizedBlock statement1) {
+    	this.logMessage("caseSynchronizedBlock");
 
         SynchronizedBlock statement2 = (SynchronizedBlock) this.getCompareElement();
 
@@ -183,11 +189,14 @@ public class StatementsSimilaritySwitch extends StatementsSwitch<Boolean> implem
      */
     @Override
     public Boolean caseThrow(Throw throwStatement1) {
+    	this.logMessage("caseThrow");
+    	
         return Boolean.TRUE;
     }
 
     @Override
     public Boolean caseCatchBlock(CatchBlock catchBlock1) {
+    	this.logMessage("caseCatchBlock");
 
         CatchBlock catchBlock2 = (CatchBlock) this.getCompareElement();
 
@@ -221,6 +230,7 @@ public class StatementsSimilaritySwitch extends StatementsSwitch<Boolean> implem
      */
     @Override
     public Boolean caseConditional(Conditional conditional1) {
+    	this.logMessage("caseConditional");
 
         Conditional conditional2 = (Conditional) this.getCompareElement();
 
@@ -236,6 +246,8 @@ public class StatementsSimilaritySwitch extends StatementsSwitch<Boolean> implem
 
     @Override
     public Boolean caseJump(Jump jump1) {
+    	this.logMessage("caseJump");
+    	
         Jump jump2 = (Jump) this.getCompareElement();
 
         Boolean similarity = this.isSimilar(jump1.getTarget(), jump2.getTarget());
@@ -248,6 +260,7 @@ public class StatementsSimilaritySwitch extends StatementsSwitch<Boolean> implem
 
     @Override
     public Boolean caseJumpLabel(JumpLabel label1) {
+    	this.logMessage("caseJumpLabel");
 
         JumpLabel label2 = (JumpLabel) this.getCompareElement();
 
@@ -259,6 +272,8 @@ public class StatementsSimilaritySwitch extends StatementsSwitch<Boolean> implem
     
     @Override
     public Boolean caseSwitch(Switch switch1) {
+    	this.logMessage("caseSwitch");
+    	
     	Switch switch2 = (Switch) this.getCompareElement();
     	
     	return this.isSimilar(switch1.getVariable(), switch2.getVariable());
@@ -266,6 +281,8 @@ public class StatementsSimilaritySwitch extends StatementsSwitch<Boolean> implem
 
     @Override
     public Boolean defaultCase(EObject object) {
+    	this.logMessage("defaultCase for Statement");
+    	
         return Boolean.TRUE;
     }
 

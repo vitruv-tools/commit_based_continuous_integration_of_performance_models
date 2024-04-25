@@ -53,9 +53,10 @@ public class ContainersSimilaritySwitch extends ContainersSwitch<Boolean> implem
      */
     @Override
     public Boolean caseCompilationUnit(CompilationUnit unit1) {
+    	this.logMessage("caseCompilationUnit");
+    	
         CompilationUnit unit2 = (CompilationUnit) this.getCompareElement();
         this.logComparison(unit1.getName(), unit2.getName(), CompilationUnit.class.getSimpleName());
-        this.logComparison(unit1.eClass().getName(), unit2.eClass().getName(), "compilation unit class");
         
         String name1 = this.normalizeCompilationUnit(unit1.getName());
         name1 = this.normalizePackage(name1);
@@ -91,14 +92,16 @@ public class ContainersSimilaritySwitch extends ContainersSwitch<Boolean> implem
      */
     @Override
     public Boolean casePackage(Package package1) {
+    	this.logMessage("casePackage");
+    	
         Package package2 = (Package) this.getCompareElement();
-        this.logComparison(package1.getName(), package2.getName(), Package.class.getSimpleName());
-        this.logComparison(package1.getNamespacesAsString(), package2.getNamespacesAsString(), "package namespace");
+        this.logComparison(package1, package2, Package.class.getSimpleName());
         
         String packagePath1 = JaMoPPModelUtil.buildNamespacePath(package1);
         packagePath1 = this.normalizeNamespace(packagePath1);
         String packagePath2 = JaMoPPModelUtil.buildNamespacePath(package2);
         
+        this.logComparison(packagePath1, packagePath2, "package namespace");
         this.logResult(packagePath1.equals(packagePath2), "package path");
         
         if (!packagePath1.equals(packagePath2)) {
@@ -120,10 +123,12 @@ public class ContainersSimilaritySwitch extends ContainersSwitch<Boolean> implem
      */
     @Override
     public Boolean caseModule(org.emftext.language.java.containers.Module module1) {
+    	this.logMessage("caseModule");
+    	
     	org.emftext.language.java.containers.Module module2 =
     			(org.emftext.language.java.containers.Module) this.getCompareElement();
     	
-    	this.logResult(module1.getName().equals(module2.getName()), Module.class.getSimpleName());
+    	this.logResult(module1.getName().equals(module2.getName()), org.emftext.language.java.containers.Module.class.getSimpleName());
     	if (!module1.getName().equals(module2.getName())) {
     		return Boolean.FALSE;
     	}

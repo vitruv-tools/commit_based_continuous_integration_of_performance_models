@@ -38,10 +38,12 @@ public class AnnotationsSimilaritySwitch extends AnnotationsSwitch<Boolean> impl
 
 	@Override
     public Boolean caseAnnotationInstance(AnnotationInstance instance1) {
+		this.logMessage("caseAnnotationInstance");
+		
         AnnotationInstance instance2 = (AnnotationInstance) this.getCompareElement();
         this.logComparison(
-        		instance1.getAnnotation().getName(),
-        		instance2.getAnnotation().getName(),
+        		instance1.getAnnotation(),
+        		instance2.getAnnotation(),
         		AnnotationInstance.class.getSimpleName());
 
         Classifier class1 = instance1.getAnnotation();
@@ -66,8 +68,10 @@ public class AnnotationsSimilaritySwitch extends AnnotationsSwitch<Boolean> impl
 
     @Override
     public Boolean caseAnnotationAttributeSetting(AnnotationAttributeSetting setting1) {
+    	this.logMessage("caseAnnotationAttributeSetting");
+    	
         AnnotationAttributeSetting setting2 = (AnnotationAttributeSetting) this.getCompareElement();
-        this.logComparison(setting1.getAttribute().getName(), setting2.getAttribute().getName(), AnnotationAttributeSetting.class.getSimpleName());
+        this.logComparison(setting1.getAttribute(), setting2.getAttribute(), AnnotationAttributeSetting.class.getSimpleName());
         Boolean similarity = this.isSimilar(setting1.getAttribute(), setting2.getAttribute());
         this.logResult(similarity, AnnotationAttributeSetting.class.getSimpleName());
         if (similarity == Boolean.FALSE) {
@@ -78,7 +82,9 @@ public class AnnotationsSimilaritySwitch extends AnnotationsSwitch<Boolean> impl
 
     @Override
     public Boolean defaultCase(EObject object) {
-    	this.logMessage("Default annotation comparing case (" + object.eClass().getName() +"), similarity: true");
+    	this.logMessage("defaultCase for Annotation");
+    	
+    	this.logMessage("Default annotation comparing case for "+AnnotationsSimilaritySwitch.class.getSimpleName()+", similarity: true");
         return Boolean.TRUE;
     }
 }
