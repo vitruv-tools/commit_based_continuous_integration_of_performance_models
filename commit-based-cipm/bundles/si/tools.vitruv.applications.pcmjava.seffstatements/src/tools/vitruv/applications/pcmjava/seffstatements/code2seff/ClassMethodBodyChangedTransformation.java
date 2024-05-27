@@ -64,6 +64,10 @@ public class ClassMethodBodyChangedTransformation {
 		this.interfaceOfExternalCallFinderFactory = interfaceOfExternalCallFindingFactory;
 		this.resourceDemandingBehaviourForClassMethodFinding = resourceDemandingBehaviourForClassMethodFinding;
 	}
+	
+	protected boolean generateInternalCallActions() {
+		return true;
+	}
 
 	/**
 	 * This method is called after a java method body has been changed. In order
@@ -144,7 +148,7 @@ public class ClassMethodBodyChangedTransformation {
 			VisitorUtils.visitJaMoPPMethod(targetResourceDemandingBehaviour, basicComponent,
 					(StatementListContainer) this.newMethod, sourceCodeDecorator,
 					functionCallClassificationVisitor, this.interfaceOfExternalCallFinderFactory,
-					this.resourceDemandingBehaviourForClassMethodFinding, methodCallFinder);
+					this.resourceDemandingBehaviourForClassMethodFinding, methodCallFinder, this.generateInternalCallActions());
 			for (var rdiLink : sourceCodeDecorator.getMethodLevelResourceDemandingInternalBehaviorLink()) {
 				if (targetResourceDemandingBehaviour instanceof ResourceDemandingSEFF
 						&& rdiLink.getResourceDemandingInternalBehaviour().eContainer() == null) {

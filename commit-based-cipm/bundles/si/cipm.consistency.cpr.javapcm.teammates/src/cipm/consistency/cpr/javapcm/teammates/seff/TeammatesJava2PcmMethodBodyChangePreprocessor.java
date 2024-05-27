@@ -4,6 +4,6 @@ import tools.vitruv.applications.pcmjava.seffstatements.code2seff.extended.Exten
 
 public class TeammatesJava2PcmMethodBodyChangePreprocessor extends ExtendedJava2PcmMethodBodyChangePreprocessor {
 	public TeammatesJava2PcmMethodBodyChangePreprocessor() {
-		super(new TeammatesCodeToSeffFactory());
+		super(new TeammatesCodeToSeffFactory(), false);
 	}
 }

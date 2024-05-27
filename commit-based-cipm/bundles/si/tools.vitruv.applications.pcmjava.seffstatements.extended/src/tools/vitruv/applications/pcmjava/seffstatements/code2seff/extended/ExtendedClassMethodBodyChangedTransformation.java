@@ -29,13 +29,31 @@ import tools.vitruv.framework.userinteraction.UserInteractor;
  * @author Martin Armbruster
  */
 public class ExtendedClassMethodBodyChangedTransformation extends ClassMethodBodyChangedTransformation {
+	private boolean shouldGenerateInternalCallActions;
+	
 	public ExtendedClassMethodBodyChangedTransformation(final Method newMethod,
 			final BasicComponentFinding basicComponentFinder,
 			final IFunctionClassificationStrategy iFunctionClassificationStrategy,
 			final InterfaceOfExternalCallFindingFactory interfaceOfExternalCallFindingFactory,
 			final ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding) {
+		this(newMethod, basicComponentFinder, iFunctionClassificationStrategy, interfaceOfExternalCallFindingFactory,
+				resourceDemandingBehaviourForClassMethodFinding, true);
+	}
+	
+	public ExtendedClassMethodBodyChangedTransformation(final Method newMethod,
+			final BasicComponentFinding basicComponentFinder,
+			final IFunctionClassificationStrategy iFunctionClassificationStrategy,
+			final InterfaceOfExternalCallFindingFactory interfaceOfExternalCallFindingFactory,
+			final ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding,
+			final boolean shouldGenerateInternalCallActions) {
 		super(newMethod, basicComponentFinder, iFunctionClassificationStrategy, interfaceOfExternalCallFindingFactory,
 				resourceDemandingBehaviourForClassMethodFinding);
+		this.shouldGenerateInternalCallActions = shouldGenerateInternalCallActions;
+	}
+	
+	@Override
+	protected boolean generateInternalCallActions() {
+		return this.shouldGenerateInternalCallActions;
 	}
 
 	/**

@@ -12,14 +12,20 @@ import tools.vitruv.domains.provider.pcm.ExtendedPcmDomainProvider
 import tools.vitruv.applications.pcmjava.seffstatements.code2seff.Code2SeffFactory
 
 class ExtendedJava2PcmMethodBodyChangePreprocessor extends Java2PcmMethodBodyChangePreprocessor {
+	boolean shouldGenerateInternalCallActions;
 
 	new() {
 		this(new CommitIntegrationCodeToSeffFactory)
 	}
 	
 	new(Code2SeffFactory factory) {
+		this(factory, true)		
+	}
+	
+	new(Code2SeffFactory factory, boolean generateInternalCallActions) {
 		super(factory,
-			new AdjustedJavaDomainProvider().domain, new ExtendedPcmDomainProvider().domain)		
+			new AdjustedJavaDomainProvider().domain, new ExtendedPcmDomainProvider().domain)
+		this.shouldGenerateInternalCallActions = generateInternalCallActions;		
 	}
 
 	protected override ClassMethodBodyChangedTransformation createTransformation(Method newMethod,
@@ -27,6 +33,7 @@ class ExtendedJava2PcmMethodBodyChangePreprocessor extends Java2PcmMethodBodyCha
 		InterfaceOfExternalCallFindingFactory interfaceOfExternalCallFinderFactory,
 		ResourceDemandingBehaviourForClassMethodFinding resourceDemandingBehaviourForClassMethodFinding) {
 		return new ExtendedClassMethodBodyChangedTransformation(newMethod, basicComponentFinding,
-			classification, interfaceOfExternalCallFinderFactory, resourceDemandingBehaviourForClassMethodFinding)
+			classification, interfaceOfExternalCallFinderFactory, resourceDemandingBehaviourForClassMethodFinding,
+			this.shouldGenerateInternalCallActions);
 	}
 }
