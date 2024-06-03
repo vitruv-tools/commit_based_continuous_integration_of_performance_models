@@ -23,6 +23,7 @@ public class EvaluationDataContainer {
 	private ChangeStatistic changeStatistic = new ChangeStatistic();
 	private JavaEvaluationData javaComparisonResult = new JavaEvaluationData();
 	private IMEvaluationData imEvalResult = new IMEvaluationData();
+	private IMEvaluationData imIndependentEvalResult = new IMEvaluationData();
 	private InstrumentationEvaluationData instrumentationData = new InstrumentationEvaluationData();
 	private ExecutionTimeData executionTimes = new ExecutionTimeData();
 	
@@ -40,6 +41,10 @@ public class EvaluationDataContainer {
 	
 	public IMEvaluationData getImEvalResult() {
 		return imEvalResult;
+	}
+	
+	public IMEvaluationData getImIndependentEvalResult() {
+		return imIndependentEvalResult;
 	}
 	
 	public InstrumentationEvaluationData getInstrumentationData() {
