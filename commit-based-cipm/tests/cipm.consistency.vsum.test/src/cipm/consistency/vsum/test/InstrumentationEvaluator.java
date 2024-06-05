@@ -75,7 +75,7 @@ public class InstrumentationEvaluator {
 			return;
 		}
 		InstrumentationEvaluationData insEvalData = EvaluationDataContainer
-				.getGlobalContainer().getInstrumentationData();
+				.getGlobalContainer().getInstrumentationIndependentData();
 		insEvalData.setExpectedLowerStatementDifferenceCount(countExpectedStatements(im, cm, true));
 		insEvalData.setExpectedUpperStatementDifferenceCount(countExpectedStatements(im, cm, false));
 		Resource reloadedModel = JavaParserAndPropagatorUtils.parseJavaCodeIntoOneModel(

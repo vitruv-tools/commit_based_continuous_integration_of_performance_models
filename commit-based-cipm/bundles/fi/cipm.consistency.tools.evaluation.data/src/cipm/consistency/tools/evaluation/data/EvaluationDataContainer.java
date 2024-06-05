@@ -24,8 +24,8 @@ public class EvaluationDataContainer {
 	private JavaEvaluationData javaComparisonResult = new JavaEvaluationData();
 	private RepositoryModelEvaluationData repoModelComparisonResult = new RepositoryModelEvaluationData();
 	private IMEvaluationData imEvalResult = new IMEvaluationData();
-	private IMEvaluationData imIndependentEvalResult = new IMEvaluationData();
 	private InstrumentationEvaluationData instrumentationData = new InstrumentationEvaluationData();
+	private InstrumentationEvaluationData instrumentationIndependentData = new InstrumentationEvaluationData();
 	private ExecutionTimeData executionTimes = new ExecutionTimeData();
 	
 	public long getEvaluationTime() {
@@ -48,12 +48,12 @@ public class EvaluationDataContainer {
 		return imEvalResult;
 	}
 	
-	public IMEvaluationData getImIndependentEvalResult() {
-		return imIndependentEvalResult;
-	}
-	
 	public InstrumentationEvaluationData getInstrumentationData() {
 		return instrumentationData;
+	}
+	
+	public InstrumentationEvaluationData getInstrumentationIndependentData() {
+		return instrumentationIndependentData;
 	}
 	
 	public ExecutionTimeData getExecutionTimes() {
