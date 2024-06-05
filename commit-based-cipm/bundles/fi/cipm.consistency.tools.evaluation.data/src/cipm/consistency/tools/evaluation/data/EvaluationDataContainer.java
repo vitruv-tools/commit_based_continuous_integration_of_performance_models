@@ -22,6 +22,7 @@ public class EvaluationDataContainer {
 	private long evaluationTime = System.currentTimeMillis();
 	private ChangeStatistic changeStatistic = new ChangeStatistic();
 	private JavaEvaluationData javaComparisonResult = new JavaEvaluationData();
+	private RepositoryModelEvaluationData repoModelComparisonResult = new RepositoryModelEvaluationData();
 	private IMEvaluationData imEvalResult = new IMEvaluationData();
 	private IMEvaluationData imIndependentEvalResult = new IMEvaluationData();
 	private InstrumentationEvaluationData instrumentationData = new InstrumentationEvaluationData();
@@ -37,6 +38,10 @@ public class EvaluationDataContainer {
 	
 	public JavaEvaluationData getJavaComparisonResult() {
 		return javaComparisonResult;
+	}
+	
+	public RepositoryModelEvaluationData getRepoComparisonResult() {
+		return repoModelComparisonResult;
 	}
 	
 	public IMEvaluationData getImEvalResult() {
