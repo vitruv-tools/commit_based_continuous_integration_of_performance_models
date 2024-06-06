@@ -20,6 +20,7 @@ public class EvaluationDataContainer {
 	}
 	
 	private long evaluationTime = System.currentTimeMillis();
+	private int numberOfPropagation = 0;
 	private ChangeStatistic changeStatistic = new ChangeStatistic();
 	private JavaEvaluationData javaComparisonResult = new JavaEvaluationData();
 	private RepositoryModelEvaluationData repoModelComparisonResult = new RepositoryModelEvaluationData();
@@ -30,6 +31,14 @@ public class EvaluationDataContainer {
 	
 	public long getEvaluationTime() {
 		return evaluationTime;
+	}
+	
+	public int getNumberOfPropagation() {
+		return numberOfPropagation;
+	}
+	
+	public void setNumberOfPropagation(int num) {
+		numberOfPropagation = num;
 	}
 	
 	public ChangeStatistic getChangeStatistic() {

@@ -4,6 +4,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.palladiosimulator.pcm.repository.Repository;
 
 import cipm.consistency.commitintegration.diff.util.ComparisonBasedJaccardCoefficientCalculator;
 import cipm.consistency.commitintegration.diff.util.ComparisonBasedJaccardCoefficientCalculator.JaccardCoefficientResult;
@@ -28,7 +29,11 @@ public class PCMComparison {
 		ResourceSet set = new ResourceSetImpl();
 		Resource res1 = set.getResource(URI.createFileURI(path1), true);
 		Resource res2 = set.getResource(URI.createFileURI(path2), true);
-		var comp = PCMModelComparator.compareRepositoryModels(res1, res2);
+		return compareRepositories((Repository) res1.getContents().get(0), (Repository) res2.getContents().get(0));
+	}
+	
+	public static JaccardCoefficientResult compareRepositories(Repository repo1, Repository repo2) {
+		var comp = PCMModelComparator.compareRepositoryModels(repo1, repo2);
 		return ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(comp);
 	}
 }

@@ -24,10 +24,9 @@ public class JavaModelEvaluator {
 		Path referenceModelPath = Paths.get(javaModel.getURI().toFileString());
 		Resource parsed = JavaParserAndPropagatorUtils.parseJavaCodeIntoOneModel(srcDir, referenceModelPath,
 				configPath);
-		parsed.getAllContents().forEachRemaining(
-				o -> currentEvalResult.setNewElementsCount(currentEvalResult.getNewElementsCount() + 1));
-		javaModel.getAllContents().forEachRemaining(
-				o -> currentEvalResult.setOldElementsCount(currentEvalResult.getOldElementsCount() + 1));
+		currentEvalResult.setNewElementsCount(ModelElementsCounter.countModelElements(parsed));
+		currentEvalResult.setOldElementsCount(ModelElementsCounter.countModelElements(javaModel));
+		
 		var result = JavaModelComparator.compareJavaModels(parsed, javaModel, List.of(parsed), List.of(javaModel),
 				null);
 		var jc = ComparisonBasedJaccardCoefficientCalculator.calculateJaccardCoefficient(result);

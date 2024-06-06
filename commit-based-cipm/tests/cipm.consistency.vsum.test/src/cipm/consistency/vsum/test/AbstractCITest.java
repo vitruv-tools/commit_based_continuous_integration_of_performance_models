@@ -96,6 +96,7 @@ public abstract class AbstractCITest {
 	protected boolean executePropagationAndEvaluation(String oldCommit, String newCommit, int num)
 			throws GitAPIException, IOException {
 		EvaluationDataContainer evalResult = new EvaluationDataContainer();
+		evalResult.setNumberOfPropagation(num);
 		EvaluationDataContainer.setGlobalContainer(evalResult);
 		String repoFile = this.controller.getVSUMFacade().getPCMWrapper().getRepository().eResource()
 				.getURI().toFileString();
@@ -132,28 +133,39 @@ public abstract class AbstractCITest {
 		String[] commits = this.controller.loadCommits();
 		String oldCommit = commits[0];
 		String newCommit = commits[1];
+		
 		LOGGER.debug("Evaluating the propagation " + oldCommit + "->" + newCommit);
 		var evalResultFile = this.controller.getVSUMFacade().getFileLayout().getRootPath().resolve(this.evaluationResultFileNamePrefix + newCommit + ".json");
 		EvaluationDataContainer evalResult = EvaluationDataContainerReaderWriter.read(evalResultFile);
 		EvaluationDataContainer.setGlobalContainer(evalResult);
-//		evalResult.getChangeStatistic().setOldCommit(oldCommit);
-//		evalResult.getChangeStatistic().setNewCommit(newCommit);
 		Resource javaModel = this.controller.getJavaModelResource();
+		
 		LOGGER.debug("Evaluating the Java model.");
 		new JavaModelEvaluator().evaluateJavaModels(javaModel,
 				this.controller.getCommitChangePropagator().getJavaFileSystemLayout().getLocalJavaRepo(),
 				evalResult.getJavaComparisonResult(),
 				this.controller.getCommitChangePropagator().getJavaFileSystemLayout().getModuleConfiguration());
+		
+		// For the initial commit (i.e., number of propagation equals 0), no comparison is performed.
+		if (evalResult.getNumberOfPropagation() != 0) {
+			LOGGER.debug("Evaluating the Repository Model.");
+			new RepositoryModelEvaluator().evaluateRepositoryModel(
+				Paths.get("..", "..", "..", "data", this.getReferenceRepositoryModelDirectoryName(), "Repository_" + evalResult.getNumberOfPropagation() + "_mu.repository"),
+				this.controller.getVSUMFacade().getPCMWrapper().getRepository());
+		}
+		
 		LOGGER.debug("Evaluating the instrumentation model.");
 		new IMUpdateEvaluator().evaluateIMUpdate(this.controller.getVSUMFacade().getPCMWrapper().getRepository(),
 				this.controller.getVSUMFacade().getInstrumentationModel(), evalResult.getImEvalResult(),
 				this.getTestPath());
+		
 		LOGGER.debug("Evaluating the instrumentation.");
 		new InstrumentationEvaluator().evaluateInstrumentationIndependently(
 				this.controller.getVSUMFacade().getInstrumentationModel(), javaModel,
 				this.controller.getCommitChangePropagator().getJavaFileSystemLayout(),
 				this.controller.getVSUMFacade().getVSUM().getCorrespondenceModel());
 		EvaluationDataContainerReaderWriter.write(evalResult, evalResultFile);
+		
 		LOGGER.debug("Finished the evaluation.");
 	}
 
@@ -189,4 +201,6 @@ public abstract class AbstractCITest {
 	 * @return the CPRs.
 	 */
 	protected abstract ChangePropagationSpecification getJavaPCMSpecification();
+	
+	protected abstract String getReferenceRepositoryModelDirectoryName();
 }
