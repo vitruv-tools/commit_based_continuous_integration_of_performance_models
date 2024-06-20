@@ -1,16 +1,18 @@
 package cipm.consistency.vsum.test;
 
 import java.io.File;
-
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.Order;
 
 import cipm.consistency.commitintegration.JavaParserAndPropagatorUtils;
 import cipm.consistency.commitintegration.detection.TEAMMATESComponentDetectionStrategy;
 import cipm.consistency.cpr.javapcm.teammates.TeammatesJavaPCMChangePropagationSpecification;
 import tools.vitruv.framework.propagation.ChangePropagationSpecification;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TEAMMATESCITest extends AbstractCITest {
 	private static final String COMMIT_TAG_V_8_0_0_RC_0 = "648425746bb9434051647c8266dfab50a8f2d6a3";
 	private static final String[] COMMIT_HASHES = {
@@ -49,39 +51,69 @@ public class TEAMMATESCITest extends AbstractCITest {
 		return new TeammatesJavaPCMChangePropagationSpecification();
 	}
 
-	@Disabled("Only one test case should run at once.")
 	@Test
+	@Order(1)
 	public void testTeammatesIntegration() throws Exception {
 		// Integrates TEAMMATES version 8.0.0-rc.0.
 		executePropagationAndEvaluation(null, COMMIT_HASHES[0], 0);
-//		performIndependentEvaluation();
 	}
 	
-	@Disabled("Only one test case should run at once.")
 	@Test
+	@Order(2)
+	public void evaluateTeammatesIntegration() throws Exception {
+		performIndependentEvaluation();
+	}
+	
+	@Test
+	@Order(3)
 	public void testTeammatesFirstPropagation() throws Exception {
 		executePropagationAndEvaluation(COMMIT_HASHES[0], COMMIT_HASHES[1], 1);
-//		performIndependentEvaluation();
 	}
 	
-	@Disabled("Only one test case should run at once.")
+	@Order(4)
+	@Test
+	public void evaluateTeammatesFirstPropagation() throws Exception {
+		performIndependentEvaluation();
+	}
+	
+	@Order(5)
 	@Test
 	public void testTeammatesSecondPropagation() throws Exception {
-		executePropagationAndEvaluation(COMMIT_HASHES[1], COMMIT_HASHES[2], 1);
-//		performIndependentEvaluation();
+		executePropagationAndEvaluation(COMMIT_HASHES[1], COMMIT_HASHES[2], 2);
 	}
 	
-	@Disabled("Only one test case should run at once.")
+	@Order(6)
 	@Test
-	public void testTeammatesThirdPropagation() throws Exception {
-		executePropagationAndEvaluation(COMMIT_HASHES[2], COMMIT_HASHES[3], 1);
-//		performIndependentEvaluation();
+	public void evaluateTeammatesSecondPropagation() throws Exception {
+		performIndependentEvaluation();
 	}
 	
-	@Disabled("Only one test case should run at once.")
+	@Test
+	@Order(7)
+	public void testTeammatesThirdPropagation() throws Exception {
+		executePropagationAndEvaluation(COMMIT_HASHES[2], COMMIT_HASHES[3], 3);
+	}
+	
+	@Order(8)
+	@Test
+	public void evaluateTeammatesThirdPropagation2() throws Exception {
+		performIndependentEvaluation();
+	}
+	
+	@Order(9)
 	@Test
 	public void testTeammatesFourthPropagation() throws Exception {
-		executePropagationAndEvaluation(COMMIT_HASHES[3], COMMIT_HASHES[4], 1);
-//		performIndependentEvaluation();
+		executePropagationAndEvaluation(COMMIT_HASHES[3], COMMIT_HASHES[4], 4);
+	}
+	
+	@Order(10)
+	@Test
+	public void evaluateTeammatesFourthPropagation() throws Exception {
+		performIndependentEvaluation();
+	}
+	
+	@Override
+	protected String getReferenceRepositoryModelDirectoryName() {
+		return "TEAMMATES";
 	}
 }
