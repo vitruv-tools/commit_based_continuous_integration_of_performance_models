@@ -7,11 +7,11 @@
 	branch = eclipse-bridge
 [submodule "Palladio-Supporting-EclipseJavaDevelopmentTools"]
 	path = Palladio-Supporting-EclipseJavaDevelopmentTools
-	url = https://github.com/PalladioSimulator/Palladio-Supporting-EclipseJavaDevelopmentTools
+	url = https://github.com/MDSD-Tools/TheExtendedJavaModelParserAndPrinter
 [submodule "commit-based-cipm/bundles/Vitruv"]
 	path = Vitruv
 	url = https://github.com/CIPM-tools/Vitruv-Domains-ComponentBasedSystems
 	branch = integrated_vitruv
 [submodule "Palladio-ReverseEngineering-SoMoX-JaMoPP"]
 	path = Palladio-ReverseEngineering-SoMoX-JaMoPP
-	url = https://github.com/PalladioSimulator/Palladio-ReverseEngineering-SoMoX-JaMoPP
+	url = https://github.com/MDSD-Tools/SourceCodeModelExtractor-JaMoPP
