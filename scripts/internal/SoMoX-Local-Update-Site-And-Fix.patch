@@ -1,27 +1,12 @@
 From aa80fda8b67839074ba8cf22be953ce0e0e8f264 Mon Sep 17 00:00:00 2001
 From: Martin Armbruster <armbrustermartin@googlemail.com>
 Date: Fri, 27 Jan 2023 16:58:33 +0100
-Subject: [PATCH] Changed the update site for JaMoPP to a local address, and
- fixed an unchecked list access.
+Subject: [PATCH] Changed the update site for JaMoPP to a local address.
 
 ---
- .../gast2seff/visitors/AbstractJaMoPPStatementVisitor.java      | 2 +-
  releng/org.somox.targetplatform/org.somox.targetplatform.target | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ 1 file changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/bundles/org.somox.gast2seff/src/org/somox/gast2seff/visitors/AbstractJaMoPPStatementVisitor.java b/bundles/org.somox.gast2seff/src/org/somox/gast2seff/visitors/AbstractJaMoPPStatementVisitor.java
-index 421a5c8..c546c25 100644
---- a/bundles/org.somox.gast2seff/src/org/somox/gast2seff/visitors/AbstractJaMoPPStatementVisitor.java
-+++ b/bundles/org.somox.gast2seff/src/org/somox/gast2seff/visitors/AbstractJaMoPPStatementVisitor.java
-@@ -353,7 +353,7 @@ public abstract class AbstractJaMoPPStatementVisitor extends ComposedSwitch<Obje
- 
-     protected String positionToLineNumber(final CompilationUnit position) {// GAST2SEFFCHANGE
-         final StringBuilder positionString = new StringBuilder("line ");
--        if (position != null) {
-+        if (position != null && position.getLayoutInformations() != null && position.getLayoutInformations().size() > 0) {
-             positionString.append(position.getLayoutInformations().get(0).getStartOffset());
-         } else {
-             positionString.append("no position information available");
 diff --git a/releng/org.somox.targetplatform/org.somox.targetplatform.target b/releng/org.somox.targetplatform/org.somox.targetplatform.target
 index 1702278..bf860d5 100755
 --- a/releng/org.somox.targetplatform/org.somox.targetplatform.target

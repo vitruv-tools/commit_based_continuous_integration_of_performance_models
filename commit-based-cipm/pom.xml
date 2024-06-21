@@ -29,6 +29,12 @@
 				<module>releng/cipm.consistency.updatesite.si</module>
 			</modules>
 		</profile>
+		<profile>
+			<id>aggregated-updatesite</id>
+			<modules>
+				<module>releng/cipm.consistency.updatesite.aggregated</module>
+			</modules>
+		</profile>
 	</profiles>
 
 </project>
