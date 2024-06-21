@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aggregator:Aggregation xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:aggregator="http://www.eclipse.org/cbi/p2repo/2011/aggregator/1.1.0" label="cipm-aggregated" buildRoot="/target/cipm-aggregated" includeSources="true">
+  <validationSets label="main">
+    <contributions label="eclipse-dep">
+      <repositories location="https://download.eclipse.org/releases/2021-09/">
+        <features name="org.eclipse.jdt.feature.group"/>
+        <features name="org.eclipse.emf.sdk.feature.group"/>
+        <features name="org.eclipse.emf.mwe2.language.sdk.feature.group"/>
+        <features name="org.eclipse.emf.mwe2.runtime.sdk.feature.group"/>
+        <features name="org.eclipse.emf.mwe.sdk.feature.group"/>
+        <features name="org.eclipse.emf.compare.ide.ui.feature.group"/>
+        <features name="org.eclipse.jgit.feature.group"/>
+        <features name="org.eclipse.uml2.sdk.feature.group"/>
+        <features name="org.eclipse.pde.feature.group"/>
+        <features name="org.eclipse.m2m.qvt.oml.sdk.feature.group"/>
+        <features name="org.eclipse.xtext.sdk.feature.group"/>
+      </repositories>
+      <repositories location="https://download.eclipse.org/tools/orbit/downloads/2021-09/">
+        <bundles name="com.google.gson"/>
+        <bundles name="org.apache.commons.compress"/>
+        <bundles name="org.apache.log4j"/>
+      </repositories>
+      <repositories location="https://updatesite.palladio-simulator.com/palladio-core-commons/releases/5.0.0/">
+        <features name="de.uka.ipd.sdq.identifier.feature.feature.group"/>
+      </repositories>
+      <repositories location="https://updatesite.palladio-simulator.com/palladio-core-pcm/releases/5.0.0/">
+        <features name="org.palladiosimulator.pcm.feature.feature.group"/>
+      </repositories>
+      <repositories location="https://updatesite.palladio-simulator.com/palladio-supporting-workflowengine/releases/5.0.0/">
+        <features name="de.uka.ipd.sdq.workflow.feature.core.feature.group"/>
+        <features name="de.uka.ipd.sdq.workflow.feature.mdsd.feature.group"/>
+      </repositories>
+      <repositories location="https://kit-sdq.github.io/updatesite/release/commons/2.0.0/">
+        <features name="edu.kit.ipd.sdq.commons.util.eclipse.feature.feature.group"/>
+        <features name="edu.kit.ipd.sdq.commons.util.emf.feature.feature.group"/>
+        <features name="edu.kit.ipd.sdq.commons.util.java.feature.feature.group"/>
+        <features name="edu.kit.ipd.sdq.commons.util.mdsdprofiles.feature.feature.group"/>
+        <features name="edu.kit.ipd.sdq.commons.util.pcm.feature.feature.group"/>
+      </repositories>
+      <repositories location="http://localhost:8081/jamopp/"/>
+      <repositories location="http://localhost:8081/somox/"/>
+      <repositories location="http://localhost:8081/vitruv/"/>
+      <repositories location="http://localhost:8081/cipm/"/>
+      <repositories location="http://localhost:8081/cipm2/"/>
+    </contributions>
+  </validationSets>
+  <configurations architecture="x86_64"/>
+</aggregator:Aggregation>
