@@ -41,7 +41,7 @@
 						<args>org.eclipse.cbi.p2repo.cli.headless</args>
 						<args>aggregate</args>
 						<args>--buildModel</args>
-						<args>nightly.aggr</args>
+						<args>cipm.aggr</args>
 						<args>--action</args>
 						<args>BUILD</args>
 					</applicationsArgs>
@@ -69,6 +69,23 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/assembly/src.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 </project>
