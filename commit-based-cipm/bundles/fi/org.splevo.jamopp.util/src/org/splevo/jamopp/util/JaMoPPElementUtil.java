@@ -101,7 +101,7 @@ public final class JaMoPPElementUtil {
      */
     private static EObject getTransitiveContainerForPredicate(Commentable element, Predicate<EObject> predicate) {
         EObject container = element.eContainer();
-        while (!predicate.apply(container)) {
+        while (container != null && !predicate.apply(container)) {
             container = container.eContainer();
         }
         return container;
