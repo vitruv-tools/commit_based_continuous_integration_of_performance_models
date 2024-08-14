@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<aggregator:Aggregation xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:aggregator="http://www.eclipse.org/cbi/p2repo/2011/aggregator/1.1.0" label="cipm-aggregated" buildRoot="/target/cipm-aggregated" includeSources="true">
+<aggregator:Aggregation xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:aggregator="http://www.eclipse.org/cbi/p2repo/2011/aggregator/1.1.0" label="cipm-aggregated" buildRoot="/target/cipm-aggregated" packedStrategy="UNPACK">
   <validationSets label="main">
     <contributions label="eclipse-dep">
-      <repositories location="https://download.eclipse.org/releases/2021-09/">
+      <repositories location="https://download.eclipse.org/releases/2021-09/" mirrorArtifacts="false">
         <features name="org.eclipse.jdt.feature.group"/>
         <features name="org.eclipse.emf.sdk.feature.group"/>
-        <features name="org.eclipse.emf.mwe2.language.sdk.feature.group"/>
-        <features name="org.eclipse.emf.mwe2.runtime.sdk.feature.group"/>
-        <features name="org.eclipse.emf.mwe.sdk.feature.group"/>
         <features name="org.eclipse.emf.compare.ide.ui.feature.group"/>
+        <features name="org.eclipse.xtext.redist.feature.group"/>
+        <features name="org.eclipse.xtend.sdk.feature.group"/>
         <features name="org.eclipse.jgit.feature.group"/>
         <features name="org.eclipse.uml2.sdk.feature.group"/>
-        <features name="org.eclipse.pde.feature.group"/>
-        <features name="org.eclipse.m2m.qvt.oml.sdk.feature.group"/>
-        <features name="org.eclipse.xtext.sdk.feature.group"/>
       </repositories>
       <repositories location="https://download.eclipse.org/tools/orbit/downloads/2021-09/">
         <bundles name="com.google.gson"/>
@@ -37,11 +33,64 @@
         <features name="edu.kit.ipd.sdq.commons.util.mdsdprofiles.feature.feature.group"/>
         <features name="edu.kit.ipd.sdq.commons.util.pcm.feature.feature.group"/>
       </repositories>
-      <repositories location="http://localhost:8081/jamopp/"/>
+      <repositories location="http://localhost:8081/jamopp/">
+        <features name="org.emftext.language.java.feature.feature.group"/>
+      </repositories>
       <repositories location="http://localhost:8081/somox/"/>
-      <repositories location="http://localhost:8081/vitruv/"/>
-      <repositories location="http://localhost:8081/cipm/"/>
-      <repositories location="http://localhost:8081/cipm2/"/>
+      <repositories location="http://localhost:8081/vitruv/">
+        <bundles name="tools.vitruv.applications.pcmjava.util"/>
+        <bundles name="tools.vitruv.applications.util.temporary"/>
+        <bundles name="tools.vitruv.domains.java"/>
+        <bundles name="tools.vitruv.domains.pcm"/>
+        <bundles name="tools.vitruv.domains.uml"/>
+        <bundles name="tools.vitruv.dsls.common"/>
+        <bundles name="tools.vitruv.extensions.dslsruntime.reactions"/>
+        <bundles name="tools.vitruv.dsls.reactions"/>
+        <bundles name="tools.vitruv.framework.applications"/>
+        <bundles name="tools.vitruv.framework.change"/>
+        <bundles name="tools.vitruv.framework.change.echange"/>
+        <bundles name="tools.vitruv.framework.change.interaction"/>
+        <bundles name="tools.vitruv.framework.correspondence"/>
+        <bundles name="tools.vitruv.framework.domains"/>
+        <bundles name="tools.vitruv.framework.propagation"/>
+        <bundles name="tools.vitruv.framework.userinteraction"/>
+        <bundles name="tools.vitruv.framework.util"/>
+        <bundles name="tools.vitruv.framework.vsum"/>
+      </repositories>
+      <repositories location="http://localhost:8081/cipm/">
+        <bundles name="cipm.consistency.base.shared"/>
+        <bundles name="cipm.consistency.commitintegration.diff.util"/>
+        <bundles name="cipm.consistency.commitintegration.settings"/>
+        <bundles name="cipm.consistency.domains.im"/>
+        <bundles name="cipm.consistency.domains.java"/>
+        <bundles name="cipm.consistency.domains.pcm"/>
+        <bundles name="cipm.consistency.models.instrumentation"/>
+        <bundles name="cipm.consistency.tools.evaluation.data"/>
+        <bundles name="org.splevo.commons"/>
+        <bundles name="org.splevo.diffing"/>
+        <bundles name="org.splevo.extraction"/>
+        <bundles name="org.splevo.jamopp.diffing"/>
+        <bundles name="org.splevo.jamopp.extraction"/>
+        <bundles name="org.splevo.jamopp.util"/>
+      </repositories>
+      <repositories location="http://localhost:8081/cipm2/">
+        <bundles name="cipm.consistency.commitintegration"/>
+        <bundles name="cipm.consistency.cpr.javaim"/>
+        <bundles name="cipm.consistency.cpr.javapcm.additional.validation"/>
+        <bundles name="cipm.consistency.cpr.javapcm.msa"/>
+        <bundles name="cipm.consistency.cpr.pcmim"/>
+        <bundles name="cipm.consistency.cpr.javapcm.teammates"/>
+        <bundles name="cipm.consistency.cpr.util"/>
+        <bundles name="cipm.consistency.designtime.instrumentation2"/>
+        <bundles name="tools.vitruv.applications.pcmjava.seffstatements"/>
+        <bundles name="cipm.consistency.vsum"/>
+        <bundles name="tools.vitruv.applications.pcmjava.seffstatements.extended"/>
+        <bundles name="tools.vitruv.applications.pcmjava.seffstatements.finegrained"/>
+        <bundles name="tools.vitruv.applications.pcmjava.seffstatements.pojotransformations"/>
+      </repositories>
+      <repositories location="https://updatesite.palladio-simulator.com/palladio-editors-commons/releases/5.0.0">
+        <bundles name="org.palladiosimulator.pcm.edit"/>
+      </repositories>
     </contributions>
   </validationSets>
   <configurations architecture="x86_64"/>

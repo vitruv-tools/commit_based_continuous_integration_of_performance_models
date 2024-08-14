@@ -23,7 +23,7 @@ public class UpdateSiteServerAppplication implements WebMvcConfigurer {
 		String cipmUpdateSite = Paths.get("..", "..", "commit-based-cipm", "releng", "cipm.consistency.updatesite.fi", "target", "repository").toAbsolutePath().toUri().toString();
 		registry.addResourceHandler("/cipm/**").addResourceLocations(cipmUpdateSite);
 		String cipm2UpdateSite = Paths.get("..", "..", "commit-based-cipm", "releng", "cipm.consistency.updatesite.si", "target", "repository").toAbsolutePath().toUri().toString();
-		registry.addResourceHandler("/cipm2/**").addResourceLocations(cipmUpdateSite);
+		registry.addResourceHandler("/cipm2/**").addResourceLocations(cipm2UpdateSite);
     }
 
     public static void main(String[] args) {
