@@ -332,7 +332,9 @@ public class StatementsSimilaritySwitch extends StatementsSwitch<Boolean> implem
         int pos = JaMoPPElementUtil.getPositionInContainer(statement);
         if (pos > 0) {
             StatementListContainer container = (StatementListContainer) statement.eContainer();
-            return container.getStatements().get(pos - 1);
+            var sts = container.getStatements();
+            
+            return sts != null ? sts.get(pos - 1) : null;
         }
 
         return null;
@@ -352,8 +354,9 @@ public class StatementsSimilaritySwitch extends StatementsSwitch<Boolean> implem
         int pos = JaMoPPElementUtil.getPositionInContainer(statement);
         if (pos != -1) {
             StatementListContainer container = (StatementListContainer) statement.eContainer();
-            if (container.getStatements().size() > pos + 1) {
-                return container.getStatements().get(pos + 1);
+            var sts = container.getStatements();
+            if (sts != null && sts.size() > pos + 1) {
+                return sts.get(pos + 1);
             }
         }
 

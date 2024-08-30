@@ -48,10 +48,13 @@ public class CommonsSimilaritySwitch extends CommonsSwitch<Boolean> implements I
     	
         NamedElement element2 = (NamedElement) this.getCompareElement();
 
-        if (element1.getName() == null) {
-            return (element2.getName() == null);
+        var name1 = element1.getName();
+        var name2 = element2.getName();
+        
+        if (name1 == null) {
+            return (name2 == null);
         }
 
-        return (element1.getName().equals(element2.getName()));
+        return (name1.equals(name2));
     }
 }

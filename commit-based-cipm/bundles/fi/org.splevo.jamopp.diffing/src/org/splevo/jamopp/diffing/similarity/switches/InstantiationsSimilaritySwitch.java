@@ -7,6 +7,7 @@ import org.emftext.language.java.instantiations.ExplicitConstructorCall;
 import org.emftext.language.java.instantiations.NewConstructorCall;
 import org.emftext.language.java.instantiations.util.InstantiationsSwitch;
 import org.emftext.language.java.types.Type;
+import org.emftext.language.java.types.TypeReference;
 import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
 import org.splevo.jamopp.diffing.similarity.ILoggableJavaSwitch;
 import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
@@ -14,7 +15,8 @@ import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
 /**
  * Similarity decisions for object instantiation elements.
  */
-public class InstantiationsSimilaritySwitch extends InstantiationsSwitch<Boolean> implements ILoggableJavaSwitch, IJavaSimilarityPositionInnerSwitch {
+public class InstantiationsSimilaritySwitch extends InstantiationsSwitch<Boolean>
+		implements ILoggableJavaSwitch, IJavaSimilarityPositionInnerSwitch {
 	private IJavaSimilaritySwitch similaritySwitch;
 	private boolean checkStatementPosition;
 
@@ -27,94 +29,117 @@ public class InstantiationsSimilaritySwitch extends InstantiationsSwitch<Boolean
 	public boolean shouldCheckStatementPosition() {
 		return this.checkStatementPosition;
 	}
-	
+
 	@Override
 	public IJavaSimilaritySwitch getContainingSwitch() {
 		return this.similaritySwitch;
 	}
 
-    public InstantiationsSimilaritySwitch(IJavaSimilaritySwitch similaritySwitch, boolean checkStatementPosition) {
+	public InstantiationsSimilaritySwitch(IJavaSimilaritySwitch similaritySwitch, boolean checkStatementPosition) {
 		this.similaritySwitch = similaritySwitch;
 		this.checkStatementPosition = checkStatementPosition;
 	}
 
 	/**
-     * Check class instance creation similarity.<br>
-     * Similarity is checked by
-     * <ul>
-     * <li>instance type similarity</li>
-     * <li>number of constructor arguments</li>
-     * <li>types of constructor arguments</li>
-     * </ul>
-     * 
-     * @param call1
-     *            The class instance creation to compare with the compare element.
-     * @return True/False if the class instance creations are similar or not.
-     */
-    @Override
-    public Boolean caseExplicitConstructorCall(ExplicitConstructorCall call1) {
-    	this.logMessage("caseExplicitConstructorCall");
+	 * Check class instance creation similarity.<br>
+	 * Similarity is checked by
+	 * <ul>
+	 * <li>instance type similarity</li>
+	 * <li>number of constructor arguments</li>
+	 * <li>types of constructor arguments</li>
+	 * </ul>
+	 * 
+	 * @param call1 The class instance creation to compare with the compare element.
+	 * @return True/False if the class instance creations are similar or not.
+	 */
+	@Override
+	public Boolean caseExplicitConstructorCall(ExplicitConstructorCall call1) {
+		this.logMessage("caseExplicitConstructorCall");
 
-        ExplicitConstructorCall call2 = (ExplicitConstructorCall) this.getCompareElement();
+		ExplicitConstructorCall call2 = (ExplicitConstructorCall) this.getCompareElement();
 
-        // check the class instance types
-        Boolean typeSimilarity = this.isSimilar(call1.getCallTarget(), call2.getCallTarget());
-        if (typeSimilarity == Boolean.FALSE) {
-            return Boolean.FALSE;
-        }
+		// check the class instance types
+		Boolean typeSimilarity = this.isSimilar(call1.getCallTarget(), call2.getCallTarget());
+		if (typeSimilarity == Boolean.FALSE) {
+			return Boolean.FALSE;
+		}
 
-        // check number of type arguments
-        EList<Expression> cic1Args = call1.getArguments();
-        EList<Expression> cic2Args = call2.getArguments();
-        if (cic1Args.size() != cic2Args.size()) {
-            return Boolean.FALSE;
-        }
+		// check number of type arguments
+		EList<Expression> cic1Args = call1.getArguments();
+		EList<Expression> cic2Args = call2.getArguments();
 
-        // check the argument similarity
-        for (int i = 0; i < cic1Args.size(); i++) {
-            Boolean argumentSimilarity = this.isSimilar(cic1Args.get(i), cic2Args.get(i));
-            if (argumentSimilarity == Boolean.FALSE) {
-                return Boolean.FALSE;
-            }
-        }
+		// Null check to avoid NullPointerExceptions
+		if (cic1Args == cic2Args) {
+			return Boolean.TRUE;
+		} else if (cic1Args == null ^ cic2Args == null) {
+			return Boolean.FALSE;
+		}
 
-        return Boolean.TRUE;
-    }
+		if (cic1Args.size() != cic2Args.size()) {
+			return Boolean.FALSE;
+		}
 
-    @Override
-    public Boolean caseNewConstructorCall(NewConstructorCall call1) {
-    	this.logMessage("caseNewConstructorCall");
-    	
-        NewConstructorCall call2 = (NewConstructorCall) this.getCompareElement();
+		// check the argument similarity
+		for (int i = 0; i < cic1Args.size(); i++) {
+			Boolean argumentSimilarity = this.isSimilar(cic1Args.get(i), cic2Args.get(i));
+			if (argumentSimilarity == Boolean.FALSE) {
+				return Boolean.FALSE;
+			}
+		}
 
-        Type type1 = call1.getTypeReference().getTarget();
-        Type type2 = call2.getTypeReference().getTarget();
-        Boolean typeSimilarity = this.isSimilar(type1, type2);
-        if (typeSimilarity == Boolean.FALSE) {
-            return Boolean.FALSE;
-        }
+		return Boolean.TRUE;
+	}
 
-        EList<Expression> types1 = call1.getArguments();
-        EList<Expression> types2 = call2.getArguments();
-        if (types1.size() != types2.size()) {
-            return Boolean.FALSE;
-        }
-        for (int i = 0; i < types1.size(); i++) {
-            Expression argType1 = types1.get(i);
-            Expression argType2 = types2.get(i);
-            Boolean similarity = this.isSimilar(argType1, argType2);
-            if (similarity == Boolean.FALSE) {
-                return Boolean.FALSE;
-            }
-        }
+	@Override
+	public Boolean caseNewConstructorCall(NewConstructorCall call1) {
+		this.logMessage("caseNewConstructorCall");
 
-        return Boolean.TRUE;
-    }
+		NewConstructorCall call2 = (NewConstructorCall) this.getCompareElement();
 
-    @Override
-    public Boolean defaultCase(EObject object) {
-    	this.logMessage("defaultCase for Instantiation");
-    	
-        return Boolean.TRUE;
-    }
+		TypeReference tref1 = call1.getTypeReference();
+		TypeReference tref2 = call2.getTypeReference();
+
+		// Null check to avoid NullPointerExceptions
+		if (tref1 == null ^ tref2 == null) {
+			return Boolean.FALSE;
+		} else if (tref1 != null && tref2 != null) {
+			Type type1 = tref1.getTarget();
+			Type type2 = tref2.getTarget();
+			Boolean typeSimilarity = this.isSimilar(type1, type2);
+			if (typeSimilarity == Boolean.FALSE) {
+				return Boolean.FALSE;
+			}
+		}
+
+		EList<Expression> types1 = call1.getArguments();
+		EList<Expression> types2 = call2.getArguments();
+
+		// Null check to avoid NullPointerExceptions
+		if (types1 == types2) {
+			return Boolean.TRUE;
+		} else if (types1 == null ^ types2 == null) {
+			return Boolean.FALSE;
+		}
+
+		if (types1.size() != types2.size()) {
+			return Boolean.FALSE;
+		}
+		for (int i = 0; i < types1.size(); i++) {
+			Expression argType1 = types1.get(i);
+			Expression argType2 = types2.get(i);
+			Boolean similarity = this.isSimilar(argType1, argType2);
+			if (similarity == Boolean.FALSE) {
+				return Boolean.FALSE;
+			}
+		}
+
+		return Boolean.TRUE;
+	}
+
+	@Override
+	public Boolean defaultCase(EObject object) {
+		this.logMessage("defaultCase for Instantiation");
+
+		return Boolean.TRUE;
+	}
 }

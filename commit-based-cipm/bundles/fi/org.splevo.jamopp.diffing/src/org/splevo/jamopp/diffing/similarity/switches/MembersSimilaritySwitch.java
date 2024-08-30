@@ -20,7 +20,8 @@ import com.google.common.base.Strings;
 /**
  * Similarity decisions for the member elements.
  */
-public class MembersSimilaritySwitch extends MembersSwitch<Boolean> implements ILoggableJavaSwitch, IJavaSimilarityPositionInnerSwitch {
+public class MembersSimilaritySwitch extends MembersSwitch<Boolean>
+		implements ILoggableJavaSwitch, IJavaSimilarityPositionInnerSwitch {
 	private IJavaSimilaritySwitch similaritySwitch;
 	private boolean checkStatementPosition;
 
@@ -33,179 +34,205 @@ public class MembersSimilaritySwitch extends MembersSwitch<Boolean> implements I
 	public boolean shouldCheckStatementPosition() {
 		return this.checkStatementPosition;
 	}
-	
+
 	@Override
 	public IJavaSimilaritySwitch getContainingSwitch() {
 		return this.similaritySwitch;
 	}
 
-    public MembersSimilaritySwitch(IJavaSimilaritySwitch similaritySwitch, boolean checkStatementPosition) {
+	public MembersSimilaritySwitch(IJavaSimilaritySwitch similaritySwitch, boolean checkStatementPosition) {
 		this.similaritySwitch = similaritySwitch;
 		this.checkStatementPosition = checkStatementPosition;
 	}
 
 	/**
-     * Check abstract method declaration similarity. Similarity is checked by
-     * <ul>
-     * <li>name</li>
-     * <li>parameter list size</li>
-     * <li>parameter types</li>
-     * <li>name</li>
-     * <li>container for
-     * <ul>
-     * <li>AbstractTypeDeclaration</li>
-     * <li>AnonymousClassDeclaration</li>
-     * <li>Model</li>
-     * </ul>
-     * </li>
-     * </ul>
-     * 
-     * The container must be checked to check similarity for referenced methods.
-     * 
-     * 
-     * @param method1
-     *            The abstract method declaration to compare with the compare element.
-     * @return True/False if the abstract method declarations are similar or not.
-     */
-    @Override
-    public Boolean caseMethod(Method method1) {
-    	this.logMessage("caseMethod");
+	 * Check abstract method declaration similarity. Similarity is checked by
+	 * <ul>
+	 * <li>name</li>
+	 * <li>parameter list size</li>
+	 * <li>parameter types</li>
+	 * <li>name</li>
+	 * <li>container for
+	 * <ul>
+	 * <li>AbstractTypeDeclaration</li>
+	 * <li>AnonymousClassDeclaration</li>
+	 * <li>Model</li>
+	 * </ul>
+	 * </li>
+	 * </ul>
+	 * 
+	 * The container must be checked to check similarity for referenced methods.
+	 * 
+	 * 
+	 * @param method1 The abstract method declaration to compare with the compare
+	 *                element.
+	 * @return True/False if the abstract method declarations are similar or not.
+	 */
+	@Override
+	public Boolean caseMethod(Method method1) {
+		this.logMessage("caseMethod");
 
-        Method method2 = (Method) this.getCompareElement();
+		Method method2 = (Method) this.getCompareElement();
 
-        // if methods have different names they are not similar.
-        if (!method1.getName().equals(method2.getName())) {
-            return Boolean.FALSE;
-        }
+		var name1 = Strings.nullToEmpty(method1.getName());
+		var name2 = Strings.nullToEmpty(method2.getName());
 
-        if (method1.getParameters().size() != method2.getParameters().size()) {
-            return Boolean.FALSE;
-        }
+		// if methods have different names they are not similar.
+		if (!name1.equals(name2)) {
+			return Boolean.FALSE;
+		}
 
-        for (int i = 0; i < method1.getParameters().size(); i++) {
-            Parameter param1 = method1.getParameters().get(i);
-            Parameter param2 = method2.getParameters().get(i);
-            Type type1 = param1.getTypeReference().getTarget();
-            Type type2 = param2.getTypeReference().getTarget();
-            Boolean typeSimilarity = this.isSimilar(type1, type2);
-            if (typeSimilarity == Boolean.FALSE) {
-                return Boolean.FALSE;
-            }
-            if (param1.getTypeReference().getArrayDimension() != param2.getTypeReference().getArrayDimension()) {
-            	return Boolean.FALSE;
-            }
-        }
+		var params1 = method1.getParameters();
+		var params2 = method2.getParameters();
 
-        /* **************************************
-         * methods as members of regular classes
-         */
-        if (method1.getContainingConcreteClassifier() != null) {
-            ConcreteClassifier type1 = method1.getContainingConcreteClassifier();
-            ConcreteClassifier type2 = method2.getContainingConcreteClassifier();
-            return this.isSimilar(type1, type2);
-        }
+		// Null check to avoid NullPointerExceptions
+		if (params1 == null ^ params2 == null) {
+			return Boolean.FALSE;
+		} else if (params1 != null && params2 != null) {
+			if (params1.size() != params2.size()) {
+				return Boolean.FALSE;
+			}
 
-        /* **************************************
-         * methods as members of anonymous classes
-         */
-        if (method1.getContainingAnonymousClass() != null) {
-            AnonymousClass type1 = method1.getContainingAnonymousClass();
-            AnonymousClass type2 = method2.getContainingAnonymousClass();
-            Boolean typeSimilarity = this.isSimilar(type1, type2);
-            if (typeSimilarity != null) {
-                return typeSimilarity;
-            }
-        }
+			for (int i = 0; i < params1.size(); i++) {
+				Parameter param1 = params1.get(i);
+				Parameter param2 = params2.get(i);
 
-        this.logMessage("MethodDeclaration in unknown container: " + method1.getName() + " : "
-                + method1.eContainer(), Level.WARN);
-        return super.caseMethod(method1);
-    }
+				var tref1 = param1.getTypeReference();
+				var tref2 = param2.getTypeReference();
 
-    /**
-     * Check constuctor declaration similarity. Similarity is checked by
-     * <ul>
-     * <li>name</li>
-     * <li>parameter list size</li>
-     * <li>parameter types</li>
-     * <li>name</li>
-     * <li>container for
-     * <ul>
-     * <li>AbstractTypeDeclaration</li>
-     * <li>AnonymousClassDeclaration</li>
-     * <li>Model</li>
-     * </ul>
-     * </li>
-     * </ul>
-     * 
-     * The container must be checked to check similarity for referenced methods.
-     * 
-     * 
-     * @param constructor1
-     *            The abstract method declaration to compare with the compare element.
-     * @return True/False if the abstract method declarations are similar or not.
-     */
-    @Override
-    public Boolean caseConstructor(Constructor constructor1) {
-    	this.logMessage("caseConstructor");
+				if (tref1 == null ^ tref2 == null) {
+					return Boolean.FALSE;
+				} else if (tref1 != null && tref2 != null) {
+					Type type1 = tref1.getTarget();
+					Type type2 = tref2.getTarget();
+					Boolean typeSimilarity = this.isSimilar(type1, type2);
+					if (typeSimilarity == Boolean.FALSE) {
+						return Boolean.FALSE;
+					}
+					if (tref1.getArrayDimension() != tref2.getArrayDimension()) {
+						return Boolean.FALSE;
+					}
+				}
+			}
+		}
 
-        Constructor constructor2 = (Constructor) this.getCompareElement();
+		/*
+		 * ************************************** methods as members of regular classes
+		 */
+		if (method1.getContainingConcreteClassifier() != null) {
+			ConcreteClassifier type1 = method1.getContainingConcreteClassifier();
+			ConcreteClassifier type2 = method2.getContainingConcreteClassifier();
+			return this.isSimilar(type1, type2);
+		}
 
-        // if methods have different names they are not similar.
-        if (!constructor1.getName().equals(constructor2.getName())) {
-            return Boolean.FALSE;
-        }
+		/*
+		 * ************************************** methods as members of anonymous
+		 * classes
+		 */
+		if (method1.getContainingAnonymousClass() != null) {
+			AnonymousClass type1 = method1.getContainingAnonymousClass();
+			AnonymousClass type2 = method2.getContainingAnonymousClass();
+			Boolean typeSimilarity = this.isSimilar(type1, type2);
+			if (typeSimilarity != null) {
+				return typeSimilarity;
+			}
+		}
 
-        EList<Parameter> params1 = constructor1.getParameters();
-        EList<Parameter> params2 = constructor2.getParameters();
-        Boolean parameterSimilarity = this.areSimilar(params1, params2);
-        if (parameterSimilarity == Boolean.FALSE) {
-            return Boolean.FALSE;
-        }
+		var containerString = method1.eContainer() == null ? "" : method1.eContainer().toString();
 
-        /* **************************************
-         * methods as members of regular classes
-         */
-        if (constructor1.getContainingConcreteClassifier() != null) {
-            ConcreteClassifier type1 = constructor1.getContainingConcreteClassifier();
-            ConcreteClassifier type2 = constructor2.getContainingConcreteClassifier();
-            return this.isSimilar(type1, type2);
-        }
+		this.logMessage("MethodDeclaration in unknown container: " + name1 + " : " + containerString, Level.WARN);
+		return super.caseMethod(method1);
+	}
 
-        /* **************************************
-         * methods as members of anonymous classes
-         */
-        if (constructor1.getContainingAnonymousClass() != null) {
-            AnonymousClass type1 = constructor1.getContainingAnonymousClass();
-            AnonymousClass type2 = constructor2.getContainingAnonymousClass();
-            Boolean typeSimilarity = this.isSimilar(type1, type2);
-            if (typeSimilarity != null) {
-                return typeSimilarity;
-            }
-        }
+	/**
+	 * Check constuctor declaration similarity. Similarity is checked by
+	 * <ul>
+	 * <li>name</li>
+	 * <li>parameter list size</li>
+	 * <li>parameter types</li>
+	 * <li>name</li>
+	 * <li>container for
+	 * <ul>
+	 * <li>AbstractTypeDeclaration</li>
+	 * <li>AnonymousClassDeclaration</li>
+	 * <li>Model</li>
+	 * </ul>
+	 * </li>
+	 * </ul>
+	 * 
+	 * The container must be checked to check similarity for referenced methods.
+	 * 
+	 * 
+	 * @param constructor1 The abstract method declaration to compare with the
+	 *                     compare element.
+	 * @return True/False if the abstract method declarations are similar or not.
+	 */
+	@Override
+	public Boolean caseConstructor(Constructor constructor1) {
+		this.logMessage("caseConstructor");
 
-        this.logMessage("ConstructorDeclaration in unknown container: " + constructor1.getName() + " : "
-                + constructor1.eContainer(), Level.WARN);
-        return super.caseConstructor(constructor1);
-    }
+		Constructor constructor2 = (Constructor) this.getCompareElement();
 
-    @Override
-    public Boolean caseEnumConstant(EnumConstant const1) {
-    	this.logMessage("caseEnumConstant");
-    	
-        EnumConstant const2 = (EnumConstant) this.getCompareElement();
-        String name1 = Strings.nullToEmpty(const1.getName());
-        String name2 = Strings.nullToEmpty(const2.getName());
-        return (name1.equals(name2));
-    }
+		var name1 = Strings.nullToEmpty(constructor1.getName());
+		var name2 = Strings.nullToEmpty(constructor2.getName());
 
-    @Override
-    public Boolean caseMember(Member member1) {
-    	this.logMessage("caseMember");
-    	
-        Member member2 = (Member) this.getCompareElement();
-        String name1 = Strings.nullToEmpty(member1.getName());
-        String name2 = Strings.nullToEmpty(member2.getName());
-        return (name1.equals(name2));
-    }
+		// if methods have different names they are not similar.
+		if (!name1.equals(name2)) {
+			return Boolean.FALSE;
+		}
+
+		EList<Parameter> params1 = constructor1.getParameters();
+		EList<Parameter> params2 = constructor2.getParameters();
+		Boolean parameterSimilarity = this.areSimilar(params1, params2);
+		if (parameterSimilarity == Boolean.FALSE) {
+			return Boolean.FALSE;
+		}
+
+		/*
+		 * ************************************** methods as members of regular classes
+		 */
+		if (constructor1.getContainingConcreteClassifier() != null) {
+			ConcreteClassifier type1 = constructor1.getContainingConcreteClassifier();
+			ConcreteClassifier type2 = constructor2.getContainingConcreteClassifier();
+			return this.isSimilar(type1, type2);
+		}
+
+		/*
+		 * ************************************** methods as members of anonymous
+		 * classes
+		 */
+		if (constructor1.getContainingAnonymousClass() != null) {
+			AnonymousClass type1 = constructor1.getContainingAnonymousClass();
+			AnonymousClass type2 = constructor2.getContainingAnonymousClass();
+			Boolean typeSimilarity = this.isSimilar(type1, type2);
+			if (typeSimilarity != null) {
+				return typeSimilarity;
+			}
+		}
+
+		var containerString = constructor1.eContainer() == null ? "" : constructor1.eContainer().toString();
+
+		this.logMessage("ConstructorDeclaration in unknown container: " + name1 + " : " + containerString, Level.WARN);
+		return super.caseConstructor(constructor1);
+	}
+
+	@Override
+	public Boolean caseEnumConstant(EnumConstant const1) {
+		this.logMessage("caseEnumConstant");
+
+		EnumConstant const2 = (EnumConstant) this.getCompareElement();
+		String name1 = Strings.nullToEmpty(const1.getName());
+		String name2 = Strings.nullToEmpty(const2.getName());
+		return (name1.equals(name2));
+	}
+
+	@Override
+	public Boolean caseMember(Member member1) {
+		this.logMessage("caseMember");
+
+		Member member2 = (Member) this.getCompareElement();
+		String name1 = Strings.nullToEmpty(member1.getName());
+		String name2 = Strings.nullToEmpty(member2.getName());
+		return (name1.equals(name2));
+	}
 }
