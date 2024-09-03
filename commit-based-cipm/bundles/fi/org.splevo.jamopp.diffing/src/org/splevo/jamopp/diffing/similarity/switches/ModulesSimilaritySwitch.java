@@ -6,11 +6,36 @@ import org.emftext.language.java.modules.ProvidesModuleDirective;
 import org.emftext.language.java.modules.RequiresModuleDirective;
 import org.emftext.language.java.modules.UsesModuleDirective;
 import org.emftext.language.java.modules.util.ModulesSwitch;
+import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
+import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
 
 /**
  * Similarity Decisions for module elements.
  */
-private class ModulesSimilaritySwitch extends ModulesSwitch<Boolean> {
+public class ModulesSimilaritySwitch extends ModulesSwitch<Boolean> implements IJavaSimilarityPositionInnerSwitch {
+	private IJavaSimilaritySwitch similaritySwitch;
+	private boolean checkStatementPosition;
+
+	@Override
+	public ISimilarityRequestHandler getSimilarityRequestHandler() {
+		return this.similaritySwitch;
+	}
+
+	@Override
+	public boolean shouldCheckStatementPosition() {
+		return this.checkStatementPosition;
+	}
+	
+	@Override
+	public IJavaSimilaritySwitch getContainingSwitch() {
+		return this.similaritySwitch;
+	}
+
+    public ModulesSimilaritySwitch(IJavaSimilaritySwitch similaritySwitch, boolean checkStatementPosition) {
+		this.similaritySwitch = similaritySwitch;
+		this.checkStatementPosition = checkStatementPosition;
+	}
+
 	/**
      * Check ModuleReference similarity.<br>
      * Similarity is checked by
@@ -23,8 +48,8 @@ private class ModulesSimilaritySwitch extends ModulesSwitch<Boolean> {
      */
 	@Override
 	public Boolean caseModuleReference(ModuleReference modRef1) {
-		ModuleReference modRef2 = (ModuleReference) compareElement;
-		if (compareNamespacesByPart(modRef1, modRef2)) {
+		ModuleReference modRef2 = (ModuleReference) this.getCompareElement();
+		if (this.compareNamespacesByPart(modRef1, modRef2)) {
 			return Boolean.TRUE;
 		}
 		return Boolean.FALSE;
@@ -42,8 +67,8 @@ private class ModulesSimilaritySwitch extends ModulesSwitch<Boolean> {
      */
 	@Override
 	public Boolean caseAccessProvidingModuleDirective(AccessProvidingModuleDirective dir1) {
-		AccessProvidingModuleDirective dir2 = (AccessProvidingModuleDirective) compareElement;
-		if (!compareNamespacesByPart(dir1, dir2)) {
+		AccessProvidingModuleDirective dir2 = (AccessProvidingModuleDirective) this.getCompareElement();
+		if (!this.compareNamespacesByPart(dir1, dir2)) {
 			return Boolean.FALSE;
 		}
 		return Boolean.TRUE;
@@ -61,8 +86,8 @@ private class ModulesSimilaritySwitch extends ModulesSwitch<Boolean> {
      */
 	@Override
 	public Boolean caseRequiresModuleDirective(RequiresModuleDirective dir1) {
-		RequiresModuleDirective dir2 = (RequiresModuleDirective) compareElement;
-		return similarityChecker.isSimilar(dir1.getRequiredModule(), dir2.getRequiredModule());
+		RequiresModuleDirective dir2 = (RequiresModuleDirective) this.getCompareElement();
+		return this.isSimilar(dir1.getRequiredModule(), dir2.getRequiredModule());
 	}
 	
 	/**
@@ -77,8 +102,8 @@ private class ModulesSimilaritySwitch extends ModulesSwitch<Boolean> {
      */
 	@Override
 	public Boolean caseProvidesModuleDirective(ProvidesModuleDirective dir1) {
-		ProvidesModuleDirective dir2 = (ProvidesModuleDirective) compareElement;
-		return similarityChecker.isSimilar(dir1.getTypeReference(), dir2.getTypeReference());
+		ProvidesModuleDirective dir2 = (ProvidesModuleDirective) this.getCompareElement();
+		return this.isSimilar(dir1.getTypeReference(), dir2.getTypeReference());
 	}
 	
 	/**
@@ -93,7 +118,7 @@ private class ModulesSimilaritySwitch extends ModulesSwitch<Boolean> {
      */
 	@Override
 	public Boolean caseUsesModuleDirective(UsesModuleDirective dir1) {
-		UsesModuleDirective dir2 = (UsesModuleDirective) compareElement;
-		return similarityChecker.isSimilar(dir1.getTypeReference(), dir2.getTypeReference());
+		UsesModuleDirective dir2 = (UsesModuleDirective) this.getCompareElement();
+		return this.isSimilar(dir1.getTypeReference(), dir2.getTypeReference());
 	}
 }

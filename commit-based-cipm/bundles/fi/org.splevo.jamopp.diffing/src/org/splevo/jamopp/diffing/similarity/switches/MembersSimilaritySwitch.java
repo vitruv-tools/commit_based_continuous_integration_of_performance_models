@@ -1,5 +1,6 @@
 package org.splevo.jamopp.diffing.similarity.switches;
 
+import org.apache.log4j.Level;
 import org.eclipse.emf.common.util.EList;
 import org.emftext.language.java.classifiers.AnonymousClass;
 import org.emftext.language.java.classifiers.ConcreteClassifier;
@@ -10,15 +11,40 @@ import org.emftext.language.java.members.Method;
 import org.emftext.language.java.members.util.MembersSwitch;
 import org.emftext.language.java.parameters.Parameter;
 import org.emftext.language.java.types.Type;
+import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
+import org.splevo.jamopp.diffing.similarity.ILoggableJavaSwitch;
+import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
 
 import com.google.common.base.Strings;
 
 /**
  * Similarity decisions for the member elements.
  */
-private class MembersSimilaritySwitch extends MembersSwitch<Boolean> {
+public class MembersSimilaritySwitch extends MembersSwitch<Boolean> implements ILoggableJavaSwitch, IJavaSimilarityPositionInnerSwitch {
+	private IJavaSimilaritySwitch similaritySwitch;
+	private boolean checkStatementPosition;
 
-    /**
+	@Override
+	public ISimilarityRequestHandler getSimilarityRequestHandler() {
+		return this.similaritySwitch;
+	}
+
+	@Override
+	public boolean shouldCheckStatementPosition() {
+		return this.checkStatementPosition;
+	}
+	
+	@Override
+	public IJavaSimilaritySwitch getContainingSwitch() {
+		return this.similaritySwitch;
+	}
+
+    public MembersSimilaritySwitch(IJavaSimilaritySwitch similaritySwitch, boolean checkStatementPosition) {
+		this.similaritySwitch = similaritySwitch;
+		this.checkStatementPosition = checkStatementPosition;
+	}
+
+	/**
      * Check abstract method declaration similarity. Similarity is checked by
      * <ul>
      * <li>name</li>
@@ -44,7 +70,7 @@ private class MembersSimilaritySwitch extends MembersSwitch<Boolean> {
     @Override
     public Boolean caseMethod(Method method1) {
 
-        Method method2 = (Method) compareElement;
+        Method method2 = (Method) this.getCompareElement();
 
         // if methods have different names they are not similar.
         if (!method1.getName().equals(method2.getName())) {
@@ -60,7 +86,7 @@ private class MembersSimilaritySwitch extends MembersSwitch<Boolean> {
             Parameter param2 = method2.getParameters().get(i);
             Type type1 = param1.getTypeReference().getTarget();
             Type type2 = param2.getTypeReference().getTarget();
-            Boolean typeSimilarity = similarityChecker.isSimilar(type1, type2);
+            Boolean typeSimilarity = this.isSimilar(type1, type2);
             if (typeSimilarity == Boolean.FALSE) {
                 return Boolean.FALSE;
             }
@@ -75,7 +101,7 @@ private class MembersSimilaritySwitch extends MembersSwitch<Boolean> {
         if (method1.getContainingConcreteClassifier() != null) {
             ConcreteClassifier type1 = method1.getContainingConcreteClassifier();
             ConcreteClassifier type2 = method2.getContainingConcreteClassifier();
-            return similarityChecker.isSimilar(type1, type2);
+            return this.isSimilar(type1, type2);
         }
 
         /* **************************************
@@ -84,14 +110,14 @@ private class MembersSimilaritySwitch extends MembersSwitch<Boolean> {
         if (method1.getContainingAnonymousClass() != null) {
             AnonymousClass type1 = method1.getContainingAnonymousClass();
             AnonymousClass type2 = method2.getContainingAnonymousClass();
-            Boolean typeSimilarity = similarityChecker.isSimilar(type1, type2);
+            Boolean typeSimilarity = this.isSimilar(type1, type2);
             if (typeSimilarity != null) {
                 return typeSimilarity;
             }
         }
 
-        logger.warn("MethodDeclaration in unknown container: " + method1.getName() + " : "
-                + method1.eContainer());
+        this.logMessage("MethodDeclaration in unknown container: " + method1.getName() + " : "
+                + method1.eContainer(), Level.WARN);
         return super.caseMethod(method1);
     }
 
@@ -121,7 +147,7 @@ private class MembersSimilaritySwitch extends MembersSwitch<Boolean> {
     @Override
     public Boolean caseConstructor(Constructor constructor1) {
 
-        Constructor constructor2 = (Constructor) compareElement;
+        Constructor constructor2 = (Constructor) this.getCompareElement();
 
         // if methods have different names they are not similar.
         if (!constructor1.getName().equals(constructor2.getName())) {
@@ -130,7 +156,7 @@ private class MembersSimilaritySwitch extends MembersSwitch<Boolean> {
 
         EList<Parameter> params1 = constructor1.getParameters();
         EList<Parameter> params2 = constructor2.getParameters();
-        Boolean parameterSimilarity = similarityChecker.areSimilar(params1, params2);
+        Boolean parameterSimilarity = this.areSimilar(params1, params2);
         if (parameterSimilarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
@@ -141,7 +167,7 @@ private class MembersSimilaritySwitch extends MembersSwitch<Boolean> {
         if (constructor1.getContainingConcreteClassifier() != null) {
             ConcreteClassifier type1 = constructor1.getContainingConcreteClassifier();
             ConcreteClassifier type2 = constructor2.getContainingConcreteClassifier();
-            return similarityChecker.isSimilar(type1, type2);
+            return this.isSimilar(type1, type2);
         }
 
         /* **************************************
@@ -150,20 +176,20 @@ private class MembersSimilaritySwitch extends MembersSwitch<Boolean> {
         if (constructor1.getContainingAnonymousClass() != null) {
             AnonymousClass type1 = constructor1.getContainingAnonymousClass();
             AnonymousClass type2 = constructor2.getContainingAnonymousClass();
-            Boolean typeSimilarity = similarityChecker.isSimilar(type1, type2);
+            Boolean typeSimilarity = this.isSimilar(type1, type2);
             if (typeSimilarity != null) {
                 return typeSimilarity;
             }
         }
 
-        logger.warn("ConstructorDeclaration in unknown container: " + constructor1.getName() + " : "
-                + constructor1.eContainer().getClass().getSimpleName());
+        this.logMessage("ConstructorDeclaration in unknown container: " + constructor1.getName() + " : "
+                + constructor1.eContainer().getClass().getSimpleName(), Level.WARN);
         return super.caseConstructor(constructor1);
     }
 
     @Override
     public Boolean caseEnumConstant(EnumConstant const1) {
-        EnumConstant const2 = (EnumConstant) compareElement;
+        EnumConstant const2 = (EnumConstant) this.getCompareElement();
         String name1 = Strings.nullToEmpty(const1.getName());
         String name2 = Strings.nullToEmpty(const2.getName());
         return (name1.equals(name2));
@@ -171,7 +197,7 @@ private class MembersSimilaritySwitch extends MembersSwitch<Boolean> {
 
     @Override
     public Boolean caseMember(Member member1) {
-        Member member2 = (Member) compareElement;
+        Member member2 = (Member) this.getCompareElement();
         String name1 = Strings.nullToEmpty(member1.getName());
         String name2 = Strings.nullToEmpty(member2.getName());
         return (name1.equals(name2));

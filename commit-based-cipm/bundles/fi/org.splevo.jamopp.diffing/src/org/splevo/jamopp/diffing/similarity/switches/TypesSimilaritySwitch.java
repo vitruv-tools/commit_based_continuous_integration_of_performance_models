@@ -7,16 +7,40 @@ import org.emftext.language.java.types.NamespaceClassifierReference;
 import org.emftext.language.java.types.PrimitiveType;
 import org.emftext.language.java.types.TypeReference;
 import org.emftext.language.java.types.util.TypesSwitch;
-import org.splevo.jamopp.diffing.similarity.SimilarityChecker;
+import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
+import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
+import org.splevo.jamopp.diffing.similarity.JavaSimilarityChecker;
 
 import com.google.common.base.Strings;
 
 /**
  * Similarity decisions for elements of the types package.
  */
-private class TypesSimilaritySwitch extends TypesSwitch<Boolean> {
+public class TypesSimilaritySwitch extends TypesSwitch<Boolean> implements IJavaSimilarityPositionInnerSwitch {
+	private IJavaSimilaritySwitch similaritySwitch;
+	private boolean checkStatementPosition;
 
-    /**
+	@Override
+	public ISimilarityRequestHandler getSimilarityRequestHandler() {
+		return this.similaritySwitch;
+	}
+
+	@Override
+	public boolean shouldCheckStatementPosition() {
+		return this.checkStatementPosition;
+	}
+	
+	@Override
+	public IJavaSimilaritySwitch getContainingSwitch() {
+		return this.similaritySwitch;
+	}
+
+    public TypesSimilaritySwitch(IJavaSimilaritySwitch similaritySwitch, boolean checkStatementPosition) {
+		this.similaritySwitch = similaritySwitch;
+		this.checkStatementPosition = checkStatementPosition;
+	}
+
+	/**
      * Check element reference similarity.<br>
      * 
      * Is checked by the target (the method called). Everything else are containment references
@@ -28,9 +52,9 @@ private class TypesSimilaritySwitch extends TypesSwitch<Boolean> {
      */
     @Override
     public Boolean caseClassifierReference(ClassifierReference ref1) {
-        ClassifierReference ref2 = (ClassifierReference) compareElement;
+        ClassifierReference ref2 = (ClassifierReference) this.getCompareElement();
 
-        Boolean targetSimilarity = similarityChecker.isSimilar(ref1.getTarget(), ref2.getTarget());
+        Boolean targetSimilarity = this.isSimilar(ref1.getTarget(), ref2.getTarget());
         if (targetSimilarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
@@ -41,9 +65,9 @@ private class TypesSimilaritySwitch extends TypesSwitch<Boolean> {
     @Override
     public Boolean caseTypeReference(TypeReference ref1) {
 
-        TypeReference ref2 = (TypeReference) compareElement;
+        TypeReference ref2 = (TypeReference) this.getCompareElement();
 
-        Boolean targetSimilarity = similarityChecker.isSimilar(ref1.getTarget(), ref2.getTarget());
+        Boolean targetSimilarity = this.isSimilar(ref1.getTarget(), ref2.getTarget());
         if (targetSimilarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
@@ -54,7 +78,7 @@ private class TypesSimilaritySwitch extends TypesSwitch<Boolean> {
     @Override
     public Boolean caseNamespaceClassifierReference(NamespaceClassifierReference ref1) {
 
-        NamespaceClassifierReference ref2 = (NamespaceClassifierReference) compareElement;
+        NamespaceClassifierReference ref2 = (NamespaceClassifierReference) this.getCompareElement();
 
         String namespace1 = Strings.nullToEmpty(ref1.getNamespacesAsString());
         String namespace2 = Strings.nullToEmpty(ref2.getNamespacesAsString());
@@ -65,12 +89,12 @@ private class TypesSimilaritySwitch extends TypesSwitch<Boolean> {
         ClassifierReference pureRef1 = ref1.getPureClassifierReference();
         ClassifierReference pureRef2 = ref2.getPureClassifierReference();
 
-        return similarityChecker.isSimilar(pureRef1, pureRef2);
+        return this.isSimilar(pureRef1, pureRef2);
     }
 
     /**
      * Primitive types are always similar as their class similarity is assumed before by the
-     * outer {@link SimilarityChecker}.
+     * outer {@link JavaSimilarityChecker}.
      * 
      * Note: The fall back to the default case is not sufficient here, as the common
      * TypeReference case would be used before, leading to a loop.
@@ -97,7 +121,7 @@ private class TypesSimilaritySwitch extends TypesSwitch<Boolean> {
 
     /**
      * Primitive type elements are strongly typed and the exact type is already checked by the
-     * outer {@link SimilarityChecker}. <br>
+     * outer {@link JavaSimilarityChecker}. <br>
      * {@inheritDoc}
      */
     @Override

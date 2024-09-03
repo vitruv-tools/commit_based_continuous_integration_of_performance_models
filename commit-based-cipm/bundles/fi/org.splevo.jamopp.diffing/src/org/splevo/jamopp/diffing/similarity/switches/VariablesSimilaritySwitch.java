@@ -3,15 +3,32 @@ package org.splevo.jamopp.diffing.similarity.switches;
 import org.emftext.language.java.variables.AdditionalLocalVariable;
 import org.emftext.language.java.variables.Variable;
 import org.emftext.language.java.variables.util.VariablesSwitch;
+import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
+import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
 
 import com.google.common.base.Strings;
 
 /**
  * Similarity decisions for the variable elements.
  */
-private class VariablesSimilaritySwitch extends VariablesSwitch<Boolean> {
+public class VariablesSimilaritySwitch extends VariablesSwitch<Boolean> implements IJavaSimilarityInnerSwitch {
+	private IJavaSimilaritySwitch similaritySwitch;
 
-    /**
+	@Override
+	public ISimilarityRequestHandler getSimilarityRequestHandler() {
+		return this.similaritySwitch;
+	}
+	
+	@Override
+	public IJavaSimilaritySwitch getContainingSwitch() {
+		return this.similaritySwitch;
+	}
+
+    public VariablesSimilaritySwitch(IJavaSimilaritySwitch similaritySwitch) {
+		this.similaritySwitch = similaritySwitch;
+	}
+
+	/**
      * Check variable declaration similarity.<br>
      * Similarity is checked by
      * <ul>
@@ -26,7 +43,7 @@ private class VariablesSimilaritySwitch extends VariablesSwitch<Boolean> {
     @Override
     public Boolean caseVariable(Variable var1) {
 
-        Variable var2 = (Variable) compareElement;
+        Variable var2 = (Variable) this.getCompareElement();
 
         // check the variables name equality
         if (!var1.getName().equals(var2.getName())) {
@@ -38,7 +55,7 @@ private class VariablesSimilaritySwitch extends VariablesSwitch<Boolean> {
 
     @Override
     public Boolean caseAdditionalLocalVariable(AdditionalLocalVariable var1) {
-        AdditionalLocalVariable var2 = (AdditionalLocalVariable) compareElement;
+        AdditionalLocalVariable var2 = (AdditionalLocalVariable) this.getCompareElement();
 
         // check the variables name equality
         String name1 = Strings.nullToEmpty(var1.getName());

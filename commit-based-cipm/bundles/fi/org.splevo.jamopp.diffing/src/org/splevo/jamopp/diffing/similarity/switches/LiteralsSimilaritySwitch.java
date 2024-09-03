@@ -16,45 +16,62 @@ import org.emftext.language.java.literals.HexLongLiteral;
 import org.emftext.language.java.literals.OctalIntegerLiteral;
 import org.emftext.language.java.literals.OctalLongLiteral;
 import org.emftext.language.java.literals.util.LiteralsSwitch;
+import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
+import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
 
 /**
  * Similarity decisions for literal elements.
  */
-private class LiteralsSimilaritySwitch extends LiteralsSwitch<Boolean> {
+public class LiteralsSimilaritySwitch extends LiteralsSwitch<Boolean> implements IJavaSimilarityInnerSwitch {
+	private IJavaSimilaritySwitch similaritySwitch;
 
-    @Override
+	@Override
+	public ISimilarityRequestHandler getSimilarityRequestHandler() {
+		return this.similaritySwitch;
+	}
+	
+	@Override
+	public IJavaSimilaritySwitch getContainingSwitch() {
+		return this.similaritySwitch;
+	}
+
+    public LiteralsSimilaritySwitch(IJavaSimilaritySwitch similaritySwitch) {
+		this.similaritySwitch = similaritySwitch;
+	}
+
+	@Override
     public Boolean caseBooleanLiteral(BooleanLiteral boolean1) {
-        BooleanLiteral boolean2 = (BooleanLiteral) compareElement;
+        BooleanLiteral boolean2 = (BooleanLiteral) this.getCompareElement();
         return (boolean1.isValue() == boolean2.isValue());
     }
 
     @Override
     public Boolean caseCharacterLiteral(CharacterLiteral char1) {
-        CharacterLiteral char2 = (CharacterLiteral) compareElement;
+        CharacterLiteral char2 = (CharacterLiteral) this.getCompareElement();
         return char1.getValue().equals(char2.getValue());
     }
 
     @Override
     public Boolean caseDecimalFloatLiteral(DecimalFloatLiteral float1) {
-        DecimalFloatLiteral float2 = (DecimalFloatLiteral) compareElement;
+        DecimalFloatLiteral float2 = (DecimalFloatLiteral) this.getCompareElement();
         return compareDouble(float1.getDecimalValue(), float2.getDecimalValue());
     }
 
     @Override
     public Boolean caseHexFloatLiteral(HexFloatLiteral float1) {
-        HexFloatLiteral float2 = (HexFloatLiteral) compareElement;
+        HexFloatLiteral float2 = (HexFloatLiteral) this.getCompareElement();
         return compareDouble(float1.getHexValue(), float2.getHexValue());
     }
 
     @Override
     public Boolean caseDecimalDoubleLiteral(DecimalDoubleLiteral double1) {
-        DecimalDoubleLiteral double2 = (DecimalDoubleLiteral) compareElement;
+        DecimalDoubleLiteral double2 = (DecimalDoubleLiteral) this.getCompareElement();
         return compareDouble(double1.getDecimalValue(), double2.getDecimalValue());
     }
 
     @Override
     public Boolean caseHexDoubleLiteral(HexDoubleLiteral double1) {
-        HexDoubleLiteral double2 = (HexDoubleLiteral) compareElement;
+        HexDoubleLiteral double2 = (HexDoubleLiteral) this.getCompareElement();
         return compareDouble(double1.getHexValue(), double2.getHexValue());
     }
     
@@ -64,49 +81,49 @@ private class LiteralsSimilaritySwitch extends LiteralsSwitch<Boolean> {
 
     @Override
     public Boolean caseDecimalIntegerLiteral(DecimalIntegerLiteral int1) {
-        DecimalIntegerLiteral int2 = (DecimalIntegerLiteral) compareElement;
+        DecimalIntegerLiteral int2 = (DecimalIntegerLiteral) this.getCompareElement();
         return (int1.getDecimalValue().equals(int2.getDecimalValue()));
     }
 
     @Override
     public Boolean caseHexIntegerLiteral(HexIntegerLiteral int1) {
-        HexIntegerLiteral int2 = (HexIntegerLiteral) compareElement;
+        HexIntegerLiteral int2 = (HexIntegerLiteral) this.getCompareElement();
         return (int1.getHexValue().equals(int2.getHexValue()));
     }
 
     @Override
     public Boolean caseOctalIntegerLiteral(OctalIntegerLiteral int1) {
-        OctalIntegerLiteral int2 = (OctalIntegerLiteral) compareElement;
+        OctalIntegerLiteral int2 = (OctalIntegerLiteral) this.getCompareElement();
         return (int1.getOctalValue().equals(int2.getOctalValue()));
     }
 
     @Override
     public Boolean caseDecimalLongLiteral(DecimalLongLiteral long1) {
-        DecimalLongLiteral long2 = (DecimalLongLiteral) compareElement;
+        DecimalLongLiteral long2 = (DecimalLongLiteral) this.getCompareElement();
         return (long1.getDecimalValue().equals(long2.getDecimalValue()));
     }
 
     @Override
     public Boolean caseHexLongLiteral(HexLongLiteral long1) {
-        HexLongLiteral long2 = (HexLongLiteral) compareElement;
+        HexLongLiteral long2 = (HexLongLiteral) this.getCompareElement();
         return (long1.getHexValue().equals(long2.getHexValue()));
     }
 
     @Override
     public Boolean caseOctalLongLiteral(OctalLongLiteral long1) {
-        OctalLongLiteral long2 = (OctalLongLiteral) compareElement;
+        OctalLongLiteral long2 = (OctalLongLiteral) this.getCompareElement();
         return (long1.getOctalValue().equals(long2.getOctalValue()));
     }
     
     @Override
     public Boolean caseBinaryLongLiteral(BinaryLongLiteral long1) {
-    	BinaryLongLiteral long2 = (BinaryLongLiteral) compareElement;
+    	BinaryLongLiteral long2 = (BinaryLongLiteral) this.getCompareElement();
     	return long1.getBinaryValue().equals(long2.getBinaryValue());
     }
     
     @Override
     public Boolean caseBinaryIntegerLiteral(BinaryIntegerLiteral int1) {
-    	BinaryIntegerLiteral int2 = (BinaryIntegerLiteral) compareElement;
+    	BinaryIntegerLiteral int2 = (BinaryIntegerLiteral) this.getCompareElement();
     	return int1.getBinaryValue().equals(int2.getBinaryValue());
     }
 

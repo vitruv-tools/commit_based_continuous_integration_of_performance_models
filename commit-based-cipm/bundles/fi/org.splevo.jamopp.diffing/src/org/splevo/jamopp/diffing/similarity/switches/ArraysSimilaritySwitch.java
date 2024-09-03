@@ -10,8 +10,8 @@ import org.emftext.language.java.arrays.util.ArraysSwitch;
  * and runtime type are assumed to be checked before this switch is called. So nothing to check
  * here.
  */
-private class ArraysSimilaritySwitch extends ArraysSwitch<Boolean> {
-    @Override
+public class ArraysSimilaritySwitch extends ArraysSwitch<Boolean> {
+	@Override
     public Boolean defaultCase(EObject object) {
         return Boolean.TRUE;
     }

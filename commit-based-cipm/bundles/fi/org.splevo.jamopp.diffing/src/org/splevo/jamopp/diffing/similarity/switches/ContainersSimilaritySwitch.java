@@ -1,12 +1,11 @@
 package org.splevo.jamopp.diffing.similarity.switches;
 
-import java.util.LinkedHashMap;
-import java.util.regex.Pattern;
-
 import org.emftext.language.java.containers.CompilationUnit;
 import org.emftext.language.java.containers.Package;
 import org.emftext.language.java.containers.util.ContainersSwitch;
-import org.splevo.diffing.util.NormalizationUtil;
+import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
+import org.splevo.jamopp.diffing.similarity.ILoggableJavaSwitch;
+import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
 import org.splevo.jamopp.diffing.util.JaMoPPModelUtil;
 
 import com.google.common.base.Strings;
@@ -14,26 +13,29 @@ import com.google.common.base.Strings;
 /**
  * Similarity decisions for container elements.
  */
-private class ContainersSimilaritySwitch extends ContainersSwitch<Boolean> {
+public class ContainersSimilaritySwitch extends ContainersSwitch<Boolean> implements ILoggableJavaSwitch, IJavaSimilarityPositionInnerSwitch {
+	private IJavaSimilaritySwitch similaritySwitch;
+	private boolean checkStatementPosition;
 
-    private LinkedHashMap<Pattern, String> compilationUnitNormalizations = null;
+	@Override
+	public ISimilarityRequestHandler getSimilarityRequestHandler() {
+		return this.similaritySwitch;
+	}
 
-    private LinkedHashMap<Pattern, String> packageNormalizations = null;
+	@Override
+	public boolean shouldCheckStatementPosition() {
+		return this.checkStatementPosition;
+	}
+	
+	@Override
+	public IJavaSimilaritySwitch getContainingSwitch() {
+		return this.similaritySwitch;
+	}
 
-    /**
-     * Constructor to set the required configurations.
-     * 
-     * @param compilationUnitNormalizations
-     *            A list of patterns replace any match in a classifier name with the defined
-     *            replacement string.
-     * @param packageNormalizations
-     *            A list of package normalization patterns.
-     */
-    public ContainersSimilaritySwitch(LinkedHashMap<Pattern, String> compilationUnitNormalizations,
-            LinkedHashMap<Pattern, String> packageNormalizations) {
-        this.compilationUnitNormalizations = compilationUnitNormalizations;
-        this.packageNormalizations = packageNormalizations;
-    }
+    public ContainersSimilaritySwitch(IJavaSimilaritySwitch similaritySwitch, boolean checkStatementPosition) {
+		this.similaritySwitch = similaritySwitch;
+		this.checkStatementPosition = checkStatementPosition;
+	}
 
     /**
      * Check the similarity of two CompilationUnits.<br>
@@ -51,23 +53,28 @@ private class ContainersSimilaritySwitch extends ContainersSwitch<Boolean> {
      */
     @Override
     public Boolean caseCompilationUnit(CompilationUnit unit1) {
-
-        CompilationUnit unit2 = (CompilationUnit) compareElement;
-
-        String name1 = NormalizationUtil.normalize(unit1.getName(), compilationUnitNormalizations);
-        name1 = NormalizationUtil.normalize(name1, packageNormalizations);
+        CompilationUnit unit2 = (CompilationUnit) this.getCompareElement();
+        this.logComparison(unit1.getName(), unit2.getName(), CompilationUnit.class.getSimpleName());
+        this.logComparison(unit1.eClass().getName(), unit2.eClass().getName(), "compilation unit class");
+        
+        String name1 = this.normalizeCompilationUnit(unit1.getName());
+        name1 = this.normalizePackage(name1);
         String name2 = unit2.getName();
+        
+        this.logResult(name1.equals(name2), "compilation unit name");
         if (!name1.equals(name2)) {
             return Boolean.FALSE;
         }
-
-        String namespaceString1 = NormalizationUtil.normalizeNamespace(unit1.getNamespacesAsString(),
-                packageNormalizations);
+        
+        String namespaceString1 = this.normalizeNamespace(unit1.getNamespacesAsString());
         String namespaceString2 = Strings.nullToEmpty(unit2.getNamespacesAsString());
+        
+        this.logResult(namespaceString1.equals(namespaceString2), "compilation unit namespace");
+        
         if (!namespaceString1.equals(namespaceString2)) {
             return Boolean.FALSE;
         }
-
+        
         return Boolean.TRUE;
     }
 
@@ -84,15 +91,20 @@ private class ContainersSimilaritySwitch extends ContainersSwitch<Boolean> {
      */
     @Override
     public Boolean casePackage(Package package1) {
-        Package package2 = (Package) compareElement;
-
+        Package package2 = (Package) this.getCompareElement();
+        this.logComparison(package1.getName(), package2.getName(), Package.class.getSimpleName());
+        this.logComparison(package1.getNamespacesAsString(), package2.getNamespacesAsString(), "package namespace");
+        
         String packagePath1 = JaMoPPModelUtil.buildNamespacePath(package1);
-        packagePath1 = NormalizationUtil.normalizeNamespace(packagePath1, packageNormalizations);
+        packagePath1 = this.normalizeNamespace(packagePath1);
         String packagePath2 = JaMoPPModelUtil.buildNamespacePath(package2);
+        
+        this.logResult(packagePath1.equals(packagePath2), "package path");
+        
         if (!packagePath1.equals(packagePath2)) {
             return Boolean.FALSE;
         }
-
+        
         return Boolean.TRUE;
     }
     
@@ -109,7 +121,9 @@ private class ContainersSimilaritySwitch extends ContainersSwitch<Boolean> {
     @Override
     public Boolean caseModule(org.emftext.language.java.containers.Module module1) {
     	org.emftext.language.java.containers.Module module2 =
-    			(org.emftext.language.java.containers.Module) compareElement;
+    			(org.emftext.language.java.containers.Module) this.getCompareElement();
+    	
+    	this.logResult(module1.getName().equals(module2.getName()), Module.class.getSimpleName());
     	if (!module1.getName().equals(module2.getName())) {
     		return Boolean.FALSE;
     	}

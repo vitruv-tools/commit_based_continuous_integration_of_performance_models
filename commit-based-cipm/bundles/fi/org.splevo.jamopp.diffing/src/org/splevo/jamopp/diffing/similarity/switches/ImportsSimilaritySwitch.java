@@ -4,20 +4,44 @@ import org.emftext.language.java.imports.ClassifierImport;
 import org.emftext.language.java.imports.StaticMemberImport;
 import org.emftext.language.java.imports.util.ImportsSwitch;
 import org.emftext.language.java.references.ReferenceableElement;
+import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
+import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
 
 import com.google.common.base.Strings;
 
 /**
  * Similarity decisions for the import elements.
  */
-private class ImportsSimilaritySwitch extends ImportsSwitch<Boolean> {
+public class ImportsSimilaritySwitch extends ImportsSwitch<Boolean> implements IJavaSimilarityPositionInnerSwitch {
+	private IJavaSimilaritySwitch similaritySwitch;
+	private boolean checkStatementPosition;
 
-    @Override
+	@Override
+	public ISimilarityRequestHandler getSimilarityRequestHandler() {
+		return this.similaritySwitch;
+	}
+
+	@Override
+	public boolean shouldCheckStatementPosition() {
+		return this.checkStatementPosition;
+	}
+	
+	@Override
+	public IJavaSimilaritySwitch getContainingSwitch() {
+		return this.similaritySwitch;
+	}
+
+    public ImportsSimilaritySwitch(IJavaSimilaritySwitch similaritySwitch, boolean checkStatementPosition) {
+		this.similaritySwitch = similaritySwitch;
+		this.checkStatementPosition = checkStatementPosition;
+	}
+
+	@Override
     public Boolean caseClassifierImport(ClassifierImport import1) {
 
-        ClassifierImport import2 = (ClassifierImport) compareElement;
+        ClassifierImport import2 = (ClassifierImport) this.getCompareElement();
 
-        Boolean similarity = similarityChecker.isSimilar(import1.getClassifier(), import2.getClassifier());
+        Boolean similarity = this.isSimilar(import1.getClassifier(), import2.getClassifier());
         if (similarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
@@ -30,7 +54,7 @@ private class ImportsSimilaritySwitch extends ImportsSwitch<Boolean> {
     @Override
     public Boolean caseStaticMemberImport(StaticMemberImport import1) {
 
-        StaticMemberImport import2 = (StaticMemberImport) compareElement;
+        StaticMemberImport import2 = (StaticMemberImport) this.getCompareElement();
 
         if (import1.getStaticMembers().size() != import2.getStaticMembers().size()) {
             return Boolean.FALSE;
@@ -38,7 +62,7 @@ private class ImportsSimilaritySwitch extends ImportsSwitch<Boolean> {
         for (int i = 0; i < import1.getStaticMembers().size(); i++) {
             ReferenceableElement member1 = import1.getStaticMembers().get(i);
             ReferenceableElement member2 = import2.getStaticMembers().get(i);
-            Boolean similarity = similarityChecker.isSimilar(member1, member2);
+            Boolean similarity = this.isSimilar(member1, member2);
             if (similarity == Boolean.FALSE) {
                 return Boolean.FALSE;
             }

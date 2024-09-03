@@ -11,7 +11,7 @@ import org.emftext.language.java.modifiers.util.ModifiersSwitch;
  * called.
  * </p>
  */
-private class ModifiersSimilaritySwitch extends ModifiersSwitch<Boolean> {
+public class ModifiersSimilaritySwitch extends ModifiersSwitch<Boolean> {
     @Override
     public Boolean defaultCase(EObject object) {
         return Boolean.TRUE;

@@ -10,17 +10,41 @@ import org.emftext.language.java.references.Reference;
 import org.emftext.language.java.references.ReferenceableElement;
 import org.emftext.language.java.references.StringReference;
 import org.emftext.language.java.references.util.ReferencesSwitch;
+import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
+import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
 import org.splevo.jamopp.util.JaMoPPElementUtil;
 
 /**
  * Similarity decisions for reference elements.
  */
-private class ReferencesSimilaritySwitch extends ReferencesSwitch<Boolean> {
+public class ReferencesSimilaritySwitch extends ReferencesSwitch<Boolean> implements IJavaSimilarityPositionInnerSwitch {
+	private IJavaSimilaritySwitch similaritySwitch;
+	private boolean checkStatementPosition;
 
-    @Override
+	@Override
+	public ISimilarityRequestHandler getSimilarityRequestHandler() {
+		return this.similaritySwitch;
+	}
+
+	@Override
+	public boolean shouldCheckStatementPosition() {
+		return this.checkStatementPosition;
+	}
+	
+	@Override
+	public IJavaSimilaritySwitch getContainingSwitch() {
+		return this.similaritySwitch;
+	}
+
+    public ReferencesSimilaritySwitch(IJavaSimilaritySwitch similaritySwitch, boolean checkStatementPosition) {
+		this.similaritySwitch = similaritySwitch;
+		this.checkStatementPosition = checkStatementPosition;
+	}
+
+	@Override
     public Boolean caseStringReference(StringReference ref1) {
 
-        StringReference ref2 = (StringReference) compareElement;
+        StringReference ref2 = (StringReference) this.getCompareElement();
         if (ref1.getValue() == null) {
             return (ref2.getValue() == null);
         }
@@ -31,12 +55,12 @@ private class ReferencesSimilaritySwitch extends ReferencesSwitch<Boolean> {
     @Override
     public Boolean caseIdentifierReference(IdentifierReference ref1) {
 
-        IdentifierReference ref2 = (IdentifierReference) compareElement;
+        IdentifierReference ref2 = (IdentifierReference) this.getCompareElement();
         ReferenceableElement target1 = ref1.getTarget();
         ReferenceableElement target2 = ref2.getTarget();
 
         // target identity similarity
-        Boolean similarity = similarityChecker.isSimilar(target1, target2);
+        Boolean similarity = this.isSimilar(target1, target2);
         if (similarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
@@ -56,7 +80,7 @@ private class ReferencesSimilaritySwitch extends ReferencesSwitch<Boolean> {
             EObject target2Container = target2.eContainer();
             if (target1Container != ref1Container && target2Container != ref2Container
             		&& target1Container != ref1 && target2Container != ref2) {
-                Boolean containerSimilarity = similarityChecker.isSimilar(target1Container, target2Container);
+                Boolean containerSimilarity = this.isSimilar(target1Container, target2Container);
                 if (containerSimilarity == Boolean.FALSE) {
                     return Boolean.FALSE;
                 }
@@ -69,7 +93,7 @@ private class ReferencesSimilaritySwitch extends ReferencesSwitch<Boolean> {
         for (int i = 0; i < ref1.getArraySelectors().size(); i++) {
             ArraySelector selector1 = ref1.getArraySelectors().get(i);
             ArraySelector selector2 = ref2.getArraySelectors().get(i);
-            Boolean positionSimilarity = similarityChecker.isSimilar(selector1.getPosition(),
+            Boolean positionSimilarity = this.isSimilar(selector1.getPosition(),
                     selector2.getPosition());
             if (positionSimilarity == Boolean.FALSE) {
                 return Boolean.FALSE;
@@ -78,7 +102,7 @@ private class ReferencesSimilaritySwitch extends ReferencesSwitch<Boolean> {
 
         Reference next1 = ref1.getNext();
         Reference next2 = ref2.getNext();
-        Boolean nextSimilarity = similarityChecker.isSimilar(next1, next2);
+        Boolean nextSimilarity = this.isSimilar(next1, next2);
         if (nextSimilarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
@@ -98,9 +122,9 @@ private class ReferencesSimilaritySwitch extends ReferencesSwitch<Boolean> {
      */
     @Override
     public Boolean caseElementReference(ElementReference ref1) {
-        ElementReference ref2 = (ElementReference) compareElement;
+        ElementReference ref2 = (ElementReference) this.getCompareElement();
 
-        Boolean targetSimilarity = similarityChecker.isSimilar(ref1.getTarget(), ref2.getTarget());
+        Boolean targetSimilarity = this.isSimilar(ref1.getTarget(), ref2.getTarget());
         if (targetSimilarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
@@ -119,9 +143,9 @@ private class ReferencesSimilaritySwitch extends ReferencesSwitch<Boolean> {
      */
     @Override
     public Boolean caseMethodCall(MethodCall call1) {
-        MethodCall call2 = (MethodCall) compareElement;
+        MethodCall call2 = (MethodCall) this.getCompareElement();
 
-        Boolean targetSimilarity = similarityChecker.isSimilar(call1.getTarget(), call2.getTarget());
+        Boolean targetSimilarity = this.isSimilar(call1.getTarget(), call2.getTarget());
         if (targetSimilarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
@@ -133,13 +157,13 @@ private class ReferencesSimilaritySwitch extends ReferencesSwitch<Boolean> {
         for (int i = 0; i < call1.getArguments().size(); i++) {
             Expression exp1 = call1.getArguments().get(i);
             Expression exp2 = call2.getArguments().get(i);
-            Boolean argSimilarity = similarityChecker.isSimilar(exp1, exp2);
+            Boolean argSimilarity = this.isSimilar(exp1, exp2);
             if (argSimilarity == Boolean.FALSE) {
                 return Boolean.FALSE;
             }
         }
 
-        Boolean nextSimilarity = similarityChecker.isSimilar(call1.getNext(), call2.getNext());
+        Boolean nextSimilarity = this.isSimilar(call1.getNext(), call2.getNext());
         if (nextSimilarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }

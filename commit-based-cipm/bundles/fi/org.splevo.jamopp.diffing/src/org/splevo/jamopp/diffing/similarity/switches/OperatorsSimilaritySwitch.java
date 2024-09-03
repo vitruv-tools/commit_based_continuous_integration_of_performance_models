@@ -11,7 +11,7 @@ import org.emftext.language.java.operators.util.OperatorsSwitch;
  * called.
  * </p>
  */
-private class OperatorsSimilaritySwitch extends OperatorsSwitch<Boolean> {
+public class OperatorsSimilaritySwitch extends OperatorsSwitch<Boolean> {
     @Override
     public Boolean defaultCase(EObject object) {
         return Boolean.TRUE;

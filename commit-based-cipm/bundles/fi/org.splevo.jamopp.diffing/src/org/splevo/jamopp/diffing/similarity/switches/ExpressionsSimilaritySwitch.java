@@ -27,6 +27,8 @@ import org.emftext.language.java.operators.EqualityOperator;
 import org.emftext.language.java.operators.RelationOperator;
 import org.emftext.language.java.operators.UnaryOperator;
 import org.emftext.language.java.types.TypeReference;
+import org.splevo.jamopp.diffing.similarity.IJavaSimilaritySwitch;
+import org.splevo.jamopp.diffing.similarity.base.ISimilarityRequestHandler;
 
 /**
  * Similarity decisions for expression elements.
@@ -36,30 +38,52 @@ import org.emftext.language.java.types.TypeReference;
  * called.
  * </p>
  */
-private class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> {
+public class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> implements IJavaSimilarityPositionInnerSwitch {
+	private IJavaSimilaritySwitch similaritySwitch;
+	private boolean checkStatementPosition;
 
-    @Override
+	@Override
+	public ISimilarityRequestHandler getSimilarityRequestHandler() {
+		return this.similaritySwitch;
+	}
+
+	@Override
+	public boolean shouldCheckStatementPosition() {
+		return this.checkStatementPosition;
+	}
+	
+	@Override
+	public IJavaSimilaritySwitch getContainingSwitch() {
+		return this.similaritySwitch;
+	}
+
+    public ExpressionsSimilaritySwitch(IJavaSimilaritySwitch similaritySwitch, boolean checkStatementPosition) {
+		this.similaritySwitch = similaritySwitch;
+		this.checkStatementPosition = checkStatementPosition;
+	}
+
+	@Override
     public Boolean caseAssignmentExpression(AssignmentExpression exp1) {
 
-        AssignmentExpression exp2 = (AssignmentExpression) compareElement;
+        AssignmentExpression exp2 = (AssignmentExpression) this.getCompareElement();
 
         AssignmentExpressionChild child1 = exp1.getChild();
         AssignmentExpressionChild child2 = exp2.getChild();
-        Boolean childSimilarity = similarityChecker.isSimilar(child1, child2);
+        Boolean childSimilarity = this.isSimilar(child1, child2);
         if (childSimilarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
 
         AssignmentOperator op1 = exp1.getAssignmentOperator();
         AssignmentOperator op2 = exp2.getAssignmentOperator();
-        Boolean operatorSimilarity = similarityChecker.isSimilar(op1, op2);
+        Boolean operatorSimilarity = this.isSimilar(op1, op2);
         if (operatorSimilarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
 
         Expression value1 = exp1.getValue();
         Expression value2 = exp2.getValue();
-        Boolean valueSimilarity = similarityChecker.isSimilar(value1, value2);
+        Boolean valueSimilarity = this.isSimilar(value1, value2);
         if (valueSimilarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
@@ -69,12 +93,12 @@ private class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> {
 
     @Override
     public Boolean caseEqualityExpression(EqualityExpression exp1) {
-        EqualityExpression exp2 = (EqualityExpression) compareElement;
+        EqualityExpression exp2 = (EqualityExpression) this.getCompareElement();
 
         // check operator equality
         EList<EqualityOperator> operators1 = exp1.getEqualityOperators();
         EList<EqualityOperator> operators2 = exp2.getEqualityOperators();
-        Boolean operatorSimilarity = similarityChecker.areSimilar(operators1, operators2);
+        Boolean operatorSimilarity = this.areSimilar(operators1, operators2);
         if (operatorSimilarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
@@ -82,7 +106,7 @@ private class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> {
         // check expression equality
         EList<EqualityExpressionChild> children1 = exp1.getChildren();
         EList<EqualityExpressionChild> children2 = exp2.getChildren();
-        Boolean childSimilarity = similarityChecker.areSimilar(children1, children2);
+        Boolean childSimilarity = this.areSimilar(children1, children2);
         if (childSimilarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
@@ -93,12 +117,12 @@ private class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> {
     @Override
     public Boolean caseRelationExpression(RelationExpression exp1) {
 
-        RelationExpression exp2 = (RelationExpression) compareElement;
+        RelationExpression exp2 = (RelationExpression) this.getCompareElement();
 
         // check operator equality
         EList<RelationOperator> operators1 = exp1.getRelationOperators();
         EList<RelationOperator> operators2 = exp2.getRelationOperators();
-        Boolean operatorSimilarity = similarityChecker.areSimilar(operators1, operators2);
+        Boolean operatorSimilarity = this.areSimilar(operators1, operators2);
         if (operatorSimilarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
@@ -106,7 +130,7 @@ private class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> {
         // check expression equality
         EList<RelationExpressionChild> children1 = exp1.getChildren();
         EList<RelationExpressionChild> children2 = exp2.getChildren();
-        Boolean childSimilarity = similarityChecker.areSimilar(children1, children2);
+        Boolean childSimilarity = this.areSimilar(children1, children2);
         if (childSimilarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
@@ -117,12 +141,12 @@ private class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> {
     @Override
     public Boolean caseAndExpression(AndExpression exp1) {
 
-        AndExpression exp2 = (AndExpression) compareElement;
+        AndExpression exp2 = (AndExpression) this.getCompareElement();
 
         // check expression equality
         EList<AndExpressionChild> children1 = exp1.getChildren();
         EList<AndExpressionChild> children2 = exp2.getChildren();
-        Boolean childSimilarity = similarityChecker.areSimilar(children1, children2);
+        Boolean childSimilarity = this.areSimilar(children1, children2);
         if (childSimilarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
@@ -133,12 +157,12 @@ private class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> {
     @Override
     public Boolean caseUnaryExpression(UnaryExpression exp1) {
 
-        UnaryExpression exp2 = (UnaryExpression) compareElement;
+        UnaryExpression exp2 = (UnaryExpression) this.getCompareElement();
 
         // check operator equality
         EList<UnaryOperator> operators1 = exp1.getOperators();
         EList<UnaryOperator> operators2 = exp2.getOperators();
-        Boolean operatorSimilarity = similarityChecker.areSimilar(operators1, operators2);
+        Boolean operatorSimilarity = this.areSimilar(operators1, operators2);
         if (operatorSimilarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
@@ -146,31 +170,31 @@ private class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> {
         // check expression equality
         UnaryExpressionChild child1 = exp1.getChild();
         UnaryExpressionChild child2 = exp2.getChild();
-        return similarityChecker.isSimilar(child1, child2);
+        return this.isSimilar(child1, child2);
     }
     
     @Override
     public Boolean caseAdditiveExpression(AdditiveExpression exp1) {
     	
-    	AdditiveExpression exp2 = (AdditiveExpression) compareElement;
+    	AdditiveExpression exp2 = (AdditiveExpression) this.getCompareElement();
     	
-    	Boolean opSimilarity = similarityChecker.areSimilar(exp1.getAdditiveOperators(), exp2.getAdditiveOperators());
+    	Boolean opSimilarity = this.areSimilar(exp1.getAdditiveOperators(), exp2.getAdditiveOperators());
     	if (opSimilarity == Boolean.FALSE) {
     		return Boolean.FALSE;
     	}
     	
-    	return similarityChecker.areSimilar(exp1.getChildren(), exp2.getChildren());
+    	return this.areSimilar(exp1.getChildren(), exp2.getChildren());
     }
 
     @Override
     public Boolean caseInstanceOfExpression(InstanceOfExpression exp1) {
 
-        InstanceOfExpression exp2 = (InstanceOfExpression) compareElement;
+        InstanceOfExpression exp2 = (InstanceOfExpression) this.getCompareElement();
 
         // check type equality
         TypeReference typeReference1 = exp1.getTypeReference();
         TypeReference typeReference2 = exp2.getTypeReference();
-        Boolean typeSimilarity = similarityChecker.isSimilar(typeReference1, typeReference2);
+        Boolean typeSimilarity = this.isSimilar(typeReference1, typeReference2);
         if (typeSimilarity == Boolean.FALSE) {
             return Boolean.FALSE;
         }
@@ -178,40 +202,40 @@ private class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> {
         // check expression equality
         InstanceOfExpressionChild child1 = exp1.getChild();
         InstanceOfExpressionChild child2 = exp2.getChild();
-        return similarityChecker.isSimilar(child1, child2);
+        return this.isSimilar(child1, child2);
     }
 
     @Override
     public Boolean caseConditionalOrExpression(ConditionalOrExpression exp1) {
 
-        ConditionalOrExpression exp2 = (ConditionalOrExpression) compareElement;
+        ConditionalOrExpression exp2 = (ConditionalOrExpression) this.getCompareElement();
 
         // check expression equality
         EList<ConditionalOrExpressionChild> children1 = exp1.getChildren();
         EList<ConditionalOrExpressionChild> children2 = exp2.getChildren();
-        return similarityChecker.areSimilar(children1, children2);
+        return this.areSimilar(children1, children2);
     }
 
     @Override
     public Boolean caseConditionalAndExpression(ConditionalAndExpression exp1) {
 
-        ConditionalAndExpression exp2 = (ConditionalAndExpression) compareElement;
+        ConditionalAndExpression exp2 = (ConditionalAndExpression) this.getCompareElement();
 
         // check expression equality
         EList<ConditionalAndExpressionChild> children1 = exp1.getChildren();
         EList<ConditionalAndExpressionChild> children2 = exp2.getChildren();
-        return similarityChecker.areSimilar(children1, children2);
+        return this.areSimilar(children1, children2);
     }
 
     @Override
     public Boolean caseNestedExpression(NestedExpression exp1) {
 
-        NestedExpression exp2 = (NestedExpression) compareElement;
+        NestedExpression exp2 = (NestedExpression) this.getCompareElement();
 
         // check expression equality
         Expression childExp1 = exp1.getExpression();
         Expression childExp2 = exp2.getExpression();
-        return similarityChecker.isSimilar(childExp1, childExp2);
+        return this.isSimilar(childExp1, childExp2);
     }
 
     @Override
@@ -219,4 +243,3 @@ private class ExpressionsSimilaritySwitch extends ExpressionsSwitch<Boolean> {
         return Boolean.TRUE;
     }
 }
-
