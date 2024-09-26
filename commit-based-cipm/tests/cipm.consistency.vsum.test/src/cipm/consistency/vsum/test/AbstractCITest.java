@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.ConsoleAppender;
@@ -14,7 +12,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -56,38 +53,6 @@ public abstract class AbstractCITest {
 		
 		controller = new CommitIntegrationController(Paths.get(getTestPath()), getRepositoryPath(),
 				Paths.get(getSettingsPath()), getJavaPCMSpecification());
-	}
-	
-	protected void propagateMultipleCommits(String firstCommit, String lastCommit)
-			throws InterruptedException, GitAPIException, IOException {
-		List<String> successfulCommits = new ArrayList<>();
-		var commits = convertToStringList(this.controller.getCommitChangePropagator().getWrapper()
-				.getAllCommitsBetweenTwoCommits(firstCommit, lastCommit));
-		commits.add(0, firstCommit);
-		int startIndex = 0;
-		var oldCommit = commits.get(startIndex);
-		successfulCommits.add(oldCommit);
-		for (int idx = startIndex + 1; idx < commits.size(); idx++) {
-			var newCommit = commits.get(idx);
-			boolean result = executePropagationAndEvaluation(oldCommit, newCommit, idx);
-			if (result) {
-				oldCommit = newCommit;
-				successfulCommits.add(oldCommit);
-				break;
-			}
-			Thread.sleep(1000);
-		}
-		for (String c : successfulCommits) {
-			LOGGER.debug("Successful propagated: " + c);
-		}
-	}
-
-	private List<String> convertToStringList(List<RevCommit> commits) {
-		List<String> result = new ArrayList<>();
-		for (RevCommit com : commits) {
-			result.add(com.getId().getName());
-		}
-		return result;
 	}
 
 	/**

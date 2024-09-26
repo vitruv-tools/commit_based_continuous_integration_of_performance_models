@@ -36,6 +36,12 @@
 				<module>releng/cipm.consistency.updatesite.ti</module>
 			</modules>
 		</profile>
+		<profile>
+			<id>test</id>
+			<modules>
+				<module>tests/cipm.consistency.vsum.test</module>
+			</modules>
+		</profile>
 	</profiles>
 
 </project>
