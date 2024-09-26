@@ -112,6 +112,21 @@
 			</repositories>
 		</profile>
 		<profile>
+			<id>run-three</id>
+			<repositories>
+				<repository>
+					<id>CIPM1</id>
+					<layout>p2</layout>
+					<url>http://localhost:8081/cipm/</url>
+				</repository>
+				<repository>
+					<id>CIPM2</id>
+					<layout>p2</layout>
+					<url>http://localhost:8081/cipm2/</url>
+				</repository>
+			</repositories>
+		</profile>
+		<profile>
 			<id>dsls-generation</id>
 			<activation>
 				<file>

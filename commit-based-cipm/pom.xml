@@ -27,12 +27,13 @@
 				<module>bundles</module>
 				<module>releng/cipm.consistency.dependencywrapper</module>
 				<module>releng/cipm.consistency.updatesite.si</module>
+				<module>releng/cipm.consistency.feature</module>
 			</modules>
 		</profile>
 		<profile>
-			<id>aggregated-updatesite</id>
+			<id>run-three</id>
 			<modules>
-				<module>releng/cipm.consistency.updatesite.aggregated</module>
+				<module>releng/cipm.consistency.updatesite.ti</module>
 			</modules>
 		</profile>
 	</profiles>
