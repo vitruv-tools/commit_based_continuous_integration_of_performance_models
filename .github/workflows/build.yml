@@ -24,4 +24,4 @@ jobs:
         with:
           name: p2-cipm
           path: |
-            commit-based-cipm/releng/cipm.consistency.updatesite.aggregated/target/cipm*.zip
+            commit-based-cipm/releng/cipm.consistency.updatesite.ti/target/cipm*.zip
