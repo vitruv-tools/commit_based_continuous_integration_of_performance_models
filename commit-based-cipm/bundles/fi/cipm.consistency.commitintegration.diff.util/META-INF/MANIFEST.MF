@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Utilities for diffing Java models
 Bundle-SymbolicName: cipm.consistency.commitintegration.diff.util;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 0.1.0
 Export-Package: cipm.consistency.commitintegration.diff.util,
  cipm.consistency.commitintegration.diff.util.pcm
 Require-Bundle: org.eclipse.emf.ecore,
