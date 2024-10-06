@@ -1,14 +1,12 @@
-# Commit-Based Continuous Integration of Performance Models
+# Commit-Based Continuous Integration of architectural Performance Models
 
-This repository provides the prototypical implementation for the change extraction, change propagation, incremental model update, and adaptive instrumentation of the CIPM approach.
+This repository provides the prototypical implementation for the change extraction, change propagation, incremental model update, and adaptive instrumentation of the [CIPM approach](https://sdq.kastel.kit.edu/wiki/CIPM).
 
-# Setup/Build
+# Setup
 
-**Note: a new setup method is currently in development. Therefore, some configurations are not supported yet or can cause issues.**
+This project requires Java 11 for all actions. In particular, if a script is executed in the following, it usually uses Maven to build projects. As a result, the `JAVA_HOME` environment variable must be set, pointing to a JDK 11 (the top-level JDK directory, not the `bin` folder so that Maven can find the Java executable in `%JAVA_HOME%\bin\java.exe`). Additionally, any script must be executed from the top-level directory of this repository (and not within the `scripts` directory).
 
-This project requires Java 11 for all actions. In particular, if a script is executed in the following, it usually uses Maven to build projects. As a result, the `JAVA_HOME` environment variable must be set pointing to a JDK 11 (also the top-level JDK directory, not the `bin` folder so that Maven can find the Java executable in `%JAVA_HOME%\bin\java.exe`). Additionally, a script must be executed from the top-level directory of the repository (and not within the `scripts` directory).
-
-When executing one the scripts, it is possible that the error `Internal error: java.lang.IllegalArgumentException: bundleLocation not found: [home]/.m2/[...]` occurs. In such a case, it can help to delete the file `[home]/.m2/repository/.meta/p2-artifacts.properties` and restart the script.
+When executing one of the scripts, it is possible that the error `Internal error: java.lang.IllegalArgumentException: bundleLocation not found: [home]/.m2/[...]` occurs. In such a case, it can help to delete the file `[home]/.m2/repository/.meta/p2-artifacts.properties` and restart the script.
 
 Currently, only Windows is supported.
 
@@ -16,27 +14,37 @@ Currently, only Windows is supported.
 
 To build the complete project for the first time, the script `scripts/build.bat` needs to be executed. Subsequent builds can be executed with the script `scripts/rebuild.bat`.
 
-If a complete clean build is required, the script `scripts/clean.bat` allows to clean the complete repository with all build artifacts and the submodules. Afterwards, the script `scripts/build.bat` can be executed again.
+If a complete clean build is required, the script `scripts/clean.bat` allows to clean the complete repository with all build artifacts and submodules. Afterward, the script `scripts/build.bat` can be executed again.
 
-## Setup with Eclipse
+## Execute TEAMMATES
 
-The following steps are recommended to setup the project for development within Eclipse. As a reminder, this project requires Java 11. As Eclipse version, the project currently supports the Eclipse Modeling Tools 2022-09. It requires the installation of Xtext (from the Marketplace), Lombok (from [its update site](https://projectlombok.org/p2)), and Checkstyle (optional, from [update site](https://checkstyle.org/eclipse-cs-update-site)).
+With the script `scripts/build-and-test.bat`, the project is built. In addition, the TEAMMATES case is executed. For more information, see [the test plugin description](commit-based-cipm/tests/cipm.consistency.vsum.test).
+
+## Simple Setup with Eclipse
+
+With the following steps, the project can be setup within Eclipse to view the source code. It is possible to also edit the code, but not to test it. As a reminder, this project requires Java 11. As Eclipse version, the Eclipse Modeling Tools 2022-09 are currently supported.
+
+1. In Eclipse, install the plugins from the CIPM update site.
+
+1. Import any CIPM plugin.
+
+## Full Setup with Eclipse
+
+The following steps are necessary to setup the project for development within Eclipse. As a reminder, this project requires Java 11. As Eclipse version, the project currently supports the Eclipse Modeling Tools 2022-09. It requires the installation of Xtext (from the Marketplace), Lombok (from [its update site](https://projectlombok.org/p2)), and Checkstyle (optional, from [update site](https://checkstyle.org/eclipse-cs-update-site)).
 
 1. Execute the `scripts/build.bat` script if it was not executed before.
 
-1. After executing the script, all bundles from `commit-based-cipm/bundles/fi` and `commit-based-cipm/releng-dev` can be imported into the Eclipse instance. The `releng-dev` directory contains the bundle `cipm.consistency.targetplatform` with the `cipm.consistency.targetplatform.target` file. Within Eclipse, open this file and click on `Set as active target platform`. Wait until the target platform is set, loaded, and the plugins are successfully compiled. It is possible that the target platform needs to be reloaded. <!--In `org.splevo.diffing` and `org.splevo.jamopp.diffing`, open the `model/*.genmodel` files with the genmodel editor and generate only the model code.-->
+1. After executing the script, all bundles from `commit-based-cipm/bundles/fi` and `commit-based-cipm/releng-dev` can be imported into the Eclipse instance. The `releng-dev` directory contains the bundle `cipm.consistency.targetplatform` with the `cipm.consistency.targetplatform.target` file. Within Eclipse, open this file and click on `Set as active target platform`. Wait until the target platform is set, loaded, and the plugins are successfully compiled. It is possible that the target platform needs to be reloaded.
 
 1. The project requires a second running Eclipse instance. After all plugins in the first instance has been setup, start the provided `SecondInstance` run configuration. It should start the second instance. In the second instance, import all bundles from `commit-based-cipm/bundles/si` and `commit-based-cipm/tests`. In `cipm.consistency.vsum.test`, the test cases should be executable.
 
-<!-- To setup the correct Checkstyle configuration, the files `org.splevo.releng.codeconventions/splevo-checkstyle-rules.xml` from SPLevo as `SPLevo Style` and `org.palladiosimulator.codeconventions/palladio-checkstyle-rules.xml` from Palladio-Build-CodingConventions as `Palladio Coding Conventions` shall be imported. In addition, the `Palladio Coding Conventions` need to be set as the default Checkstyle configuration. -->
-
 ## About the Internal Structure of the Setup
 
-The current goal of the build process is to provide a reproducible build. Therefore, dependencies are provided via Eclipse P2 Update Sites with fixed versions or via Git submodules. In particular, the submodules include JaMoPP, SoMoX, and a specialized old Vitruv version. As the submodules only contain source code, they need to be compiled after cloning the repository or if they are cleaned. The build process contains necessary steps to build the submodules.
+The current build process provides a replicable build. Therefore, dependencies are provided via Eclipse P2 Update Sites with fixed versions or via Git submodules. In particular, the submodules include JaMoPP, SoMoX, and a specialized old Vitruv version. As the submodules only contain source code, they need to be compiled after cloning the repository or if they are cleaned. The build process contains necessary steps to build the submodules.
 
-The artefacts from the submodules are also packaged into local Eclipse P2 Update Sites. Unfortunately, Maven Tycho which is internally used to build the artefacts does not support local Eclipse P2 Update Sites via file paths and require HTTP or HTTPS paths for local Eclipse P2 Update Sites. Thus, a simple update site server which serves the local Eclipse P2 Update Sites is started and stopped during the build process.
+The artifacts from the submodules are also packaged into local Eclipse P2 Update Sites. Unfortunately, Maven Tycho, which is internally used to build the artifacts, does not support local Eclipse P2 Update Sites via file paths and requires HTTP or HTTPS paths instead. Thus, a simple update site server, which serves the local Eclipse P2 Update Sites, is started and stopped during the build process.
 
-The Reactions language from Vitruv detects the meta-models from Vitruv domains. To find the Vitruv domains, the corresponding lookup mechanisms in Eclipse and in the build process require the domain and domain providers to be built and to be on the classpath. As a consequence, a separation between the bundles is performed. The first half of the bundles (located in `commit-based-cipm/bundles/fi`, also imported into the first Eclipse instance) contain two domains (one for the instrumentation model and one adjusted domain for Java) so that they are built in a first build step and for the second Eclipse instance. In the second build step and in the second Eclipse instance, the built domains can be found by the Reactions language.
+The Reactions language from Vitruv detects the meta-models from Vitruv domains. To find the Vitruv domains, the corresponding lookup mechanisms in Eclipse and in the build process require the domains and domain providers to be built and to be on the classpath. As a consequence, a separation between the bundles is performed. The first half of the bundles (located in `commit-based-cipm/bundles/fi`, also imported into the first Eclipse instance) contain two domains (one for the instrumentation model and one adjusted domain for Java) so that they are built in a first build step and for the second Eclipse instance. In the second build step and in the second Eclipse instance, the built domains can be found by the Reactions language.
 
 Notes on generating code for Reactions in the build process: 
 
@@ -46,4 +54,4 @@ Notes on generating code for Reactions in the build process:
 
 # Executing the Pipeline with TeaStore or TEAMMATES
 
-The manual to execute the pipeline with TeaStore or TEAMMATES can be found [here](change-based-adaptive-instrumentation/cipm.consistency.vsum.test). Reference PCM repository models for these executions can be found [here](data).
+The manual to execute the pipeline with TeaStore or TEAMMATES can be found [here](commit-based-cipm/tests/cipm.consistency.vsum.test). Reference PCM repository models for these executions can be found [here](data).
