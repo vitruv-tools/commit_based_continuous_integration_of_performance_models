@@ -1,3 +1,5 @@
+__Starting with version 0.1.0, we switched to the `main` branch. This branch only remains for legacy reasons.__
+
 # Commit-Based Continuous Integration of architectural Performance Models
 
 This repository provides the prototypical implementation for the change extraction, change propagation, incremental model update, and adaptive instrumentation of the [CIPM approach](https://sdq.kastel.kit.edu/wiki/CIPM).
