@@ -1,6 +1,6 @@
 [submodule "CIPM-Pipeline"]
 	path = CIPM-Pipeline
-	url = https://git.scc.kit.edu/luaCIPM/CIPM-Pipeline
+	url = https://github.com/CIPM-tools/CIPM-Pipeline.git
 	branch = vitruv3
 [submodule "Palladio-Build-CodingConventions"]
 	path = CodingConventions/Palladio-Build-CodingConventions
