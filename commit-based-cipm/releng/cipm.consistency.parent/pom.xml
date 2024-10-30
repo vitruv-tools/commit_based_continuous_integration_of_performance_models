@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>cipm.consistency</groupId>
 	<artifactId>pipeline.parent</artifactId>
-	<version>0.1.0</version>
+	<version>0.1.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	
 	<repositories>
@@ -211,7 +211,7 @@
 							<dependency>
 								<groupId>cipm.consistency</groupId>
 								<artifactId>cipm.consistency.dependencywrapper</artifactId>
-								<version>0.1.0</version>
+								<version>0.1.1-SNAPSHOT</version>
 							</dependency>
 							<!-- Necessary for Eclipse 2021-06 due to bug and workaround described here: https://github.com/eclipse/xtext-xtend/issues/116#issuecomment-271916734 -->
 							<dependency>
