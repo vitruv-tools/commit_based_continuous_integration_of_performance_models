@@ -1,7 +1,9 @@
+dep-gen/
+
 # Gradle
 # ------
 .gradle
-/build
+build
 /buildSrc/build
 /buildSrc/subprojects/*/build
 /subprojects/*/build
@@ -11,10 +13,6 @@
 # Specific
 # ----
 *.html
-/commit-based-cipm/bundles/fi/cipm.consistency.domains.im
-/commit-based-cipm/bundles/fi/cipm.consistency.domains.pcm
-/commit-based-cipm/bundles/fi/cipm.consistency.models.instrumentation
-EvaluationData
 
 # IDEA
 # ----
@@ -44,20 +42,10 @@ EvaluationData
 
 # Eclipse
 # -------
-bin/
+/bin
 /subprojects/*/bin
 atlassian-ide-plugin.xml
 .metadata/
-src-gen/
-xtend-gen/
-target/
-*._trace
-*.xtendbin
-tmp/
-*.tmp
-*.bak
-*.swp
-*.class
 
 # NetBeans
 # --------
