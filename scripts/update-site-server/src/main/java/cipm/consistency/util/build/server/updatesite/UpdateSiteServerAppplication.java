@@ -14,10 +14,7 @@ public class UpdateSiteServerAppplication implements WebMvcConfigurer {
         String vitruvUpdateSite = Paths.get("..", "..", "Vitruv", "releng",
             "cipm.consistency.vitruv.updatesite", "target", "repository").toAbsolutePath().toUri().toString();
         registry.addResourceHandler("/vitruv/**").addResourceLocations(vitruvUpdateSite);
-        String somoxUpdateSite = Paths.get("..", "..", "Palladio-ReverseEngineering-SoMoX-JaMoPP", "releng",
-            "org.somox.updatesite", "target", "repository").toAbsolutePath().toUri().toString();
-        registry.addResourceHandler("/somox/**").addResourceLocations(somoxUpdateSite);
-		String cipmUpdateSite = Paths.get("..", "..", "commit-based-cipm", "releng", "cipm.consistency.updatesite.fi", "target", "repository").toAbsolutePath().toUri().toString();
+        String cipmUpdateSite = Paths.get("..", "..", "commit-based-cipm", "releng", "cipm.consistency.updatesite.fi", "target", "repository").toAbsolutePath().toUri().toString();
 		registry.addResourceHandler("/cipm/**").addResourceLocations(cipmUpdateSite);
 		String cipm2UpdateSite = Paths.get("..", "..", "commit-based-cipm", "releng", "cipm.consistency.updatesite.si", "target", "repository").toAbsolutePath().toUri().toString();
 		registry.addResourceHandler("/cipm2/**").addResourceLocations(cipm2UpdateSite);

@@ -60,7 +60,9 @@
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
             <repository location="https://cipm-tools.github.io/updatesite/release/jamopp-5.1.0-cipm/"/>
         </location>
-		<location path="${workspace_loc:/cipm.consistency.targetplatform}/../../../Palladio-ReverseEngineering-SoMoX-JaMoPP/releng/org.somox.updatesite/target/repository" type="Directory"/>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+            <repository location="https://cipm-tools.github.io/updatesite/release/somox-0.0.0-cipm/"/>
+        </location>
 		<location path="${workspace_loc:/cipm.consistency.targetplatform}/../../../Vitruv/releng/cipm.consistency.vitruv.updatesite/target/repository" type="Directory"/>
 	</locations>
 </target>

@@ -10,13 +10,6 @@ call gradlew.bat bundle copyBundles
 cd ..\..\..\..
 robocopy CIPM-Pipeline\cipm.consistency.bridge.eclipse commit-based-cipm\bundles\fi /E
 
-:: Build SoMoX
-cd Palladio-ReverseEngineering-SoMoX-JaMoPP
-git apply --ignore-whitespace ..\scripts\internal\SoMoX-Local-Update-Site-And-Fix.patch
-robocopy ..\.mvn .mvn /E
-call ..\mvnw.cmd clean verify -Dmaven.test.skip=true
-cd ..
-
 call scripts\internal\start-update-site-server.bat
 call scripts\internal\check-update-site-server.bat
 
