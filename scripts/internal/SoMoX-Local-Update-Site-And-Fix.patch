@@ -16,7 +16,7 @@ index 1702278..bf860d5 100755
          <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" refresh="true" type="InstallableUnit">
              <unit id="org.emftext.language.java.feature.feature.group" version="0.0.0"/>
 -            <repository location="https://updatesite.palladio-simulator.com/palladio-supporting-eclipsejavadevelopmenttools/nightly/"/>
-+            <repository location="http://localhost:8081/jamopp/"/>
++            <repository location="https://cipm-tools.github.io/updatesite/release/jamopp-5.1.0-cipm/"/>
          </location>
          <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
              <repository location="https://download.eclipse.org/releases/2021-12/202112081000/"/>

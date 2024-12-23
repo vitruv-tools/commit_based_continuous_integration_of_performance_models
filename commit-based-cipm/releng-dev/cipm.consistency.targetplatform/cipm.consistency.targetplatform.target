@@ -45,7 +45,7 @@
 	        <unit id="de.uka.ipd.sdq.workflow.feature.mdsd.feature.group" version="5.0.0.202102051701"/>
         </location>
         <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
-            <repository location="http://kit-sdq.github.io/updatesite/release/commons/2.0.0/"/>
+            <repository location="https://kit-sdq.github.io/updatesite/release/commons/2.0.0/"/>
 	        <unit id="edu.kit.ipd.sdq.commons.util.eclipse.feature.feature.group" version="2.0.0"/>
 	        <unit id="edu.kit.ipd.sdq.commons.util.eclipse.feature.source.feature.group" version="2.0.0"/>
 	        <unit id="edu.kit.ipd.sdq.commons.util.emf.feature.feature.group" version="2.0.0"/>
@@ -57,8 +57,10 @@
 	        <unit id="edu.kit.ipd.sdq.commons.util.pcm.feature.feature.group" version="2.0.0"/>
 	        <unit id="edu.kit.ipd.sdq.commons.util.pcm.feature.source.feature.group" version="2.0.0"/>
         </location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="false" type="InstallableUnit">
+            <repository location="https://cipm-tools.github.io/updatesite/release/jamopp-5.1.0-cipm/"/>
+        </location>
 		<location path="${workspace_loc:/cipm.consistency.targetplatform}/../../../Palladio-ReverseEngineering-SoMoX-JaMoPP/releng/org.somox.updatesite/target/repository" type="Directory"/>
-		<location path="${workspace_loc:/cipm.consistency.targetplatform}/../../../Palladio-Supporting-EclipseJavaDevelopmentTools/releng/org.palladiosimulator.jdt.updatesite/target/repository" type="Directory"/>
 		<location path="${workspace_loc:/cipm.consistency.targetplatform}/../../../Vitruv/releng/cipm.consistency.vitruv.updatesite/target/repository" type="Directory"/>
 	</locations>
 </target>

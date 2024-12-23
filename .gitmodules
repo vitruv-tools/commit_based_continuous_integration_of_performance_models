@@ -5,9 +5,6 @@
 	path = CIPM-Pipeline
 	url = https://github.com/CIPM-tools/CIPM-Pipeline
 	branch = eclipse-bridge
-[submodule "Palladio-Supporting-EclipseJavaDevelopmentTools"]
-	path = Palladio-Supporting-EclipseJavaDevelopmentTools
-	url = https://github.com/MDSD-Tools/TheExtendedJavaModelParserAndPrinter
 [submodule "commit-based-cipm/bundles/Vitruv"]
 	path = Vitruv
 	url = https://github.com/CIPM-tools/Vitruv-Domains-ComponentBasedSystems
