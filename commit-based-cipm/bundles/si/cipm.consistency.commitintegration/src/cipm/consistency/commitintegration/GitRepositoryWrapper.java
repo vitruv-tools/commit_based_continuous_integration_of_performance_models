@@ -119,6 +119,7 @@ public class GitRepositoryWrapper {
 	 * Closes the Git repository.
 	 */
 	public void closeRepository() {
+		git.getRepository().close();
 		git.close();
 	}
 	
