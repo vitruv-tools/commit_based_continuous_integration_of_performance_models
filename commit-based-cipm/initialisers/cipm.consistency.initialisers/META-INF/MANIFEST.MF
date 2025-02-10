@@ -5,8 +5,9 @@ Bundle-SymbolicName: cipm.consistency.initialisers
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: cipm.consistency.initialisers
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Require-Bundle: org.junit,
- org.junit.jupiter.api,
+Require-Bundle: junit-jupiter-api,
+ junit-jupiter-engine,
+ junit-jupiter-params,
  org.apache.log4j,
  org.eclipse.emf.ecore,
  org.emftext.language.java
